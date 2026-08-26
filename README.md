@@ -23,13 +23,13 @@ Visora is a digital backdrop design platform that helps schools, organizations, 
 <p> <img src="https://skillicons.dev/icons?i=react,vite,js,tailwind,figma,github" alt="Tech stack: React, Vite, JavaScript, Tailwind CSS, Figma, GitHub" /> </p>
 
 - **Framework:** React (Vite)
-- **Language:** JavaScript / TypeScript
+- **Language:** JavaScript
 - **Styling:** 
 - **Font:** Poppins
 
 ## About
 
-Visora is a final project for the ISTAD Foundation Scholarship 6th Generation program (Academic Year 2025–2026), built by Team 1 
+Visora is a final project for the ISTAD Foundation Scholarship 6th Generation program (Academic Year 2025–2026), built by Team 1 :
 
 ## Members :
 - ** Chhun Hokchheng ( Leader ) 
