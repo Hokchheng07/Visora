@@ -1,1 +1,79 @@
 @import "tailwindcss";
+
+/*
+ * Visora theme tokens (Tailwind v4 CSS-first config).
+ *
+ * Everyone building UI in this project should read from these tokens
+ * (bg-primary, text-primary, font-sans, etc.) instead of hardcoding hex
+ * values or font names — that's what keeps the whole app visually
+ * consistent with the Figma file as more screens get built.
+ *
+ * Colors sourced from the "Visora" Figma file's Navbar (node 376:117095)
+ * and its "Primary->Secondary-Linear" style:
+ *   - primary / secondary come straight from that gradient + the active
+ *     nav-link color (#6854DA).
+ *   - accent is an approximation (warm gold, Angkor-gold inspired) since the
+ *     navbar's background wash was a flattened image in Figma and its exact
+ *     hex couldn't be sampled — confirm against Figma color variables when
+ *     available and adjust here if it's off.
+ */
+@theme {
+  --color-primary: #6854da;
+  --color-secondary: #b294f0;
+  --color-accent: #f2a93b;
+
+  /* Poppins is the UI font confirmed from Figma (nav links + Sign In button
+     use "Poppins:SemiBold"). Self-hosted below via @font-face — this token
+     is the only place components need to reference it (font-sans utility). */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Available for decorative/display use (e.g. a hero headline, a signature
+     touch) but not applied anywhere by default yet — nothing in the Figma
+     file has been matched to it. Use font-handwritten if you want it. */
+  --font-handwritten: "Freehand", cursive;
+}
+
+/* Self-hosted Poppins — files live in /public/fonts, so they're served from
+   the site root (no import needed, just the url() path below). Only the
+   weights actually in use are included: 400/500/600/700. Need another
+   weight (e.g. 800 for a big display headline)? Drop the matching .ttf into
+   public/fonts/ and add another @font-face block here. */
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Freehand";
+  src: url("/fonts/Freehand-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: var(--font-sans);
+}
