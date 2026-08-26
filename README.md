@@ -1,18 +1,40 @@
-# React + Vite
+# Visora
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**Design. Display. Inspire.**
 
-Currently, two official plugins are available:
+Visora is a digital backdrop design platform that helps schools, organizations, and event hosts create customized, branded event displays. Combining a Canva-style drag-and-drop editor with live, on-screen elements like countdown timers, current time, and event announcements, Visora lets users design once and display live — full-screen on a projector, TV, or large screen — for exams, graduations, seminars, workshops, competitions, and Khmer traditional events.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+## Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- **Template Management** — browse, create, duplicate, and customize backdrop templates
+- **Backdrop Designer** — drag-and-drop canvas with live preview
+- **Component Library** — basic (text, image, logo, shape, divider), event (countdown timer, current time, date, announcements), and cultural (Cambodian flag, Khmer traditional patterns, Angkor-inspired designs, Khmer fonts) components
+- **Customization** — text, fonts, colors, effects, images, backgrounds, and decorative elements
+- **Timer Management** — configurable countdown timers with start/pause/resume/reset
+- **Layer & Layout Management** — move, resize, align, arrange, and lock components
+- **Backdrop Management** — save, update, duplicate, and reuse designs
+- **Export & Sharing** — export/import backdrop configurations as JSON
+- **Display Mode** — full-screen live display for projectors, TVs, and large screens
+- **Template Library** — pre-built templates across Examination, Workshop, Seminar, Graduation, Competition, School Events, and Khmer Traditional Events categories
 
-Note: This will impact Vite dev & build performances.
+## Tech Stack
 
-## Expanding the Oxlint configuration
+- **Framework:** React (Vite)
+- **Language:** JavaScript / TypeScript
+- **Styling:** 
+- **Font:** Poppins
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## About
+
+Visora is a final project for the ISTAD Foundation Scholarship 6th Generation program (Academic Year 2025–2026), built by Team 1 
+
+## Members :
+- ** Chhun Hokchheng ( Leader ) 
+- ** Men Senghak ( Sub-Leader )
+- ** Borey Sothearith ( BackEnd Developer )
+- ** Vorn Sovannarith ( BackEnd Developer ) 
+- ** Kao Sengheang ( FrontEnd Developer ) 
+- ** Chit Chimy ( FrontEnd Developer ) 
+- ** Lay Lily ( FrontEnd Developer ) 
+- ** Nin Bora ( FrontEnd Developer ) 
