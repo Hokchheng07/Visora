@@ -20,6 +20,8 @@ Visora is a digital backdrop design platform that helps schools, organizations, 
 
 ## Tech Stack
 
+<p> <img src="https://skillicons.dev/icons?i=react,vite,js,tailwind,figma,github" alt="Tech stack: React, Vite, JavaScript, Tailwind CSS, Figma, GitHub" /> </p>
+
 - **Framework:** React (Vite)
 - **Language:** JavaScript / TypeScript
 - **Styling:** 
