@@ -134,15 +134,19 @@
   object-fit: contain;
 }
 
-/* The reference uses a black sketch on the left and the purple looped plane
-   on the right; both remain independent so their locations are easy to tune. */
+/* The reference uses the AirplaneDoodle asset on the left and the purple
+   looped plane on the right; both remain independent so their locations are
+   easy to tune. */
 .hero-plane-left {
-  filter: grayscale(1) brightness(0.55);
   transform: rotate(-18deg);
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .hero-plane-right {
   transform: rotate(4deg);
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .hero-frame-bounce {
@@ -180,12 +184,21 @@
 .hero-big-arrow { right: 0; bottom: -7%; width: 55%; opacity: 0.9; }
 .hero-big-strip { right: -4%; bottom: -9%; width: 67%; opacity: 0.95; }
 
+/* PopularTemplates decorative doodles — tune position/size here. */
+.templates-scissors { left: 2%; top: 14%; width: 64px; opacity: 0.5; }
+.templates-arrow-plane { right: 1.5%; top: 17%; width: 96px; opacity: 0.6; transform: rotate(8deg); }
+
 .hero-backdrop-word {
   display: inline-block;
   background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
   background-clip: text;
   color: transparent;
   filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
+}
+
+.why-choose-blob {
+  border-radius: 58% 0 0 0 / 48% 0 0 0;
+  transform: rotate(-4deg);
 }
 
 body {
