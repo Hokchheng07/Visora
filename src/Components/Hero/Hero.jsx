@@ -14,7 +14,9 @@ import blobInnerOutline from "../../assets/Hero/Blob2.png";
 import cardEverydayTools from "../../assets/Hero/PurpleFrameNPicture.png";
 import cardThingsArent from "../../assets/Hero/YellowFramNPicture.png";
 import doodlePlaneLoop from "../../assets/Hero/ArrowNPlane.png";
+import airplaneDoodle from "../../assets/Hero/AirplaneDoodle.png";
 import arrowWithScissors from "../../assets/Hero/ArrowWithScissors.png";
+import exclamationMark from "../../assets/Hero/ExclamationMark.png";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
 // nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
@@ -36,7 +38,7 @@ const pct = (x, y, w, h) => ({
 });
 
 const DOODLES = [
-  { src: doodlePlaneLoop, box: pct(120, 50, 170, 170), className: "hero-plane-left" },
+  { src: airplaneDoodle, box: pct(120, 50, 170, 170), className: "hero-plane-left" },
   { src: doodlePlaneLoop, box: pct(1570, 50, 190, 190), className: "hero-plane-right" },
   { src: cardEverydayTools, box: pct(72, 540, 220, 236), className: "hero-frame-bounce hero-frame-one" },
   { src: cardThingsArent, box: pct(1625, 570, 210, 234), className: "hero-frame-bounce hero-frame-two" },
@@ -75,7 +77,7 @@ const STATS = [
 
 const Hero = () => {
   return (
-    <section className="bg-sparkle relative min-h-[calc(100vh+140px)] overflow-hidden bg-white font-sans lg:min-h-[1200px]">
+    <section className="bg-sparkle relative min-h-[calc(100vh+80px)] overflow-hidden bg-white font-sans lg:min-h-[1080px]">
       {/* Decorative illustration layer — lg+ only, see note above */}
       <div
         className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
@@ -93,7 +95,7 @@ const Hero = () => {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-5 pt-6 pb-8 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
         {/* HEADLINE BLOB CARD */}
         <div className="relative mx-auto w-full max-w-[1040px]">
           {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
@@ -123,6 +125,13 @@ const Hero = () => {
 
         {/* SEARCH BAR */}
         <div className="relative z-20 mx-auto mt-8 max-w-[620px]">
+          <img
+            src={exclamationMark}
+            alt=""
+            aria-hidden="true"
+            className="hero-search-exclamation pointer-events-none absolute -left-[51px] -top-14 h-[68px] w-[84px] object-contain sm:-left-[55px] sm:-top-16 sm:h-[76px] sm:w-[94px]"
+            style={{ transform: "scaleX(-1)" }}
+          />
           <div className="flex items-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3.5 sm:py-4">
             <MagnifyingGlassIcon className="h-6 w-6 flex-none text-gray-500" />
             <span className="h-6 w-px flex-none bg-gray-300" />

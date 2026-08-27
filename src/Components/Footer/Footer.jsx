@@ -93,7 +93,7 @@ const ZigzagUnderline = ({ color }) => (
 
 const Footer = () => {
   return (
-    <footer className="relative overflow-hidden bg-white font-sans text-[#252525]">
+    <footer className="bg-sparkle relative overflow-hidden bg-white font-sans text-[#252525]">
      <div className="relative z-10 mx-auto max-w-[1440px] px-5 pt-10 pb-24 sm:px-8 sm:pt-12 lg:px-10 lg:pt-14 lg:pb-28 xl:px-14">
         {/* TOP FOOTER */}
         <div className="grid grid-cols-1 gap-12 xl:grid-cols-[1.05fr_2.3fr_1fr] xl:gap-10">
