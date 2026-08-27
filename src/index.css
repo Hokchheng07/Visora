@@ -103,6 +103,91 @@
   background-size: 256px 256px;
 }
 
+/* Layer the three supplied Figma blob exports to reproduce the reference. */
+.hero-blob {
+  position: absolute;
+  pointer-events: none;
+  object-fit: fill;
+}
+
+.hero-blob-fill {
+  inset: 5% 8% 4%;
+  z-index: -30;
+}
+
+.hero-blob-outline {
+  inset: 0 3% 1% 0;
+  z-index: -20;
+  mix-blend-mode: screen;
+  opacity: 0.82;
+}
+
+.hero-blob-line {
+  inset: 0 0 0 1%;
+  z-index: -10;
+}
+
+.hero-art {
+  position: absolute;
+  z-index: 1;
+  height: auto;
+  object-fit: contain;
+}
+
+/* The reference uses a black sketch on the left and the purple looped plane
+   on the right; both remain independent so their locations are easy to tune. */
+.hero-plane-left {
+  filter: grayscale(1) brightness(0.55);
+  transform: rotate(-18deg);
+}
+
+.hero-plane-right {
+  transform: rotate(4deg);
+}
+
+.hero-frame-bounce {
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.hero-frame-two {
+  animation-delay: -2.2s;
+}
+
+@keyframes hero-frame-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-1.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-frame-bounce {
+    animation: none;
+  }
+}
+
+.hero-pointing-arrow { top: 5%; left: 1%; width: 105px; }
+.hero-arrow-plane { top: 35%; left: 16%; width: 122px; }
+.hero-purple-frame { bottom: 18%; left: 1%; width: 160px; transform: rotate(-2deg); }
+.hero-yellow-frame { bottom: 2%; left: 12%; width: 150px; }
+.hero-second-purple-frame { right: 8%; bottom: 4%; width: 130px; }
+.hero-right-frame { top: 24%; right: -2%; width: 125px; transform: rotate(15deg) scale(0.72); }
+.hero-doodle-scissors { right: -2%; top: 60%; width: 100px; opacity: 0.7; }
+.hero-big-arrow { right: 0; bottom: -7%; width: 55%; opacity: 0.9; }
+.hero-big-strip { right: -4%; bottom: -9%; width: 67%; opacity: 0.95; }
+
+.hero-backdrop-word {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
+}
+
 body {
   font-family: var(--font-sans);
 }

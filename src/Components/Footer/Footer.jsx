@@ -1,4 +1,4 @@
-import visoraLogo from "../../assets/Website/visora-logo.png";
+import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import facebook from "../../assets/footer/facebook.png";
 import instagram from "../../assets/footer/instagram.png";
 import github from "../../assets/footer/github.png";
