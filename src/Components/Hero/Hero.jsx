@@ -3,21 +3,20 @@ import { motion } from "motion/react";
 import {
   MagnifyingGlassIcon,
   ArrowRightIcon,
-  ArrowUpTrayIcon,
-  PencilIcon,
-  FaceSmileIcon,
-  LifebuoyIcon,
 } from "@heroicons/react/24/solid";
+import "../../styles/phosphor-stats.css";
 
-import blobFill from "../../assets/Website/Hero-Section/MiddleBlob.png";
-import blobOuterDashed from "../../assets/Website/Hero-Section/Blob1.png";
-import blobInnerOutline from "../../assets/Website/Hero-Section/Blob2.png";
-import cardEverydayTools from "../../assets/Website/Hero-Section/PurpleFrameNPicture.png";
-import cardThingsArent from "../../assets/Website/Hero-Section/YellowFramNPicture.png";
-import doodlePlaneLoop from "../../assets/Website/Hero-Section/ArrowNPlane.png";
-import airplaneDoodle from "../../assets/Website/Hero-Section/AirplaneDoodle.png";
-import arrowWithScissors from "../../assets/Website/Hero-Section/ArrowWithScissors.png";
-import exclamationMark from "../../assets/Website/Hero-Section/ExclamationMark.png";
+import blobFill from "../../assets/Website/LandingPage/Hero-Section/MiddleBlob.png";
+import blobOuterDashed from "../../assets/Website/LandingPage/Hero-Section/Blob1.png";
+import blobInnerOutline from "../../assets/Website/LandingPage/Hero-Section/Blob2.png";
+import cardEverydayTools from "../../assets/Website/LandingPage/Hero-Section/PurpleFrameNPicture.png";
+import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
+import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
+import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
+import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
+import exclamationMark from "../../assets/Website/LandingPage/Hero-Section/ExclamationMark.png";
+import statFrameOne from "../../assets/Website/LandingPage/Hero-Section/1ndFrame.png";
+import statFrameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
 import { fadeIn, fadeInUp, scaleIn, staggerContainer } from "../../lib/animations";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
@@ -44,38 +43,42 @@ const DOODLES = [
 
 const STATS = [
   {
-    value: "500 +",
+    value: "500+",
     label: "Ready Templates",
-    icon: ArrowUpTrayIcon,
-    badgeClass: "bg-secondary/25",
-    iconClass: "text-[#8a6d1c]",
+    icon: "ph-upload-simple-bold",
+    frame: statFrameOne,
+    badgeClass: "bg-[#fffdf8]",
+    iconClass: "text-secondary",
   },
   {
     value: "10K+",
     label: "Designs Created",
-    icon: PencilIcon,
-    badgeClass: "bg-accent/25",
+    icon: "ph-pen-nib-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[#fffdf8]",
     iconClass: "text-primary",
   },
   {
     value: "50K+",
     label: "Happy Users",
-    icon: FaceSmileIcon,
-    badgeClass: "bg-secondary/25",
-    iconClass: "text-[#8a6d1c]",
+    icon: "ph-smiley-bold",
+    frame: statFrameOne,
+    badgeClass: "bg-[#fffdf8]",
+    iconClass: "text-secondary",
   },
   {
     value: "27/7",
     label: "Support",
-    icon: LifebuoyIcon,
-    badgeClass: "bg-accent/25",
+    icon: "ph-lifebuoy-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[#fffdf8]",
     iconClass: "text-primary",
   },
 ];
 
 const Hero = () => {
   return (
-    <section className="hero-section relative overflow-hidden bg-transparent font-sans">
+    <section className="hero-section bg-sparkle relative overflow-hidden bg-transparent font-sans">
       {/* Decorative illustration layer — lg+ only, see note above.
           Entrance is opacity-only (fade in) on each wrapper so it never
           fights the existing hero-frame-float CSS loop, which keeps
@@ -178,12 +181,13 @@ const Hero = () => {
           animate="show"
           variants={staggerContainer(0.1, 1.25)}
         >
-          {STATS.map(({ value, label, icon: StatIcon, badgeClass, iconClass }) => (
+          {STATS.map(({ value, label, icon, frame, badgeClass, iconClass }) => (
             <motion.div key={label} className="flex items-center gap-3" variants={fadeInUp}>
               <div
-                className={`flex h-[42px] w-[50px] flex-none items-center justify-center rounded-[7px] ${badgeClass}`}
+                className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
               >
-                <StatIcon className={`h-6 w-6 ${iconClass}`} />
+                <img src={frame} alt="" aria-hidden="true" className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain" />
+                <i aria-hidden="true" className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`} />
               </div>
               <div className="text-left">
                 <p className="text-[15px] font-semibold text-black/90">{value}</p>
