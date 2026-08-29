@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Phosphor Stats";
+  src: url("/fonts/Phosphor.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+}
+
+.ph-stat-icon {
+  display: inline-flex;
+  font-family: "Phosphor Stats";
+  font-size: 1.4em;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ph-stat-icon::before { display: inline-block; }
+.ph-upload-simple-bold::before { content: "\fa29"; }
+.ph-pen-nib-bold::before { content: "\f925"; }
+.ph-smiley-bold::before { content: "\f9a6"; }
+.ph-lifebuoy-bold::before { content: "\f89f"; }
+.ph-wrench-bold::before { content: "\fa58"; }
+.ph-bank-bold::before { content: "\f6d6"; }
+.ph-arrow-circle-up-bold::before { content: "\f67b"; }
+.ph-projector-screen-bold::before { content: "\f956"; }

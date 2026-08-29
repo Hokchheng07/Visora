@@ -1,13 +1,20 @@
 import { motion } from "motion/react";
-import { ClockIcon, LanguageIcon, PencilSquareIcon, TvIcon } from "@heroicons/react/24/outline";
-import blobArtwork from "../../assets/Website/Features-Section/why-choose-blob.png";
+import { AppWindowMac, BroomSparkles, MessageCircleDashedCheck } from "lucide-react";
+import blobArtwork from "../../assets/Website/LandingPage/Features-Section/why-choose-blob.png";
+import frameOne from "../../assets/Website/LandingPage/Hero-Section/1ndFrame.png";
+import frameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
+import cambodiaFlag from "../../assets/Website/LandingPage/Features-Section/flag-for-cambodia-svgrepo-com.svg";
+import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
+import apsara from "../../assets/Website/LandingPage/Features-Section/Apsara.png";
+import spiralArrow from "../../assets/Website/LandingPage/Features-Section/SpiralArrow.png";
+import arrowWithPlane from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import { fadeInUp, popIn, staggerContainer, viewportOnce } from "../../lib/animations";
 
 const benefits = [
-  { title: "Easy to Customize", copy: "Design beautiful backdrops without advanced design skills.", color: "#705ae0", icon: PencilSquareIcon },
-  { title: "Khmer-Inspired", copy: "Use Cambodian cultural elements and Khmer fonts.", color: "#45bfd1", icon: LanguageIcon },
-  { title: "Event Ready", copy: "Add countdown timers and event information.", color: "#ffc21c", icon: ClockIcon },
-  { title: "Display Anywhere", copy: "Designed for projectors, TVs, LED screens and large displays.", color: "#e16ac9", icon: TvIcon },
+  { title: "Easy to Customize", copy: "Design beautiful backdrops without advanced design skills.", color: "#705ae0", icon: BroomSparkles, frame: frameTwo },
+  { title: "Khmer-Inspired", copy: "Use Cambodian cultural elements and Khmer fonts.", color: "#45bfd1", icon: cambodiaFlag, frame: frameOne, image: true },
+  { title: "Event Ready", copy: "Add countdown timers and event information.", color: "#ffc21c", icon: MessageCircleDashedCheck, frame: frameOne },
+  { title: "Display Anywhere", copy: "Designed for projectors, TVs, LED screens and large displays.", color: "#e16ac9", icon: AppWindowMac, frame: frameTwo },
 ];
 
 export default function WhyChooseVisora() {
@@ -17,7 +24,7 @@ export default function WhyChooseVisora() {
         src={blobArtwork}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+        className="features-art"
         initial={{ opacity: 0, scale: 1.08 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={viewportOnce}
@@ -25,15 +32,28 @@ export default function WhyChooseVisora() {
       />
       <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-sparkle opacity-70" />
+      <div aria-hidden="true" className="features-decorations">
+        <img src={spiralArrow} alt="" className="features-spiral" />
+        <div className="features-plane-tile">
+          <img src={arrowWithPlane} alt="" className="features-plane" />
+        </div>
+        <img src={apsara} alt="" className="features-apsara" />
+      </div>
       <div className="relative z-10 mx-auto max-w-[1080px]">
         <motion.h2
-          className="text-center text-4xl font-semibold tracking-tight text-black sm:text-5xl lg:text-[48px]"
+          className="text-center text-6xl font-semibold tracking-tight text-black sm:text-6xl lg:text-[60px]"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
           variants={fadeInUp}
         >
           Why choose <span className="text-primary">Visora</span>?
+          <img
+          src={arrowWithScissors}
+          alt=""
+          aria-hidden="true"
+          className="templates-arrow-scissors"
+        />
         </motion.h2>
         <motion.div
           className="mx-auto mt-5 h-5 w-[350px] max-w-full bg-[url('/textures/speckles.svg')] opacity-90"
@@ -44,28 +64,29 @@ export default function WhyChooseVisora() {
           transition={{ duration: 0.6, delay: 0.15 }}
         />
         <motion.div
-          className="mt-20 grid max-w-[720px] gap-x-20 gap-y-20 sm:grid-cols-2"
+          className="mt-20 grid max-w-[720px] gap-x-20 gap-y-20 sm:grid-cols-2 lg:-translate-x-16"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
           variants={staggerContainer(0.14, 0.2)}
         >
-          {benefits.map(({ title, copy, color, icon: Icon }) => (
+          {benefits.map(({ title, copy, color, icon: Icon, frame, image }) => (
             <motion.article
               key={title}
-              className="relative min-h-[135px] border-l-2 pl-5"
+              className="relative min-h-[170px] border-l-4 pl-5"
               style={{ borderColor: color }}
               variants={fadeInUp}
             >
               <motion.div
-                className="mb-3 flex h-11 w-11 items-center justify-center rounded-md border border-black/20 bg-white shadow-[2px_2px_0_rgba(0,0,0,.18)]"
+                className="relative mb-5 flex h-[82px] w-[82px] items-center justify-center rounded-md bg-white/70"
                 style={{ color }}
                 variants={popIn}
               >
-                <Icon className="h-6 w-6" />
+                <img src={frame} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-contain" />
+                {image ? <img src={Icon} alt="Cambodia" className="relative z-10 h-10 w-10 object-contain" /> : <Icon aria-hidden="true" className="relative z-10 h-9 w-9" strokeWidth={2.2} />}
               </motion.div>
-              <h3 className="text-[18px] font-semibold text-[#151515]">{title}</h3>
-              <p className="mt-1 max-w-[280px] text-[14px] leading-6 text-[#666]">{copy}</p>
+              <h3 className="text-[22px] font-semibold text-[#151515] lg:text-[24px]">{title}</h3>
+              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[#666] lg:text-[18px]">{copy}</p>
             </motion.article>
           ))}
         </motion.div>

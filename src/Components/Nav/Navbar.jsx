@@ -57,12 +57,18 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50">
       <div
-        className="navbar-shell relative h-[126px] w-full bg-top bg-no-repeat md:h-[146px]"
-        style={{
-          backgroundImage: `url(${navbarBg})`,
-          backgroundSize: "100% 100%",
-        }}
+        className="navbar-shell relative h-[126px] w-full overflow-hidden md:h-[146px]"
       >
+        <img
+          src={navbarBg}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full object-fill"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 bg-sparkle opacity-70"
+        />
         <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">
