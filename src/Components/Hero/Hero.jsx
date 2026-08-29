@@ -1,4 +1,5 @@
 import { NavLink } from "react-router";
+import { motion } from "motion/react";
 import {
   MagnifyingGlassIcon,
   ArrowRightIcon,
@@ -8,15 +9,16 @@ import {
   LifebuoyIcon,
 } from "@heroicons/react/24/solid";
 
-import blobFill from "../../assets/Hero/MiddleBlob.png";
-import blobOuterDashed from "../../assets/Hero/Blob1.png";
-import blobInnerOutline from "../../assets/Hero/Blob2.png";
-import cardEverydayTools from "../../assets/Hero/PurpleFrameNPicture.png";
-import cardThingsArent from "../../assets/Hero/YellowFramNPicture.png";
-import doodlePlaneLoop from "../../assets/Hero/ArrowNPlane.png";
-import airplaneDoodle from "../../assets/Hero/AirplaneDoodle.png";
-import arrowWithScissors from "../../assets/Hero/ArrowWithScissors.png";
-import exclamationMark from "../../assets/Hero/ExclamationMark.png";
+import blobFill from "../../assets/Website/Hero-Section/MiddleBlob.png";
+import blobOuterDashed from "../../assets/Website/Hero-Section/Blob1.png";
+import blobInnerOutline from "../../assets/Website/Hero-Section/Blob2.png";
+import cardEverydayTools from "../../assets/Website/Hero-Section/PurpleFrameNPicture.png";
+import cardThingsArent from "../../assets/Website/Hero-Section/YellowFramNPicture.png";
+import doodlePlaneLoop from "../../assets/Website/Hero-Section/ArrowNPlane.png";
+import airplaneDoodle from "../../assets/Website/Hero-Section/AirplaneDoodle.png";
+import arrowWithScissors from "../../assets/Website/Hero-Section/ArrowWithScissors.png";
+import exclamationMark from "../../assets/Website/Hero-Section/ExclamationMark.png";
+import { fadeIn, fadeInUp, scaleIn, staggerContainer } from "../../lib/animations";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
 // nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
@@ -30,18 +32,14 @@ import exclamationMark from "../../assets/Hero/ExclamationMark.png";
 // an intentionally spacious 1920x1080 composition. Decorations are kept in
 // their own areas so they do not compete with the hero, search, or stats.
 const CANVAS = { w: 1920, h: 1080 };
-const pct = (x, y, w, h) => ({
-  left: `${(x / CANVAS.w) * 100}%`,
-  top: `${(y / CANVAS.h) * 100}%`,
-  width: `${(w / CANVAS.w) * 100}%`,
-  height: `${(h / CANVAS.h) * 100}%`,
-});
 
+// Decorative doodle positions/sizes are defined in src/index.css under the
+// `.hero-doodle-*` classes (kept in CSS for easy design tweaking).
 const DOODLES = [
-  { src: airplaneDoodle, box: pct(120, 50, 170, 170), className: "hero-plane-left" },
-  { src: doodlePlaneLoop, box: pct(1570, 50, 190, 190), className: "hero-plane-right" },
-  { src: cardEverydayTools, box: pct(72, 540, 220, 236), className: "hero-frame-bounce hero-frame-one" },
-  { src: cardThingsArent, box: pct(1625, 570, 210, 234), className: "hero-frame-bounce hero-frame-two" },
+  { src: airplaneDoodle, className: "hero-doodle hero-doodle-plane-left hero-plane-left" },
+  { src: doodlePlaneLoop, className: "hero-doodle hero-doodle-plane-right hero-plane-right" },
+  { src: cardEverydayTools, className: "hero-doodle hero-doodle-frame-one hero-frame-bounce hero-frame-one" },
+  { src: cardThingsArent, className: "hero-doodle hero-doodle-frame-two hero-frame-bounce hero-frame-two" },
 ];
 
 const STATS = [
@@ -77,54 +75,72 @@ const STATS = [
 
 const Hero = () => {
   return (
-    <section className="bg-sparkle relative min-h-[calc(100vh+80px)] overflow-hidden bg-white font-sans lg:min-h-[1080px]">
-      {/* Decorative illustration layer — lg+ only, see note above */}
+    <section className="hero-section relative overflow-hidden bg-transparent font-sans">
+      {/* Decorative illustration layer — lg+ only, see note above.
+          Entrance is opacity-only (fade in) on each wrapper so it never
+          fights the existing hero-frame-float CSS loop, which keeps
+          animating `transform` on the <img> underneath undisturbed. */}
       <div
         className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
         style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
         aria-hidden="true"
       >
-        {DOODLES.map(({ src, box }, i) => (
-          <img
+        {DOODLES.map(({ src, className }, i) => (
+          <motion.div
             key={i}
-            src={src}
-            alt=""
-            className={`absolute object-contain ${DOODLES[i].className ?? ""}`}
-            style={box}
-          />
+            className={`absolute ${className ?? ""}`}
+            initial="hidden"
+            animate="show"
+            variants={fadeIn}
+            transition={{ duration: 0.9, delay: 0.35 + i * 0.15 }}
+          >
+            <img src={src} alt="" className="h-full w-full object-contain" />
+          </motion.div>
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
+      <div className="hero-content relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
         {/* HEADLINE BLOB CARD */}
-        <div className="relative mx-auto w-full max-w-[1040px]">
+        <div className="hero-blob-card relative mx-auto w-full max-w-[1040px]">
           {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
-          <div
+          <motion.div
             className="relative mx-auto aspect-[799.8/512.8] w-full"
             style={{ aspectRatio: "799.8 / 512.8" }}
+            initial="hidden"
+            animate="show"
+            variants={scaleIn}
           >
-            <img src={blobFill} alt="" className="absolute inset-0 h-full w-full object-contain" />
+            <img src={blobFill} alt="" className="hero-blob-fill absolute inset-0 h-full w-full object-contain" />
             <img
               src={blobOuterDashed}
               alt=""
-              className="absolute object-contain"
-              style={{ left: "0.6%", top: "4.25%", width: "95.37%", height: "90.06%" }}
+              className="hero-blob-outer absolute object-contain"
             />
             <img
               src={blobInnerOutline}
               alt=""
-              className="absolute object-contain"
-              style={{ left: "3.48%", top: "12.56%", width: "92.31%", height: "85.31%" }}
+              className="hero-blob-inner absolute object-contain"
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16">
+            <motion.div
+              className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
+              initial="hidden"
+              animate="show"
+              variants={staggerContainer(0.14, 0.35)}
+            >
               <HeroCopy />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
         </div>
 
         {/* SEARCH BAR */}
-        <div className="relative z-20 mx-auto mt-8 max-w-[620px]">
+        <motion.div
+          className="hero-search relative z-20 mx-auto mt-8 max-w-[620px]"
+          initial="hidden"
+          animate="show"
+          variants={fadeInUp}
+          transition={{ duration: 0.6, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
+        >
           <img
             src={exclamationMark}
             alt=""
@@ -141,18 +157,29 @@ const Hero = () => {
               className="w-full text-[18px] text-[#585858] outline-none placeholder:text-[#585858] sm:text-[20px]"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Keep the dotted path and scissors in a dedicated lane below the
             search field so they cannot overlap it at any viewport width. */}
-        <div className="relative z-10 mx-auto mt-8 h-28 w-full max-w-[720px]">
+        <motion.div
+          className="hero-arrow-lane relative z-10 mx-auto mt-8 h-28 w-full max-w-[720px]"
+          initial="hidden"
+          animate="show"
+          variants={fadeIn}
+          transition={{ duration: 0.7, delay: 1.1 }}
+        >
           <img src={arrowWithScissors} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-contain" />
-        </div>
+        </motion.div>
 
         {/* STATS */}
-        <div className="relative z-20 mx-auto mt-30 flex max-w-[1250px] flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl bg-gradient-to-r from-accent/75 via-[#eadfdf] to-secondary/70 px-8 py-5 sm:px-10 sm:py-6 sm:justify-between">
+        <motion.div
+          className="hero-stats relative z-20 mx-auto mt-25 flex max-w-[1250px] flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl bg-gradient-to-r from-accent/75 via-[#eadfdf] to-secondary/70 px-8 py-5 sm:px-10 sm:py-6 sm:justify-between"
+          initial="hidden"
+          animate="show"
+          variants={staggerContainer(0.1, 1.25)}
+        >
           {STATS.map(({ value, label, icon: StatIcon, badgeClass, iconClass }) => (
-            <div key={label} className="flex items-center gap-3">
+            <motion.div key={label} className="flex items-center gap-3" variants={fadeInUp}>
               <div
                 className={`flex h-[42px] w-[50px] flex-none items-center justify-center rounded-[7px] ${badgeClass}`}
               >
@@ -162,9 +189,9 @@ const Hero = () => {
                 <p className="text-[15px] font-semibold text-black/90">{value}</p>
                 <p className="text-[13px] font-semibold text-[#585858]">{label}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -173,22 +200,28 @@ const Hero = () => {
 function HeroCopy() {
   return (
     <>
-      <p className="text-[13px] font-semibold text-[#262626] sm:text-[14px]">
+      <motion.p className="text-[13px] font-semibold text-[#262626] sm:text-[14px]" variants={fadeInUp}>
         Design, Display, Inspire.
-      </p>
+      </motion.p>
 
-      <h1 className="mx-auto mt-4 w-full max-w-[720px] px-2 font-semibold leading-[1.15] text-black text-[32px] sm:text-[36px] lg:text-[40px]">
+      <motion.h1
+        className="mx-auto mt-4 w-full max-w-[720px] px-2 font-semibold leading-[1.15] text-black text-[32px] sm:text-[36px] lg:text-[40px]"
+        variants={fadeInUp}
+      >
         Design Stunning
         <br />
         <span className="hero-backdrop-word">Backdrops</span> Effortlessly
-      </h1>
+      </motion.h1>
 
-      <p className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[#585858] sm:text-[16px]">
+      <motion.p
+        className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[#585858] sm:text-[16px]"
+        variants={fadeInUp}
+      >
         Visora helps you create beautiful event backdrops with khmer
         elements, timers, and everything you need.
-      </p>
+      </motion.p>
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-4" variants={fadeInUp}>
         <NavLink
           to="/design"
           className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-[13px] font-semibold text-white transition-transform duration-200 hover:scale-[1.03]"
@@ -203,7 +236,7 @@ function HeroCopy() {
         >
           Explore Templates
         </NavLink>
-      </div>
+      </motion.div>
     </>
   );
 }

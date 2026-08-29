@@ -2,8 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import navbarBg from "../../assets/Website/Nav/navbar-bg.png";
-import navbarBgMobile from "../../assets/Website/Nav/navbar-bg-mobile.png";
+import navbarBg from "../../assets/Website/Nav/navbar-bg-opaque.png";
 import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
 
 // Recreated from the Visora Figma file, "Landing Page" > navbar instance
@@ -58,19 +57,13 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50">
       <div
-        className="relative h-[126px] w-full bg-top bg-no-repeat md:h-[186px]"
+        className="navbar-shell relative h-[126px] w-full bg-top bg-no-repeat md:h-[146px]"
         style={{
           backgroundImage: `url(${navbarBg})`,
-          backgroundSize: "100% auto",
+          backgroundSize: "100% 100%",
         }}
       >
-        <img
-          src={navbarBgMobile}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-fill md:hidden"
-        />
-        <nav className="relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
+        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">
             <img
