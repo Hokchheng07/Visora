@@ -1,10 +1,12 @@
+import { motion } from "motion/react";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import facebook from "../../assets/footer/facebook.png";
-import instagram from "../../assets/footer/instagram.png";
-import github from "../../assets/footer/github.png";
-import letter from "../../assets/footer/letter.png";
-import line from "../../assets/footer/line.png";
-import logo from "../../assets/footer/logo.png";
+import facebook from "../../assets/Website/Footer-Section/facebook.png";
+import instagram from "../../assets/Website/Footer-Section/instagram.png";
+import github from "../../assets/Website/Footer-Section/github.png";
+import letter from "../../assets/Website/Footer-Section/letter.png";
+import line from "../../assets/Website/Footer-Section/line.png";
+import logo from "../../assets/Website/Footer-Section/logo.png";
+import { fadeIn, fadeInUp, scaleIn, staggerContainer, viewportOnce } from "../../lib/animations";
 
 const footerLinks = [
   {
@@ -96,9 +98,15 @@ const Footer = () => {
     <footer className="bg-sparkle relative overflow-hidden bg-white font-sans text-[#252525]">
      <div className="relative z-10 mx-auto max-w-[1440px] px-5 pt-10 pb-24 sm:px-8 sm:pt-12 lg:px-10 lg:pt-14 lg:pb-28 xl:px-14">
         {/* TOP FOOTER */}
-        <div className="grid grid-cols-1 gap-12 xl:grid-cols-[1.05fr_2.3fr_1fr] xl:gap-10">
+        <motion.div
+          className="grid grid-cols-1 gap-12 xl:grid-cols-[1.05fr_2.3fr_1fr] xl:gap-10"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainer(0.15, 0)}
+        >
           {/* BRAND */}
-          <div className="flex flex-col items-center text-center xl:items-start xl:text-left">
+          <motion.div className="flex flex-col items-center text-center xl:items-start xl:text-left" variants={fadeInUp}>
             <img
               src={visoraLogo}
               alt="Visora"
@@ -117,26 +125,31 @@ const Footer = () => {
             {/* SOCIAL ICONS */}
             <div className="mt-6 flex w-full items-center justify-center gap-5">
               {socialLinks.map(({ name, icon, className }) => (
-                <a
+                <motion.a
                   key={name}
                   href="#"
                   aria-label={name}
-                  className="flex h-11 w-11 items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+                  className="flex h-11 w-11 items-center justify-center"
+                  whileHover={{ y: -4, scale: 1.08 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 18 }}
                 >
                   <img
                     src={icon}
                     alt={name}
                     className={`${className} object-contain`}
                   />
-                </a>
+                </motion.a>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* FOOTER LINKS */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-x-8 xl:pt-4">
+          <motion.div
+            className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-x-8 xl:pt-4"
+            variants={staggerContainer(0.08, 0.1)}
+          >
             {footerLinks.map((section) => (
-              <div key={section.title}>
+              <motion.div key={section.title} variants={fadeInUp}>
                 <h3 className="text-[17px] font-semibold text-[#262626] sm:text-[18px]">
                   {section.title}
                 </h3>
@@ -155,12 +168,12 @@ const Footer = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* NEWSLETTER */}
-          <div className="flex justify-center xl:justify-end">
+          <motion.div className="flex justify-center xl:justify-end" variants={scaleIn}>
             <div className="w-full max-w-[360px] rounded-[24px] border border-secondary/70 bg-white px-6 py-6 shadow-[0_8px_30px_rgba(104,84,218,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(104,84,218,0.16)] xl:max-w-[310px]">
               <div className="flex justify-center">
                 <img
@@ -198,8 +211,8 @@ const Footer = () => {
                 </button>
               </form>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* DIVIDER */}
         <div className="mt-12 border-t border-dashed border-accent/60 lg:mt-14" />
@@ -233,7 +246,13 @@ const Footer = () => {
           </div>
 
           {/* SPONSOR */}
-          <div className="flex items-center justify-center gap-4">
+          <motion.div
+            className="flex items-center justify-center gap-4"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+            variants={fadeIn}
+          >
             <p className="text-center text-[14px] font-semibold leading-5 text-primary sm:text-[16px]">
               Sponsored and
               <br />
@@ -245,17 +264,21 @@ const Footer = () => {
               alt="ISTAD"
               className="h-[50px] w-auto object-contain sm:h-[60px] lg:h-[65px]"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* FOOTER WAVE */}
-      <img
-  src={line}
-  alt=""
-  aria-hidden="true"
-  className="pointer-events-none absolute bottom-0 left-1/2 z-0 h-[90px] w-screen max-w-none -translate-x-1/2 object-fill sm:h-[110px] md:h-[130px] lg:h-[145px] xl:h-[155px]"
-/>
+      <motion.img
+        src={line}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-1/2 z-0 h-[90px] w-screen max-w-none -translate-x-1/2 object-fill sm:h-[110px] md:h-[130px] lg:h-[145px] xl:h-[155px]"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={viewportOnce}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
     </footer>
   );
 };

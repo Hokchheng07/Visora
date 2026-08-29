@@ -174,9 +174,35 @@
   }
 }
 
+/* Hero decorative doodles — position/size as % of the 1920x1080 canvas.
+   Tune width/height/left/top here instead of in Hero.jsx. */
+.hero-doodle-plane-left {
+  left: 6.25%;
+  top: 4.63%;
+  width: 9.9%;
+  height: 200px;
+}
+.hero-doodle-plane-right {
+  left: 81.77%;
+  top: 4.63%;
+  width: 150px;
+  height: 150px;
+}
+.hero-doodle-frame-one {
+  left: 3.75%;
+  top: 50%;
+  width: 11.46%;
+  height: 21.85%;
+}
+.hero-doodle-frame-two {
+  left: 84.64%;
+  top: 52.78%;
+  width: 10.94%;
+  height: 21.67%;
+}
+
 .hero-pointing-arrow { top: 5%; left: 1%; width: 105px; }
-.hero-arrow-plane { top: 35%; left: 16%; width: 122px; }
-.hero-purple-frame { bottom: 18%; left: 1%; width: 160px; transform: rotate(-2deg); }
+.hero-purple-frame { bottom: 18%; left: 1%; width: 200px; transform: rotate(-2deg); }
 .hero-yellow-frame { bottom: 2%; left: 12%; width: 150px; }
 .hero-second-purple-frame { right: 8%; bottom: 4%; width: 130px; }
 .hero-right-frame { top: 24%; right: -2%; width: 125px; transform: rotate(15deg) scale(0.72); }
@@ -185,8 +211,8 @@
 .hero-big-strip { right: -4%; bottom: -9%; width: 67%; opacity: 0.95; }
 
 /* PopularTemplates decorative doodles — tune position/size here. */
-.templates-scissors { left: 2%; top: 14%; width: 64px; opacity: 0.5; }
-.templates-arrow-plane { right: 1.5%; top: 17%; width: 96px; opacity: 0.6; transform: rotate(8deg); }
+.templates-scissors { left: 2%; top: 14%; width: 180px; opacity: 0.5; }
+.templates-arrow-plane { right: 1.5%; top: 17%; width: 160px; opacity: 0.6; transform: rotate(8deg); }
 
 .hero-backdrop-word {
   display: inline-block;
@@ -203,4 +229,49 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+/*
+ * Compact desktop workspace mode. The desktop navbar and hero are composed
+ * for the tall Figma canvas, but a short laptop/browser viewport needs both
+ * to yield space together. The content remains available in App's internal
+ * scroller; this breakpoint only prevents the first hero view from being
+ * needlessly cropped.
+ */
+@media (min-width: 1024px) and (max-height: 800px) {
+  .navbar-shell {
+    height: 126px !important;
+  }
+
+  .navbar-nav {
+    height: 96px !important;
+  }
+
+  .hero-content {
+    padding-top: 0.5rem !important;
+  }
+
+  .hero-blob-card {
+    max-width: 72vh;
+  }
+
+  .hero-blob-copy {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .hero-search {
+    margin-top: 0.75rem !important;
+  }
+
+  .hero-arrow-lane {
+    height: 4.5rem;
+    margin-top: 0.75rem !important;
+  }
+
+  .hero-stats {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
 }
