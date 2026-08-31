@@ -5,7 +5,7 @@ import Home from "./Components/Pages/Home";
 import Footer from "./Components/Footer/Footer";
 
 function App() {
-  return (
+  return(
     <MotionConfig reducedMotion="user">
       <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-white">
         <Navbar />

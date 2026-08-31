@@ -1,8 +1,11 @@
-import { configureStore } from "@reduxjs/toolkit";
 
-export function store () {
-    return configureStore({
-        // Keep the store valid until feature slices are added.
-        reducer: (state = {}) => state,
-    })
-}
+import { configureStore } from "@reduxjs/toolkit";
+import { baseApi } from "../API/baseApi.js";
+
+export const store = configureStore({
+  reducer: {
+    [baseApi.reducerPath]: baseApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware),
+});
