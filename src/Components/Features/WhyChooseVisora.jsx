@@ -39,9 +39,9 @@ export default function WhyChooseVisora() {
         </div>
         <img src={apsara} alt="" className="features-apsara" />
       </div>
-      <div className="relative z-10 mx-auto max-w-[1080px]">
+      <div className="relative z-10 mx-auto max-w-[1440px]">
         <motion.h2
-          className="text-center text-6xl font-semibold tracking-tight text-black sm:text-6xl lg:text-[60px]"
+          className="text-center text-7xl font-semibold tracking-tight text-black sm:text-6xl lg:text-[60px]"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -52,7 +52,7 @@ export default function WhyChooseVisora() {
           src={arrowWithScissors}
           alt=""
           aria-hidden="true"
-          className="templates-arrow-scissors"
+          className="templates-arrow-scissors why-choose-arrow-scissors"
         />
         </motion.h2>
         <motion.div

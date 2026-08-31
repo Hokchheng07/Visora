@@ -6,7 +6,6 @@ import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/Arr
 import spiralArrow from "../../assets/Website/LandingPage/Features-Section/SpiralArrow.png";
 import templateOne from "../../assets/Website/LandingPage/Hero-Section/PurpleFrameNPicture.png";
 import templateTwo from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
-import navbarBg from "../../assets/Website/Nav/navbar-bg.png";
 import { fadeIn, fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations";
 
 const templates = [
@@ -18,11 +17,6 @@ const templates = [
 export default function PopularTemplates() {
   return (
     <section className="popular-templates bg-sparkle relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-6 h-[142px] bg-top bg-no-repeat lg:-top-8 lg:h-[150px]"
-        style={{ backgroundImage: `url(${navbarBg})`, backgroundSize: "100% 150px" }}
-      />
       <div className="relative z-10 mx-auto max-w-[1120px]">
         <motion.h2
           className="text-center text-4xl font-semibold leading-tight text-black sm:text-6xl"

@@ -243,6 +243,7 @@
  * FEATURES section (WhyChooseVisora) — pictures
  * ============================================================
  */
+.why-choose-arrow-scissors { width: 460px; height: auto; }
 .why-choose-blob {
   border-radius: 58% 0 0 0 / 48% 0 0 0;
   transform: rotate(-4deg);
@@ -267,8 +268,53 @@
   }
 }
 .features-spiral { position: absolute; left: 2%; top: 1%; width: 14%; max-width: 190px; object-fit: contain; opacity: .7;transform: rotate(-180deg); }
-.features-plane-tile { position: absolute; right: 4%; top: 9%; display: flex; width: 150px; height: 150px; align-items: center; justify-content: center; padding: .75rem; background: rgb(238 233 223 / .75); transform: rotate(-30deg); }
+.features-plane-tile { position: absolute; right: 8%; top: 9%; display: flex; width: 20x  0px; height: 200px; align-items: center; justify-content: center; transform: rotate(-30deg); }
 .features-plane { width: 100%; height: 100%; object-fit: contain; }
+
+/* Create without Limits — the next feature showcase section. */
+.create-limits-section { min-height: 1380px; background-color: white; }
+.create-limits-corners { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.create-limits-yellow-art { position: absolute; top: 0; left: 0; right: 0; width: 100%; max-width: none; height: auto; }
+.create-limits-purple-art { position: absolute; bottom: 0; left: 0; width: min(72.64%, 1046px); height: auto; }
+.create-limits-yellow { fill: var(--color-secondary); }
+.create-limits-purple { fill: var(--color-primary); }
+.create-limits-header { margin: 0 auto; max-width: 900px; text-align: center; }
+.create-limits-header h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.04em; color: #000; }
+.create-limits-header h2 span { color: var(--color-primary); }
+.create-limits-header p { margin: 1rem auto 0; max-width: 850px; color: #585858; font-size: clamp(1rem, 1.7vw, 1.35rem); line-height: 1.55; }
+.create-limits-underline { display: flex; align-items: center; justify-content: center; gap: .55rem; margin: .65rem auto 0; max-width: 480px; color: #111; }
+.create-limits-underline i { display: block; height: 2px; flex: 1; border-top: 2px dashed currentColor; }
+.create-limits-underline b { font-size: 1.8rem; line-height: 1; font-weight: 500; transform: rotate(-12deg); }
+.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 540.64px)); justify-content: center; gap: 2rem 4.5rem; margin: 4.5rem auto 0; max-width: 1800px; }
+.create-limits-card { position: relative; width: 100%; max-width: 540.64px; height: 560px; justify-self: center; isolation: isolate; }
+.create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
+.create-limits-card-fill { opacity: .82; }
+.create-limits-card-outline, .create-limits-card-dashed { fill: none; stroke: #111; stroke-linecap: round; stroke-linejoin: round; }
+.create-limits-card-outline { stroke-width: 2.3; }
+.create-limits-card-dashed { stroke-width: 2; stroke-dasharray: 7 8; }
+.create-limits-card-content { position: relative; z-index: 1; height: 100%; text-align: center; }
+.create-limits-icon { position: absolute; top: 20.82%; left: 45.35%; display: grid; place-items: center; height: 11.46%; width: 11.05%; }
+.create-limits-icon svg { height: 72%; width: 72%; }
+.create-limits-icon span { position: absolute; right: -.4rem; top: -.2rem; font-size: 1.2rem; }
+.create-limits-card h3 { position: absolute; top: 33.43%; left: 12%; width: 76%; margin: 0; color: #111; font-size: clamp(1rem, 1.25vw, 1.5rem); font-weight: 600; line-height: 1.2; white-space: nowrap; }
+.create-limits-card p { position: absolute; top: 45.82%; left: 15%; width: 70%; margin: 0; color: #666; font-size: clamp(.8rem, 1.05vw, 1.12rem); line-height: 1.5; }
+@media (min-width: 901px) and (max-width: 1500px) {
+  .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; max-width: 1400px; }
+  .create-limits-card h3 { white-space: normal; }
+}
+@media (max-width: 900px) {
+  .create-limits-section { min-height: auto; }
+  .create-limits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+  .create-limits-card { width: 100%; height: auto; aspect-ratio: 452.32 / 436.07; }
+  .create-limits-card h3 { white-space: normal; }
+}
+@media (max-width: 620px) {
+  .create-limits-grid { grid-template-columns: 1fr; margin-top: 3rem; }
+  .create-limits-card { max-width: 479.87px; width: 100%; margin-inline: auto; }
+  .create-limits-corners { opacity: .85; }
+  .create-limits-yellow-art { width: 100%; max-width: none; }
+  .create-limits-purple-art { width: 76%; }
+}
 
 body {
   font-family: var(--font-sans);
