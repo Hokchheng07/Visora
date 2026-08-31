@@ -1,12 +1,15 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
-import { createBrowserRouter } from "react-router";
-import { RouterProvider } from "react-router/dom";
 import "./index.css";
-import App from "./App.jsx";
+import App from "./App.jsx";  
 import SignUp from "./Components/Auth/SignUp.jsx";
 import { store } from "./Components/redux/store";
+import { Provider } from "react-redux";
+
+import { createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+import Login from "./Components/Auth/Login.jsx";
+import CvTemplate from "./Components/Features/CvTemplate.jsx";
 
 const router = createBrowserRouter([
   {
@@ -17,12 +20,21 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <SignUp />,
   },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/cv",
+    element: <CvTemplate />,
+  },
 ]);
 
 const root = document.getElementById("root");
+
 ReactDOM.createRoot(root).render(
   <StrictMode>
-    <Provider store={store()}>
+    <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
   </StrictMode>
