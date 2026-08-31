@@ -39,7 +39,7 @@ export default function Login() {
   return (
     <main className="h-dvh min-h-0 overflow-hidden bg-white font-sans lg:grid lg:grid-cols-2">
       <section className="relative hidden h-full min-h-0 overflow-hidden lg:block">
-        <img src={loginPic} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
+        <img src={loginPic} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-270 w-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/75" />
         <Link to="/" className="absolute left-8 top-8 z-10 sm:left-12 sm:top-10">
           <img src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
