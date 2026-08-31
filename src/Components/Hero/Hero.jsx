@@ -6,15 +6,18 @@ import {
 } from "@heroicons/react/24/solid";
 import "../../styles/phosphor-stats.css";
 
-import blobFill from "../../assets/Website/LandingPage/Hero-Section/MiddleBlob.png";
-import blobOuterDashed from "../../assets/Website/LandingPage/Hero-Section/Blob1.png";
-import blobInnerOutline from "../../assets/Website/LandingPage/Hero-Section/Blob2.png";
+import heroDashed from "../../assets/Website/LandingPage/Hero-Section/HeroDashedVector.svg";
+import heroSolid from "../../assets/Website/LandingPage/Hero-Section/HeroSolidVector.svg";
+import heroInner from "../../assets/Website/LandingPage/Hero-Section/InnerHeroVector.svg";
+import heroMiddle from "../../assets/Website/LandingPage/Hero-Section/MiddleHeroVector.svg";
+import heroOuter from "../../assets/Website/LandingPage/Hero-Section/OuterHeroVector.svg";
 import cardEverydayTools from "../../assets/Website/LandingPage/Hero-Section/PurpleFrameNPicture.png";
 import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
 import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
-import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
-import exclamationMark from "../../assets/Website/LandingPage/Hero-Section/ExclamationMark.png";
+import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroArrow.svg";
+import exclamationMark from "../../assets/Website/LandingPage/Hero-Section/ExclimationMark.svg";
+import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/HeroStatsBg.svg";
 import statFrameOne from "../../assets/Website/LandingPage/Hero-Section/1ndFrame.png";
 import statFrameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
 import { fadeIn, fadeInUp, scaleIn, staggerContainer } from "../../lib/animations";
@@ -113,17 +116,11 @@ const Hero = () => {
             animate="show"
             variants={scaleIn}
           >
-            <img src={blobFill} alt="" className="hero-blob-fill absolute inset-0 h-full w-full object-contain" />
-            <img
-              src={blobOuterDashed}
-              alt=""
-              className="hero-blob-outer absolute object-contain"
-            />
-            <img
-              src={blobInnerOutline}
-              alt=""
-              className="hero-blob-inner absolute object-contain"
-            />
+            <img src={heroOuter} alt="" className="hero-vector hero-vector-outer" />
+            <img src={heroMiddle} alt="" className="hero-vector hero-vector-middle" />
+            <img src={heroInner} alt="" className="hero-vector hero-vector-inner" />
+            <img src={heroSolid} alt="" className="hero-vector hero-vector-solid" />
+            <img src={heroDashed} alt="" className="hero-vector hero-vector-dashed" />
             <motion.div
               className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
               initial="hidden"
@@ -171,16 +168,17 @@ const Hero = () => {
           variants={fadeIn}
           transition={{ duration: 0.7, delay: 1.1 }}
         >
-          <img src={arrowWithScissors} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-contain" />
+          <img src={heroArrow} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-contain" />
         </motion.div>
 
         {/* STATS */}
         <motion.div
-          className="hero-stats relative z-20 mx-auto mt-25 flex max-w-[1250px] flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl bg-gradient-to-r from-accent/75 via-[#eadfdf] to-secondary/70 px-8 py-5 sm:px-10 sm:py-6 sm:justify-between"
+          className="hero-stats relative z-20 mx-auto mt-25 flex min-h-[89px] max-w-[1062px] flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl px-8 py-[15px] sm:px-10 sm:py-[15px] sm:justify-between"
           initial="hidden"
           animate="show"
           variants={staggerContainer(0.1, 1.25)}
         >
+          <img src={heroStatsBg} alt="" aria-hidden="true" className="hero-stats-bg" />
           {STATS.map(({ value, label, icon, frame, badgeClass, iconClass }) => (
             <motion.div key={label} className="flex items-center gap-3" variants={fadeInUp}>
               <div
