@@ -6,21 +6,22 @@
  * Everyone building UI in this project should read from these tokens
  * (bg-primary, text-primary, font-sans, etc.) instead of hardcoding hex
  * values or font names — that's what keeps the whole app visually
- * consistent with the Figma file as more screens get built.
+ * consistent with the Figma file as more screens get built. Confirmed:
+ * no component currently hardcodes a hex color, so changing these three
+ * values here is enough to repaint the whole app (Tailwind v4 generates
+ * background, text, and gradient utilities straight off @theme).
  *
- * Colors sourced from the "Visora" Figma file's Navbar (node 376:117095)
- * and its "Primary->Secondary-Linear" style:
- *   - primary / secondary come straight from that gradient + the active
- *     nav-link color (#6854DA).
- *   - accent is an approximation (warm gold, Angkor-gold inspired) since the
- *     navbar's background wash was a flattened image in Figma and its exact
- *     hex couldn't be sampled — confirm against Figma color variables when
- *     available and adjust here if it's off.
+ * Updated 2026-08-26 by Panharith to the current values below (primary
+ * #705AE0, secondary #FFC21C, accent #B294F0) -- supersedes the original
+ * approximated set. Note secondary/accent effectively swapped from the
+ * first pass (old secondary #b294f0 is now accent; the gold #FFC21C, also
+ * used in speckles.svg's grain texture, is now secondary). The Sign In
+ * button uses the Figma-matched `from-primary to-accent` gradient.
  */
 @theme {
-  --color-primary: #6854da;
-  --color-secondary: #b294f0;
-  --color-accent: #f2a93b;
+  --color-primary: #705AE0;
+  --color-secondary: #FFC21C;
+  --color-accent: #B294F0;
 
   /* Poppins is the UI font confirmed from Figma (nav links + Sign In button
      use "Poppins:SemiBold"). Self-hosted below via @font-face — this token
@@ -74,6 +75,203 @@
   font-display: swap;
 }
 
+/*
+ * Background sparkle/grain texture.
+ *
+ * Figma's Landing Page has a ~24,000-ellipse decorative scatter (1-2px
+ * dots) confined to a small local area -- a procedural noise/sparkle
+ * field, not hand-placed. Rendering that as 24k real DOM/SVG nodes would
+ * be a non-starter, so it's implemented as a single repeating tile
+ * instead: `speckles.svg` (256x256, dots in #6854DA / #FFC21C, seamless
+ * by construction per its own header comment). Source file kept at
+ * `src/assets/Website/speckles.svg`; a copy lives in `public/textures/`
+ * so it has a stable root-relative URL usable from plain CSS `url()`
+ * (same reasoning as the self-hosted fonts). Keep both in sync if it's
+ * ever edited -- there's no build step wiring them together.
+ *
+ * Color check (as of the 2026-08-26 token update): its gold #FFC21C is
+ * now an EXACT match for --color-secondary. Its purple #6854DA is close
+ * to but not identical to --color-primary (#705AE0) -- minor, not fixed.
+ *
+ * Usage: add `bg-sparkle` to any relatively-positioned section that needs
+ * the ambient sparkle background (stack it under real content, e.g. as an
+ * absolutely-positioned full-bleed div, or directly on a section wrapper).
+ */
+.bg-sparkle {
+  background-image: url("/textures/speckles.svg");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Layer the three supplied Figma blob exports to reproduce the reference. */
+.hero-blob {
+  position: absolute;
+  pointer-events: none;
+  object-fit: fill;
+}
+
+.hero-blob-fill {
+  inset: 5% 8% 4%;
+  z-index: -30;
+}
+
+.hero-blob-outline {
+  inset: 0 3% 1% 0;
+  z-index: -20;
+  mix-blend-mode: screen;
+  opacity: 0.82;
+}
+
+.hero-blob-line {
+  inset: 0 0 0 1%;
+  z-index: -10;
+}
+
+.hero-art {
+  position: absolute;
+  z-index: 1;
+  height: auto;
+  object-fit: contain;
+}
+
+/* The reference uses the AirplaneDoodle asset on the left and the purple
+   looped plane on the right; both remain independent so their locations are
+   easy to tune. */
+.hero-plane-left {
+  transform: rotate(-18deg);
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.hero-plane-right {
+  transform: rotate(4deg);
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.hero-frame-bounce {
+  animation: hero-frame-float 4.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.hero-frame-two {
+  animation-delay: -2.2s;
+}
+
+@keyframes hero-frame-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-1.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-frame-bounce {
+    animation: none;
+  }
+}
+
+/* Hero decorative doodles — position/size as % of the 1920x1080 canvas.
+   Tune width/height/left/top here instead of in Hero.jsx. */
+.hero-doodle-plane-left {
+  left: 6.25%;
+  top: 4.63%;
+  width: 9.9%;
+  height: 200px;
+}
+.hero-doodle-plane-right {
+  left: 81.77%;
+  top: 4.63%;
+  width: 150px;
+  height: 150px;
+}
+.hero-doodle-frame-one {
+  left: 3.75%;
+  top: 50%;
+  width: 11.46%;
+  height: 21.85%;
+}
+.hero-doodle-frame-two {
+  left: 84.64%;
+  top: 52.78%;
+  width: 10.94%;
+  height: 21.67%;
+}
+
+.hero-pointing-arrow { top: 5%; left: 1%; width: 105px; }
+.hero-purple-frame { bottom: 18%; left: 1%; width: 200px; transform: rotate(-2deg); }
+.hero-yellow-frame { bottom: 2%; left: 12%; width: 150px; }
+.hero-second-purple-frame { right: 8%; bottom: 4%; width: 130px; }
+.hero-right-frame { top: 24%; right: -2%; width: 125px; transform: rotate(15deg) scale(0.72); }
+.hero-doodle-scissors { right: -2%; top: 60%; width: 100px; opacity: 0.7; }
+.hero-big-arrow { right: 0; bottom: -7%; width: 55%; opacity: 0.9; }
+.hero-big-strip { right: -4%; bottom: -9%; width: 67%; opacity: 0.95; }
+
+/* PopularTemplates decorative doodles — tune position/size here. */
+.templates-scissors { left: 2%; top: 14%; width: 180px; opacity: 0.5; }
+.templates-arrow-plane { right: 1.5%; top: 17%; width: 160px; opacity: 0.6; transform: rotate(8deg); }
+
+.hero-backdrop-word {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
+}
+
+.why-choose-blob {
+  border-radius: 58% 0 0 0 / 48% 0 0 0;
+  transform: rotate(-4deg);
+}
+
 body {
   font-family: var(--font-sans);
+}
+
+/*
+ * Compact desktop workspace mode. The desktop navbar and hero are composed
+ * for the tall Figma canvas, but a short laptop/browser viewport needs both
+ * to yield space together. The content remains available in App's internal
+ * scroller; this breakpoint only prevents the first hero view from being
+ * needlessly cropped.
+ */
+@media (min-width: 1024px) and (max-height: 800px) {
+  .navbar-shell {
+    height: 126px !important;
+  }
+
+  .navbar-nav {
+    height: 96px !important;
+  }
+
+  .hero-content {
+    padding-top: 0.5rem !important;
+  }
+
+  .hero-blob-card {
+    max-width: 72vh;
+  }
+
+  .hero-blob-copy {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .hero-search {
+    margin-top: 0.75rem !important;
+  }
+
+  .hero-arrow-lane {
+    height: 4.5rem;
+    margin-top: 0.75rem !important;
+  }
+
+  .hero-stats {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
 }
