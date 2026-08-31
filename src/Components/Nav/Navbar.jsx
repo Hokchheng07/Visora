@@ -3,6 +3,7 @@ import { NavLink } from "react-router";
 import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
+import navbarBg from "../../assets/Website/Nav/NavbarBg.svg";
 
 // Recreated from the Visora Figma file, "Landing Page" > navbar instance
 // (master component 69:171). Logo + background are the actual exported
@@ -54,33 +55,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="navbar-shell relative h-[126px] w-full overflow-hidden md:h-[146px]">
-        {/* One vector shape drives everything: the gradient fill AND the
-            speckle texture are both painted with the exact same <path>, so
-            with preserveAspectRatio="none" stretching the 1440x146 wave to
-            whatever width the navbar actually renders at, the texture can
-            never bleed past the wave's own silhouette the way a separate
-            full-box background layer used to. */}
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 h-full w-full"
-          viewBox="0 0 1440 146"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="navbar-wave-gradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="color-mix(in srgb, var(--color-accent) 48%, white)" />
-              <stop offset="48%" stopColor="color-mix(in srgb, var(--color-accent) 20%, white)" />
-              <stop offset="100%" stopColor="color-mix(in srgb, var(--color-secondary) 42%, white)" />
-            </linearGradient>
-            <pattern id="navbar-wave-sparkle" patternUnits="userSpaceOnUse" width="256" height="256">
-              <image href="/textures/speckles.svg" width="256" height="256" />
-            </pattern>
-          </defs>
-          <path fill="url(#navbar-wave-gradient)" d="M0 146C14 108 28 88 53 95c64 17 116 37 184 18 51-14 65-51 115-50 69 1 130 41 192 54 45 9 76-6 98-27 22-21 47-9 70 5 26 16 46 15 78 7 33-9 62-5 97-7 42-2 80-18 117-27 31-7 43 7 64 14 34 12 64 6 105 12 52 7 60 23 94 36 34 12 110 1 173-25V0H0Z" />
-          <path fill="url(#navbar-wave-sparkle)" opacity="0.7" d="M0 146C14 108 28 88 53 95c64 17 116 37 184 18 51-14 65-51 115-50 69 1 130 41 192 54 45 9 76-6 98-27 22-21 47-9 70 5 26 16 46 15 78 7 33-9 62-5 97-7 42-2 80-18 117-27 31-7 43 7 64 14 34 12 64 6 105 12 52 7 60 23 94 36 34 12 110 1 173-25V0H0Z" />
-        </svg>
+    <header className="relative sticky top-0 z-50">
+      <img src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
+      <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
         <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">

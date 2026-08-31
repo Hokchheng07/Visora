@@ -103,6 +103,9 @@
   background-size: 256px 256px;
 }
 
+/* Navbar background exported from the responsive Figma design. */
+.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: fill; pointer-events: none; }
+
 /*
  * ============================================================
  * HERO section — pictures & doodles
@@ -134,6 +137,17 @@
   inset: 0 0 0 1%;
   z-index: -10;
 }
+
+/* Responsive SVG reconstruction for the hero blob. */
+.hero-vector { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.hero-vector-outer { z-index: 0; }
+.hero-vector-middle { z-index: 1; }
+.hero-vector-inner { z-index: 2; }
+.hero-vector-solid { z-index: 3; }
+.hero-vector-dashed { z-index: 4; }
+.hero-blob-copy { z-index: 10; }
+.hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
 
 .hero-art {
   position: absolute;
@@ -238,6 +252,10 @@
 .templates-spiral-arrow { right: 9.8%; top: 20%; width: 15%; opacity: 0.85; transform: scaleX(1) rotate(75deg); }
 .templates-arrow-scissors { display: block; margin: 1rem auto 0; height: 4.5rem; width: 320px; object-fit: contain; }
 
+.popular-templates-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.popular-templates-top-wave { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+.popular-templates-lower-wave { position: absolute; bottom: 0; left: 0; width: 100%; height: auto; }
+
 /*
  * ============================================================
  * FEATURES section (WhyChooseVisora) — pictures
@@ -251,43 +269,53 @@
 
 .features-apsara {
   position: absolute;
-  bottom: -2%;
-  right: 0%;
-  width: 60%;
-  max-width: 750px;
+  right: clamp(-2rem, 1vw, 1rem);
+  bottom: 0;
+  height: 86%;
+  width: auto;
+  max-width: none;
   object-fit: contain;
   object-position: bottom;
 }
 
 /* Why Choose Visora decorative picture layers. */
 .features-art { position: absolute; inset: -1px; z-index: 0; width: calc(100% + 2px); height: calc(100% + 2px); object-fit: cover; pointer-events: none; }
-.features-decorations { position: absolute; inset: 0; z-index: 3; pointer-events: none; display: none; }
+.features-linear-bg { position: absolute; inset: 0; z-index: 1; width: 100%; max-width: none; height: 100%; object-fit: fill; pointer-events: none; }
+.features-section { aspect-ratio: 1441 / 927; }
+.features-decorations { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: none; }
 @media (min-width: 1024px) {
   .features-decorations {
     display: block;
   }
 }
 .features-spiral { position: absolute; left: 2%; top: 1%; width: 14%; max-width: 190px; object-fit: contain; opacity: .7;transform: rotate(-180deg); }
-.features-plane-tile { position: absolute; right: 8%; top: 9%; display: flex; width: 20x  0px; height: 200px; align-items: center; justify-content: center; transform: rotate(-30deg); }
+.features-plane-tile { position: absolute; right: 8%; top: 9%; display: flex; width: 200px; height: 200px; align-items: center; justify-content: center; transform: rotate(-30deg); }
 .features-plane { width: 100%; height: 100%; object-fit: contain; }
+@media (max-width: 1023px) {
+  .features-section { aspect-ratio: auto !important; min-height: 0; }
+}
 
 /* Create without Limits — the next feature showcase section. */
-.create-limits-section { min-height: 1380px; background-color: white; }
+.create-limits-section { min-height: 1750px; background-color: white; }
 .create-limits-corners { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.create-limits-yellow-art { position: absolute; top: 0; left: 0; right: 0; width: 100%; max-width: none; height: auto; }
-.create-limits-purple-art { position: absolute; bottom: 0; left: 0; width: min(72.64%, 1046px); height: auto; }
-.create-limits-yellow { fill: var(--color-secondary); }
-.create-limits-purple { fill: var(--color-primary); }
+.create-limits-yellow-art { position: absolute; top: -11%; right: -4%; width: 100%; max-width: none; height: 88%; object-fit: fill; }
+.create-limits-purple-art { position: absolute; bottom: 0; left: 0; width: 100%; max-width: none; height: auto; object-fit: contain; }
 .create-limits-header { margin: 0 auto; max-width: 900px; text-align: center; }
 .create-limits-header h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.04em; color: #000; }
 .create-limits-header h2 span { color: var(--color-primary); }
 .create-limits-header p { margin: 1rem auto 0; max-width: 850px; color: #585858; font-size: clamp(1rem, 1.7vw, 1.35rem); line-height: 1.55; }
-.create-limits-underline { display: flex; align-items: center; justify-content: center; gap: .55rem; margin: .65rem auto 0; max-width: 480px; color: #111; }
-.create-limits-underline i { display: block; height: 2px; flex: 1; border-top: 2px dashed currentColor; }
-.create-limits-underline b { font-size: 1.8rem; line-height: 1; font-weight: 500; transform: rotate(-12deg); }
-.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 540.64px)); justify-content: center; gap: 2rem 4.5rem; margin: 4.5rem auto 0; max-width: 1800px; }
-.create-limits-card { position: relative; width: 100%; max-width: 540.64px; height: 560px; justify-self: center; isolation: isolate; }
+.create-limits-underline { position: relative; width: min(459px, 90vw); height: 71px; margin: .65rem auto 0; }
+.create-limits-underline img:first-child { position: absolute; top: 27px; left: 0; width: 100%; height: 17px; }
+.create-limits-underline img:last-child { position: absolute; top: 0; left: 50%; width: 73px; height: 71px; transform: translateX(-50%); }
+.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 540.64px)); justify-content: center; gap: 2rem 4.5rem; margin: 6.5rem auto 0; max-width: 1800px; }
+.create-limits-card { position: relative; width: 100%; max-width: 540.64px; height: 560px; justify-self: center; isolation: isolate; scale: .9; }
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
+.create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
+.create-limits-first-shape img { position: absolute; object-fit: contain; }
+.create-limits-first-solid { left: 12.5%; top: 15.1%; width: 75.7%; height: 67.8%; }
+.create-limits-first-inner { left: 13.9%; top: 10.8%; width: 79.2%; height: 67.6%; }
+.create-limits-first-dashed { left: 15.6%; top: 10.8%; width: 73.4%; height: 70.5%; }
+.create-limits-first-preview { position: absolute; left: 47.4%; top: 20.3%; width: 10.6%; height: 11.6%; object-fit: cover; }
 .create-limits-card-fill { opacity: .82; }
 .create-limits-card-outline, .create-limits-card-dashed { fill: none; stroke: #111; stroke-linecap: round; stroke-linejoin: round; }
 .create-limits-card-outline { stroke-width: 2.3; }
@@ -312,13 +340,39 @@
   .create-limits-grid { grid-template-columns: 1fr; margin-top: 3rem; }
   .create-limits-card { max-width: 479.87px; width: 100%; margin-inline: auto; }
   .create-limits-corners { opacity: .85; }
+  .create-limits-yellow-art { top: 0; }
   .create-limits-yellow-art { width: 100%; max-width: none; }
-  .create-limits-purple-art { width: 76%; }
+  .create-limits-purple-art { width: 100%; }
 }
 
 body {
   font-family: var(--font-sans);
 }
+
+/* Khmer Design Showcase */
+.khmer-showcase { position: relative; isolation: isolate; min-height: 1280px; overflow: hidden; background: linear-gradient(115deg, #eadff0, #fffaf0); }
+.khmer-showcase-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.khmer-showcase-apsara { position: absolute; inset: 9% 10% 10%; width: 80%; height: 85%; object-fit: contain; opacity: 40%; }
+.khmer-showcase-angkor { position: absolute; bottom: 0; left: 21%; width: 60%; opacity: 40%; }
+.khmer-showcase-corner { position: absolute; width: 15%; max-width: 210px; padding: 1.25rem; }
+.khmer-showcase-corner-tl { top: 1%; left: 1%; }
+.khmer-showcase-corner-tr { top: 1%; right: 1%; }
+.khmer-showcase-corner-bl { bottom: 1%; left: 1%; }
+.khmer-showcase-corner-br { right: 1%; bottom: 1%; }
+.khmer-showcase-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 5rem 2rem 6rem; text-align: center; }
+.khmer-showcase-content h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; letter-spacing: -.04em; }
+.khmer-showcase-content h2 span { color: var(--color-primary); }
+.khmer-showcase-ornament-wrap { position: relative; display: flex; align-items: center; justify-content: center; height: auto; margin-bottom: 10%; margin-top: 2%; }
+.khmer-showcase-ornament { width: 400px; height: 400x; margin: .5rem auto -1rem; object-fit: contain; }
+.khmer-showcase-body { display: flex; flex-direction: column; align-items: center; align-self: center;}
+.khmer-showcase-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
+.khmer-showcase-card { position: relative; width: 100%; aspect-ratio: 1.58; display: flex; align-items: center; justify-content: center; }
+.khmer-showcase-card > img:first-child { position: relative; z-index: 2; display: block; width: 90%; height: 90%; border-radius: 18px; object-fit: cover; }
+.khmer-showcase-card-frame { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.khmer-showcase-button { display: inline-flex; align-items: center; gap: .6rem; margin-top: 4rem; margin-bottom: 2rem; border-radius: 14px; padding: .8rem 1.5rem; background: var(--color-primary); color: white; font-weight: 600; box-shadow: 0 8px 16px rgb(112 90 224 / .2); }
+.khmer-showcase-button span { font-size: 1.5rem; line-height: 1; }
+.khmer-showcase-content p { margin-top: .75rem; color: #585858; font-size: 1.05rem; }
+@media (max-width: 700px) { .khmer-showcase { min-height: auto; } .khmer-showcase-content { padding: 4rem 1.25rem; } .khmer-showcase-cards { grid-template-columns: 1fr; gap: 1.25rem; } .khmer-showcase-corner { width: 24%; padding: .5rem; } .khmer-showcase-angkor { left: 5%; width: 90%; } }
 
 /*
  * Compact desktop workspace mode. The desktop navbar and hero are composed

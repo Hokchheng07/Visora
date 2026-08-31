@@ -1,14 +1,50 @@
 import { motion } from "motion/react";
-import { Layers3, Monitor, Move, Sparkles, Timer, WandSparkles } from "lucide-react";
-import { fadeInUp, popIn, staggerContainer, viewportOnce } from "../../lib/animations";
+import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations";
+import YellowBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/YellowBlob.svg";
+import PurpleBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/PurpleBlob.svg";
+import withoutLimitsArrow from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsArrow.svg";
+import withoutLimitsScissors from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsScissors.svg";
+import firstCardSolid from "../../assets/Website/LandingPage/1stCard/SolidVector.svg";
+import firstCardInner from "../../assets/Website/LandingPage/1stCard/InnerColor.svg";
+import firstCardDashed from "../../assets/Website/LandingPage/1stCard/dashedVector.svg";
+import firstCardPreview from "../../assets/Website/LandingPage/1stCard/image 46.png";
+import secondCardSolid from "../../assets/Website/LandingPage/2ndCard/SolidVector.svg";
+import secondCardInner from "../../assets/Website/LandingPage/2ndCard/InnerColor.svg";
+import secondCardDashed from "../../assets/Website/LandingPage/2ndCard/DashedVector.svg";
+import secondCardPreview from "../../assets/Website/LandingPage/2ndCard/2ndCard.png";
+import thirdCardSolid from "../../assets/Website/LandingPage/3rdCard/SolidVector.svg";
+import thirdCardInner from "../../assets/Website/LandingPage/3rdCard/InnerColor.svg";
+import thirdCardDashed from "../../assets/Website/LandingPage/3rdCard/DashedVector.svg";
+import thirdCardPreview from "../../assets/Website/LandingPage/3rdCard/3rdCard.png";
+import fourthCardSolid from "../../assets/Website/LandingPage/4ndCard/SolidVector.svg";
+import fourthCardInner from "../../assets/Website/LandingPage/4ndCard/InnerColor.svg";
+import fourthCardDashed from "../../assets/Website/LandingPage/4ndCard/DashedVector.svg";
+import fourthCardPreview from "../../assets/Website/LandingPage/4ndCard/4rdCard.png";
+import fifthCardSolid from "../../assets/Website/LandingPage/5ndCard/SolidVector.svg";
+import fifthCardInner from "../../assets/Website/LandingPage/5ndCard/InnerColor.svg";
+import fifthCardDashed from "../../assets/Website/LandingPage/5ndCard/DashedVector.svg";
+import fifthCardPreview from "../../assets/Website/LandingPage/5ndCard/5ndCard.svg";
+import sixthCardSolid from "../../assets/Website/LandingPage/6ndCard/SolidVector.svg";
+import sixthCardInner from "../../assets/Website/LandingPage/6ndCard/InnerColor.svg";
+import sixthCardDashed from "../../assets/Website/LandingPage/6ndCard/DashedVector.svg";
+import sixthCardPreview from "../../assets/Website/LandingPage/6ndCard/image 67.png";
+
+const layeredCardAssets = [
+  { solid: firstCardSolid, inner: firstCardInner, dashed: firstCardDashed, preview: firstCardPreview },
+  { solid: secondCardSolid, inner: secondCardInner, dashed: secondCardDashed, preview: secondCardPreview },
+  { solid: thirdCardSolid, inner: thirdCardInner, dashed: thirdCardDashed, preview: thirdCardPreview },
+  { solid: fourthCardSolid, inner: fourthCardInner, dashed: fourthCardDashed, preview: fourthCardPreview },
+  { solid: fifthCardSolid, inner: fifthCardInner, dashed: fifthCardDashed, preview: fifthCardPreview },
+  { solid: sixthCardSolid, inner: sixthCardInner, dashed: sixthCardDashed, preview: sixthCardPreview },
+];
 
 const features = [
-  { title: "Customize Everything", copy: "Change colors, fonts, images, logos, backgrounds, and effects to make every backdrop uniquely yours.", color: "#F8DFA1", Icon: WandSparkles, shape: 0 },
-  { title: "Event Timer", copy: "Add beautiful countdown timers to build excitement for your upcoming events.", color: "#DFA9F2", Icon: Timer, shape: 1 },
-  { title: "Khmer Elements", copy: "Add Cambodian-inspired patterns, traditional decorations, Angkor designs, and Khmer fonts to your backdrop.", color: "#C7B7F1", Icon: Sparkles, shape: 2 },
-  { title: "Drag & Drop", copy: "Easily add, move, resize, and arrange elements directly on your canvas.", color: "#F5BFC5", Icon: Move, shape: 3 },
-  { title: "Layer Management", copy: "Keep your design organized with simple controls to move, lock, hide, and arrange every element.", color: "#BDF0C8", Icon: Layers3, shape: 4 },
-  { title: "Display Ready", copy: "Preview and display your designs perfectly on TVs, projectors, LED screens, and large displays.", color: "#A9DFEC", Icon: Monitor, shape: 5 },
+  { title: "Customize Everything", copy: "Change colors, fonts, images, logos, backgrounds, and effects to make every backdrop uniquely yours.", color: "#F8DFA1", shape: 0 },
+  { title: "Event Timer", copy: "Add beautiful countdown timers to build excitement for your upcoming events.", color: "#DFA9F2", shape: 1 },
+  { title: "Khmer Elements", copy: "Add Cambodian-inspired patterns, traditional decorations, Angkor designs, and Khmer fonts to your backdrop.", color: "#C7B7F1", shape: 2 },
+  { title: "Drag & Drop", copy: "Easily add, move, resize, and arrange elements directly on your canvas.", color: "#F5BFC5", shape: 3 },
+  { title: "Layer Management", copy: "Keep your design organized with simple controls to move, lock, hide, and arrange every element.", color: "#BDF0C8", shape: 4 },
+  { title: "Display Ready", copy: "Preview and display your designs perfectly on TVs, projectors, LED screens, and large displays.", color: "#A9DFEC", shape: 5 },
 ];
 
 const cardShapes = [
@@ -45,6 +81,16 @@ const cardShapes = [
 ];
 
 function FeatureShape({ color, shape }) {
+  const assets = layeredCardAssets[shape];
+  if (assets) {
+    return (
+      <div className="create-limits-first-shape" aria-hidden="true">
+        <img src={assets.solid} alt="" className="create-limits-first-solid" />
+        <img src={assets.inner} alt="" className="create-limits-first-inner" />
+        <img src={assets.dashed} alt="" className="create-limits-first-dashed" />
+      </div>
+    );
+  }
   const paths = cardShapes[shape];
   return (
     <svg aria-hidden="true" className="create-limits-card-shape" viewBox="0 0 452.32 436.07">
@@ -63,15 +109,12 @@ function FeatureShape({ color, shape }) {
   );
 }
 
-function FeatureCard({ title, copy, color, Icon, index, shape }) {
+function FeatureCard({ title, copy, color, shape }) {
   return (
     <motion.article className="create-limits-card" variants={fadeInUp} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}>
       <FeatureShape color={color} shape={shape} />
       <div className="create-limits-card-content">
-        <motion.div className="create-limits-icon" style={{ color }} variants={popIn}>
-          <Icon aria-hidden="true" strokeWidth={2.1} />
-          {index === 2 && <span aria-hidden="true">✦</span>}
-        </motion.div>
+        <img src={layeredCardAssets[shape].preview} alt="" aria-hidden="true" className="create-limits-first-preview" />
         <h3>{title}</h3>
         <p>{copy}</p>
       </div>
@@ -83,21 +126,20 @@ export default function CreateWithoutLimits() {
   return (
     <section className="create-limits-section bg-sparkle relative isolate overflow-hidden">
       <div className="create-limits-corners" aria-hidden="true">
-        <svg className="create-limits-yellow-art" viewBox="0 0 1451 967" preserveAspectRatio="xMinYMin meet">
-          <path className="create-limits-yellow" d="M0 0H1451V967C1448 704 1438 628 1410 560C1385 500 1350 472 1310 440C1270 408 1240 376 1238 336C1235 296 1265 240 1267 204C1269 176 1248 144 1216 146C1165 150 1110 180 1050 184C1010 187 980 168 945 128C925 104 895 86 855 86C805 86 750 108 685 128C650 139 625 120 615 112C600 102 580 106 550 112C500 124 445 142 390 147C350 150 325 144 310 139C295 134 293 108 290 96C280 76 250 64 215 52C170 36 115 28 0 16Z" />
-        </svg>
-        <svg className="create-limits-purple-art" viewBox="0 0 1046 240" preserveAspectRatio="none">
-          <path className="create-limits-purple" d="M0 0c38 67 76 98 119 83 36-13 16 75 56 89 50 18 81-21 133-11 58 12 76 55 143 31 66-24 89-74 151-62 57 11 59 75 113 91 54 16 112-21 180-9 72 13 142 43 223 85H0Z" />
-        </svg>
+        <img src={YellowBlob} alt="" className="create-limits-yellow-art" />
+        <img src={PurpleBlob} alt="" className="create-limits-purple-art" />
       </div>
-      <div className="relative z-10 mx-auto max-w-[1900px] px-5 pb-24 pt-32 sm:px-8 sm:pb-28 sm:pt-40 lg:px-10 lg:pb-36 lg:pt-52">
+      <div className="relative z-10 mx-auto max-w-[1920px] px-5 pb-24 pt-32 sm:px-8 sm:pb-32 sm:pt-44 lg:px-10 lg:pb-44 lg:pt-56">
         <motion.header className="create-limits-header" initial="hidden" whileInView="show" viewport={viewportOnce} variants={fadeInUp}>
           <h2>Create without <span>Limits</span></h2>
-          <div className="create-limits-underline" aria-hidden="true"><i /><b>✂</b><i /></div>
+          <div className="create-limits-underline" aria-hidden="true">
+            <img src={withoutLimitsArrow} alt="" />
+            <img src={withoutLimitsScissors} alt="" />
+          </div>
           <p>Bring your ideas to life with powerful, easy-to-use tools designed for beautiful event backdrops.</p>
         </motion.header>
         <motion.div className="create-limits-grid" initial="hidden" whileInView="show" viewport={viewportOnce} variants={staggerContainer(0.12, 0.15)}>
-          {features.map(({ title, copy, color, Icon, shape }, index) => <FeatureCard key={title} title={title} copy={copy} color={color} Icon={Icon} index={index} shape={shape} />)}
+          {features.map(({ title, copy, color, shape }) => <FeatureCard key={title} title={title} copy={copy} color={color} shape={shape} />)}
         </motion.div>
       </div>
     </section>

@@ -1,11 +1,12 @@
 import { motion } from "motion/react";
 import { AppWindowMac, BroomSparkles, MessageCircleDashedCheck } from "lucide-react";
 import blobArtwork from "../../assets/Website/LandingPage/Features-Section/why-choose-blob.png";
+import linearBg from "../../assets/Website/LandingPage/Features-Section/WhyChooseVisoraLinear.svg";
 import frameOne from "../../assets/Website/LandingPage/Hero-Section/1ndFrame.png";
 import frameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
 import cambodiaFlag from "../../assets/Website/LandingPage/Features-Section/flag-for-cambodia-svgrepo-com.svg";
 import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
-import apsara from "../../assets/Website/LandingPage/Features-Section/Apsara.png";
+import apsara from "../../assets/Website/LandingPage/Features-Section/AsparaWhyChoose.svg";
 import spiralArrow from "../../assets/Website/LandingPage/Features-Section/SpiralArrow.png";
 import arrowWithPlane from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import { fadeInUp, popIn, staggerContainer, viewportOnce } from "../../lib/animations";
@@ -19,7 +20,7 @@ const benefits = [
 
 export default function WhyChooseVisora() {
   return (
-    <section className="relative isolate w-full overflow-hidden px-8 py-20 sm:px-16 lg:px-20 lg:py-24" style={{ aspectRatio: "1441 / 927" }}>
+    <section className="features-section relative isolate w-full overflow-hidden px-8 py-20 sm:px-16 lg:px-20 lg:py-24">
       <motion.img
         src={blobArtwork}
         alt=""
@@ -30,8 +31,9 @@ export default function WhyChooseVisora() {
         viewport={viewportOnce}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
       />
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
-      <div className="pointer-events-none absolute inset-0 z-[2] bg-sparkle opacity-70" />
+      <img src={linearBg} alt="" aria-hidden="true" className="features-linear-bg" />
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
+      <div className="pointer-events-none absolute inset-0 z-[3] bg-sparkle opacity-70" />
       <div aria-hidden="true" className="features-decorations">
         <img src={spiralArrow} alt="" className="features-spiral" />
         <div className="features-plane-tile">
