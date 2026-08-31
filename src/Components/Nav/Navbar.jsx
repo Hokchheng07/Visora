@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import visoraLogo from "../../assets/Website/visora-logo.png";
-import navbarBg from "../../assets/Website/navbar-bg.png";
+import visoraLogo from "../../assets/Website/VisoraLogo.png";
+import navbarBg from "../../assets/Website/Nav/navbar-bg-opaque.png";
+import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
 
 // Recreated from the Visora Figma file, "Landing Page" > navbar instance
 // (master component 69:171). Logo + background are the actual exported
 // assets (Figma nodes 69:165 and the flattened 69:171 background/wave —
 // Figma has no separate hover-state variants for this component, so the
 // hover treatments below are original, not traced from the file).
+//
+// Logo asset names updated 2026-08-27: the old visora-logo.png /
+// MobilephoneLogo.png were replaced with VisoraLogo.png (desktop) and
+// visora-logo-mobile.png (mobile) — the new full-color "Visora" wordmark
+// in the brand purple. The `mix-blend-screen` treatment that worked on
+// the old light-on-dark mobile mark is no longer needed (the new mark
+// sits on the navbar background cleanly) and has been removed below.
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
@@ -23,7 +31,7 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
       end={to === "/"}
       onClick={onClick}
       className={({ isActive }) =>
-        `group relative inline-block font-sans text-lg font-semibold transition-colors duration-200 ${
+        `group relative inline-block font-sans text-base font-semibold transition-colors duration-200 ${
           isActive ? "text-primary" : "text-gray-900 hover:text-primary"
         } ${className}`
       }
@@ -49,21 +57,28 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50">
       <div
-        className="relative h-[186px] w-full bg-top bg-no-repeat"
+        className="navbar-shell relative h-[126px] w-full bg-top bg-no-repeat md:h-[146px]"
         style={{
           backgroundImage: `url(${navbarBg})`,
-          backgroundSize: "100% auto",
+          backgroundSize: "100% 100%",
         }}
       >
-        <nav className="relative z-10 mx-auto flex h-[116px] max-w-[1440px] items-center justify-between px-6 sm:px-10">
+        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">
             <img
               src={visoraLogo}
               alt="Visora"
-              className="h-[86px] w-auto"
+              className="hidden h-[86px] w-auto md:block"
               width={152}
               height={86}
+            />
+            <img
+              src={mobileLogo}
+              alt="Visora"
+              className="h-[57px] w-[102px] object-contain md:hidden"
+              width={1672}
+              height={941}
             />
           </NavLink>
 
@@ -90,7 +105,7 @@ export default function Navbar() {
             </button>
             <button
               type="button"
-              className="rounded-full bg-gradient-to-r from-primary to-secondary px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
+              className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
             >
               Sign In
             </button>
@@ -129,7 +144,7 @@ export default function Navbar() {
           </ul>
           <button
             type="button"
-            className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-secondary px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+            className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
           >
             Sign In
           </button>
