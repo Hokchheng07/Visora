@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import Login from "./Components/Auth/Login.jsx";
+import CvTemplate from "./Components/Features/CvTemplate.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/cv",
+    element: <CvTemplate />,
   },
 ]);
 

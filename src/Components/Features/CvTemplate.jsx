@@ -1,4 +1,7 @@
 import React from "react";
+import visora from "../../assets/Website/visora-logo-mobile.png";
+import penIcon from "../../assets/Website/PictureCvPage/pen.png";
+import trialIcon from "../../assets/Website/PictureCvPage/trailIcon.png";
 import {
   Grid,
   Square,
@@ -22,42 +25,38 @@ import {
   Save,
   FileText
 } from "lucide-react";
-
+import { transform } from "zod";
 export default function CvTemplate() {
   return (
     <div className="flex h-screen w-full flex-col bg-slate-100 font-sans text-slate-800">
       {/* --- TOP NAVBAR --- */}
-      <header className="flex h-14 w-full items-center justify-between border-b bg-white px-4 shadow-sm">
+      <header className="flex h-18 w-full items-center justify-between border-b bg-6854DA px-4 shadow-sm">
         {/* Brand & Mode */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 font-bold text-amber-500 text-xl">
-            <span className="bg-amber-400 text-purple-900 px-3 py-1 rounded-full font-black italic">
-              Visora
-            </span>
+            <img src= {visora} alt="visora" className="h-auto w-40 sm:w-48 p-9" />
           </div>
-          <button className="flex items-center gap-1 rounded-md bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-200">
-            Editing <ChevronDown className="h-4 w-4" />
+          <button className="flex items-center gap-1 rounded-md px-3 pt-2 text-lg font-semibold text-black hover:bg-amber-200">
+           <span><img src={penIcon}/></span> Editing <ChevronDown className="h-4 w-4" />
           </button>
-          <span className="text-sm font-medium text-slate-600 hidden md:inline">
-            Black white Minimalist CV Resume
+          <span className="text-sm font-semibold pt-2 pl-120 text-black hidden md:inline">
+            Black white Minimalist CV Resume  
+          </span>
+          <span className="text-sm font-semibold pt-2 px-5 text-black hidden md:inline">
+            <img src= {trialIcon} alt="" />
           </span>
         </div>
-
-        {/* Top Actions */}
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-            <Sparkles className="h-4 w-4 text-purple-600" /> Start your free trial
+         <div className="flex  p-8 gap-5" >
+           <button className="flex items-center gap-1.5  rounded-md border border-slate-300 bg-white px-8 py-3.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+            <Save className="h-4 w-4 text-lg" /> Save
           </button>
-          <button className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-            <Save className="h-4 w-4" /> Save
-          </button>
-          <button className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700">
+          <button className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-5 py-3 text-xs font-semibold text-white hover:bg-indigo-700">
             <Download className="h-4 w-4" /> Export
-          </button>
-          <button className="flex items-center gap-1.5 rounded-md bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700">
+          </button> 
+          <button className="flex items-center gap-1.5 rounded-md bg-purple-600 px-5 py-3 text-xs font-semibold text-white hover:bg-purple-700">
             <Share2 className="h-4 w-4" /> Share
           </button>
-        </div>
+         </div>
       </header>
 
       {/* --- MAIN BODY --- */}
@@ -65,7 +64,6 @@ export default function CvTemplate() {
         {/* 1. PRIMARY SIDEBAR */}
         <aside className="flex w-16 flex-col items-center gap-6 border-r bg-white py-4 text-xs font-medium text-slate-500">
           <button className="flex flex-col items-center gap-1 text-purple-600">
-            <Grid className="h-5 w-5" />
             <span>Templates</span>
           </button>
           <button className="flex flex-col items-center gap-1 hover:text-slate-900">
