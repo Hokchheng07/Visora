@@ -28,9 +28,9 @@ import {
 import { transform } from "zod";
 export default function CvTemplate() {
   return (
-    <div className="flex h-screen w-full flex-col bg-slate-100 font-sans text-slate-800">
+    <div className="cv-editor flex h-screen w-full flex-col bg-slate-100 font-sans text-slate-800">
       {/* --- TOP NAVBAR --- */}
-      <header className="flex h-18 w-full items-center justify-between border-b bg-6854DA px-4 shadow-sm">
+      <header className="cv-editor-header flex h-18 w-full items-center justify-between border-b bg-6854DA px-4 shadow-sm">
         {/* Brand & Mode */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 font-bold text-amber-500 text-xl">
@@ -39,7 +39,7 @@ export default function CvTemplate() {
           <button className="flex items-center gap-1 rounded-md px-3 pt-2 text-lg font-semibold text-black hover:bg-amber-200">
            <span><img src={penIcon}/></span> Editing <ChevronDown className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold pt-2 pl-120 text-black hidden md:inline">
+          <span className="cv-editor-title text-sm font-semibold pt-2 pl-120 text-black hidden md:inline">
             Black white Minimalist CV Resume  
           </span>
           <span className="text-sm font-semibold pt-2 px-5 text-black hidden md:inline">
@@ -60,9 +60,9 @@ export default function CvTemplate() {
       </header>
 
       {/* --- MAIN BODY --- */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="cv-editor-body flex flex-1 overflow-hidden">
         {/* 1. PRIMARY SIDEBAR */}
-        <aside className="flex w-16 flex-col items-center gap-6 border-r bg-white py-4 text-xs font-medium text-slate-500">
+        <aside className="cv-editor-primary flex w-16 flex-col items-center gap-6 border-r bg-white py-4 text-xs font-medium text-slate-500">
           <button className="flex flex-col items-center gap-1 text-purple-600">
             <span>Templates</span>
           </button>
@@ -99,7 +99,7 @@ export default function CvTemplate() {
         </aside>
 
         {/* 2. SECONDARY PANEL (Templates Gallery) */}
-        <section className="w-80 overflow-y-auto border-r bg-slate-50 p-4">
+        <section className="cv-editor-secondary w-80 overflow-y-auto border-r bg-slate-50 p-4">
           <h2 className="mb-3 text-sm font-bold text-slate-800">Templates</h2>
 
           {/* Search Bar */}
@@ -145,9 +145,9 @@ export default function CvTemplate() {
         </section>
 
         {/* 3. WORKSPACE / CANVAS AREA */}
-        <main className="flex flex-1 flex-col items-center overflow-y-auto bg-slate-200 p-6 relative">
+        <main className="cv-editor-workspace relative flex flex-1 flex-col items-center overflow-y-auto bg-slate-200 p-6">
           {/* Floating Context Toolbar */}
-          <div className="mb-6 flex items-center gap-3 rounded-md bg-rose-50/80 px-4 py-1.5 shadow-sm border border-rose-100 backdrop-blur-sm">
+          <div className="cv-editor-toolbar mb-6 flex items-center gap-3 rounded-md bg-rose-50/80 px-4 py-1.5 shadow-sm border border-rose-100 backdrop-blur-sm">
             <button className="rounded bg-white px-2 py-1 text-xs font-semibold shadow-sm border">
               Montserrat
             </button>
@@ -167,7 +167,7 @@ export default function CvTemplate() {
           </div>
 
           {/* The Resume Document Canvas (A4 Sheet Preview) */}
-          <div className="relative w-[500px] min-h-[700px] bg-white shadow-xl rounded-sm flex flex-col text-slate-800">
+          <div className="cv-editor-canvas relative w-[500px] min-h-[700px] bg-white shadow-xl rounded-sm flex flex-col text-slate-800">
             {/* Top Toolbar overlay on canvas */}
             <div className="absolute right-2 top-2 flex gap-1.5 text-slate-400">
               <FileText className="h-4 w-4 cursor-pointer hover:text-slate-600" />

@@ -104,7 +104,7 @@
 }
 
 /* Navbar background exported from the responsive Figma design. */
-.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; }
+.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: fill; pointer-events: none; }
 
 /*
  * ============================================================
@@ -148,15 +148,6 @@
 .hero-blob-copy { z-index: 10; }
 .hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
-/* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row —
- stretching it over a stacked column would squash/distort it, so it's
- hidden below sm and swapped for a plain CSS card background instead. */
-@media (max-width: 639px) {
-  .hero-stats { background: #fffdf8; box-shadow: 0 8px 24px rgba(17, 17, 17, .06); }
-  .hero-stat-row { width: 100%; padding: .35rem .25rem; border-bottom: 1px solid rgba(17, 17, 17, .07); }
-  .hero-stat-row:last-child { border-bottom: none; }
-}
-
 
 .hero-art {
   position: absolute;
@@ -250,9 +241,6 @@
   filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
 }
 
-.hero-arrow-lane { height: auto; aspect-ratio: 576 / 245; max-width: min(576px, 82vw); }
-.hero-arrow-lane img { display: block; width: 100%; height: 100%; object-fit: contain; }
-
 /*
  * ============================================================
  * POPULARTEMPLATES section — pictures & doodles
@@ -273,6 +261,7 @@
  * FEATURES section (WhyChooseVisora) — pictures
  * ============================================================
  */
+.why-choose-arrow-scissors { width: 460px; height: auto; }
 .why-choose-blob {
   border-radius: 58% 0 0 0 / 48% 0 0 0;
   transform: rotate(-4deg);
@@ -290,10 +279,9 @@
 }
 
 /* Why Choose Visora decorative picture layers. */
-.features-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.features-linear-bg { position: absolute; top: 0; left: 50%; z-index: 1; display: block; width: 100vw; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; transform: translateX(-50%); pointer-events: none; }
+.features-art { position: absolute; inset: -1px; z-index: 0; width: calc(100% + 2px); height: calc(100% + 2px); object-fit: cover; pointer-events: none; }
+.features-linear-bg { position: absolute; inset: 0; z-index: 1; width: 100%; max-width: none; height: 100%; object-fit: fill; pointer-events: none; }
 .features-section { aspect-ratio: 1441 / 927; }
-.features-benefits-grid { margin-inline: 0; }
 .features-decorations { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: none; }
 @media (min-width: 1024px) {
   .features-decorations {
@@ -305,16 +293,13 @@
 .features-plane { width: 100%; height: 100%; object-fit: contain; }
 @media (max-width: 1023px) {
   .features-section { aspect-ratio: auto !important; min-height: 0; }
-  .features-linear-bg { left: 0; width: 100%; transform: none; }
 }
 
 /* Create without Limits — the next feature showcase section. */
 .create-limits-section { min-height: 1750px; background-color: white; }
 .create-limits-corners { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.create-limits-yellow-art { position: absolute; top: 0; right: 0; width: 100%; max-width: none; height: auto; aspect-ratio: 1440 / 967; object-fit: contain; }
+.create-limits-yellow-art { position: absolute; top: 0; right: 0; width: 100%; max-width: none; height: auto; aspect-ratio: 1440 / 967; object-fit: contain; transform: translateY(-11%); }
 .create-limits-purple-art { position: absolute; bottom: 0; left: 0; width: 100%; max-width: none; height: auto; object-fit: contain; }
-.create-limits-transition-arrow { position: absolute; top: clamp(-1.5rem, -1vw, -.5rem); left: calc(50% + clamp(0px, 10vw, 150px)); z-index: 5; width: min(1120px, 92vw); transform: translateX(-50%); pointer-events: none; }
-.create-limits-transition-arrow img { display: block; width: 100%; height: auto; }
 .create-limits-header { margin: 0 auto; max-width: 900px; text-align: center; }
 .create-limits-header h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.04em; color: #000; }
 .create-limits-header h2 span { color: var(--color-primary); }
@@ -327,9 +312,9 @@
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
 .create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
 .create-limits-first-shape img { position: absolute; object-fit: contain; }
-.create-limits-first-solid { left: 11.36%; top: 14.08%; width: 77.97%; height: 69.83%; }
-.create-limits-first-inner { left: 12.71%; top: 9.79%; width: 81.58%; height: 69.63%; }
-.create-limits-first-dashed { left: 14.5%; top: 9.74%; width: 75.6%; height: 72.62%; }
+.create-limits-first-solid { left: 12.5%; top: 15.1%; width: 75.7%; height: 67.8%; }
+.create-limits-first-inner { left: 13.9%; top: 10.8%; width: 79.2%; height: 67.6%; }
+.create-limits-first-dashed { left: 15.6%; top: 10.8%; width: 73.4%; height: 70.5%; }
 .create-limits-first-preview { position: absolute; left: 47.4%; top: 20.3%; width: 10.6%; height: 11.6%; object-fit: cover; }
 .create-limits-card-fill { opacity: .82; }
 .create-limits-card-outline, .create-limits-card-dashed { fill: none; stroke: #111; stroke-linecap: round; stroke-linejoin: round; }
@@ -341,15 +326,6 @@
 .create-limits-icon span { position: absolute; right: -.4rem; top: -.2rem; font-size: 1.2rem; }
 .create-limits-card h3 { position: absolute; top: 33.43%; left: 12%; width: 76%; margin: 0; color: #111; font-size: clamp(1rem, 1.25vw, 1.5rem); font-weight: 600; line-height: 1.2; white-space: nowrap; }
 .create-limits-card p { position: absolute; top: 45.82%; left: 15%; width: 70%; margin: 0; color: #666; font-size: clamp(.8rem, 1.05vw, 1.12rem); line-height: 1.5; }
-@media (max-width: 1023px) {
-  .features-benefits-grid { max-width: 760px; margin-inline: auto; transform: none; }
-}
-@media (max-width: 639px) {
-  .features-benefits-grid { gap: 2.5rem; }
-  .features-benefits-grid article { min-height: 0; }
-  .features-benefits-grid article h3 { font-size: clamp(1.2rem, 5vw, 1.5rem); }
-  .features-benefits-grid article p { max-width: 38rem; font-size: clamp(.95rem, 4vw, 1.1rem); }
-}
 @media (min-width: 901px) and (max-width: 1500px) {
   .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; max-width: 1400px; }
   .create-limits-card h3 { white-space: normal; }
@@ -364,41 +340,9 @@
   .create-limits-grid { grid-template-columns: 1fr; margin-top: 3rem; }
   .create-limits-card { max-width: 479.87px; width: 100%; margin-inline: auto; }
   .create-limits-corners { opacity: .85; }
+  .create-limits-yellow-art { transform: translateY(0); }
   .create-limits-yellow-art { width: 100%; max-width: none; }
   .create-limits-purple-art { width: 100%; }
-}
-
-/* Keep the editor usable on phones without changing its desktop workspace. */
-.cv-editor-canvas { max-width: 100%; }
-@media (max-width: 767px) {
-  .navbar-nav { padding-inline: 1rem; }
-  .hero-content { padding-top: 1rem; }
-  .hero-blob-card > .relative { aspect-ratio: 2 / 3 !important; }
-  .hero-blob-copy { padding-inline: 1rem; padding-block: 1.5rem; }
-  .hero-search { margin-top: 1.25rem; }
-  .hero-search-exclamation { left: .5rem; top: -3.25rem; width: 3.5rem; height: 3rem; }
-  .hero-arrow-lane { margin-top: 1.25rem; max-width: 82vw; }
-  .hero-stats { margin-top: 2.5rem; }
-  .features-section { padding-inline: 1.25rem; padding-block: 4rem; }
-  .features-section h2 { font-size: clamp(2.25rem, 11vw, 3.5rem); line-height: 1.1; }
-  .create-limits-transition-arrow { left: 50%; width: 100%; }
-  .cv-editor-header { min-height: 4.5rem; height: auto; padding: .5rem .75rem; }
-  .cv-editor-header > div:first-child { min-width: 0; gap: .5rem; }
-  .cv-editor-header img { width: 7rem; padding: .25rem; }
-  .cv-editor-header button { padding-inline: .5rem; font-size: .75rem; }
-  .cv-editor-header > div:last-child { gap: .35rem; padding: 0; }
-  .cv-editor-header > div:last-child button { padding: .55rem .6rem; }
-  .cv-editor-primary { width: 3.5rem; flex: none; gap: 1rem; overflow-y: auto; }
-  .cv-editor-secondary { display: none; }
-  .cv-editor-workspace { min-width: 0; padding: .75rem; }
-  .cv-editor-toolbar { width: 100%; flex-wrap: wrap; justify-content: center; gap: .4rem; margin-bottom: .75rem; padding: .5rem; }
-  .cv-editor-canvas { width: 100%; min-height: 700px; }
-}
-@media (max-width: 420px) {
-  .cv-editor-title { display: none; }
-  .cv-editor-header > div:last-child button { font-size: 0; }
-  .cv-editor-header > div:last-child button svg { margin: 0; }
-  .cv-editor-workspace { padding-inline: .5rem; }
 }
 
 body {
@@ -419,7 +363,7 @@ body {
 .khmer-showcase-content h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; letter-spacing: -.04em; }
 .khmer-showcase-content h2 span { color: var(--color-primary); }
 .khmer-showcase-ornament-wrap { position: relative; display: flex; align-items: center; justify-content: center; height: auto; margin-bottom: 10%; margin-top: 2%; }
-.khmer-showcase-ornament { width: min(400px, 60vw); height: auto; margin: .5rem auto -1rem; object-fit: contain; }
+.khmer-showcase-ornament { width: 400px; height: 400x; margin: .5rem auto -1rem; object-fit: contain; }
 .khmer-showcase-body { display: flex; flex-direction: column; align-items: center; align-self: center;}
 .khmer-showcase-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
 .khmer-showcase-card { position: relative; width: 100%; aspect-ratio: 1.58; display: flex; align-items: center; justify-content: center; }
@@ -464,7 +408,7 @@ body {
   }
 
   .hero-arrow-lane {
-    height: auto;
+    height: 4.5rem;
     margin-top: 0.75rem !important;
   }
 
