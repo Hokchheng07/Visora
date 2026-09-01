@@ -58,7 +58,7 @@ export default function Navbar() {
     <header className="relative sticky top-0 z-50">
       <img src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
       <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
-        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] max-w-[1440px] items-center justify-between px-6 sm:px-10 md:h-[116px]">
+        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] w-full items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">
             <img

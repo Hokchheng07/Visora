@@ -3,12 +3,12 @@ import { motion } from "motion/react";
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import scissors from "../../assets/Website/LandingPage/Hero-Section/DoodleScissors.png";
 import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
-import spiralArrow from "../../assets/Website/LandingPage/Features-Section/SpiralArrow.png";
+import spiralArrow from "../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
 import templateOne from "../../assets/Website/LandingPage/Hero-Section/PurpleFrameNPicture.png";
 import templateTwo from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
 import { fadeIn, fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations";
-import topWave from "../../assets/Website/LandingPage/Features-Section/PopularTemplateTopWave.svg";
-import lowerWave from "../../assets/Website/LandingPage/Features-Section/PopularTemplateLowerWave.svg";
+import topWave from "../../assets/Website/LandingPage/PopularTemplates/PopularTemplateTopWave.svg";
+import lowerWave from "../../assets/Website/LandingPage/PopularTemplates/PopularTemplateLowerWave.svg";
 
 const templates = [
   { image: templateOne, title: "Creative doodle" },

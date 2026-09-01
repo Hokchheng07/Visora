@@ -15,11 +15,10 @@ import cardEverydayTools from "../../assets/Website/LandingPage/Hero-Section/Pur
 import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
 import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
-import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroSectionArrow.svg";
+import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroArrow.svg";
 import exclamationMark from "../../assets/Website/LandingPage/Hero-Section/ExclimationMark.svg";
-import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/Stats/HeroStatsBg.svg";
-import statPurpleBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/PurpleBackground.svg";
-import statYellowBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/YellowBackground.svg";
+import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/HeroStatsBg.svg";
+import statFrameOne from "../../assets/Website/LandingPage/Hero-Section/1ndFrame.png";
 import statFrameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
 import { fadeIn, fadeInUp, scaleIn, staggerContainer } from "../../lib/animations";
 
@@ -50,10 +49,9 @@ const STATS = [
     value: "500+",
     label: "Ready Templates",
     icon: "ph-upload-simple-bold",
-    frame: statFrameTwo,
+    frame: statFrameOne,
     badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
-    badgeBackground: statYellowBackground,
+    iconClass: "text-secondary",
   },
   {
     value: "10K+",
@@ -61,17 +59,15 @@ const STATS = [
     icon: "ph-pen-nib-bold",
     frame: statFrameTwo,
     badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
-    badgeBackground: statPurpleBackground,
+    iconClass: "text-primary",
   },
   {
     value: "50K+",
     label: "Happy Users",
     icon: "ph-smiley-bold",
-    frame: statFrameTwo,
+    frame: statFrameOne,
     badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
-    badgeBackground: statYellowBackground,
+    iconClass: "text-secondary",
   },
   {
     value: "27/7",
@@ -79,8 +75,7 @@ const STATS = [
     icon: "ph-lifebuoy-bold",
     frame: statFrameTwo,
     badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
-    badgeBackground: statPurpleBackground,
+    iconClass: "text-primary",
   },
 ];
 
@@ -167,7 +162,7 @@ const Hero = () => {
         {/* Keep the dotted path and scissors in a dedicated lane below the
             search field so they cannot overlap it at any viewport width. */}
         <motion.div
-          className="hero-arrow-lane relative z-10 mx-auto mt-8 w-full"
+          className="hero-arrow-lane relative z-10 mx-auto mt-8 h-28 w-full max-w-[720px]"
           initial="hidden"
           animate="show"
           variants={fadeIn}
@@ -178,18 +173,17 @@ const Hero = () => {
 
         {/* STATS */}
         <motion.div
-          className="hero-stats relative z-20 mx-auto mt-20 flex min-h-[89px] max-w-[1062px] flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-x-10 sm:gap-y-6 rounded-2xl px-5 py-4 sm:px-10 sm:py-[15px] sm:justify-between"
+          className="hero-stats relative z-20 mx-auto mt-25 flex min-h-[89px] max-w-[1062px] flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl px-8 py-[15px] sm:px-10 sm:py-[15px] sm:justify-between"
           initial="hidden"
           animate="show"
           variants={staggerContainer(0.1, 1.25)}
         >
-          <img src={heroStatsBg} alt="" aria-hidden="true" className="hero-stats-bg hidden sm:block" />
-          {STATS.map(({ value, label, icon, frame, badgeClass, iconClass, badgeBackground }) => (
-            <motion.div key={label} className="hero-stat-row flex items-center gap-3 sm:bg-transparent" variants={fadeInUp}>
+          <img src={heroStatsBg} alt="" aria-hidden="true" className="hero-stats-bg" />
+          {STATS.map(({ value, label, icon, frame, badgeClass, iconClass }) => (
+            <motion.div key={label} className="flex items-center gap-3" variants={fadeInUp}>
               <div
                 className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
               >
-                <img src={badgeBackground} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]" />
                 <img src={frame} alt="" aria-hidden="true" className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain" />
                 <i aria-hidden="true" className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`} />
               </div>
