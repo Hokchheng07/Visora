@@ -1,9 +1,6 @@
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
-import {
-  MagnifyingGlassIcon,
-  ArrowRightIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import "../../styles/phosphor-stats.css";
 
 import heroDashed from "../../assets/Website/LandingPage/Hero-Section/HeroDashedVector.svg";
@@ -16,12 +13,17 @@ import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/Yello
 import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
 import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroSectionArrow.svg";
-import exclamationMark from "../../assets/Website/LandingPage/Hero-Section/ExclimationMark.svg";
 import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/Stats/HeroStatsBg.svg";
 import statPurpleBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/PurpleBackground.svg";
 import statYellowBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/YellowBackground.svg";
 import statFrameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
-import { fadeIn, fadeInUp, scaleIn, staggerContainer } from "../../lib/animations";
+import {
+  fadeIn,
+  fadeInUp,
+  scaleIn,
+  staggerContainer,
+} from "../../lib/animations/animations";
+import { useAnimeSplitText } from "../../hooks/useAnimeSplitText";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
 // nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
@@ -39,10 +41,24 @@ const CANVAS = { w: 1920, h: 1080 };
 // Decorative doodle positions/sizes are defined in src/index.css under the
 // `.hero-doodle-*` classes (kept in CSS for easy design tweaking).
 const DOODLES = [
-  { src: airplaneDoodle, className: "hero-doodle hero-doodle-plane-left hero-plane-left" },
-  { src: doodlePlaneLoop, className: "hero-doodle hero-doodle-plane-right hero-plane-right" },
-  { src: cardEverydayTools, className: "hero-doodle hero-doodle-frame-one hero-frame-bounce hero-frame-one" },
-  { src: cardThingsArent, className: "hero-doodle hero-doodle-frame-two hero-frame-bounce hero-frame-two" },
+  {
+    src: airplaneDoodle,
+    className: "hero-doodle hero-doodle-plane-left hero-plane-left",
+  },
+  {
+    src: doodlePlaneLoop,
+    className: "hero-doodle hero-doodle-plane-right hero-plane-right",
+  },
+  {
+    src: cardEverydayTools,
+    className:
+      "hero-doodle hero-doodle-frame-one hero-frame-bounce hero-frame-one",
+  },
+  {
+    src: cardThingsArent,
+    className:
+      "hero-doodle hero-doodle-frame-two hero-frame-bounce hero-frame-two",
+  },
 ];
 
 const STATS = [
@@ -112,7 +128,7 @@ const Hero = () => {
 
       <div className="hero-content relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
         {/* HEADLINE BLOB CARD */}
-        <div className="hero-blob-card relative mx-auto w-full max-w-[1040px]">
+        <div className="hero-blob-card relative mx-auto w-full max-w-[1156px]">
           {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
           <motion.div
             className="relative mx-auto aspect-[799.8/512.8] w-full"
@@ -121,11 +137,31 @@ const Hero = () => {
             animate="show"
             variants={scaleIn}
           >
-            <img src={heroOuter} alt="" className="hero-vector hero-vector-outer" />
-            <img src={heroMiddle} alt="" className="hero-vector hero-vector-middle" />
-            <img src={heroInner} alt="" className="hero-vector hero-vector-inner" />
-            <img src={heroSolid} alt="" className="hero-vector hero-vector-solid" />
-            <img src={heroDashed} alt="" className="hero-vector hero-vector-dashed" />
+            <img
+              src={heroOuter}
+              alt=""
+              className="hero-vector hero-vector-outer"
+            />
+            <img
+              src={heroMiddle}
+              alt=""
+              className="hero-vector hero-vector-middle"
+            />
+            <img
+              src={heroInner}
+              alt=""
+              className="hero-vector hero-vector-inner"
+            />
+            <img
+              src={heroSolid}
+              alt=""
+              className="hero-vector hero-vector-solid"
+            />
+            <img
+              src={heroDashed}
+              alt=""
+              className="hero-vector hero-vector-dashed"
+            />
             <motion.div
               className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
               initial="hidden"
@@ -135,85 +171,99 @@ const Hero = () => {
               <HeroCopy />
             </motion.div>
           </motion.div>
-
         </div>
 
-        {/* SEARCH BAR */}
-        <motion.div
-          className="hero-search relative z-20 mx-auto mt-8 max-w-[620px]"
-          initial="hidden"
-          animate="show"
-          variants={fadeInUp}
-          transition={{ duration: 0.6, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
-        >
+        {/* Keep the dotted path and scissors attached to the stats block. */}
+        <div className="hero-stats-group relative z-20 mx-auto mt-20 w-full max-w-[1156px]">
+          <motion.div
+            className="hero-arrow-lane relative z-10 mx-auto w-full"
+            initial="hidden"
+            animate="show"
+            variants={fadeIn}
+            transition={{ duration: 0.7, delay: 1.1 }}
+          >
+            <img
+              src={heroArrow}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </motion.div>
+
+          {/* STATS */}
+          <motion.div
+            className="hero-stats relative z-20 mx-auto mt-0 flex min-h-[89px] max-w-[1062px] flex-col items-stretch justify-center gap-3 rounded-2xl px-5 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:gap-y-6 sm:px-10 sm:py-[15px]"
+            initial="hidden"
+            animate="show"
+            variants={staggerContainer(0.1, 1.25)}
+          >
           <img
-            src={exclamationMark}
+            src={heroStatsBg}
             alt=""
             aria-hidden="true"
-            className="hero-search-exclamation pointer-events-none absolute -left-[51px] -top-14 h-[68px] w-[84px] object-contain sm:-left-[55px] sm:-top-16 sm:h-[76px] sm:w-[94px]"
-            style={{ transform: "scaleX(-1)" }}
+            className="hero-stats-bg hidden sm:block"
           />
-          <div className="flex items-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3.5 sm:py-4">
-            <MagnifyingGlassIcon className="h-6 w-6 flex-none text-gray-500" />
-            <span className="h-6 w-px flex-none bg-gray-300" />
-            <input
-              type="text"
-              placeholder="Search Templates"
-              className="w-full text-[18px] text-[#585858] outline-none placeholder:text-[#585858] sm:text-[20px]"
-            />
-          </div>
-        </motion.div>
-
-        {/* Keep the dotted path and scissors in a dedicated lane below the
-            search field so they cannot overlap it at any viewport width. */}
-        <motion.div
-          className="hero-arrow-lane relative z-10 mx-auto mt-8 w-full"
-          initial="hidden"
-          animate="show"
-          variants={fadeIn}
-          transition={{ duration: 0.7, delay: 1.1 }}
-        >
-          <img src={heroArrow} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-contain" />
-        </motion.div>
-
-        {/* STATS */}
-        <motion.div
-          className="hero-stats relative z-20 mx-auto mt-20 flex min-h-[89px] max-w-[1062px] flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-x-10 sm:gap-y-6 rounded-2xl px-5 py-4 sm:px-10 sm:py-[15px] sm:justify-between"
-          initial="hidden"
-          animate="show"
-          variants={staggerContainer(0.1, 1.25)}
-        >
-          <img src={heroStatsBg} alt="" aria-hidden="true" className="hero-stats-bg hidden sm:block" />
-          {STATS.map(({ value, label, icon, frame, badgeClass, iconClass, badgeBackground }) => (
-            <motion.div key={label} className="hero-stat-row flex items-center gap-3 sm:bg-transparent" variants={fadeInUp}>
-              <div
-                className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
+          {STATS.map(
+            ({
+              value,
+              label,
+              icon,
+              frame,
+              badgeClass,
+              iconClass,
+              badgeBackground,
+            }) => (
+              <motion.div
+                key={label}
+                className="hero-stat-row flex items-center gap-3 sm:bg-transparent"
+                variants={fadeInUp}
               >
-                <img src={badgeBackground} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]" />
-                <img src={frame} alt="" aria-hidden="true" className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain" />
-                <i aria-hidden="true" className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`} />
-              </div>
-              <div className="text-left">
-                <p className="text-[15px] font-semibold text-black/90">{value}</p>
-                <p className="text-[13px] font-semibold text-[#585858]">{label}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                <div
+                  className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
+                >
+                  <img
+                    src={badgeBackground}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
+                  />
+                  <img
+                    src={frame}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain"
+                  />
+                  <i
+                    aria-hidden="true"
+                    className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`}
+                  />
+                </div>
+                <div className="text-left">
+                  <p className="text-[15px] font-semibold text-black/90">
+                    {value}
+                  </p>
+                  <p className="text-[13px] font-semibold text-[#585858]">
+                    {label}
+                  </p>
+                </div>
+              </motion.div>
+            ),
+          )}
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 };
 
 function HeroCopy() {
+  const headingRef = useAnimeSplitText();
+
   return (
     <>
-      <motion.p className="text-[13px] font-semibold text-[#262626] sm:text-[14px]" variants={fadeInUp}>
-        Design, Display, Inspire.
-      </motion.p>
-
       <motion.h1
-        className="mx-auto mt-4 w-full max-w-[720px] px-2 font-semibold leading-[1.15] text-black text-[32px] sm:text-[36px] lg:text-[40px]"
+        ref={headingRef}
+        className="mx-auto mt-4 w-full max-w-[1040px] px-2 font-semibold leading-[1.18] tracking-[0.01em] text-black text-[32px] sm:text-[44px] lg:text-[68px] xl:text-[80px]"
         variants={fadeInUp}
       >
         Design Stunning
@@ -225,11 +275,14 @@ function HeroCopy() {
         className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[#585858] sm:text-[16px]"
         variants={fadeInUp}
       >
-        Visora helps you create beautiful event backdrops with khmer
-        elements, timers, and everything you need.
+        Visora helps you create beautiful event backdrops with khmer elements,
+        timers, and everything you need.
       </motion.p>
 
-      <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-4" variants={fadeInUp}>
+      <motion.div
+        className="mt-8 flex flex-wrap items-center justify-center gap-4"
+        variants={fadeInUp}
+      >
         <NavLink
           to="/design"
           className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-[13px] font-semibold text-white transition-transform duration-200 hover:scale-[1.03]"

@@ -6,7 +6,13 @@ import github from "../../assets/Website/Footer-Section/github.png";
 import letter from "../../assets/Website/Footer-Section/letter.png";
 import line from "../../assets/Website/Footer-Section/line.png";
 import logo from "../../assets/Website/Footer-Section/logo.png";
-import { fadeIn, fadeInUp, scaleIn, staggerContainer, viewportOnce } from "../../lib/animations";
+import {
+  fadeIn,
+  fadeInUp,
+  scaleIn,
+  staggerContainer,
+  viewportOnce,
+} from "../../lib/animations/animations";
 
 const footerLinks = [
   {
@@ -45,13 +51,7 @@ const footerLinks = [
   {
     title: "Support",
     color: "accent",
-    links: [
-      "About Us",
-      "Our Story",
-      "Press Kit",
-      "Careers",
-      "Contact Us",
-    ],
+    links: ["About Us", "Our Story", "Press Kit", "Careers", "Contact Us"],
   },
 ];
 
@@ -96,7 +96,7 @@ const ZigzagUnderline = ({ color }) => (
 const Footer = () => {
   return (
     <footer className="bg-sparkle relative overflow-hidden bg-white font-sans text-[#252525]">
-     <div className="relative z-10 mx-auto max-w-[1440px] px-5 pt-10 pb-24 sm:px-8 sm:pt-12 lg:px-10 lg:pt-14 lg:pb-28 xl:px-14">
+      <div className="relative z-10 mx-auto max-w-[1440px] px-5 pt-10 pb-24 sm:px-8 sm:pt-12 lg:px-10 lg:pt-14 lg:pb-28 xl:px-14">
         {/* TOP FOOTER */}
         <motion.div
           className="grid grid-cols-1 gap-12 xl:grid-cols-[1.05fr_2.3fr_1fr] xl:gap-10"
@@ -106,7 +106,10 @@ const Footer = () => {
           variants={staggerContainer(0.15, 0)}
         >
           {/* BRAND */}
-          <motion.div className="flex flex-col items-center text-center xl:items-start xl:text-left" variants={fadeInUp}>
+          <motion.div
+            className="flex flex-col items-center text-center xl:items-start xl:text-left"
+            variants={fadeInUp}
+          >
             <img
               src={visoraLogo}
               alt="Visora"
@@ -118,8 +121,8 @@ const Footer = () => {
             </h3>
 
             <p className=" text-center mt-4 max-w-[320px] text-[15px] leading-7 text-gray-500 sm:text-[16px]">
-              Create beautiful immersive backdrops with ease so you can focus
-              on what truly matters.
+              Create beautiful immersive backdrops with ease so you can focus on
+              what truly matters.
             </p>
 
             {/* SOCIAL ICONS */}
@@ -173,7 +176,10 @@ const Footer = () => {
           </motion.div>
 
           {/* NEWSLETTER */}
-          <motion.div className="flex justify-center xl:justify-end" variants={scaleIn}>
+          <motion.div
+            className="flex justify-center xl:justify-end"
+            variants={scaleIn}
+          >
             <div className="w-full max-w-[360px] rounded-[24px] border border-secondary/70 bg-white px-6 py-6 shadow-[0_8px_30px_rgba(104,84,218,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(104,84,218,0.16)] xl:max-w-[310px]">
               <div className="flex justify-center">
                 <img
@@ -193,10 +199,7 @@ const Footer = () => {
                 inbox.
               </p>
 
-              <form
-                className="mt-6"
-                onSubmit={(e) => e.preventDefault()}
-              >
+              <form className="mt-6" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
                   placeholder="Enter your email"
