@@ -6,7 +6,7 @@ function App() {
   return (
     <>
       <Navbar />
-      <Footer/>
+      <Footer className="relative shrink-0 overflow-hidden bg-white"/>
     </>
     
   );
