@@ -8,13 +8,38 @@ import screwCard from "../../assets/Website/LandingPage/WhyChooseVisora/ScrewCar
 import entireBlue from "../../assets/Website/LandingPage/WhyChooseVisora/EntireBlue(WhyChoose).svg";
 import entirePink from "../../assets/Website/LandingPage/WhyChooseVisora/EntirePink(WhyChoose)..svg";
 import entireYellow from "../../assets/Website/LandingPage/WhyChooseVisora/EntireYellow(WhyChoose)..svg";
-import { fadeInUp, popIn, staggerContainer, viewportOnce } from "../../lib/animations";
+import {
+  fadeInUp,
+  popIn,
+  staggerContainer,
+  viewportOnce,
+} from "../../lib/animations/animations";
 
 const benefits = [
-  { title: "Easy to Customize", copy: "Design beautiful backdrops without advanced design skills.", color: "#705ae0", groupedIcon: screwCard },
-  { title: "Khmer-Inspired", copy: "Use Cambodian cultural elements and Khmer fonts.", color: "#45bfd1", groupedIcon: entireBlue },
-  { title: "Event Ready", copy: "Add countdown timers and event information.", color: "#ffc21c", groupedIcon: entireYellow },
-  { title: "Display Anywhere", copy: "Designed for projectors, TVs, LED screens and large displays.", color: "#e16ac9", groupedIcon: entirePink },
+  {
+    title: "Easy to Customize",
+    copy: "Design beautiful backdrops without advanced design skills.",
+    color: "#705ae0",
+    groupedIcon: screwCard,
+  },
+  {
+    title: "Khmer-Inspired",
+    copy: "Use Cambodian cultural elements and Khmer fonts.",
+    color: "#45bfd1",
+    groupedIcon: entireBlue,
+  },
+  {
+    title: "Event Ready",
+    copy: "Add countdown timers and event information.",
+    color: "#ffc21c",
+    groupedIcon: entireYellow,
+  },
+  {
+    title: "Display Anywhere",
+    copy: "Designed for projectors, TVs, LED screens and large displays.",
+    color: "#e16ac9",
+    groupedIcon: entirePink,
+  },
 ];
 
 export default function WhyChooseVisora() {
@@ -30,7 +55,12 @@ export default function WhyChooseVisora() {
         viewport={viewportOnce}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
       />
-      <img src={linearBg} alt="" aria-hidden="true" className="features-linear-bg" />
+      <img
+        src={linearBg}
+        alt=""
+        aria-hidden="true"
+        className="features-linear-bg"
+      />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
       <div className="pointer-events-none absolute inset-0 z-[3] bg-sparkle opacity-70" />
       <div aria-hidden="true" className="features-decorations">
@@ -76,10 +106,19 @@ export default function WhyChooseVisora() {
                 className="relative mb-5 flex h-[54px] w-[54px] items-center justify-center text-black"
                 variants={popIn}
               >
-                <img src={groupedIcon} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-contain" />
+                <img
+                  src={groupedIcon}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+                />
               </motion.div>
-              <h3 className="text-[22px] font-semibold text-[#151515] lg:text-[24px]">{title}</h3>
-              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[#666] lg:text-[18px]">{copy}</p>
+              <h3 className="text-[22px] font-semibold text-[#151515] lg:text-[24px]">
+                {title}
+              </h3>
+              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[#666] lg:text-[18px]">
+                {copy}
+              </p>
             </motion.article>
           ))}
         </motion.div>

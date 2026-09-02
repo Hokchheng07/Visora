@@ -1,7 +1,4 @@
 import { NavLink } from "react-router";
-import Graduation from "../../assets/Website/LandingPage/KhmerDesignShowCase/Graduation1.png";
-import Festival from "../../assets/Website/LandingPage/KhmerDesignShowCase/KhmerFestival.png";
-import Heritage from "../../assets/Website/LandingPage/KhmerDesignShowCase/KhmerHeritage.png";
 import apsara from "../../assets/Website/LandingPage/KhmerDesignShowCase/apsara.png";
 import angkorWat from "../../assets/Website/LandingPage/KhmerDesignShowCase/ankorwat.png";
 import topLeft from "../../assets/Website/LandingPage/KhmerDesignShowCase/TopLeftCorner.svg";
@@ -9,11 +6,8 @@ import topRight from "../../assets/Website/LandingPage/KhmerDesignShowCase/TopRi
 import bottomLeft from "../../assets/Website/LandingPage/KhmerDesignShowCase/BottomLeftCorner.svg";
 import bottomRight from "../../assets/Website/LandingPage/KhmerDesignShowCase/RightLeftCorner.svg";
 import ornament from "../../assets/Website/LandingPage/KhmerDesignShowCase/MiddleSection.svg";
-import frameOne from "../../assets/Website/LandingPage/KhmerDesignShowCase/1stFrame.svg";
-import frameTwo from "../../assets/Website/LandingPage/KhmerDesignShowCase/2ndFrame.svg";
-import frameThree from "../../assets/Website/LandingPage/KhmerDesignShowCase/3rdFrame.svg";
-
-const templates = [[Graduation, frameOne], [Festival, frameTwo], [Heritage, frameThree]];
+import TemplateCard from "../Templates/TemplateCard";
+import { templateCards } from "../Templates/templateData";
 
 export default function KhmerDesignShowcase() {
   return (
@@ -33,15 +27,12 @@ export default function KhmerDesignShowcase() {
         </div>
         <div className="khmer-showcase-body">
           <div className="khmer-showcase-cards">
-            {templates.map(([template, frame], index) => (
-              <div className="khmer-showcase-card" key={index}>
-                <img src={template} alt={`Khmer template ${index + 1}`} />
-                <img src={frame} className="khmer-showcase-card-frame" alt="" aria-hidden="true" />
-              </div>
+            {templateCards.map((template, index) => (
+              <TemplateCard key={`${template.title}-${index}`} template={template} index={index} />
             ))}
           </div>
           <NavLink to="/templates" className="khmer-showcase-button">More Templates <span>→</span></NavLink>
-          <p>Celebrate every event with designs inspired by Cambodian culture.</p>
+          <p className="khmer-showcase-tagline">Celebrate every event with designs inspired by Cambodian culture.</p>
         </div>
       </div>
     </section>

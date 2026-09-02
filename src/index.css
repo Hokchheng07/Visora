@@ -104,7 +104,14 @@
 }
 
 /* Navbar background exported from the responsive Figma design. */
-.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; }
+.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; opacity: 0.4; }
+
+@media (min-width: 768px) {
+  .navbar-nav {
+    padding-inline: clamp(3rem, 4vw, 5rem);
+    transform: translateY(-0.65rem);
+  }
+}
 
 /*
  * ============================================================
@@ -146,6 +153,9 @@
 .hero-vector-solid { z-index: 3; }
 .hero-vector-dashed { z-index: 4; }
 .hero-blob-copy { z-index: 10; }
+.hero-blob-card { width: min(1156px, 100%); margin-inline: auto; }
+.hero-section { min-height: 1100px; }
+.hero-content { min-height: 1100px; }
 .hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
 /* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row —
@@ -250,8 +260,29 @@
   filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
 }
 
-.hero-arrow-lane { height: auto; aspect-ratio: 576 / 245; max-width: min(576px, 82vw); }
+/* Anime.js wraps nested words inside the highlighted span. Reapply the
+   gradient to that inner wrapper so the word remains visible after splitting. */
+.hero-backdrop-word [data-word] {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(2px 3px 0 rgb(112 90 224 / 0.32)) drop-shadow(0 6px 8px rgb(112 90 224 / 0.18));
+}
+
+.hero-stats-group { position: relative; }
+.hero-arrow-lane { position: absolute; left: 50%; bottom: calc(100% - 2.75rem); height: auto; aspect-ratio: 550 / 118; width: min(560px, 60vw); transform: translateX(-50%); }
 .hero-arrow-lane img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+@media (min-width: 1024px) {
+  .hero-stats-group {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    margin-top: 0;
+    transform: translateX(-50%);
+  }
+}
 
 /*
  * ============================================================
@@ -304,6 +335,9 @@
 .features-plane-tile { position: absolute; right: 8%; top: 9%; display: flex; width: 200px; height: 200px; align-items: center; justify-content: center; transform: rotate(-30deg); }
 .features-plane { width: 100%; height: 100%; object-fit: contain; }
 @media (max-width: 1023px) {
+  .hero-section { min-height: auto; }
+  .hero-content { min-height: 0; }
+  .hero-stats-group { position: relative; left: auto; bottom: auto; transform: none; }
   .features-section { aspect-ratio: auto !important; min-height: 0; }
   .features-linear-bg { left: 0; width: 100%; transform: none; }
 }
@@ -327,6 +361,7 @@
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
 .create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
 .create-limits-first-shape img { position: absolute; object-fit: contain; }
+.create-limits-complete-card { position: absolute; inset: -4%; z-index: -1; width: 108%; height: 108%; object-fit: contain; }
 .create-limits-first-solid { left: 11.36%; top: 14.08%; width: 77.97%; height: 69.83%; }
 .create-limits-first-inner { left: 12.71%; top: 9.79%; width: 81.58%; height: 69.63%; }
 .create-limits-first-dashed { left: 14.5%; top: 9.74%; width: 75.6%; height: 72.62%; }
@@ -371,14 +406,15 @@
 /* Keep the editor usable on phones without changing its desktop workspace. */
 .cv-editor-canvas { max-width: 100%; }
 @media (max-width: 767px) {
-  .navbar-nav { padding-inline: 1rem; }
+  .navbar-nav { padding-inline: 1.25rem; transform: translateY(-0.35rem); }
   .hero-content { padding-top: 1rem; }
   .hero-blob-card > .relative { aspect-ratio: 2 / 3 !important; }
   .hero-blob-copy { padding-inline: 1rem; padding-block: 1.5rem; }
   .hero-search { margin-top: 1.25rem; }
   .hero-search-exclamation { left: .5rem; top: -3.25rem; width: 3.5rem; height: 3rem; }
   .hero-arrow-lane { margin-top: 1.25rem; max-width: 82vw; }
-  .hero-stats { margin-top: 2.5rem; }
+  .hero-stats-group { margin-top: 2.5rem; }
+  .hero-arrow-lane { position: relative; left: auto; bottom: auto; width: 72vw; margin: 0 auto 1.75rem; transform: translateY(.75rem); }
   .features-section { padding-inline: 1.25rem; padding-block: 4rem; }
   .features-section h2 { font-size: clamp(2.25rem, 11vw, 3.5rem); line-height: 1.1; }
   .create-limits-transition-arrow { left: 50%; width: 100%; }
@@ -415,7 +451,7 @@ body {
 .khmer-showcase-corner-tr { top: 1%; right: 1%; }
 .khmer-showcase-corner-bl { bottom: 1%; left: 1%; }
 .khmer-showcase-corner-br { right: 1%; bottom: 1%; }
-.khmer-showcase-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 5rem 2rem 6rem; text-align: center; }
+.khmer-showcase-content { position: relative; z-index: 1; max-width: 1344px; margin: 0 auto; padding: 5rem 2rem 6rem; text-align: center; }
 .khmer-showcase-content h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; letter-spacing: -.04em; }
 .khmer-showcase-content h2 span { color: var(--color-primary); }
 .khmer-showcase-ornament-wrap { position: relative; display: flex; align-items: center; justify-content: center; height: auto; margin-bottom: 10%; margin-top: 2%; }
@@ -427,7 +463,7 @@ body {
 .khmer-showcase-card-frame { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .khmer-showcase-button { display: inline-flex; align-items: center; gap: .6rem; margin-top: 4rem; margin-bottom: 2rem; border-radius: 14px; padding: .8rem 1.5rem; background: var(--color-primary); color: white; font-weight: 600; box-shadow: 0 8px 16px rgb(112 90 224 / .2); }
 .khmer-showcase-button span { font-size: 1.5rem; line-height: 1; }
-.khmer-showcase-content p { margin-top: .75rem; color: #585858; font-size: 1.05rem; }
+.khmer-showcase-tagline { margin-top: .75rem; color: #585858; font-size: 1.05rem; }
 @media (max-width: 700px) { .khmer-showcase { min-height: auto; } .khmer-showcase-content { padding: 4rem 1.25rem; } .khmer-showcase-cards { grid-template-columns: 1fr; gap: 1.25rem; } .khmer-showcase-corner { width: 24%; padding: .5rem; } .khmer-showcase-angkor { left: 5%; width: 90%; } }
 
 /*
