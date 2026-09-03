@@ -104,7 +104,18 @@
 }
 
 /* Navbar background exported from the responsive Figma design. */
-.navbar-background { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; opacity: 0.4; }
+.navbar-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+}
 
 @media (min-width: 768px) {
   .navbar-nav {
@@ -356,8 +367,8 @@
 .create-limits-underline { position: relative; width: min(459px, 90vw); height: 71px; margin: .65rem auto 0; }
 .create-limits-underline img:first-child { position: absolute; top: 27px; left: 0; width: 100%; height: 17px; }
 .create-limits-underline img:last-child { position: absolute; top: 0; left: 50%; width: 73px; height: 71px; transform: translateX(-50%); }
-.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 540.64px)); justify-content: center; gap: 2rem 4.5rem; margin: 6.5rem auto 0; max-width: 1800px; }
-.create-limits-card { position: relative; width: 100%; max-width: 540.64px; height: 560px; justify-self: center; isolation: isolate; scale: .9; }
+.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 580px)); justify-content: center; gap: 1.5rem; margin: 6.5rem auto 0; max-width: 1840px; }
+.create-limits-card { position: relative; width: 100%; max-width: 580px; height: 600px; justify-self: center; isolation: isolate; }
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
 .create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
 .create-limits-first-shape img { position: absolute; object-fit: contain; }
@@ -370,6 +381,7 @@
 .create-limits-card-outline, .create-limits-card-dashed { fill: none; stroke: #111; stroke-linecap: round; stroke-linejoin: round; }
 .create-limits-card-outline { stroke-width: 2.3; }
 .create-limits-card-dashed { stroke-width: 2; stroke-dasharray: 7 8; }
+
 .create-limits-card-content { position: relative; z-index: 1; height: 100%; text-align: center; }
 .create-limits-icon { position: absolute; top: 20.82%; left: 45.35%; display: grid; place-items: center; height: 11.46%; width: 11.05%; }
 .create-limits-icon svg { height: 72%; width: 72%; }
@@ -386,7 +398,8 @@
   .features-benefits-grid article p { max-width: 38rem; font-size: clamp(.95rem, 4vw, 1.1rem); }
 }
 @media (min-width: 901px) and (max-width: 1500px) {
-  .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; max-width: 1400px; }
+  .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; max-width: 1400px; }
+  .create-limits-card { height: auto; aspect-ratio: 580 / 600; }
   .create-limits-card h3 { white-space: normal; }
 }
 @media (max-width: 900px) {
@@ -482,17 +495,35 @@ body {
     height: 96px !important;
   }
 
+  .hero-section,
   .hero-content {
-    padding-top: 0.5rem !important;
+    min-height: max(720px, calc(100dvh - 126px));
+  }
+
+  .hero-content {
+    padding-top: 0.25rem !important;
   }
 
   .hero-blob-card {
-    max-width: 72vh;
+    max-width: min(960px, 78vw);
   }
 
   .hero-blob-copy {
     padding-right: 1rem;
     padding-left: 1rem;
+  }
+
+  .hero-blob-copy h1 {
+    font-size: clamp(3rem, 7.5vh, 4.25rem) !important;
+    line-height: 1.24;
+  }
+
+  .hero-blob-copy p {
+    margin-top: 0.75rem;
+  }
+
+  .hero-blob-copy > div {
+    margin-top: 1.25rem;
   }
 
   .hero-search {

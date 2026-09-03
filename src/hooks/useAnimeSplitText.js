@@ -5,10 +5,10 @@ import { stagger } from "animejs/utils";
 import { useEffect, useRef } from "react";
 
 /**
- * Reveals a heading word-by-word while keeping Anime.js scoped to the React
- * element and cleaning up the generated wrappers on unmount.
+ * Reveals the hero heading word-by-word, followed by its supporting copy and
+ * actions, while keeping Anime.js scoped and reverting its wrappers on unmount.
  */
-export function useAnimeSplitText() {
+export function useAnimeHeroCopy() {
   const root = useRef(null);
 
   useEffect(() => {
@@ -19,21 +19,35 @@ export function useAnimeSplitText() {
 
     let split;
     const scope = createScope({ root }).add(() => {
-      split = splitText(root.current, {
+      const heading = root.current.querySelector("h1");
+      if (!heading) return;
+
+      split = splitText(heading, {
         words: { wrap: "clip" },
         accessible: true,
       });
 
       // `Backdrops` is nested inside a colored span, so include nested word
       // wrappers as well as the top-level words returned by Anime.js.
-      const words = root.current.querySelectorAll("[data-word]");
+      const words = heading.querySelectorAll("[data-word]");
+      const supportingCopy = root.current.querySelectorAll(
+        "[data-anime-hero-copy]",
+      );
 
       animate(words, {
         opacity: [0, 1],
         y: ["100%", "0%"],
         duration: 650,
         ease: "outCubic",
-        delay: stagger(70),
+        delay: stagger(70, { start: 250 }),
+      });
+
+      animate(supportingCopy, {
+        opacity: [0, 1],
+        y: [28, 0],
+        duration: 620,
+        ease: "outCubic",
+        delay: stagger(130, { start: 760 }),
       });
     });
 

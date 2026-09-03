@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import "../../styles/phosphor-stats.css";
 
@@ -23,7 +23,7 @@ import {
   scaleIn,
   staggerContainer,
 } from "../../lib/animations/animations";
-import { useAnimeSplitText } from "../../hooks/useAnimeSplitText";
+import { useAnimeHeroCopy } from "../../hooks/useAnimeSplitText";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
 // nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
@@ -43,21 +43,27 @@ const CANVAS = { w: 1920, h: 1080 };
 const DOODLES = [
   {
     src: airplaneDoodle,
-    className: "hero-doodle hero-doodle-plane-left hero-plane-left",
+    className: "hero-doodle hero-doodle-plane-left",
+    imageClass: "hero-plane-left",
+    side: "left",
   },
   {
     src: doodlePlaneLoop,
-    className: "hero-doodle hero-doodle-plane-right hero-plane-right",
+    className: "hero-doodle hero-doodle-plane-right",
+    imageClass: "hero-plane-right",
+    side: "right",
   },
   {
     src: cardEverydayTools,
-    className:
-      "hero-doodle hero-doodle-frame-one hero-frame-bounce hero-frame-one",
+    className: "hero-doodle hero-doodle-frame-one",
+    imageClass: "hero-frame-bounce hero-frame-one",
+    side: "left",
   },
   {
     src: cardThingsArent,
-    className:
-      "hero-doodle hero-doodle-frame-two hero-frame-bounce hero-frame-two",
+    className: "hero-doodle hero-doodle-frame-two",
+    imageClass: "hero-frame-bounce hero-frame-two",
+    side: "right",
   },
 ];
 
@@ -101,27 +107,42 @@ const STATS = [
 ];
 
 const Hero = () => {
+  const reduceMotion = useReducedMotion();
+  const heroCopyRef = useAnimeHeroCopy();
+
   return (
     <section className="hero-section bg-sparkle relative overflow-hidden bg-transparent font-sans">
       {/* Decorative illustration layer — lg+ only, see note above.
-          Entrance is opacity-only (fade in) on each wrapper so it never
-          fights the existing hero-frame-float CSS loop, which keeps
-          animating `transform` on the <img> underneath undisturbed. */}
+          Each wrapper flies in from its nearest side while the nested image
+          owns the existing transform-based floating loop. */}
       <div
         className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
         style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
         aria-hidden="true"
       >
-        {DOODLES.map(({ src, className }, i) => (
+        {DOODLES.map(({ src, className, imageClass, side }, i) => (
           <motion.div
             key={i}
             className={`absolute ${className ?? ""}`}
-            initial="hidden"
-            animate="show"
-            variants={fadeIn}
-            transition={{ duration: 0.9, delay: 0.35 + i * 0.15 }}
+            initial={
+              reduceMotion
+                ? false
+                : { opacity: 0, x: side === "left" ? -180 : 180 }
+            }
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 82,
+              damping: 17,
+              mass: 0.9,
+              delay: 0.28 + i * 0.12,
+            }}
           >
-            <img src={src} alt="" className="h-full w-full object-contain" />
+            <img
+              src={src}
+              alt=""
+              className={`h-full w-full object-contain ${imageClass ?? ""}`}
+            />
           </motion.div>
         ))}
       </div>
@@ -162,14 +183,12 @@ const Hero = () => {
               alt=""
               className="hero-vector hero-vector-dashed"
             />
-            <motion.div
+            <div
+              ref={heroCopyRef}
               className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
-              initial="hidden"
-              animate="show"
-              variants={staggerContainer(0.14, 0.35)}
             >
               <HeroCopy />
-            </motion.div>
+            </div>
           </motion.div>
         </div>
 
@@ -257,31 +276,27 @@ const Hero = () => {
 };
 
 function HeroCopy() {
-  const headingRef = useAnimeSplitText();
-
   return (
     <>
-      <motion.h1
-        ref={headingRef}
+      <h1
         className="mx-auto mt-4 w-full max-w-[1040px] px-2 font-semibold leading-[1.18] tracking-[0.01em] text-black text-[32px] sm:text-[44px] lg:text-[68px] xl:text-[80px]"
-        variants={fadeInUp}
       >
         Design Stunning
         <br />
         <span className="hero-backdrop-word">Backdrops</span> Effortlessly
-      </motion.h1>
+      </h1>
 
-      <motion.p
+      <p
+        data-anime-hero-copy
         className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[#585858] sm:text-[16px]"
-        variants={fadeInUp}
       >
         Visora helps you create beautiful event backdrops with khmer elements,
         timers, and everything you need.
-      </motion.p>
+      </p>
 
-      <motion.div
+      <div
+        data-anime-hero-copy
         className="mt-8 flex flex-wrap items-center justify-center gap-4"
-        variants={fadeInUp}
       >
         <NavLink
           to="/design"
@@ -297,7 +312,7 @@ function HeroCopy() {
         >
           Explore Templates
         </NavLink>
-      </motion.div>
+      </div>
     </>
   );
 }

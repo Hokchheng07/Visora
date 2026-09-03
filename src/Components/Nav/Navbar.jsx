@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
 import navbarBg from "../../assets/Website/Nav/NavbarBg.svg";
@@ -53,9 +54,32 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (currentScrollY) => {
+    if (currentScrollY < 80 || mobileOpen) {
+      setHidden(false);
+      lastScrollY.current = currentScrollY;
+      return;
+    }
+
+    const scrollDelta = currentScrollY - lastScrollY.current;
+
+    // Ignore tiny trackpad movements to prevent the navbar from jittering.
+    if (Math.abs(scrollDelta) < 8) return;
+
+    setHidden(scrollDelta > 0);
+    lastScrollY.current = currentScrollY;
+  });
 
   return (
-    <header className="relative sticky top-0 z-50">
+    <motion.header
+      className="sticky top-0 z-50 will-change-transform"
+      animate={{ y: hidden ? "-100%" : "0%" }}
+      transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.8 }}
+    >
       <img src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
       <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
         <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] w-full items-center justify-between px-6 sm:px-10 md:h-[116px]">
@@ -145,6 +169,6 @@ export default function Navbar() {
           </button>
         </div>
       )}
-    </header>
+    </motion.header>
   );
 }
