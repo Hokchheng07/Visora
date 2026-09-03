@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import visoraLogo from "../../assets/Website/visora-logo.png";
+import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import facebook from "../../assets/Website/Footer-Section/facebook.png";
 import instagram from "../../assets/Website/Footer-Section/instagram.png";
 import github from "../../assets/Website/Footer-Section/github.png";
@@ -90,7 +90,7 @@ const Brand = () => (
     <img
       src={visoraLogo}
       alt="Visora"
-      className="w-[230px] object-contain sm:w-[250px] md:w-[270px] lg:w-[285px] xl:w-[300px]"
+      className="w-[260px] object-contain sm:w-[280px] md:w-[300px] lg:w-[315px] xl:w-[320px]"
     />
 
     <p className="mt-7 max-w-[320px] text-[18px] leading-[1.55] text-[#696969]">
@@ -172,15 +172,7 @@ const Footer = () => (
   <footer className="relative shrink-0 overflow-hidden bg-white font-sans text-[#252525]">
     {/* Background dots */}
     <motion.div
-      className="pointer-events-none absolute inset-0 opacity-25"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle, rgba(255,172,28,.8) 1px, transparent 1px),
-          radial-gradient(circle, rgba(103,37,154,.45) 1px, transparent 1px)
-        `,
-        backgroundSize: "34px 27px, 51px 39px",
-        backgroundPosition: "0 0, 15px 12px",
-      }}
+      className="bg-sparkle pointer-events-none absolute inset-0"
       initial="hidden"
       whileInView="show"
       viewport={viewportOnce}

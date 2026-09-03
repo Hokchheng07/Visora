@@ -6,7 +6,6 @@ import {
   viewportOnce,
 } from "../../lib/animations/animations";
 import YellowBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/YellowBlob.svg";
-import yellowCardBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/YellowCardBlob(WithoutLimits).svg";
 import PurpleBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/PurpleBlob.svg";
 import withoutLimitsArrow from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsArrow.svg";
 import withoutLimitsScissors from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsScissors.svg";
