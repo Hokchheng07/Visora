@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,11 +8,13 @@ import {
   EyeSlashIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 import loginStyle from "../../assets/Website/Login/3 Strips 1.png";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import googleIcon from "../../assets/Website/google.svg";
 import githubIcon from "../../assets/Website/github_light.svg";
+import { EASE } from "../../lib/animations/animations";
 
 import loginPic from "../../assets/Website/Login/LoginLogo-pic.png";
 
@@ -35,6 +37,12 @@ export default function Login() {
   });
 
   const onSubmit = () => setSubmitted(true);
+
+  useEffect(() => {
+    if (!submitted) return;
+    const timer = setTimeout(() => setSubmitted(false), 3000);
+    return () => clearTimeout(timer);
+  }, [submitted]);
 
   return (
     <main className="h-dvh min-h-0 overflow-hidden bg-white font-sans lg:grid lg:grid-cols-2">
@@ -83,11 +91,35 @@ export default function Login() {
                         className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-primary"
                         onClick={() => setShowPassword((visible) => !visible)}
                       >
-                        {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.span
+                            key={showPassword ? "hide" : "show"}
+                            className="block"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.12 }}
+                          >
+                            {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          </motion.span>
+                        </AnimatePresence>
                       </button>
                     )}
                   </span>
-                  {errors[name] && <span className="mt-1 block text-xs text-red-600 sm:text-sm">{errors[name].message}</span>}
+                  <AnimatePresence initial={false}>
+                    {errors[name] && (
+                      <motion.span
+                        key="error"
+                        className="mt-1 block text-xs text-red-600 sm:text-sm"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2, ease: EASE }}
+                      >
+                        {errors[name].message}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </label>
               ))}
             </div>
@@ -99,7 +131,20 @@ export default function Login() {
             <button type="submit" className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-secondary via-[#e9b56b] to-primary text-base font-semibold text-white transition hover:brightness-105 lg:mt-6 lg:h-14 lg:text-xl">
               Login <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
-            {submitted && <p className="mt-3 text-center text-sm text-green-700">Your details are valid and ready to submit.</p>}
+            <AnimatePresence>
+              {submitted && (
+                <motion.p
+                  key="success"
+                  className="mt-3 text-center text-sm text-green-700"
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.22, ease: EASE }}
+                >
+                  Your details are valid and ready to submit.
+                </motion.p>
+              )}
+            </AnimatePresence>
 
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
