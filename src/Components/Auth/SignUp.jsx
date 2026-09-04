@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,12 +10,14 @@ import {
   PhoneIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
+import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 import signupPicture from "../../assets/Website/SignUp/SignUp-pic.png";
 import signupCrown from "../../assets/Website/SignUp/SignUpCrown.png";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import googleIcon from "../../assets/Website/google.svg";
 import githubIcon from "../../assets/Website/github_light.svg";
+import { EASE } from "../../lib/animations/animations";
 
 const signUpSchema = z
   .object({
@@ -51,6 +53,12 @@ export default function SignUp() {
   });
 
   const onSubmit = () => setSubmitted(true);
+
+  useEffect(() => {
+    if (!submitted) return;
+    const timer = setTimeout(() => setSubmitted(false), 3000);
+    return () => clearTimeout(timer);
+  }, [submitted]);
 
   return (
     <main className="h-dvh min-h-0 overflow-hidden bg-white font-sans lg:grid lg:grid-cols-2">
@@ -99,11 +107,35 @@ export default function SignUp() {
                         className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-primary"
                         onClick={() => name === "password" ? setShowPassword((visible) => !visible) : setShowConfirmPassword((visible) => !visible)}
                       >
-                        {(name === "password" ? showPassword : showConfirmPassword) ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.span
+                            key={(name === "password" ? showPassword : showConfirmPassword) ? "hide" : "show"}
+                            className="block"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.12 }}
+                          >
+                            {(name === "password" ? showPassword : showConfirmPassword) ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          </motion.span>
+                        </AnimatePresence>
                       </button>
                     )}
                   </span>
-                  {errors[name] && <span className="mt-1 block text-xs text-red-600 sm:text-sm">{errors[name].message}</span>}
+                  <AnimatePresence initial={false}>
+                    {errors[name] && (
+                      <motion.span
+                        key="error"
+                        className="mt-1 block text-xs text-red-600 sm:text-sm"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2, ease: EASE }}
+                      >
+                        {errors[name].message}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </label>
               ))}
             </div>
@@ -112,12 +144,38 @@ export default function SignUp() {
               <input type="checkbox" className="mt-0.5 h-4 w-4 flex-none accent-primary" {...register("termsAccepted")} />
               <span>I accept the <a href="#terms" className="text-primary hover:underline">Terms &amp; Conditions</a>.</span>
             </label>
-            {errors.termsAccepted && <p className="mt-1 text-xs text-red-600 sm:text-sm">{errors.termsAccepted.message}</p>}
+            <AnimatePresence initial={false}>
+              {errors.termsAccepted && (
+                <motion.p
+                  key="terms-error"
+                  className="mt-1 text-xs text-red-600 sm:text-sm"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                >
+                  {errors.termsAccepted.message}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
             <button type="submit" className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-secondary via-[#e9b56b] to-primary text-base font-semibold text-white transition hover:brightness-105 lg:mt-6 lg:h-14 lg:text-xl">
               Sign Up <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
-            {submitted && <p className="mt-3 text-center text-sm text-green-700">Your details are valid and ready to submit.</p>}
+            <AnimatePresence>
+              {submitted && (
+                <motion.p
+                  key="success"
+                  className="mt-3 text-center text-sm text-green-700"
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.22, ease: EASE }}
+                >
+                  Your details are valid and ready to submit.
+                </motion.p>
+              )}
+            </AnimatePresence>
 
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or Sign up with<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
