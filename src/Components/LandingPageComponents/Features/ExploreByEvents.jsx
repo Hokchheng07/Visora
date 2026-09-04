@@ -32,12 +32,12 @@ const EVENT_NAMES = [
 
 const ORBIT_LABELS = (() => {
   const labels = [...EVENT_NAMES, ...EVENT_NAMES, ...EVENT_NAMES];
-  const totalUnits = labels.reduce((total, label) => total + label.length + 2, 0);
+  const totalUnits = labels.reduce((total, label) => total + label.length + 1, 0);
   let elapsedUnits = 0;
 
   return labels.map((label) => {
     const startOffset = `${(elapsedUnits / totalUnits) * 100}%`;
-    elapsedUnits += label.length + 2;
+    elapsedUnits += label.length + 1;
     return { label, startOffset };
   });
 })();
@@ -89,7 +89,7 @@ function EventOrbit({ reduceMotion }) {
 
         <path
           d={EVENT_CIRCLE_PATH}
-          transform="translate(0 -14)"
+          transform="translate(0 -32)"
           className="explore-events-orbit-dashed"
         />
 
@@ -103,7 +103,7 @@ function EventOrbit({ reduceMotion }) {
                 href="#explore-events-text-path"
                 startOffset={startOffset}
               >
-                {label} |
+                {label}|
               </textPath>
             </text>
           ))}
