@@ -1,19 +1,19 @@
 import { motion } from "motion/react";
-import blobArtwork from "../../assets/Website/LandingPage/WhyChooseVisora/why-choose-blob.png";
-import linearBg from "../../assets/Website/LandingPage/WhyChooseVisora/WhyChooseVisoraLinear.svg";
-import apsara from "../../assets/Website/LandingPage/WhyChooseVisora/AsparaWhyChoose.svg";
-import spiralArrow from "../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
-import arrowWithPlane from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
-import screwCard from "../../assets/Website/LandingPage/WhyChooseVisora/ScrewCard.svg";
-import entireBlue from "../../assets/Website/LandingPage/WhyChooseVisora/EntireBlue(WhyChoose).svg";
-import entirePink from "../../assets/Website/LandingPage/WhyChooseVisora/EntirePink(WhyChoose)..svg";
-import entireYellow from "../../assets/Website/LandingPage/WhyChooseVisora/EntireYellow(WhyChoose)..svg";
+import blobArtwork from "../../../assets/Website/LandingPage/WhyChooseVisora/why-choose-blob.png";
+import linearBg from "../../../assets/Website/LandingPage/WhyChooseVisora/WhyChooseVisoraLinear.svg";
+import apsara from "../../../assets/Website/LandingPage/WhyChooseVisora/AsparaWhyChoose.svg";
+import spiralArrow from "../../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
+import arrowWithPlane from "../../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
+import screwCard from "../../../assets/Website/LandingPage/WhyChooseVisora/ScrewCard.svg";
+import entireBlue from "../../../assets/Website/LandingPage/WhyChooseVisora/EntireBlue(WhyChoose).svg";
+import entirePink from "../../../assets/Website/LandingPage/WhyChooseVisora/EntirePink(WhyChoose)..svg";
+import entireYellow from "../../../assets/Website/LandingPage/WhyChooseVisora/EntireYellow(WhyChoose)..svg";
 import {
   fadeInUp,
   popIn,
   staggerContainer,
   viewportOnce,
-} from "../../lib/animations/animations";
+} from "../../../lib/animations/animations";
 
 const benefits = [
   {

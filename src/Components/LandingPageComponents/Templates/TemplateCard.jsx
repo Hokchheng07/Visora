@@ -1,6 +1,6 @@
 import { HeartIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
-import { EASE, fadeInUp } from "../../lib/animations/animations";
+import { EASE, fadeInUp } from "../../../lib/animations/animations";
 
 const showcaseCardReveal = {
   hidden: { opacity: 0, y: 52, scale: 0.95 },

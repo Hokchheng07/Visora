@@ -1,32 +1,63 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App.jsx";  
-import SignUp from "./Components/Auth/SignUp.jsx";
-import { store } from "./Components/redux/store";
 import { Provider } from "react-redux";
-
-import { createBrowserRouter } from "react-router";
+import { Navigate, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
+import "./index.css";
+import App from "./App.jsx";
+import Layout from "./Layout.jsx";
+import Home from "./Components/Pages/Home.jsx";
+import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
-import CvTemplate from "./Components/Features/CvTemplate.jsx";
+import SignUp from "./Components/Auth/SignUp.jsx";
+import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
+import { store } from "./Components/redux/store";
 
 const router = createBrowserRouter([
   {
-    path: "/",
     element: <App />,
-  },
-  {
-    path: "/signup",
-    element: <SignUp />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/cv",
-    element: <CvTemplate />,
+    children: [
+      {
+        path: "/",
+        element: <Layout />,
+        children: [
+          {
+            index: true,
+            element: <Home />,
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
+        ],
+      },
+      {
+        path: "auth",
+        element: <AuthLayout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="login" replace />,
+          },
+          {
+            path: "login",
+            element: <Login />,
+          },
+          {
+            path: "register",
+            element: <SignUp />,
+          },
+        ],
+      },
+      {
+        path: "login",
+        element: <Navigate to="/auth/login" replace />,
+      },
+      {
+        path: "signup",
+        element: <Navigate to="/auth/register" replace />,
+      },
+    ],
   },
 ]);
 

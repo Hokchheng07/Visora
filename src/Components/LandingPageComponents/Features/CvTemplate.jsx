@@ -1,7 +1,7 @@
 import React from "react";
-import visora from "../../assets/Website/visora-logo-mobile.png";
-import penIcon from "../../assets/Website/PictureCvPage/pen.png";
-import trialIcon from "../../assets/Website/PictureCvPage/trailIcon.png";
+import visora from "../../../assets/Website/visora-logo-mobile.png";
+import penIcon from "../../../assets/Website/PictureCvPage/pen.png";
+import trialIcon from "../../../assets/Website/PictureCvPage/trailIcon.png";
 import {
   Grid,
   Square,

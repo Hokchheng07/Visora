@@ -1,12 +1,12 @@
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
-import apsara from "../../assets/Website/LandingPage/KhmerDesignShowCase/apsara.png";
-import angkorWat from "../../assets/Website/LandingPage/KhmerDesignShowCase/ankorwat.png";
-import topLeft from "../../assets/Website/LandingPage/KhmerDesignShowCase/TopLeftCorner.svg";
-import topRight from "../../assets/Website/LandingPage/KhmerDesignShowCase/TopRightCorner.svg";
-import bottomLeft from "../../assets/Website/LandingPage/KhmerDesignShowCase/BottomLeftCorner.svg";
-import bottomRight from "../../assets/Website/LandingPage/KhmerDesignShowCase/RightLeftCorner.svg";
-import ornament from "../../assets/Website/LandingPage/KhmerDesignShowCase/MiddleSection.svg";
+import apsara from "../../../assets/Website/LandingPage/KhmerDesignShowCase/apsara.png";
+import angkorWat from "../../../assets/Website/LandingPage/KhmerDesignShowCase/ankorwat.png";
+import topLeft from "../../../assets/Website/LandingPage/KhmerDesignShowCase/TopLeftCorner.svg";
+import topRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/TopRightCorner.svg";
+import bottomLeft from "../../../assets/Website/LandingPage/KhmerDesignShowCase/BottomLeftCorner.svg";
+import bottomRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/RightLeftCorner.svg";
+import ornament from "../../../assets/Website/LandingPage/KhmerDesignShowCase/MiddleSection.svg";
 import TemplateCard from "../Templates/TemplateCard";
 import { templateCards } from "../Templates/templateData";
 import {
@@ -15,7 +15,7 @@ import {
   scaleIn,
   staggerContainer,
   viewportOnce,
-} from "../../lib/animations/animations";
+} from "../../../lib/animations/animations";
 
 const fadedArtworkReveal = {
   hidden: { opacity: 0, scale: 0.94, y: 30 },

@@ -1,17 +1,17 @@
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
 import TemplateCard from "./TemplateCard";
-import scissors from "../../assets/Website/LandingPage/Hero-Section/DoodleScissors.png";
-import arrowWithScissors from "../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
-import spiralArrow from "../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
+import scissors from "../../../assets/Website/LandingPage/Hero-Section/DoodleScissors.png";
+import arrowWithScissors from "../../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
+import spiralArrow from "../../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
 import {
   fadeIn,
   fadeInUp,
   staggerContainer,
   viewportOnce,
-} from "../../lib/animations/animations";
-import topWave from "../../assets/Website/LandingPage/PopularTemplates/PopularTemplateTopWave.svg";
-import lowerWave from "../../assets/Website/LandingPage/PopularTemplates/PopularTemplateLowerWave.svg";
+} from "../../../lib/animations/animations";
+import topWave from "../../../assets/Website/LandingPage/PopularTemplates/PopularTemplateTopWave.svg";
+import lowerWave from "../../../assets/Website/LandingPage/PopularTemplates/PopularTemplateLowerWave.svg";
 
 const templates = [
   { image: null, title: "Creative doodle", description: "Design with your ideas and creative" },

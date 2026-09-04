@@ -124,7 +124,7 @@ export default function SignUp() {
               <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={googleIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Google</button>
               <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={githubIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Github</button>
             </div>
-            <p className="mt-6 text-center text-gray-400">Already have an account? <Link to="/login" className="font-medium text-primary hover:underline">Log in</Link></p>
+            <p className="mt-6 text-center text-gray-400">Already have an account? <Link to="/auth/login" className="font-medium text-primary hover:underline">Log in</Link></p>
           </form>
         </div>
       </section>
