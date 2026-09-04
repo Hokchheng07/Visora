@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { motion, useMotionValueEvent, useScroll } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
 import navbarBg from "../../assets/Website/Nav/NavbarBg.svg";
+import { EASE } from "../../lib/animations/animations";
 
 // Recreated from the Visora Figma file, "Landing Page" > navbar instance
 // (master component 69:171). Logo + background are the actual exported
@@ -137,39 +138,59 @@ export default function Navbar() {
             className="text-gray-900 md:hidden"
             onClick={() => setMobileOpen((open) => !open)}
           >
-            {mobileOpen ? (
-              <XMarkIcon className="h-7 w-7" />
-            ) : (
-              <Bars3Icon className="h-7 w-7" />
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={mobileOpen ? "close" : "open"}
+                className="block"
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
+                {mobileOpen ? (
+                  <XMarkIcon className="h-7 w-7" />
+                ) : (
+                  <Bars3Icon className="h-7 w-7" />
+                )}
+              </motion.span>
+            </AnimatePresence>
           </button>
         </nav>
       </div>
 
       {/* Mobile menu panel */}
-      {mobileOpen && (
-        <div className="border-t border-black/5 bg-white px-6 py-5 md:hidden">
-          <ul className="flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <li key={link.to}>
-                <NavLinkRow
-                  to={link.to}
-                  label={link.label}
-                  onClick={() => setMobileOpen(false)}
-                  className="block"
-                />
-              </li>
-            ))}
-          </ul>
-          <NavLink
-            to="/auth/login"
-            onClick={() => setMobileOpen(false)}
-            className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+      <AnimatePresence initial={false}>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-menu"
+            className="border-t border-black/5 bg-white px-6 py-5 md:hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: EASE }}
           >
-            Sign In
-          </NavLink>
-        </div>
-      )}
+            <ul className="flex flex-col gap-4">
+              {NAV_LINKS.map((link) => (
+                <li key={link.to}>
+                  <NavLinkRow
+                    to={link.to}
+                    label={link.label}
+                    onClick={() => setMobileOpen(false)}
+                    className="block"
+                  />
+                </li>
+              ))}
+            </ul>
+            <NavLink
+              to="/auth/login"
+              onClick={() => setMobileOpen(false)}
+              className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+            >
+              Sign In
+            </NavLink>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
