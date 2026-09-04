@@ -479,6 +479,93 @@ body {
 .khmer-showcase-tagline { margin-top: .75rem; color: #585858; font-size: 1.05rem; }
 @media (max-width: 700px) { .khmer-showcase { min-height: auto; } .khmer-showcase-content { padding: 4rem 1.25rem; } .khmer-showcase-cards { grid-template-columns: 1fr; gap: 1.25rem; } .khmer-showcase-corner { width: 24%; padding: .5rem; } .khmer-showcase-angkor { left: 5%; width: 90%; } }
 
+/* Explore By Events — supplied Figma layers with an animated event orbit. */
+.explore-events-section {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: max(1200px, 92vw);
+  overflow: hidden;
+  background-color: #fffaf0;
+}
+.explore-events-top-background { position: absolute; inset: 0 0 auto; z-index: 8; display: block; width: 100%; height: auto; max-width: none; pointer-events: none; }
+.explore-events-heading { position: absolute; top: 12.5%; left: 50%; z-index: 12; width: min(820px, 90vw); transform: translateX(-50%); text-align: center; }
+.explore-events-heading h2 { font-size: clamp(2.6rem, 4.7vw, 5.5rem); font-weight: 600; line-height: 1.05; letter-spacing: -.045em; color: #111; }
+.explore-events-heading img { display: block; width: 31.875vw; height: auto; max-width: none; margin: .65rem auto 0; }
+.explore-events-top-left { position: absolute; top: clamp(7.5rem, 11vw, 9.75rem); left: clamp(1.25rem, 5.8vw, 5.25rem); z-index: 10; width: clamp(88px, 9vw, 129px); height: auto; pointer-events: none; }
+.explore-events-orbit { position: absolute; top: 29.5%; left: 50%; z-index: 3; box-sizing: border-box; width: 103.6vw; padding-inline: 5vw; transform: translateX(-50%); pointer-events: none; }
+.explore-events-orbit-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.explore-events-orbit-solid { fill: none; stroke: #6854da; stroke-width: 3; }
+.explore-events-orbit-track { transform-box: view-box; transform-origin: 674px 788.8px; animation: explore-events-orbit-spin 42s linear infinite; will-change: transform; }
+.explore-events-orbit-dashed { fill: none; stroke: #6854da; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 10 11; animation: explore-events-orbit-dash 42s linear infinite; }
+.explore-events-orbit-label { fill: #ffb917; font-family: var(--font-sans); font-size: 40px; font-weight: 600; letter-spacing: -.01em; word-spacing: -.04em; }
+.explore-events-up-arrow { position: absolute; top: 40%; left: 52%; z-index: 4; width: 19.25%; height: auto; max-width: none; mix-blend-mode: multiply; pointer-events: none; }
+.explore-events-layers { position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; }
+.explore-events-rear-layer,
+.explore-events-foreground-layer { position: absolute; left: 50%; display: block; width: 100%; height: auto; max-width: none; transform: translateX(-50%); }
+.explore-events-rear-layer { bottom: 17%; }
+.explore-events-foreground-layer { bottom: 0; }
+.explore-events-glow-left { position: absolute; bottom: 0; left: -4%; width: 25%; height: auto; max-width: none; }
+.explore-events-glow-center { position: absolute; bottom: -1%; left: 50%; width: 63.82%; height: auto; max-width: none; transform: translateX(-50%); }
+.explore-events-glow-right { position: absolute; right: -4%; bottom: 0; width: 24.05%; height: auto; max-width: none; }
+.explore-events-cta { position: absolute; right: 1rem; bottom: 12%; left: 1rem; z-index: 9; text-align: center; color: white; }
+.explore-events-cta h3 { font-size: clamp(2rem, 3.2vw, 3rem); font-weight: 600; line-height: 1.12; letter-spacing: -.035em; }
+.explore-events-cta h3 span { color: #ffbf1f; }
+.explore-events-cta p { margin-top: .7rem; font-size: clamp(1rem, 1.6vw, 1.45rem); line-height: 1.5; }
+.explore-events-cta a { display: inline-flex; align-items: center; gap: 1rem; margin-top: 2.25rem; border-radius: 1rem; padding: 1.05rem 2.15rem; background: linear-gradient(135deg, #ffd12b, #ffbf1f); color: white; font-size: clamp(1rem, 1.3vw, 1.2rem); font-weight: 700; box-shadow: 0 12px 28px rgb(51 35 135 / .18); transition: transform 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1), filter 180ms cubic-bezier(.23, 1, .32, 1); }
+.explore-events-cta a span { font-size: 1.55em; line-height: 1; }
+.explore-events-line-top,
+.explore-events-paper-plane,
+.explore-events-line-bottom,
+.explore-events-line-right { position: absolute; z-index: 10; height: auto; pointer-events: none; }
+.explore-events-line-top { top: 60%; left: 18%; width: clamp(92px, 10vw, 145px); }
+.explore-events-paper-plane { bottom: 12%; left: 8.5%; width: clamp(86px, 8.6vw, 123px); }
+.explore-events-line-bottom { bottom: 8%; left: 18%; width: clamp(74px, 7.4vw, 106px); }
+.explore-events-line-right { right: 15%; bottom: 12%; width: clamp(110px, 11.8vw, 170px); }
+
+@keyframes explore-events-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes explore-events-orbit-dash {
+  to { stroke-dashoffset: -4956; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .explore-events-cta a:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgb(51 35 135 / .25); filter: brightness(1.04); }
+}
+
+@media (max-width: 767px) {
+  .explore-events-section { height: 1200px; }
+  .explore-events-heading { top: 6.5rem; width: calc(100% - 2rem); }
+  .explore-events-heading h2 { font-size: clamp(2.35rem, 11.2vw, 3.25rem); }
+  .explore-events-heading img { width: 88vw; margin-top: .5rem; }
+  .explore-events-top-left { display: none; }
+  .explore-events-orbit { top: 25.5%; width: 281vw; }
+  .explore-events-orbit-label { font-size: 42px; }
+  .explore-events-up-arrow { top: 33%; left: 45%; width: 44%; }
+  .explore-events-rear-layer,
+  .explore-events-foreground-layer { width: 289.8%; }
+  .explore-events-rear-layer { bottom: 18%; }
+  .explore-events-glow-left,
+  .explore-events-glow-right { width: 52%; height: auto; }
+  .explore-events-glow-center { width: 120%; height: auto; }
+  .explore-events-cta { bottom: 11%; padding-inline: .5rem; }
+  .explore-events-cta h3 { margin-inline: auto; max-width: 360px; font-size: clamp(2rem, 9vw, 2.6rem); }
+  .explore-events-cta p { margin-inline: auto; max-width: 310px; font-size: 1rem; }
+  .explore-events-cta a { margin-top: 1.75rem; border-radius: .875rem; padding: .9rem 1.5rem; }
+  .explore-events-line-top { top: 58%; left: 7%; width: 74px; }
+  .explore-events-paper-plane { bottom: 6%; left: 4%; width: 72px; }
+  .explore-events-line-bottom { bottom: 2%; left: 26%; width: 62px; }
+  .explore-events-line-right { right: 2%; bottom: 5%; width: 88px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-events-orbit-track { animation: none; }
+  .explore-events-orbit-dashed { animation: none; }
+  .explore-events-cta a { transition-duration: 120ms; }
+}
+
 /*
  * Compact desktop workspace mode. The desktop navbar and hero are composed
  * for the tall Figma canvas, but a short laptop/browser viewport needs both

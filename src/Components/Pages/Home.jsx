@@ -4,6 +4,7 @@ import WhyChooseVisora from "../LandingPageComponents/Features/WhyChooseVisora";
 import CreateWithoutLimits from "../LandingPageComponents/Features/CreateWithoutLimits";
 import HowItWorks from "../LandingPageComponents/Features/HowItWorks";
 import KhmerDesignShowcase from "../LandingPageComponents/Features/KhmerDesignShowcase";
+import ExploreByEvents from "../LandingPageComponents/Features/ExploreByEvents";
 
 // Home page composition: each section of the landing page gets its own
 // folder under Components (Hero, and later Features/Templates/etc.),
@@ -18,6 +19,7 @@ const Home = () => {
       <CreateWithoutLimits />
       <KhmerDesignShowcase />
       <HowItWorks />
+      <ExploreByEvents />
     </>
   );
 };
