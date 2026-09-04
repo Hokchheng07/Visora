@@ -1,9 +1,9 @@
 import Hero from "../Hero/Hero";
-import PopularTemplates from "../Templates/PopularTemplates";
-import WhyChooseVisora from "../Features/WhyChooseVisora";
-import CreateWithoutLimits from "../Features/CreateWithoutLimits";
-import HowItWorks from "../Features/HowItWorks";
-import KhmerDesignShowcase from "../Features/KhmerDesignShowcase";
+import PopularTemplates from "../LandingPageComponents/Templates/PopularTemplates";
+import WhyChooseVisora from "../LandingPageComponents/Features/WhyChooseVisora";
+import CreateWithoutLimits from "../LandingPageComponents/Features/CreateWithoutLimits";
+import HowItWorks from "../LandingPageComponents/Features/HowItWorks";
+import KhmerDesignShowcase from "../LandingPageComponents/Features/KhmerDesignShowcase";
 
 // Home page composition: each section of the landing page gets its own
 // folder under Components (Hero, and later Features/Templates/etc.),

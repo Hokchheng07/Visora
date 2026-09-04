@@ -122,12 +122,12 @@ export default function Navbar() {
                 strokeWidth={1.75}
               />
             </button>
-            <button
-              type="button"
+            <NavLink
+              to="/auth/login"
               className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
             >
               Sign In
-            </button>
+            </NavLink>
           </div>
 
           {/* Mobile menu toggle */}
@@ -161,12 +161,13 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <button
-            type="button"
+          <NavLink
+            to="/auth/login"
+            onClick={() => setMobileOpen(false)}
             className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
           >
             Sign In
-          </button>
+          </NavLink>
         </div>
       )}
     </motion.header>

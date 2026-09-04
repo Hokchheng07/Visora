@@ -4,18 +4,18 @@ import {
   fadeInUp,
   staggerContainer,
   viewportOnce,
-} from "../../lib/animations/animations";
-import YellowBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/YellowBlob.svg";
-import PurpleBlob from "../../assets/Website/LandingPage/CreateWithoutLimits/PurpleBlob.svg";
-import withoutLimitsArrow from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsArrow.svg";
-import withoutLimitsScissors from "../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsScissors.svg";
-import bigArrowAndScissors from "../../assets/Website/LandingPage/CreateWithoutLimits/BigArrowAndScissors.svg";
-import yellowCard from "../../assets/Website/LandingPage/CreateWithoutLimits/YellowCardBlob(WithoutLimits).svg";
-import purpleCard from "../../assets/Website/LandingPage/CreateWithoutLimits/PurpleCard(WithoutLimits).svg";
-import softGreenCard from "../../assets/Website/LandingPage/CreateWithoutLimits/SoftGreenCard(WithoutLimits).svg";
-import softRedCard from "../../assets/Website/LandingPage/CreateWithoutLimits/SoftRedCard(WithoutLimits).svg";
-import magentaCard from "../../assets/Website/LandingPage/CreateWithoutLimits/MajenticCard(WithoutLimits).svg";
-import cyanCard from "../../assets/Website/LandingPage/CreateWithoutLimits/CyanCard(WithoutLimits).svg.svg";
+} from "../../../lib/animations/animations";
+import YellowBlob from "../../../assets/Website/LandingPage/CreateWithoutLimits/YellowBlob.svg";
+import PurpleBlob from "../../../assets/Website/LandingPage/CreateWithoutLimits/PurpleBlob.svg";
+import withoutLimitsArrow from "../../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsArrow.svg";
+import withoutLimitsScissors from "../../../assets/Website/LandingPage/CreateWithoutLimits/WithoutLimitsScissors.svg";
+import bigArrowAndScissors from "../../../assets/Website/LandingPage/CreateWithoutLimits/BigArrowAndScissors.svg";
+import yellowCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/YellowCardBlob(WithoutLimits).svg";
+import purpleCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/PurpleCard(WithoutLimits).svg";
+import softGreenCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/SoftGreenCard(WithoutLimits).svg";
+import softRedCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/SoftRedCard(WithoutLimits).svg";
+import magentaCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/MajenticCard(WithoutLimits).svg";
+import cyanCard from "../../../assets/Website/LandingPage/CreateWithoutLimits/CyanCard(WithoutLimits).svg.svg";
 
 const completeCardAssets = [
   yellowCard,

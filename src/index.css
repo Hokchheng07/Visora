@@ -368,7 +368,7 @@
 .create-limits-underline img:first-child { position: absolute; top: 27px; left: 0; width: 100%; height: 17px; }
 .create-limits-underline img:last-child { position: absolute; top: 0; left: 50%; width: 73px; height: 71px; transform: translateX(-50%); }
 .create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 580px)); justify-content: center; gap: 1.5rem; margin: 6.5rem auto 0; max-width: 1840px; }
-.create-limits-card { position: relative; width: 100%; max-width: 580px; height: 600px; justify-self: center; isolation: isolate; }
+.create-limits-card { position: relative; width: 98.5%; max-width: 571.3px; height: 591px; justify-self: center; isolation: isolate; }
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
 .create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
 .create-limits-first-shape img { position: absolute; object-fit: contain; }
