@@ -1,8 +1,9 @@
+import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import TemplateCard from "../Templates/TemplateCard";
 import {
   EASE,
-  fadeIn,
   fadeInUp,
   staggerContainer,
   viewportOnce,
@@ -21,34 +22,15 @@ import lineTop from "../../../assets/Website/LandingPage/ExploreByEvents/LineTop
 import lineRight from "../../../assets/Website/LandingPage/ExploreByEvents/LineRight(ExploreByEvents).svg";
 import lineBottom from "../../../assets/Website/LandingPage/ExploreByEvents/LineBottom(ExploreByEvents).svg";
 
-const EVENT_NAMES = [
-  "Graduation",
-  "Celebration",
-  "Khmer Events",
-  "School Event",
-  "Wedding",
-  "Birthday",
+// Shaped for TemplateCard (the same card Popular Templates renders).
+const EVENT_CARDS = [
+  { image: null, title: "Graduation", description: "Caps, gowns, and proud moments" },
+  { image: null, title: "Celebration", description: "Mark any milestone in style" },
+  { image: null, title: "Khmer Events", description: "Traditional motifs, modern layouts" },
+  { image: null, title: "School Event", description: "From classroom to main stage" },
+  { image: null, title: "Wedding", description: "Backdrops for the big day" },
+  { image: null, title: "Birthday", description: "Party scenes for every age" },
 ];
-
-const ORBIT_LABELS = (() => {
-  const labels = [...EVENT_NAMES, ...EVENT_NAMES, ...EVENT_NAMES];
-  const totalUnits = labels.reduce((total, label) => total + label.length + 1, 0);
-  let elapsedUnits = 0;
-
-  return labels.map((label) => {
-    const startOffset = `${(elapsedUnits / totalUnits) * 100}%`;
-    elapsedUnits += label.length + 1;
-    return { label, startOffset };
-  });
-})();
-
-// A true circle derived from the existing arch's apex and two blob crossings.
-// Its lower half remains behind the supplied purple artwork for a seamless loop.
-const circlePath = (radius) =>
-  `M${674 - radius} 788.8 A${radius} ${radius} 0 0 1 ${674 + radius} 788.8 A${radius} ${radius} 0 0 1 ${674 - radius} 788.8`;
-
-const EVENT_CIRCLE_PATH = circlePath(788.8);
-const EVENT_TEXT_CIRCLE_PATH = circlePath(852.8);
 
 const sideReveal = {
   hidden: (direction) => ({
@@ -62,60 +44,71 @@ const sideReveal = {
   },
 };
 
-function EventOrbit({ reduceMotion }) {
+// The carousel scrolls itself — page scroll never drives it. Native
+// overflow-x keeps trackpad/touch/keyboard behaviour intact; the arrows just
+// page it by one card for mouse users.
+function EventCardCarousel() {
+  const railRef = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const syncEdges = () => {
+    const rail = railRef.current;
+    if (!rail) return;
+    setAtStart(rail.scrollLeft <= 1);
+    setAtEnd(rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - 1);
+  };
+
+  useEffect(syncEdges, []);
+
+  const scrollByCard = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector("[data-event-card]");
+    const step = card ? card.offsetWidth + 32 : rail.clientWidth * 0.8;
+    rail.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
   return (
-    <motion.div
-      className={`explore-events-orbit ${
-        reduceMotion ? "explore-events-orbit-static" : ""
-      }`}
-      aria-hidden="true"
-      variants={fadeIn}
-    >
-      <svg
-        viewBox="0 -100 1348 1777.6"
-        className="explore-events-orbit-svg"
+    <motion.div className="explore-events-carousel" variants={fadeInUp}>
+      <div
+        ref={railRef}
+        className="explore-events-rail"
+        onScroll={syncEdges}
+        tabIndex={0}
+        role="group"
+        aria-label="Event categories"
       >
-        <defs>
-          <path
-            id="explore-events-text-path"
-            d={EVENT_TEXT_CIRCLE_PATH}
-          />
-        </defs>
+        {EVENT_CARDS.map((event, index) => (
+          <div className="explore-events-rail-item" data-event-card key={event.name}>
+            <TemplateCard template={event} index={index} />
+          </div>
+        ))}
+      </div>
 
-        <path
-          d={EVENT_CIRCLE_PATH}
-          className="explore-events-orbit-solid"
-        />
-
-        <path
-          d={EVENT_CIRCLE_PATH}
-          transform="translate(0 -32)"
-          className="explore-events-orbit-dashed"
-        />
-
-        <g className="explore-events-orbit-track">
-          {ORBIT_LABELS.map(({ label, startOffset }, index) => (
-            <text
-              className="explore-events-orbit-label"
-              key={`${label}-${index}`}
-            >
-              <textPath
-                href="#explore-events-text-path"
-                startOffset={startOffset}
-              >
-                {label}|
-              </textPath>
-            </text>
-          ))}
-        </g>
-      </svg>
+      <button
+        type="button"
+        className="explore-events-rail-button explore-events-rail-prev"
+        onClick={() => scrollByCard(-1)}
+        disabled={atStart}
+        aria-label="Previous events"
+      >
+        ←
+      </button>
+      <button
+        type="button"
+        className="explore-events-rail-button explore-events-rail-next"
+        onClick={() => scrollByCard(1)}
+        disabled={atEnd}
+        aria-label="Next events"
+      >
+        →
+      </button>
     </motion.div>
   );
 }
 
 export default function ExploreByEvents() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <motion.section
       className="explore-events-section bg-sparkle"
@@ -150,8 +143,6 @@ export default function ExploreByEvents() {
         </motion.div>
       </header>
 
-      <EventOrbit reduceMotion={reduceMotion} />
-
       <motion.img
         src={arrowPointingUp}
         alt=""
@@ -159,6 +150,8 @@ export default function ExploreByEvents() {
         className="explore-events-up-arrow"
         variants={fadeInUp}
       />
+
+      <EventCardCarousel />
 
       <div className="explore-events-layers" aria-hidden="true">
         <img
