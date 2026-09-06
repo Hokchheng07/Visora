@@ -1,0 +1,289 @@
+/* The editor is a separate application shell. Scope its styles so the
+   marketing page and the existing CV prototype keep their own layout. */
+.editor-shell {
+  --editor-tint: color-mix(in srgb, var(--color-accent) 17%, white);
+  --editor-header: color-mix(in srgb, var(--color-primary) 6%, white);
+  --editor-border: color-mix(in srgb, var(--color-primary) 16%, white);
+  --editor-ink: #211d29;
+  --editor-muted: #787280;
+  --editor-ruler: 28px;
+  --editor-canvas-bar: 116px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: white;
+  color: var(--editor-ink);
+}
+.editor-shell button { font: inherit; }
+.editor-shell button:disabled { cursor: not-allowed; }
+.editor-shell :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.editor-topbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 90px;
+  padding: 10px 30px;
+  border-top: 3px solid var(--color-primary);
+  background: var(--editor-header);
+}
+.editor-document { display: flex; min-width: 0; align-items: center; gap: 30px; }
+.editor-home { display: block; flex: none; border-radius: 6px; }
+.editor-home img { display: block; width: 140px; height: 60px; object-fit: contain; }
+.editor-document-name { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 17px; font-weight: 600; }
+.editor-document-name button { display: grid; place-items: center; width: 32px; height: 32px; color: var(--editor-muted); }
+.editor-topbar-actions { display: flex; flex: none; align-items: center; gap: 12px; }
+/* Enabled is the default here: a working action has to look different from the
+   "coming soon" stubs beside it, or the whole bar reads as dead. */
+.editor-topbar-actions button { display: flex; justify-content: center; align-items: center; gap: 10px; min-width: 108px; height: 42px; padding-inline: 17px; border: 1px solid color-mix(in srgb, var(--color-primary) 28%, white); border-radius: 7px; color: var(--editor-ink); background: white; font-size: 13px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
+.editor-topbar-actions button:disabled { border-color: var(--editor-border); color: var(--editor-muted); background: rgb(255 255 255 / .4); opacity: .55; }
+.editor-topbar-actions .editor-export { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+.editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
+.editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 92px 272px minmax(0, 1fr); gap: 14px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
+/* Collapsing the panel track lets the workspace reflow without measuring anything. */
+.editor-body.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
+.editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
+.editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
+.editor-tool-button { display: flex; flex: none; min-height: 78px; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: var(--editor-ink); cursor: pointer; transition: background-color 150ms ease, color 150ms ease; }
+.editor-tool-button span { font-size: 10px; line-height: 1.2; }
+.editor-tool-button[aria-selected="true"] { background: white; color: var(--color-primary); }
+.editor-tool-button:focus-visible { outline-offset: -3px; }
+.editor-tool-panel { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; padding: 24px 22px; background: var(--editor-tint); transition: opacity 160ms ease, padding 220ms ease; }
+.editor-tool-panel:focus-visible { outline-offset: -3px; }
+.editor-tool-panel.is-collapsed { overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
+.editor-tool-panel > h2 { margin-bottom: 19px; font-size: 18px; font-weight: 600; letter-spacing: -.025em; }
+.editor-panel-search { display: flex; align-items: center; gap: 9px; height: 40px; padding-inline: 10px; border: 1px solid color-mix(in srgb, var(--color-primary) 45%, white); border-radius: 7px; background: white; color: var(--editor-muted); }
+.editor-panel-search svg { flex: none; }
+.editor-panel-search input { min-width: 0; width: 100%; border: none; background: transparent; color: var(--editor-muted); font: inherit; font-size: 10px; }
+.editor-panel-search input::placeholder { color: var(--editor-muted); opacity: 1; }
+.editor-categories { display: flex; gap: 5px; margin-block: 16px; }
+.editor-categories button { min-width: 0; padding: 8px 7px; border-radius: 5px; background: white; color: var(--editor-muted); font-size: 8px; }
+.editor-categories button.is-active { background: var(--color-primary); color: white; }
+.editor-template-list { display: grid; gap: 13px; }
+.editor-template-placeholder { aspect-ratio: 16 / 9; border: 7px solid var(--color-accent); border-radius: 11px; overflow: hidden; background: white; }
+.editor-template-paper { position: relative; display: flex; height: 100%; align-items: center; justify-content: center; flex-direction: column; gap: 8px; overflow: hidden; background: color-mix(in srgb, var(--color-primary) 6%, white); color: color-mix(in srgb, var(--color-primary) 42%, white); }
+.editor-template-tone-1 .editor-template-paper { background: color-mix(in srgb, var(--color-secondary) 12%, white); }
+.editor-template-tone-2 .editor-template-paper { background: color-mix(in srgb, var(--color-accent) 13%, white); }
+.editor-placeholder-line { z-index: 1; width: 36%; height: 5px; border-radius: 4px; background: currentColor; opacity: .5; }
+.editor-placeholder-line.short { width: 23%; height: 3px; opacity: .35; }
+.editor-template-orbit { position: absolute; width: 96px; height: 96px; left: -51px; bottom: -45px; border: 1px dashed currentColor; border-radius: 50%; opacity: .6; }
+.editor-template-paper .editor-template-spark { position: absolute; top: 13px; right: 13px; color: var(--color-accent); }
+.editor-view-more { width: 100%; height: 38px; margin-top: 20px; border: 1px solid var(--color-primary); border-radius: 7px; background: rgb(255 255 255 / .45); color: var(--color-primary); opacity: .65; font-size: 10px !important; }
+.editor-panel-subtitle { margin-block: 22px 12px; font-size: 12px; font-weight: 500; }
+.editor-shape-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.editor-shape-tile { display: grid; aspect-ratio: 1; place-items: center; border: 1px solid var(--editor-border); border-radius: 9px; background: rgb(255 255 255 / .65); }
+.editor-shape { display: block; width: 28px; height: 28px; background: var(--color-accent); }
+.editor-shape-circle { border-radius: 50%; }
+.editor-shape-triangle { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.editor-shape-diamond { width: 24px; height: 24px; transform: rotate(45deg); }
+.editor-shape-star { clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 93%,50% 72%,21% 93%,32% 57%,2% 35%,39% 35%); }
+.editor-shape-pill { width: 34px; height: 20px; border-radius: 999px; }
+.editor-graphic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.editor-graphic-grid > span { display: grid; height: 76px; place-items: center; border-radius: 9px; background: rgb(255 255 255 / .65); color: var(--color-primary); font-size: 35px; }
+.editor-panel-primary { display: flex; width: 100%; min-height: 40px; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 7px; background: var(--color-primary); color: white; opacity: .68; font-size: 11px !important; }
+.editor-text-options { display: grid; gap: 10px; }
+.editor-text-options .editor-panel-subtitle { margin-bottom: 0; }
+.editor-text-options > button:not(.editor-panel-primary) { padding: 15px 12px; border: 1px solid var(--editor-border); border-radius: 9px; background: rgb(255 255 255 / .65); text-align: left; color: #696273; font-size: 11px; }
+.editor-text-options > .editor-text-heading { font-size: 22px !important; font-weight: 600; }
+.editor-text-options > .editor-text-subheading { font-size: 15px !important; font-weight: 500; }
+.editor-empty-state { padding: 44px 10px; text-align: center; }
+.editor-empty-icon { display: grid; width: 60px; height: 60px; margin: 0 auto 18px; place-items: center; border: 1px dashed color-mix(in srgb, var(--color-primary) 30%, white); border-radius: 16px; color: var(--color-primary); background: rgb(255 255 255 / .45); }
+.editor-empty-state h3 { font-size: 13px; font-weight: 500; }
+.editor-empty-state p { margin-top: 8px; color: var(--editor-muted); font-size: 11px; line-height: 1.7; }
+.editor-panel-description { color: var(--editor-muted); font-size: 11px; }
+.editor-timer-preview { margin-block: 18px; padding: 22px 10px; border-radius: 10px; background: var(--color-primary); color: white; text-align: center; }
+.editor-timer-preview > span { font-size: 25px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.editor-timer-preview small { display: flex; margin-top: 7px; justify-content: space-evenly; font-size: 6px; letter-spacing: .08em; }
+.editor-timer-preview.light { background: white; color: var(--color-primary); }
+.editor-workspace { display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-radius: 18px; background: #f6f6f8; }
+.editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
+.editor-canvas-area { position: relative; min-height: 0; container-type: size; }
+.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 26px 24px 0; overflow: hidden; }
+.editor-page-stack { display: grid; flex: 1; min-height: 0; align-content: start; justify-items: center; padding-bottom: 26px; }
+/* Fit the sheet to the actual space left above the controls, including its
+   metadata and scroll padding, rather than assuming a fixed header height. */
+.editor-page { width: min(100%, calc((100cqh - var(--editor-ruler) - var(--editor-canvas-bar) - 78px) * 1.777778)); max-width: 1120px; }
+.editor-canvas-meta { display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+/* Rulers ride the workspace edges rather than framing the page, so they stay
+   put while the pages scroll underneath them. */
+.editor-ruler-corner { position: absolute; z-index: 2; top: 0; left: 0; width: var(--editor-ruler); height: var(--editor-ruler); border-right: 1px solid var(--editor-border); border-bottom: 1px solid var(--editor-border); background: white; }
+.editor-ruler { position: absolute; z-index: 1; overflow: hidden; background: white; }
+.editor-ruler.is-horizontal { top: 0; right: 0; left: var(--editor-ruler); height: var(--editor-ruler); border-bottom: 1px solid var(--editor-border); }
+.editor-ruler.is-vertical { top: var(--editor-ruler); bottom: 0; left: 0; width: var(--editor-ruler); border-right: 1px solid var(--editor-border); }
+.editor-ruler-tick { position: absolute; background: color-mix(in srgb, var(--editor-muted) 40%, white); }
+.editor-ruler.is-horizontal .editor-ruler-tick { bottom: 0; width: 1px; height: 5px; }
+.editor-ruler.is-horizontal .editor-ruler-tick.is-major { height: 9px; }
+.editor-ruler.is-vertical .editor-ruler-tick { right: 0; width: 5px; height: 1px; }
+.editor-ruler.is-vertical .editor-ruler-tick.is-major { width: 9px; }
+.editor-ruler-label { position: absolute; color: var(--editor-muted); font-size: 9px; line-height: 1; font-variant-numeric: tabular-nums; }
+.editor-ruler.is-horizontal .editor-ruler-label { bottom: 12px; left: 4px; }
+.editor-ruler.is-vertical .editor-ruler-label { top: 4px; right: 12px; writing-mode: vertical-rl; }
+.editor-blank-canvas { width: 100%; aspect-ratio: 16 / 9; background: white; box-shadow: 0 2px 5px rgb(29 23 43 / .05), 0 14px 40px rgb(29 23 43 / .08); }
+.editor-blank-canvas { position: relative; container-type: size; isolation: isolate; }
+.editor-element, .editor-static-element { position: absolute; display: block; }
+.editor-element { pointer-events: none; }
+.editor-element-rotation, .editor-element-hit { position: absolute; inset: 0; }
+.editor-element-hit { pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.editor-element-hit:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.editor-element-art { display: block; width: 100%; height: 100%; pointer-events: none; }
+.editor-element-art.editor-shape-diamond, .editor-layer-swatch.editor-shape-diamond, .editor-ghost-art.editor-shape-diamond { transform: none; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.editor-selection-frame { position: absolute; inset: 0; border: 1.5px solid var(--color-primary); pointer-events: none; }
+.editor-resize-handle { position: absolute; width: 12px; height: 12px; border: 1.5px solid var(--color-primary); border-radius: 3px; background: white; pointer-events: auto; touch-action: none; transform: translate(-50%, -50%); }
+.editor-resize-handle::after { content: ""; position: absolute; inset: -6px; }
+.editor-resize-handle.is-nw { left: 0; top: 0; cursor: nwse-resize; }
+.editor-resize-handle.is-n { left: 50%; top: 0; cursor: ns-resize; }
+.editor-resize-handle.is-ne { left: 100%; top: 0; cursor: nesw-resize; }
+.editor-resize-handle.is-e { left: 100%; top: 50%; cursor: ew-resize; }
+.editor-resize-handle.is-se { left: 100%; top: 100%; cursor: nwse-resize; }
+.editor-resize-handle.is-s { left: 50%; top: 100%; cursor: ns-resize; }
+.editor-resize-handle.is-sw { left: 0; top: 100%; cursor: nesw-resize; }
+.editor-resize-handle.is-w { left: 0; top: 50%; cursor: ew-resize; }
+.editor-rotate-handle { position: absolute; display: grid; place-items: center; left: 50%; top: calc(100% + 22px); width: 24px; height: 24px; translate: -50% 0; border: 1px solid var(--editor-border); border-radius: 50%; background: white; color: var(--color-primary); pointer-events: auto; cursor: grab; touch-action: none; box-shadow: 0 2px 6px rgb(29 23 43 / .1); }
+.editor-rotate-handle::before { content: ""; position: absolute; bottom: 100%; left: 50%; height: 22px; border-left: 1px solid var(--color-primary); }
+.editor-element.is-dragging .editor-resize-handle, .editor-element.is-dragging .editor-rotate-handle { visibility: hidden; }
+.editor-shape-tools { position: absolute; z-index: 5; top: calc(var(--editor-ruler) + 3px); left: calc(50% + var(--editor-ruler) / 2); translate: -50% 0; display: flex; align-items: center; gap: 8px; max-width: calc(100% - var(--editor-ruler) - 24px); height: 40px; padding: 4px 9px; border: 1px solid var(--editor-border); border-radius: 10px; background: white; box-shadow: 0 2px 8px rgb(29 23 43 / .06); white-space: nowrap; }
+.editor-selected-name { padding-right: 5px; font-size: 11px; color: var(--editor-muted); }
+.editor-shape-tools button, .editor-layer-actions button { display: grid; flex: none; place-items: center; width: 30px; height: 30px; border-radius: 6px; color: var(--editor-ink); cursor: pointer; }
+.editor-shape-tools button:disabled, .editor-layer-actions button:disabled { opacity: .3; }
+.editor-fill-control { display: grid; flex: none; place-items: center; width: 27px; height: 27px; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 6px; }
+.editor-fill-control input { width: 31px; height: 31px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.editor-property-number { display: flex; align-items: center; gap: 3px; color: var(--editor-muted); font-size: 10px; }
+.editor-property-number input { width: 35px; padding: 3px 0; font-size: 11px; text-align: right; color: var(--editor-ink); appearance: textfield; }
+.editor-property-number input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.editor-canvas-area:has(.editor-shape-tools) .editor-canvas-meta { visibility: hidden; }
+.editor-shapes-hint { margin-bottom: 18px; line-height: 1.7; }
+.editor-shape-tile { align-content: center; gap: 9px; cursor: grab; touch-action: none; }
+.editor-shape-label { color: var(--editor-muted); font-size: 9px; }
+.editor-shape-ghost { position: fixed; z-index: 100; translate: -50% -50%; width: 60px; height: 60px; pointer-events: none; opacity: .7; }
+.editor-ghost-art { display: block; width: 100%; height: 100%; background: #ad8dea; }
+.editor-layer-list { display: grid; gap: 8px; margin-block: 18px; }
+.editor-layer-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 9px; background: rgb(255 255 255 / .65); text-align: left; cursor: pointer; }
+.editor-layer-row > span:last-child { font-size: 12px; }
+.editor-layer-row[aria-pressed="true"] { border-color: var(--color-primary); background: white; }
+.editor-layer-swatch { display: block; flex: none; width: 24px; height: 24px; }
+.editor-layer-actions { display: flex; gap: 8px; }
+.editor-layer-actions button { background: white; }
+.editor-topbar-actions .editor-history-actions { display: flex; gap: 3px; }
+.editor-topbar-actions .editor-history-actions button { min-width: 0; width: 32px; padding: 0; border: 0; background: transparent; color: var(--editor-ink); }
+.editor-topbar-actions .editor-history-actions button:disabled { opacity: .3; }
+.editor-thumb-art { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.editor-page-thumb-number { z-index: 1; padding-inline: 2px; border-radius: 2px; background: rgb(255 255 255 / .8); }
+/* The controls remain inside the same workspace container. Only the selected
+   page is displayed; thumbnails navigate without scrolling the canvas. */
+.editor-canvas-bar { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 8px 12px; padding: 8px 0 12px; min-height: var(--editor-canvas-bar); background: #f6f6f8; }
+.editor-canvas-bar-tools { grid-area: tools; display: flex; min-width: 0; justify-self: end; align-items: center; gap: 10px; }
+.editor-canvas-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding-inline: 13px; border: 1px solid var(--editor-border); border-radius: 9px; background: white; color: var(--editor-muted); font-size: 12px; cursor: pointer; transition: color 150ms ease, background-color 150ms ease; }
+.editor-canvas-bar button:disabled { opacity: .5; }
+.editor-canvas-bar .editor-ruler-toggle { grid-area: rulers; justify-self: start; border-color: transparent; background: transparent; }
+.editor-canvas-bar .editor-ruler-toggle.is-active { border-color: color-mix(in srgb, var(--color-primary) 40%, white); background: color-mix(in srgb, var(--color-primary) 8%, white); color: var(--color-primary); }
+/* Page strip: click a thumbnail to jump to that page, like Canva's. */
+.editor-page-strip { grid-area: pages; display: flex; justify-self: center; min-width: 0; max-width: 100%; align-items: center; gap: 10px; }
+.editor-page-thumbs { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; padding: 3px; overflow-x: auto; scrollbar-width: none; }
+.editor-page-thumbs::-webkit-scrollbar { display: none; }
+.editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: 96px; height: 54px; padding: 0; border-radius: 8px; }
+.editor-canvas-bar .editor-page-thumb.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1.5px var(--color-primary); }
+.editor-page-thumb-number { position: absolute; bottom: 3px; left: 6px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.editor-page-add, .editor-zoom { display: flex; flex: none; align-items: center; gap: 3px; padding: 3px; border: 1px solid var(--editor-border); border-radius: 11px; background: white; }
+.editor-canvas-bar .editor-page-add { background: #ededf1; border-color: transparent; }
+.editor-canvas-bar .editor-page-add button, .editor-canvas-bar .editor-zoom, .editor-canvas-bar .editor-zoom button { background: transparent; border-color: transparent; }
+.editor-zoom > span { padding-inline: 7px; color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+.editor-page-count { color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+.editor-page-menu { position: fixed; z-index: 40; display: flex; flex-direction: column; min-width: 200px; padding: 7px; border: 1px solid var(--editor-border); border-radius: 12px; background: white; box-shadow: 0 6px 28px rgb(29 23 43 / .17); }
+.editor-page-menu button { display: flex; align-items: center; gap: 11px; height: 38px; padding-inline: 11px; border-radius: 8px; color: var(--editor-ink); font-size: 13px; cursor: pointer; }
+.editor-page-menu button:disabled { opacity: .4; }
+.editor-page-menu hr { margin: 6px; border: 0; border-top: 1px solid var(--editor-border); }
+.editor-canvas-bar .editor-page-add button { width: 36px; height: 36px; padding: 0; border: none; border-radius: 8px; }
+.editor-canvas-bar .editor-zoom button { width: 32px; height: 32px; padding: 0; border: none; border-radius: 8px; }
+/* Display mode: the backdrop as an audience sees it. Black surround rather
+   than the editor's grey, because this is what reaches a projector or TV. */
+.editor-display { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; background: #000; }
+.editor-display:focus-visible { outline: none; }
+.editor-display.is-idle { cursor: none; }
+/* Letterbox a 16:9 sheet into any screen without measuring anything. */
+.editor-display-frame { width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); }
+.editor-display-page { position: relative; overflow: hidden; width: 100%; height: 100%; background: white; }
+.editor-display-bar { position: absolute; z-index: 1; bottom: 22px; display: flex; align-items: center; gap: 22px; max-width: calc(100vw - 32px); padding: 9px 14px; border-radius: 13px; background: rgb(20 18 26 / .92); box-shadow: 0 8px 30px rgb(0 0 0 / .45); color: white; transition: opacity 200ms ease, translate 200ms ease; }
+/* Hover needs no handler: a pointer that is hovering has just moved, so it is
+   never idle. :focus-within keeps the bar up for anyone tabbing through it. */
+.editor-display.is-idle .editor-display-bar { opacity: 0; translate: 0 14px; pointer-events: none; }
+.editor-display.is-idle .editor-display-bar:focus-within { opacity: 1; translate: 0; pointer-events: auto; }
+.editor-display-nav, .editor-display-tools { display: flex; align-items: center; gap: 4px; }
+.editor-display-bar button { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 9px; color: white; cursor: pointer; transition: background-color 150ms ease, color 150ms ease; }
+/* The contrast gap carries the enabled/disabled signal — dimming the stubs
+   further would only make the live controls look dim by association. */
+.editor-display-bar button:disabled { color: rgb(255 255 255 / .45); }
+.editor-display-bar :focus-visible { outline: 2px solid white; outline-offset: 2px; }
+.editor-display-count { padding-inline: 6px; font-size: 13px; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .editor-display-bar { gap: 10px; padding: 7px 10px; }
+  .editor-display-bar button { width: 32px; height: 32px; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .editor-shape-tile:hover, .editor-layer-row:hover, .editor-layer-actions button:not(:disabled):hover, .editor-shape-tools button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, white); }
+  .editor-display-bar button:not(:disabled):hover { background: rgb(255 255 255 / .16); color: white; }
+  .editor-topbar-actions button:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 7%, white); }
+  .editor-topbar-actions .editor-export:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 88%, black); border-color: transparent; color: white; }
+  .editor-tool-button:hover { color: var(--color-primary); background: rgb(255 255 255 / .6); }
+  .editor-tool-button[aria-selected="true"]:hover { background: white; }
+  .editor-tool-button:active { transform: scale(.97); }
+  .editor-canvas-bar button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 7%, white); color: var(--color-primary); }
+  .editor-page-menu button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 8%, white); color: var(--color-primary); }
+}
+@media (max-width: 1100px) {
+  .editor-body { grid-template-columns: 80px 240px minmax(0, 1fr); gap: 12px; padding: 16px; }
+  .editor-body.is-panel-collapsed { grid-template-columns: 80px 0 minmax(0, 1fr); }
+  .editor-tool-panel { padding: 22px 16px; }
+  .editor-document { gap: 20px; }
+  .editor-topbar-actions { gap: 8px; }
+  .editor-topbar-actions button { min-width: 90px; padding-inline: 12px; }
+}
+@media (max-width: 760px) {
+  .editor-selected-name { display: none; }
+  .editor-shape-tools { gap: 3px; overflow-x: auto; padding-inline: 5px; }
+  .editor-property-number { font-size: 0; }
+  .editor-property-number input { width: 26px; }
+  .editor-topbar { min-height: 72px; gap: 10px; padding: 6px 16px; }
+  .editor-home img { width: 96px; height: 48px; }
+  .editor-document { gap: 12px; }
+  .editor-document-name { font-size: 12px; gap: 4px; }
+  .editor-document-name button { width: 24px; }
+  .editor-topbar-actions button { width: 34px; height: 34px; min-width: 0; padding: 0; }
+  .editor-topbar-actions button span { display: none; }
+  .editor-topbar-actions button::after { content: none; }
+  .editor-body { grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(200px, .8fr); gap: 10px; padding: 10px; }
+  /* The panel is the first row here, so collapsing hands its height to the canvas.
+     Track structure has to mirror the rule above or the transition can't interpolate. */
+  .editor-body.is-panel-collapsed { grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: minmax(0, 0fr) minmax(200px, 1fr); }
+  .editor-tool-rail { grid-row: 1 / -1; padding: 5px; border-radius: 16px; }
+  .editor-tool-button { min-height: 68px; gap: 7px; border-radius: 11px; }
+  .editor-tool-button svg { width: 23px; height: 23px; }
+  .editor-tool-button span { font-size: 8px; }
+  .editor-tool-panel { border-radius: 16px; padding: 18px; }
+  .editor-tool-panel > h2 { margin-bottom: 14px; font-size: 17px; }
+  .editor-template-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .editor-template-placeholder { aspect-ratio: 1.2; border-width: 5px; }
+  .editor-template-paper .editor-template-spark { width: 13px; height: 13px; top: 6px; right: 6px; }
+  /* Rulers are unusable at this width, so reclaim the space for the sheet. */
+  .editor-workspace { grid-column: 2; border-radius: 16px; --editor-ruler: 0px; --editor-canvas-bar: 98px; }
+  .editor-canvas-scroll { padding: 16px 16px 0; }
+  .editor-canvas-meta { font-size: 8px; }
+  .editor-canvas-bar { gap: 4px; padding: 7px 10px; }
+  .editor-canvas-bar .editor-ruler-toggle, .editor-page-count { display: none; }
+  .editor-canvas-bar button { height: 32px; padding-inline: 9px; font-size: 11px; }
+  .editor-canvas-bar .editor-page-thumb { width: 72px; height: 40px; }
+  .editor-canvas-bar .editor-page-add button { width: 32px; height: 32px; }
+  .editor-canvas-bar .editor-zoom button { width: 26px; height: 26px; }
+  .editor-zoom > span { padding-inline: 5px; font-size: 11px; }
+}
+@media (max-width: 420px) {
+  .editor-topbar-actions > button:not(.editor-export) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-tool-button { transition: none; }
+  .editor-tool-button:active { transform: none; }
+  .editor-body, .editor-tool-panel, .editor-canvas-bar button { transition: none; }
+  .editor-display-bar, .editor-display-bar button { transition: none; }
+}
