@@ -1,4 +1,5 @@
 import { ThemeImage } from '../../theme/ThemeImage';
+import { useTheme } from '../../theme/useTheme';
 import { NavLink } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
@@ -13,6 +14,9 @@ import cardEverydayTools from "../../assets/Website/LandingPage/Hero-Section/Pur
 import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
 import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
 import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
+import jupiter from "../../assets/Website/LandingPage/Hero-Section/Jupiter.svg";
+import smallAstro from "../../assets/Website/LandingPage/Hero-Section/SmallAstro.svg";
+import bigAstronaut from "../../assets/Website/LandingPage/Hero-Section/BigAstronaunt.svg";
 import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroSectionArrow.svg";
 import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/Stats/HeroStatsBg.svg";
 import statPurpleBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/PurpleBackground.svg";
@@ -41,21 +45,27 @@ const CANVAS = { w: 1920, h: 1080 };
 
 // Decorative doodle positions/sizes are defined in src/index.css under the
 // `.hero-doodle-*` classes (kept in CSS for easy design tweaking).
+// `dark` swaps the doodle for its astronomy counterpart under the dark palette.
+// These are kept local rather than in darkAssets because ArrowNPlane is shared
+// with WhyChooseVisora, which keeps its plane in both themes.
 const DOODLES = [
   {
     src: airplaneDoodle,
+    dark: jupiter,
     className: "hero-doodle hero-doodle-plane-left",
     imageClass: "hero-plane-left",
     side: "left",
   },
   {
     src: doodlePlaneLoop,
+    dark: smallAstro,
     className: "hero-doodle hero-doodle-plane-right",
     imageClass: "hero-plane-right",
     side: "right",
   },
   {
     src: cardEverydayTools,
+    dark: bigAstronaut,
     className: "hero-doodle hero-doodle-frame-one",
     imageClass: "hero-frame-bounce hero-frame-one",
     side: "left",
@@ -110,6 +120,7 @@ const STATS = [
 const Hero = () => {
   const reduceMotion = useReducedMotion();
   const heroCopyRef = useAnimeHeroCopy();
+  const { resolvedTheme } = useTheme();
 
   return (
     <section className="hero-section bg-sparkle relative overflow-hidden bg-transparent font-sans">
@@ -121,7 +132,7 @@ const Hero = () => {
         style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
         aria-hidden="true"
       >
-        {DOODLES.map(({ src, className, imageClass, side }, i) => (
+        {DOODLES.map(({ src, dark, className, imageClass, side }, i) => (
           <motion.div
             key={i}
             className={`absolute ${className ?? ""}`}
@@ -140,7 +151,7 @@ const Hero = () => {
             }}
           >
             <ThemeImage
-              src={src}
+              src={resolvedTheme === "dark" && dark ? dark : src}
               alt=""
               className={`h-full w-full object-contain ${imageClass ?? ""}`}
             />
