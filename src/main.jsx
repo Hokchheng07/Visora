@@ -14,6 +14,8 @@ import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
+import { ThemeProvider } from './theme/ThemeProvider';
+import './theme/theme.css';
 
 const router = createBrowserRouter([
   {
@@ -76,7 +78,7 @@ const root = document.getElementById("root");
 ReactDOM.createRoot(root).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <ThemeProvider><RouterProvider router={router} /></ThemeProvider>
     </Provider>
   </StrictMode>
 );

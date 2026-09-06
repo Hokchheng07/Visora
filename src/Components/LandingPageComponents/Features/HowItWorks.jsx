@@ -1,3 +1,4 @@
+import { ThemeImage, MotionThemeImage, MotionThemeSvgImage } from '../../../theme/ThemeImage';
 import { useEffect, useRef } from "react";
 import { animate } from "animejs/animation";
 import { createScope } from "animejs/scope";
@@ -155,19 +156,23 @@ const desktopSteps = [
     height: 312,
     badgeX: 557,
     badgeY: 574,
-    contentX: 417,
-    contentY: 708,
+    contentCenterX: 557,
+    contentCenterY: 762,
+    contentWidth: 320,
+    contentHeight: 150,
   },
   {
     hill: hillTwo,
-    x: 460,
+    x: 422,
     y: 488,
-    width: 695,
+    width: 760,
     height: 434,
     badgeX: 870,
     badgeY: 458,
-    contentX: 730,
-    contentY: 637,
+    contentCenterX: 870,
+    contentCenterY: 705,
+    contentWidth: 370,
+    contentHeight: 180,
   },
   {
     hill: hillThree,
@@ -177,8 +182,10 @@ const desktopSteps = [
     height: 561,
     badgeX: 1170,
     badgeY: 334,
-    contentX: 1030,
-    contentY: 527,
+    contentCenterX: 1170,
+    contentCenterY: 645,
+    contentWidth: 330,
+    contentHeight: 160,
   },
 ];
 
@@ -191,7 +198,7 @@ function SectionHeading({ reduceMotion, revealed }) {
     >
       <motion.h2
         aria-label={headingText}
-        className="whitespace-nowrap text-[2.6rem] font-semibold leading-none tracking-[-0.045em] text-[#19171c] sm:text-5xl md:text-[4.75vw] xl:text-[4.25rem]"
+        className="whitespace-nowrap text-[2.6rem] font-semibold leading-none tracking-[-0.045em] text-[var(--text-heading)] sm:text-5xl md:text-[4.75vw] xl:text-[4.25rem]"
         variants={letterContainer}
       >
         {headingText.split("").map((letter, index) => (
@@ -213,11 +220,11 @@ function SectionHeading({ reduceMotion, revealed }) {
           </motion.span>
         ))}
       </motion.h2>
-      <motion.img
+      <MotionThemeImage
         src={squiggleCutline}
         alt=""
         aria-hidden="true"
-        className="mx-auto mt-3 w-[min(430px,82vw)] md:w-[31.875vw] md:max-w-[459px]"
+        className="how-cutline mx-auto mt-3 w-[min(430px,82vw)] md:w-[31.875vw] md:max-w-[459px]"
         variants={fadeInUp}
       />
     </motion.header>
@@ -251,7 +258,7 @@ function DesktopSteps({ reduceMotion, revealed }) {
           const layout = desktopSteps[index];
 
           return (
-            <motion.image
+            <MotionThemeSvgImage
               key={step.number}
               href={layout.hill}
               x={layout.x}
@@ -276,7 +283,7 @@ function DesktopSteps({ reduceMotion, revealed }) {
           overflow="visible"
           variants={fadeInUp}
         >
-          <path d={solidLinePath} fill="#17121f" />
+          <path d={solidLinePath} fill="var(--illustration-ink)" />
         </motion.svg>
         <motion.svg
           x="70"
@@ -292,7 +299,7 @@ function DesktopSteps({ reduceMotion, revealed }) {
             ref={dashPathRef}
             d={dashedCenterlinePath}
             fill="none"
-            stroke="#17121f"
+            stroke="var(--illustration-ink)"
             strokeDasharray="9 12"
             strokeLinecap="round"
             strokeWidth="3.2"
@@ -304,7 +311,7 @@ function DesktopSteps({ reduceMotion, revealed }) {
 
           return (
             <g key={step.number}>
-              <motion.image
+              <MotionThemeSvgImage
                 href={stepBadges[index]}
                 x={layout.badgeX - 35}
                 y={layout.badgeY - 34}
@@ -315,14 +322,14 @@ function DesktopSteps({ reduceMotion, revealed }) {
                 style={{ transformBox: "fill-box", transformOrigin: "center" }}
               />
               <motion.foreignObject
-                x={layout.contentX}
-                y={layout.contentY}
-                width="280"
-                height="190"
+                x={layout.contentCenterX - layout.contentWidth / 2}
+                y={layout.contentCenterY - layout.contentHeight / 2}
+                width={layout.contentWidth}
+                height={layout.contentHeight}
                 custom={index}
                 variants={stepReveal}
               >
-                <div className="px-2 text-center font-sans text-white">
+                <div className="flex h-full flex-col items-center justify-center px-3 text-center font-sans text-white">
                   <h3 className="text-[32px] font-bold leading-tight">
                     {step.title}
                   </h3>
@@ -378,11 +385,11 @@ function MobileSteps({ progress, reduceMotion }) {
           </defs>
         )}
         <g transform="translate(486 0) rotate(90)">
-          <path d={solidLinePath} fill="#17121f" />
+          <path d={solidLinePath} fill="var(--illustration-ink)" />
           <motion.path
             className="how-it-works-mobile-dashed"
             d={dashedLinePath}
-            fill="#17121f"
+            fill="var(--illustration-ink)"
             mask={
               reduceMotion ? undefined : "url(#mobile-how-it-works-reveal)"
             }
@@ -402,7 +409,7 @@ function MobileSteps({ progress, reduceMotion }) {
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent"
             />
-            <img
+            <ThemeImage
               src={stepBadges[index]}
               alt=""
               aria-hidden="true"
@@ -435,27 +442,27 @@ export default function HowItWorks() {
   return (
     <section
       ref={sectionRef}
-      className="how-it-works-section bg-sparkle relative isolate w-full overflow-hidden bg-[#fffaf0] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
+      className="how-it-works-section bg-sparkle relative isolate w-full overflow-hidden bg-[var(--surface-warm)] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
     >
-      <img
+      <ThemeImage
         src={backgroundArtwork}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0 block h-full w-full max-w-none object-fill"
       />
-      <img
+      <ThemeImage
         src={topTornGradient}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 z-[1] block h-16 w-full max-w-none object-fill md:h-[11.64%]"
       />
-      <img
+      <ThemeImage
         src={bottomTornStrip}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 z-30 block h-16 w-full max-w-none object-fill md:h-[11.64%]"
       />
-      <motion.img
+      <MotionThemeImage
         src={leftSticker}
         alt=""
         aria-hidden="true"
@@ -468,7 +475,7 @@ export default function HowItWorks() {
         }
         transition={{ duration: 0.85, delay: 0.18, ease: EASE }}
       />
-      <motion.img
+      <MotionThemeImage
         src={rightSticker}
         alt=""
         aria-hidden="true"

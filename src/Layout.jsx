@@ -8,9 +8,9 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="site-shell flex min-h-dvh flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main className={`flex-1 ${location.pathname === '/cv' ? 'theme-light-boundary' : ''}`}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}

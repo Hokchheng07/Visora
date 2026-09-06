@@ -1,3 +1,4 @@
+import { ThemeImage, MotionThemeImage } from '../../../theme/ThemeImage';
 import { motion } from "motion/react";
 import blobArtwork from "../../../assets/Website/LandingPage/WhyChooseVisora/why-choose-blob.png";
 import linearBg from "../../../assets/Website/LandingPage/WhyChooseVisora/WhyChooseVisoraLinear.svg";
@@ -45,7 +46,7 @@ const benefits = [
 export default function WhyChooseVisora() {
   return (
     <section className="features-section relative isolate w-full overflow-hidden px-8 py-20 sm:px-16 lg:px-20 lg:py-24">
-      <motion.img
+      <MotionThemeImage
         src={blobArtwork}
         alt=""
         aria-hidden="true"
@@ -55,7 +56,7 @@ export default function WhyChooseVisora() {
         viewport={viewportOnce}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
       />
-      <img
+      <ThemeImage
         src={linearBg}
         alt=""
         aria-hidden="true"
@@ -64,15 +65,15 @@ export default function WhyChooseVisora() {
       <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
       <div className="pointer-events-none absolute inset-0 z-[3] bg-sparkle opacity-70" />
       <div aria-hidden="true" className="features-decorations">
-        <img src={spiralArrow} alt="" className="features-spiral" />
+        <ThemeImage src={spiralArrow} alt="" className="features-spiral" />
         <div className="features-plane-tile">
-          <img src={arrowWithPlane} alt="" className="features-plane" />
+          <ThemeImage src={arrowWithPlane} alt="" className="features-plane" />
         </div>
-        <img src={apsara} alt="" className="features-apsara" />
+        <ThemeImage src={apsara} alt="" className="features-apsara" />
       </div>
       <div className="relative z-10 mx-auto max-w-[1440px]">
         <motion.h2
-          className="text-center text-7xl font-semibold tracking-tight text-black sm:text-6xl lg:text-[60px]"
+          className="text-center text-7xl font-semibold tracking-tight text-[var(--text-heading)] sm:text-6xl lg:text-[60px]"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -81,7 +82,7 @@ export default function WhyChooseVisora() {
           Why choose <span className="text-primary">Visora</span>?
         </motion.h2>
         <motion.div
-          className="mx-auto mt-5 h-5 w-[350px] max-w-full bg-[url('/textures/speckles.svg')] opacity-90"
+          className="mx-auto mt-5 h-5 w-[350px] max-w-full bg-sparkle opacity-90"
           aria-hidden="true"
           initial={{ opacity: 0, scaleX: 0.6 }}
           whileInView={{ opacity: 0.9, scaleX: 1 }}
@@ -103,20 +104,20 @@ export default function WhyChooseVisora() {
               variants={fadeInUp}
             >
               <motion.div
-                className="relative mb-5 flex h-[54px] w-[54px] items-center justify-center text-black"
+                className="relative mb-5 flex h-[54px] w-[54px] items-center justify-center text-[var(--text-heading)]"
                 variants={popIn}
               >
-                <img
+                <ThemeImage
                   src={groupedIcon}
                   alt=""
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 h-full w-full object-contain"
                 />
               </motion.div>
-              <h3 className="text-[22px] font-semibold text-[#151515] lg:text-[24px]">
+              <h3 className="text-[22px] font-semibold text-[var(--text-heading)] lg:text-[24px]">
                 {title}
               </h3>
-              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[#666] lg:text-[18px]">
+              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[var(--text-muted)] lg:text-[18px]">
                 {copy}
               </p>
             </motion.article>

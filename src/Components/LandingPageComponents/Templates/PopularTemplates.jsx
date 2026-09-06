@@ -1,3 +1,4 @@
+import { ThemeImage, MotionThemeImage } from '../../../theme/ThemeImage';
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
 import TemplateCard from "./TemplateCard";
@@ -23,12 +24,12 @@ export default function PopularTemplates() {
   return (
     <section className="popular-templates bg-sparkle relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
       <div className="popular-templates-art" aria-hidden="true">
-        <img src={topWave} className="popular-templates-top-wave" alt="" />
-        <img src={lowerWave} className="popular-templates-lower-wave" alt="" />
+        <ThemeImage src={topWave} className="popular-templates-top-wave" alt="" />
+        <ThemeImage src={lowerWave} className="popular-templates-lower-wave" alt="" />
       </div>
       <div className="relative z-10 mx-auto max-w-[1280px]">
         <motion.h2
-          className="text-center text-4xl font-semibold leading-tight text-black sm:text-6xl"
+          className="text-center text-4xl font-semibold leading-tight text-[var(--text-heading)] sm:text-6xl"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -39,14 +40,14 @@ export default function PopularTemplates() {
             Template<span className="text-secondary">s</span>
           </span>
         </motion.h2>
-        <img
+        <ThemeImage
           src={arrowWithScissors}
           alt=""
           aria-hidden="true"
           className="templates-arrow-scissors"
         />
         <motion.p
-          className="mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[#585858] sm:text-base"
+          className="mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[var(--text-body)] sm:text-base"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -85,7 +86,7 @@ export default function PopularTemplates() {
           </NavLink>
         </motion.div>
       </div>
-      <motion.img
+      <MotionThemeImage
         src={spiralArrow}
         alt=""
         aria-hidden="true"
@@ -96,7 +97,7 @@ export default function PopularTemplates() {
         variants={fadeIn}
         transition={{ duration: 0.9, delay: 0.45 }}
       />
-      <motion.img
+      <MotionThemeImage
         src={scissors}
         alt=""
         aria-hidden="true"

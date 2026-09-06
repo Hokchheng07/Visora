@@ -1,3 +1,4 @@
+import { ThemeImage } from '../../../theme/ThemeImage';
 import { useState } from "react";
 import { motion, useTransform } from "motion/react";
 import { ImageIcon } from "lucide-react";
@@ -5,7 +6,7 @@ import { ImageIcon } from "lucide-react";
 function EventPreview({ image, title }) {
   const [failedImage, setFailedImage] = useState(null);
   if (image && image !== failedImage) {
-    return <img className="event-card-image" src={image} alt={title || "Event backdrop"} loading="lazy" onError={() => setFailedImage(image)} />;
+    return <ThemeImage className="event-card-image" src={image} alt={title || "Event backdrop"} loading="lazy" onError={() => setFailedImage(image)} />;
   }
   return (
     <div className="event-preview-placeholder" role="img" aria-label="Event image placeholder">

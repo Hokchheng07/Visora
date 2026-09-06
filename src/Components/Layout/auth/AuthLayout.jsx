@@ -6,7 +6,7 @@ export default function AuthLayout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="theme-light-boundary min-h-dvh bg-white">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={location.pathname}

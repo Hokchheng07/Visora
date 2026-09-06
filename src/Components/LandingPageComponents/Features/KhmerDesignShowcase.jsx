@@ -1,3 +1,4 @@
+import { ThemeImage, MotionThemeImage } from '../../../theme/ThemeImage';
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
 import apsara from "../../../assets/Website/LandingPage/KhmerDesignShowCase/apsara.png";
@@ -47,40 +48,40 @@ export default function KhmerDesignShowcase() {
       viewport={{ ...viewportOnce, amount: 0.12 }}
     >
       <div className="khmer-showcase-art" aria-hidden="true">
-        <motion.img
+        <MotionThemeImage
           src={apsara}
           className="khmer-showcase-apsara"
           alt=""
           variants={fadedArtworkReveal}
         />
-        <motion.img
+        <MotionThemeImage
           src={angkorWat}
           className="khmer-showcase-angkor"
           alt=""
           variants={fadedArtworkReveal}
         />
-        <motion.img
+        <MotionThemeImage
           src={topLeft}
           className="khmer-showcase-corner khmer-showcase-corner-tl"
           alt=""
           custom={{ x: -90, y: -70, delay: 0.05 }}
           variants={cornerReveal}
         />
-        <motion.img
+        <MotionThemeImage
           src={topRight}
           className="khmer-showcase-corner khmer-showcase-corner-tr"
           alt=""
           custom={{ x: 90, y: -70, delay: 0.1 }}
           variants={cornerReveal}
         />
-        <motion.img
+        <MotionThemeImage
           src={bottomLeft}
           className="khmer-showcase-corner khmer-showcase-corner-bl"
           alt=""
           custom={{ x: -90, y: 70, delay: 0.15 }}
           variants={cornerReveal}
         />
-        <motion.img
+        <MotionThemeImage
           src={bottomRight}
           className="khmer-showcase-corner khmer-showcase-corner-br"
           alt=""
@@ -97,7 +98,7 @@ export default function KhmerDesignShowcase() {
           aria-hidden="true"
           variants={scaleIn}
         >
-          <img src={ornament} className="khmer-showcase-ornament" alt="" />
+          <ThemeImage src={ornament} className="khmer-showcase-ornament" alt="" />
         </motion.div>
         <div className="khmer-showcase-body">
           <motion.div

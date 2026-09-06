@@ -1,3 +1,4 @@
+import { ThemeImage } from '../../../theme/ThemeImage';
 import { motion } from "motion/react";
 import {
   fadeIn,
@@ -67,7 +68,7 @@ const features = [
 
 function FeatureShape({ shape }) {
   return (
-    <img
+    <ThemeImage
       src={completeCardAssets[shape]}
       alt=""
       aria-hidden="true"
@@ -97,8 +98,8 @@ export default function CreateWithoutLimits() {
   return (
     <section className="create-limits-section bg-sparkle relative isolate overflow-hidden">
       <div className="create-limits-corners" aria-hidden="true">
-        <img src={YellowBlob} alt="" className="create-limits-yellow-art" />
-        <img src={PurpleBlob} alt="" className="create-limits-purple-art" />
+        <ThemeImage src={YellowBlob} alt="" className="create-limits-yellow-art" />
+        <ThemeImage src={PurpleBlob} alt="" className="create-limits-purple-art" />
       </div>
       <motion.div
         className="create-limits-transition-arrow"
@@ -108,7 +109,7 @@ export default function CreateWithoutLimits() {
         viewport={viewportOnce}
         variants={fadeIn}
       >
-        <img src={bigArrowAndScissors} alt="" />
+        <ThemeImage src={bigArrowAndScissors} alt="" />
       </motion.div>
       <div className="relative z-10 mx-auto max-w-[1920px] px-5 pb-24 pt-32 sm:px-8 sm:pb-32 sm:pt-44 lg:px-10 lg:pb-44 lg:pt-56">
         <motion.header
@@ -122,8 +123,8 @@ export default function CreateWithoutLimits() {
             Create without <span>Limits</span>
           </h2>
           <div className="create-limits-underline" aria-hidden="true">
-            <img src={withoutLimitsArrow} alt="" />
-            <img src={withoutLimitsScissors} alt="" />
+            <ThemeImage src={withoutLimitsArrow} alt="" />
+            <ThemeImage src={withoutLimitsScissors} alt="" />
           </div>
           <p>
             Bring your ideas to life with powerful, easy-to-use tools designed
