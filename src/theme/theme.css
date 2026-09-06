@@ -1,0 +1,111 @@
+/* Marketing colors are scoped: authored documents and editor chrome stay light. */
+:root, .theme-light-boundary {
+  --surface-base: #fff;
+  --surface-warm: #fffaf0;
+  --surface-card: #fffdf8;
+  --surface-overlay: rgb(255 255 255 / .88);
+  --text-heading: #111;
+  --text-body: #585858;
+  --text-muted: #666;
+  --text-on-brand: #fff;
+  --illustration-ink: #17121f;
+  --border-default: rgb(0 0 0 / .08);
+  --border-card: #e6ccff;
+  --gradient-khmer-from: #eadff0;
+  --sparkle-url: url('/textures/speckles.svg');
+}
+.site-shell { background: var(--surface-base); color: var(--text-heading); }
+.dark .site-shell {
+  --color-primary: #72bff1;
+  --color-secondary: #da4ec9;
+  --color-accent: #e35dcb;
+  --surface-base: #0f0f14;
+  --surface-warm: #151520;
+  --surface-card: #1a1a28;
+  --surface-overlay: rgb(26 26 40 / .92);
+  --text-heading: #f0f0f5;
+  --text-body: #bcbccd;
+  --text-muted: #aaaabc;
+  --text-on-brand: #141323;
+  --illustration-ink: #ced8ee;
+  --border-default: rgb(255 255 255 / .12);
+  --border-card: rgb(114 191 241 / .28);
+  --gradient-khmer-from: #262037;
+  --sparkle-url: url('/textures/speckles-dark.svg');
+  color-scheme: dark;
+}
+.theme-light-boundary, .editor-shell {
+  --color-primary: #705ae0;
+  --color-secondary: #ffc21c;
+  --color-accent: #b294f0;
+  color-scheme: light;
+  background-color: white;
+  color: #211d29;
+}
+.theme-toggle { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 44px; height: 44px; border-radius: 50%; color: var(--text-heading); cursor: pointer; transition: transform 140ms cubic-bezier(.23,1,.32,1), background-color 180ms ease; }
+.theme-toggle:active { transform: scale(.97); }
+.theme-toggle:focus-visible, .site-shell a:focus-visible, .site-shell button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; }
+.theme-toggle[aria-disabled='true'] { cursor: wait; }
+.theme-toggle-mobile { width: 100%; justify-content: flex-start; border-radius: 12px; margin-top: 16px; padding: 0 12px; background: var(--surface-card); }
+.theme-toggle-icons { position: relative; width: 24px; height: 24px; }
+.theme-toggle-icons svg { position: absolute; inset: 0; width: 24px; height: 24px; opacity: 1; transform: rotate(0deg); transition: opacity 180ms ease, transform 180ms cubic-bezier(.23,1,.32,1); }
+.theme-toggle-icons .theme-icon-hidden { opacity: 0; transform: rotate(-35deg); }
+@media (hover: hover) and (pointer: fine) { .theme-toggle:hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); } }
+
+/* Preserve image and template colors; adapt their surrounding UI. */
+.dark .site-shell :is(a,button).text-white { color: var(--text-on-brand); }
+.dark .site-shell .template-card-preview { background: #252536; }
+.dark .site-shell .template-preview-frame { background: #3c5476; }
+.dark .site-shell .features-art { visibility: hidden; }
+.dark .site-shell .features-section { background: linear-gradient(135deg, #181a2a, #292034); }
+.dark .site-shell .features-section > .bg-gradient-to-br { background: linear-gradient(135deg, rgb(114 191 241 / .06), rgb(218 78 201 / .08)); }
+.dark .site-shell .features-plane-tile { background: transparent; }
+.dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img) { filter: invert(.85) hue-rotate(180deg); }
+.dark .site-shell .hero-backdrop-word,
+.dark .site-shell .hero-backdrop-word [data-word] { filter: drop-shadow(0 2px 6px rgb(114 191 241 / .16)); }
+.dark .site-shell .khmer-showcase-button { color: var(--text-on-brand); }
+.dark .site-shell .event-card { border-color: var(--border-card); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
+.dark .site-shell .event-card:not(.event-card-tone-1):not(.event-card-tone-2) { --event-color: #4b3988; }
+.dark .site-shell .events-progress { background: #363144; }
+.dark .site-shell .event-card-kicker { color: var(--text-muted); }
+.dark .site-shell .events-controls button:last-child { color: var(--text-on-brand); }
+.dark .site-shell .explore-events-cta h3 span { color: #f192e2; }
+.dark .site-shell .explore-events-cta a { background: linear-gradient(135deg, #72bff1, #e35dcb); color: #141323; }
+.dark .site-shell .explore-events-up-arrow { filter: invert(1); mix-blend-mode: screen; }
+.dark .site-shell :is(.create-limits-transition-arrow, .hero-doodle-plane-left, .hero-arrow-lane) { filter: invert(.85) hue-rotate(180deg); }
+.dark .site-shell .how-it-works-section .how-cutline { filter: invert(.85) hue-rotate(180deg); }
+.dark .site-shell img[alt='GitHub'] { filter: invert(1); }
+.dark .site-shell .how-it-works-section > img:first-of-type { opacity: .12; }
+.dark .site-shell .how-it-works-section article { background: linear-gradient(145deg, #315b89, #613c71); }
+.dark .site-shell footer { border-color: var(--border-default); }
+/* Transparent purple logo needs a pale backing to retain its real colors. */
+.dark .site-shell img[alt='Visora'] { background: #eee7f6; border-radius: 14px; padding: 5px 10px; }
+.dark .site-shell img[alt='ISTAD'] { background: #eee7f6; border-radius: 12px; padding: 8px; }
+
+/* The 45° ruler travels along the normal of x-y=k. The new page is clipped
+   to that same line, so the palette never leaks ahead of the ruler. */
+.theme-ruler {
+  position: fixed; left: 50%; top: 50%; height: 52px; z-index: 2147483647;
+  transform: translate(-50%, -50%) rotate(45deg);
+  view-transition-name: theme-ruler; pointer-events: none;
+  background: linear-gradient(90deg, #72bff1, #e35dcb);
+  color: #171321; border-block: 1px solid rgb(255 255 255 / .4);
+  box-shadow: 0 8px 24px rgb(0 0 0 / .25);
+  contain: layout;
+}
+.theme-ruler-light { background: linear-gradient(90deg, #b294f0, #ffc21c); }
+.theme-ruler::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10px) top / 100% 8px no-repeat, repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 50px) top / 100% 16px no-repeat, repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10px) bottom / 100% 8px no-repeat; opacity: .6; }
+.theme-ruler span { position: absolute; inset: 0; display: grid; place-items: center; font: 600 10px Poppins, sans-serif; letter-spacing: 3px; }
+html[data-theme-transition]::view-transition { pointer-events: none; }
+html[data-theme-transition='ruler']::view-transition-old(root),
+html[data-theme-transition='ruler']::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html[data-theme-transition='ruler']::view-transition-group(root) { animation-duration: 650ms; }
+html[data-theme-transition='ruler']::view-transition-new(root) { z-index: 2; }
+html[data-theme-transition='ruler']::view-transition-old(root) { z-index: 1; }
+html[data-theme-transition='ruler']::view-transition-group(theme-ruler) { z-index: 3; animation: none; }
+html[data-theme-transition='ruler']::view-transition-new(theme-ruler) { animation: none; overflow: visible; }
+html[data-theme-transition='fade']::view-transition-group(*) { animation-duration: 180ms; }
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle, .theme-toggle-icons svg { transition: opacity 180ms ease; }
+  .theme-toggle:active { transform: none; }
+}

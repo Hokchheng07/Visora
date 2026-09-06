@@ -1,3 +1,4 @@
+import { ThemeImage } from '../../theme/ThemeImage';
 import { motion } from "motion/react";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import facebook from "../../assets/Website/Footer-Section/facebook.png";
@@ -87,13 +88,13 @@ const Brand = () => (
     className="flex flex-col items-center text-center xl:items-start xl:text-left"
     variants={fadeInUp}
   >
-    <img
+    <ThemeImage
       src={visoraLogo}
       alt="Visora"
       className="w-[260px] object-contain sm:w-[280px] md:w-[300px] lg:w-[315px] xl:w-[320px]"
     />
 
-    <p className="mt-7 max-w-[320px] text-[18px] leading-[1.55] text-[#696969]">
+    <p className="mt-7 max-w-[320px] text-[18px] leading-[1.55] text-[var(--text-body)]">
       Create beautiful immersive backdrops with ease so you can focus on what
       truly matters.
     </p>
@@ -108,7 +109,7 @@ const Brand = () => (
           whileHover={{ y: -4, scale: 1.08 }}
           transition={{ type: "spring", stiffness: 320, damping: 18 }}
         >
-          <img
+          <ThemeImage
             src={icon}
             alt={name}
             className="h-10 w-10 object-contain"
@@ -139,7 +140,7 @@ const FooterColumn = ({ title, color, links, centered = false }) => (
         <li key={link}>
           <a
             href="#"
-            className="block max-w-[140px] whitespace-normal text-[14px] leading-6text-[#444] transition hover:text-primary sm:max-w-none sm:text-[18px]"
+            className="block max-w-[140px] whitespace-normal text-[14px] leading-6 text-[var(--text-body)] transition hover:text-primary sm:max-w-none sm:text-[18px]"
           >
             {link}
           </a>
@@ -160,7 +161,7 @@ const Sponsor = () => (
 
     <Zigzag color="primary" sponsor />
 
-    <img
+    <ThemeImage
       src={logo}
       alt="ISTAD"
       className="mt-5 h-[95px] object-contain sm:h-[105px] md:h-[110px] lg:h-[115px] xl:h-[120px]"
@@ -169,7 +170,7 @@ const Sponsor = () => (
 );
 
 const Footer = () => (
-  <footer className="relative shrink-0 overflow-hidden bg-white font-sans text-[#252525]">
+  <footer className="relative shrink-0 overflow-hidden bg-[var(--surface-base)] font-sans text-[var(--text-heading)]">
     {/* Background dots */}
     <motion.div
       className="bg-sparkle pointer-events-none absolute inset-0"
@@ -265,7 +266,7 @@ const Footer = () => (
             <a
               key={link}
               href="#"
-              className="text-[18px] text-[#745AE8] transition hover:text-accent"
+              className="text-[18px] text-primary transition hover:text-accent"
             >
               {link}
             </a>

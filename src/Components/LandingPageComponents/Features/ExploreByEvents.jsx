@@ -1,3 +1,4 @@
+import { ThemeImage } from '../../../theme/ThemeImage';
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink } from "react-router";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
@@ -121,15 +122,15 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
       aria-labelledby="events-title"
       style={{ "--events-scroll-distance": `${pinned ? travel : 0}px` }}
     >
-      <img src={topBackground} alt="" aria-hidden="true" className="explore-events-top-background" />
-      <img src={topLeftDoodle} alt="" aria-hidden="true" className="explore-events-top-left" />
+      <ThemeImage src={topBackground} alt="" aria-hidden="true" className="explore-events-top-background" />
+      <ThemeImage src={topLeftDoodle} alt="" aria-hidden="true" className="explore-events-top-left" />
       <header className="explore-events-heading">
         <h2 id="events-title">
           Explore By <span className="text-primary">Event</span><span className="text-secondary">s</span>
         </h2>
-        <img src={headingUnderline} alt="" aria-hidden="true" />
+        <ThemeImage src={headingUnderline} alt="" aria-hidden="true" />
       </header>
-      <img src={arrowPointingUp} alt="" aria-hidden="true" className="explore-events-up-arrow" />
+      <ThemeImage src={arrowPointingUp} alt="" aria-hidden="true" className="explore-events-up-arrow" />
       <div
         ref={journeyRef}
         className="events-journey"
@@ -184,21 +185,21 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
       </div>
 
       <div className="explore-events-layers" aria-hidden="true">
-        <img src={lightPurpleLayer} className="explore-events-rear-layer" alt="" />
-        <img src={foregroundPurple} className="explore-events-foreground-layer" alt="" />
-        <img src={leftGlow} className="explore-events-glow-left" alt="" />
-        <img src={centerGlow} className="explore-events-glow-center" alt="" />
-        <img src={rightGlow} className="explore-events-glow-right" alt="" />
+        <ThemeImage src={lightPurpleLayer} className="explore-events-rear-layer" alt="" />
+        <ThemeImage src={foregroundPurple} className="explore-events-foreground-layer" alt="" />
+        <ThemeImage src={leftGlow} className="explore-events-glow-left" alt="" />
+        <ThemeImage src={centerGlow} className="explore-events-glow-center" alt="" />
+        <ThemeImage src={rightGlow} className="explore-events-glow-right" alt="" />
       </div>
       <div id="events-create" className="explore-events-cta">
         <h3>Ready to Create <span>Something Amazing?</span></h3>
         <p>Bring your next event to life with Visora.</p>
         <NavLink to="/editor">Start Designing <span aria-hidden="true">→</span></NavLink>
       </div>
-      <img src={lineTop} alt="" aria-hidden="true" className="explore-events-line-top" />
-      <img src={paperPlane} alt="" aria-hidden="true" className="explore-events-paper-plane" />
-      <img src={lineBottom} alt="" aria-hidden="true" className="explore-events-line-bottom" />
-      <img src={lineRight} alt="" aria-hidden="true" className="explore-events-line-right" />
+      <ThemeImage src={lineTop} alt="" aria-hidden="true" className="explore-events-line-top" />
+      <ThemeImage src={paperPlane} alt="" aria-hidden="true" className="explore-events-paper-plane" />
+      <ThemeImage src={lineBottom} alt="" aria-hidden="true" className="explore-events-line-bottom" />
+      <ThemeImage src={lineRight} alt="" aria-hidden="true" className="explore-events-line-right" />
     </section>
   );
 }

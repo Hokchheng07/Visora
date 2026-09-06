@@ -1,6 +1,8 @@
+import { ThemeImage } from '../../theme/ThemeImage';
 import { useRef, useState } from "react";
 import { NavLink } from "react-router";
-import { Bars3Icon, MoonIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import ThemeToggle from '../../theme/ThemeToggle';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
@@ -34,7 +36,7 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
       onClick={onClick}
       className={({ isActive }) =>
         `group relative inline-block font-sans text-base font-semibold transition-colors duration-200 ${
-          isActive ? "text-primary" : "text-gray-900 hover:text-primary"
+          isActive ? "text-primary" : "text-[var(--text-heading)] hover:text-primary"
         } ${className}`
       }
     >
@@ -81,19 +83,19 @@ export default function Navbar() {
       animate={{ y: hidden ? "-100%" : "0%" }}
       transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.8 }}
     >
-      <img src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
+      <ThemeImage src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
       <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
         <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] w-full items-center justify-between px-6 sm:px-10 md:h-[116px]">
           {/* Logo */}
           <NavLink to="/" className="shrink-0">
-            <img
+            <ThemeImage
               src={visoraLogo}
               alt="Visora"
               className="hidden h-[86px] w-auto md:block"
               width={152}
               height={86}
             />
-            <img
+            <ThemeImage
               src={mobileLogo}
               alt="Visora"
               className="h-[57px] w-[102px] object-contain md:hidden"
@@ -113,16 +115,7 @@ export default function Navbar() {
 
           {/* Right-side actions */}
           <div className="hidden items-center gap-6 md:flex">
-            <button
-              type="button"
-              aria-label="Toggle dark mode"
-              className="group -m-2 rounded-full p-2 text-gray-900 transition-colors duration-200 hover:bg-primary/10 hover:text-primary"
-            >
-              <MoonIcon
-                className="h-6 w-6 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
-                strokeWidth={1.75}
-              />
-            </button>
+            <ThemeToggle />
             <NavLink
               to="/auth/login"
               className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
@@ -135,7 +128,7 @@ export default function Navbar() {
           <button
             type="button"
             aria-label="Toggle menu"
-            className="text-gray-900 md:hidden"
+            className="text-[var(--text-heading)] md:hidden"
             onClick={() => setMobileOpen((open) => !open)}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -163,7 +156,7 @@ export default function Navbar() {
         {mobileOpen && (
           <motion.div
             key="mobile-menu"
-            className="border-t border-black/5 bg-white px-6 py-5 md:hidden"
+            className="relative z-10 border-t border-[var(--border-default)] bg-[var(--surface-base)] px-6 py-5 md:hidden"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -181,10 +174,11 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
+            <ThemeToggle mobile />
             <NavLink
               to="/auth/login"
               onClick={() => setMobileOpen(false)}
-              className="mt-5 w-full rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+              className="mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
             >
               Sign In
             </NavLink>

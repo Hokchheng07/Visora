@@ -7,10 +7,10 @@ export default function NotFound() {
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
           Error 404
         </p>
-        <h1 className="mt-4 text-4xl font-semibold text-gray-950 sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-semibold text-[var(--text-heading)] sm:text-5xl">
           Page not found
         </h1>
-        <p className="mx-auto mt-4 max-w-md text-gray-500">
+        <p className="mx-auto mt-4 max-w-md text-[var(--text-muted)]">
           The page you requested does not exist or may have moved.
         </p>
         <Link

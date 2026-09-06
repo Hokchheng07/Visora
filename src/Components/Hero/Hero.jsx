@@ -1,3 +1,4 @@
+import { ThemeImage } from '../../theme/ThemeImage';
 import { NavLink } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
@@ -73,8 +74,8 @@ const STATS = [
     label: "Ready Templates",
     icon: "ph-upload-simple-bold",
     frame: statFrameTwo,
-    badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
   },
   {
@@ -82,8 +83,8 @@ const STATS = [
     label: "Designs Created",
     icon: "ph-pen-nib-bold",
     frame: statFrameTwo,
-    badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
   },
   {
@@ -91,8 +92,8 @@ const STATS = [
     label: "Happy Users",
     icon: "ph-smiley-bold",
     frame: statFrameTwo,
-    badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
   },
   {
@@ -100,8 +101,8 @@ const STATS = [
     label: "Support",
     icon: "ph-lifebuoy-bold",
     frame: statFrameTwo,
-    badgeClass: "bg-[#fffdf8]",
-    iconClass: "text-black",
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
   },
 ];
@@ -138,7 +139,7 @@ const Hero = () => {
               delay: 0.28 + i * 0.12,
             }}
           >
-            <img
+            <ThemeImage
               src={src}
               alt=""
               className={`h-full w-full object-contain ${imageClass ?? ""}`}
@@ -158,27 +159,27 @@ const Hero = () => {
             animate="show"
             variants={scaleIn}
           >
-            <img
+            <ThemeImage
               src={heroOuter}
               alt=""
               className="hero-vector hero-vector-outer"
             />
-            <img
+            <ThemeImage
               src={heroMiddle}
               alt=""
               className="hero-vector hero-vector-middle"
             />
-            <img
+            <ThemeImage
               src={heroInner}
               alt=""
               className="hero-vector hero-vector-inner"
             />
-            <img
+            <ThemeImage
               src={heroSolid}
               alt=""
               className="hero-vector hero-vector-solid"
             />
-            <img
+            <ThemeImage
               src={heroDashed}
               alt=""
               className="hero-vector hero-vector-dashed"
@@ -201,7 +202,7 @@ const Hero = () => {
             variants={fadeIn}
             transition={{ duration: 0.7, delay: 1.1 }}
           >
-            <img
+            <ThemeImage
               src={heroArrow}
               alt=""
               aria-hidden="true"
@@ -216,7 +217,7 @@ const Hero = () => {
             animate="show"
             variants={staggerContainer(0.1, 1.25)}
           >
-          <img
+          <ThemeImage
             src={heroStatsBg}
             alt=""
             aria-hidden="true"
@@ -240,13 +241,13 @@ const Hero = () => {
                 <div
                   className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
                 >
-                  <img
+                  <ThemeImage
                     src={badgeBackground}
                     alt=""
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
                   />
-                  <img
+                  <ThemeImage
                     src={frame}
                     alt=""
                     aria-hidden="true"
@@ -258,10 +259,10 @@ const Hero = () => {
                   />
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] font-semibold text-black/90">
+                  <p className="text-[15px] font-semibold text-[var(--text-heading)]">
                     {value}
                   </p>
-                  <p className="text-[13px] font-semibold text-[#585858]">
+                  <p className="text-[13px] font-semibold text-[var(--text-body)]">
                     {label}
                   </p>
                 </div>
@@ -279,7 +280,7 @@ function HeroCopy() {
   return (
     <>
       <h1
-        className="mx-auto mt-4 w-full max-w-[1040px] px-2 font-semibold leading-[1.18] tracking-[0.01em] text-black text-[32px] sm:text-[44px] lg:text-[68px] xl:text-[80px]"
+        className="mx-auto mt-4 w-full max-w-[1040px] px-2 font-semibold leading-[1.18] tracking-[0.01em] text-[var(--text-heading)] text-[32px] sm:text-[44px] lg:text-[68px] xl:text-[80px]"
       >
         Design Stunning
         <br />
@@ -288,7 +289,7 @@ function HeroCopy() {
 
       <p
         data-anime-hero-copy
-        className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[#585858] sm:text-[16px]"
+        className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[var(--text-body)] sm:text-[16px]"
       >
         Visora helps you create beautiful event backdrops with khmer elements,
         timers, and everything you need.
@@ -308,7 +309,7 @@ function HeroCopy() {
 
         <NavLink
           to="/templates"
-          className="rounded-full bg-secondary/20 px-6 py-3 text-[13px] font-semibold text-[#262626] transition-colors duration-200 hover:bg-secondary/30"
+          className="rounded-full bg-secondary/20 px-6 py-3 text-[13px] font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:bg-secondary/30"
         >
           Explore Templates
         </NavLink>

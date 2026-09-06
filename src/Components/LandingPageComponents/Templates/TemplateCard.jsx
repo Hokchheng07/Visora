@@ -1,3 +1,4 @@
+import { MotionThemeImage } from '../../../theme/ThemeImage';
 import { HeartIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
 import { EASE, fadeInUp } from "../../../lib/animations/animations";
@@ -37,7 +38,7 @@ export default function TemplateCard({
   return (
     <motion.article
       key={`${title}-${index}`}
-      className="relative min-w-0 rounded-[22px] border border-[#e6ccff] bg-white shadow-[0_10px_22px_rgba(112,90,224,.12)]"
+      className="relative min-w-0 rounded-[22px] border border-[var(--border-card)] bg-[var(--surface-base)] shadow-[0_10px_22px_rgba(112,90,224,.12)]"
       variants={animateContent ? showcaseCardReveal : fadeInUp}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
@@ -46,15 +47,15 @@ export default function TemplateCard({
         <motion.button
           type="button"
           aria-label={`Add ${title} to favorites`}
-          className="absolute right-4 top-4 z-20 shrink-0 rounded-full bg-white/80 p-1 text-[#111] backdrop-blur-sm transition-colors hover:bg-primary/10 hover:text-primary"
+          className="absolute right-4 top-4 z-20 shrink-0 rounded-full bg-[var(--surface-overlay)] p-1 text-[var(--text-heading)] backdrop-blur-sm transition-colors hover:bg-primary/10 hover:text-primary"
           variants={animateContent ? contentReveal : undefined}
         >
           <HeartIcon className="h-6 w-6" strokeWidth={1.8} />
         </motion.button>
-        <div className="bg-[#b294f0] p-2">
+        <div className="template-preview-frame bg-[#b294f0] p-2">
           <div className="template-card-preview h-[200px] w-full rounded-[15px] bg-[#faf9f4]">
             {image && (
-              <motion.img
+              <MotionThemeImage
                 src={image}
                 alt={title}
                 className="h-full w-full object-cover"
@@ -64,18 +65,18 @@ export default function TemplateCard({
           </div>
         </div>
         <motion.div
-          className="flex items-start gap-3 px-5 pt-3 text-left text-[28px] font-normal leading-tight text-[#111]"
+          className="flex items-start gap-3 px-5 pt-3 text-left text-[28px] font-normal leading-tight text-[var(--text-heading)]"
           variants={animateContent ? contentReveal : undefined}
         >
           <div className="min-w-0">
             <h3 className="text-left">{title}</h3>
-            <p className="mt-1 max-w-[260px] text-[13px] font-light leading-[1.35] text-[#999] text-left">
+            <p className="mt-1 max-w-[260px] text-[13px] font-light leading-[1.35] text-[var(--text-muted)] text-left">
               {description}
             </p>
           </div>
         </motion.div>
         <motion.div
-          className="flex flex-wrap items-center gap-1.5 px-5 pb-4 pt-3 text-[12px] text-[#666]"
+          className="flex flex-wrap items-center gap-1.5 px-5 pb-4 pt-3 text-[12px] text-[var(--text-muted)]"
           variants={animateContent ? contentReveal : undefined}
         >
           <span className="rounded-full bg-[#e8cdf9] px-3 py-1 text-[11px] text-[#705ae0]">Workshop</span>
