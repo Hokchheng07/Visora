@@ -56,8 +56,9 @@
 .dark .site-shell :is(a,button).text-white { color: var(--text-on-brand); }
 .dark .site-shell .template-card-preview { background: #252536; }
 .dark .site-shell .template-preview-frame { background: #3c5476; }
-.dark .site-shell .features-art { visibility: hidden; }
-.dark .site-shell .features-section { background: linear-gradient(135deg, #181a2a, #292034); }
+/* margin-bottom overlaps the next section by 1px so sub-pixel layout rounding
+   never exposes the darker base surface color as a hairline seam. */
+.dark .site-shell .features-section { background: linear-gradient(135deg, #181a2a, #292034); margin-bottom: -1px; }
 .dark .site-shell .features-section > .bg-gradient-to-br { background: linear-gradient(135deg, rgb(114 191 241 / .06), rgb(218 78 201 / .08)); }
 .dark .site-shell .features-plane-tile { background: transparent; }
 .dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img) { filter: invert(.85) hue-rotate(180deg); }
@@ -72,14 +73,15 @@
 .dark .site-shell .explore-events-cta h3 span { color: #f192e2; }
 .dark .site-shell .explore-events-cta a { background: linear-gradient(135deg, #72bff1, #e35dcb); color: #141323; }
 .dark .site-shell .explore-events-up-arrow { filter: invert(1); mix-blend-mode: screen; }
-.dark .site-shell :is(.create-limits-transition-arrow, .hero-doodle-plane-left, .hero-arrow-lane) { filter: invert(.85) hue-rotate(180deg); }
+/* hero-doodle-plane-left is excluded: dark mode swaps it for Jupiter, which is
+   already full-color artwork and must not be inverted. */
+.dark .site-shell :is(.create-limits-transition-arrow, .hero-arrow-lane) { filter: invert(.85) hue-rotate(180deg); }
 .dark .site-shell .how-it-works-section .how-cutline { filter: invert(.85) hue-rotate(180deg); }
+.dark .site-shell .khmer-showcase-linear-bg { display: block; }
 .dark .site-shell img[alt='GitHub'] { filter: invert(1); }
 .dark .site-shell .how-it-works-section > img:first-of-type { opacity: .12; }
 .dark .site-shell .how-it-works-section article { background: linear-gradient(145deg, #315b89, #613c71); }
 .dark .site-shell footer { border-color: var(--border-default); }
-/* Transparent purple logo needs a pale backing to retain its real colors. */
-.dark .site-shell img[alt='Visora'] { background: #eee7f6; border-radius: 14px; padding: 5px 10px; }
 .dark .site-shell img[alt='ISTAD'] { background: #eee7f6; border-radius: 12px; padding: 8px; }
 
 /* The 45° ruler travels along the normal of x-y=k. The new page is clipped

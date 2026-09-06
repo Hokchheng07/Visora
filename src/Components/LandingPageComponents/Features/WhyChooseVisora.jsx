@@ -20,7 +20,7 @@ const benefits = [
   {
     title: "Easy to Customize",
     copy: "Design beautiful backdrops without advanced design skills.",
-    color: "#705ae0",
+    color: "var(--color-primary)",
     groupedIcon: screwCard,
   },
   {

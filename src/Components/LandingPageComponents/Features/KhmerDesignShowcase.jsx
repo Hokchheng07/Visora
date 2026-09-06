@@ -8,6 +8,7 @@ import topRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/To
 import bottomLeft from "../../../assets/Website/LandingPage/KhmerDesignShowCase/BottomLeftCorner.svg";
 import bottomRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/RightLeftCorner.svg";
 import ornament from "../../../assets/Website/LandingPage/KhmerDesignShowCase/MiddleSection.svg";
+import linearBgDark from "../../../assets/Website/LandingPage/KhmerDesignShowCase/KhmerDesignLinear(DarkMode).svg";
 import TemplateCard from "../Templates/TemplateCard";
 import { templateCards } from "../Templates/templateData";
 import {
@@ -48,6 +49,7 @@ export default function KhmerDesignShowcase() {
       viewport={{ ...viewportOnce, amount: 0.12 }}
     >
       <div className="khmer-showcase-art" aria-hidden="true">
+        <img src={linearBgDark} alt="" className="khmer-showcase-linear-bg" />
         <MotionThemeImage
           src={apsara}
           className="khmer-showcase-apsara"

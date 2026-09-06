@@ -34,23 +34,13 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
       to={to}
       end={to === "/"}
       onClick={onClick}
-      className={({ isActive }) =>
-        `group relative inline-block font-sans text-base font-semibold transition-colors duration-200 ${
-          isActive ? "text-primary" : "text-[var(--text-heading)] hover:text-primary"
-        } ${className}`
-      }
+      className={`group relative inline-block font-sans text-base font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:text-primary ${className}`}
     >
-      {({ isActive }) => (
-        <>
-          {label}
-          <span
-            aria-hidden="true"
-            className={`pointer-events-none absolute -bottom-1.5 left-0 h-[2px] w-full origin-left bg-primary transition-transform duration-200 ease-out ${
-              isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-            }`}
-          />
-        </>
-      )}
+      {label}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-primary transition-transform duration-200 ease-out group-hover:scale-x-100"
+      />
     </NavLink>
   );
 }

@@ -69,6 +69,8 @@ import light33 from '../assets/Website/LandingPage/ExploreByEvents/CenterLayerBl
 import dark33 from './artwork/LandingPage/ExploreByEvents/CenterLayerBlur(ExploreByEvents).svg';
 import light34 from '../assets/Website/LandingPage/ExploreByEvents/RightLayerBlur.svg';
 import dark34 from './artwork/LandingPage/ExploreByEvents/RightLayerBlur.svg';
+import light35 from '../assets/Website/LandingPage/WhyChooseVisora/why-choose-blob.png';
+import dark35 from '../assets/Website/LandingPage/WhyChooseVisora/WhyChooseVisoraRightBlob(DarkMode).svg';
 
 export const darkAssets = {
   [light0]: dark0,
@@ -106,4 +108,5 @@ export const darkAssets = {
   [light32]: dark32,
   [light33]: dark33,
   [light34]: dark34,
+  [light35]: dark35,
 };
