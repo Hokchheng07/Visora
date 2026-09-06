@@ -299,7 +299,7 @@ function HeroCopy() {
         className="mt-8 flex flex-wrap items-center justify-center gap-4"
       >
         <NavLink
-          to="/design"
+          to="/editor"
           className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-[13px] font-semibold text-white transition-transform duration-200 hover:scale-[1.03]"
         >
           Start Designing

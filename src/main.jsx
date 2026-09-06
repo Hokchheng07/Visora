@@ -12,11 +12,17 @@ import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
 import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
+import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
+import Editor from "./Components/Pages/Editor.jsx";
 
 const router = createBrowserRouter([
   {
     element: <App />,
     children: [
+      {
+        path: "editor",
+        element: <Editor />,
+      },
       {
         path: "/",
         element: <Layout />,
@@ -24,6 +30,10 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <Home />,
+          },
+          {
+            path : "/cv",
+            element : <CvTemplate/>
           },
           {
             path: "*",
