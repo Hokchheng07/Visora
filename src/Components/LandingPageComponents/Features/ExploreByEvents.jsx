@@ -1,8 +1,8 @@
 import { ThemeImage } from '../../../theme/ThemeImage';
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink } from "react-router";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowDown, ArrowLeft, ArrowRight, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import EventCard from "./EventCard";
 import { placeholderEvents } from "./eventData";
 import headingUnderline from "../../../assets/Website/LandingPage/ExploreByEvents/UnderLineForExploreByEvents.svg";
@@ -23,6 +23,108 @@ import lineBottom from "../../../assets/Website/LandingPage/ExploreByEvents/Line
 const PINNED_VIEWPORT = "(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine)";
 const clamp = (value) => Math.min(1, Math.max(0, value));
 
+const roundCoordinate = (value) => Math.round(value * 100) / 100;
+
+function buildHangingPath(points) {
+  if (points.length < 2) return "";
+
+  return points.slice(1).reduce((path, point, index) => {
+    const previous = points[index];
+    const distance = point.x - previous.x;
+    const sag = Math.min(54, Math.max(28, distance * 0.16));
+    const controlY = Math.max(previous.y, point.y) + sag;
+    return `${path} C ${roundCoordinate(previous.x + distance * 0.32)} ${roundCoordinate(controlY)}, ${roundCoordinate(point.x - distance * 0.32)} ${roundCoordinate(controlY)}, ${roundCoordinate(point.x)} ${roundCoordinate(point.y)}`;
+  }, `M ${roundCoordinate(points[0].x)} ${roundCoordinate(points[0].y)}`);
+}
+
+function HangingLine({ geometry }) {
+  if (!geometry.path) return null;
+
+  return (
+    <svg
+      className="hanging-lines"
+      width={geometry.width}
+      height={geometry.height}
+      viewBox={`0 0 ${geometry.width} ${geometry.height}`}
+      fill="none"
+      overflow="visible"
+      aria-hidden="true"
+    >
+      <path
+        className="hanging-line-path"
+        d={geometry.path}
+        stroke="var(--events-line)"
+        strokeWidth="3"
+        strokeDasharray="8 8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
+function HangingCardSet({ events, duplicate, setRef }) {
+  const cardSetRef = useRef(null);
+  const [lineGeometry, setLineGeometry] = useState({ path: "", width: 0, height: 0 });
+  const assignCardSetRef = useCallback((node) => {
+    cardSetRef.current = node;
+    if (setRef) setRef.current = node;
+  }, [setRef]);
+
+  useLayoutEffect(() => {
+    const cardSet = cardSetRef.current;
+    if (!cardSet || events.length < 2) return undefined;
+
+    const measure = () => {
+      const setBounds = cardSet.getBoundingClientRect();
+      const cards = [...cardSet.querySelectorAll(".hanging-card-slot")];
+      const points = cards.map((card, index) => {
+        const image = card.querySelector(".hanging-card-image");
+        const imageBounds = image.getBoundingClientRect();
+        const pin = events[index].pin ?? { x: 0.5, y: 0.15 };
+        return {
+          x: imageBounds.left - setBounds.left + imageBounds.width * pin.x,
+          y: imageBounds.top - setBounds.top + imageBounds.width * pin.y,
+        };
+      });
+
+      if (points.length < 2) return;
+      // End at the first pin of the following copy. This makes the seam use
+      // the same measured high-to-high clothesline curve as every other gap.
+      points.push({ x: setBounds.width + points[0].x, y: points[0].y });
+      const width = roundCoordinate(points.at(-1).x + 2);
+      const height = roundCoordinate(Math.max(...points.map((point) => point.y)) + 58);
+      const path = buildHangingPath(points);
+      setLineGeometry((current) => (
+        current.path === path && current.width === width && current.height === height
+          ? current
+          : { path, width, height }
+      ));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(cardSet);
+    cardSet.querySelectorAll(".hanging-card-slot, .hanging-card-image").forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [events]);
+
+  return (
+    <div ref={assignCardSetRef} className="events-card-set" aria-hidden={duplicate || undefined}>
+      <HangingLine geometry={lineGeometry} />
+      {events.map((event, index) => (
+        <EventCard
+          key={`${duplicate ? "duplicate" : "event"}-${event.id}`}
+          event={event}
+          index={index}
+          count={events.length}
+          duplicate={duplicate}
+        />
+      ))}
+    </div>
+  );
+}
+
 // Pass API records as events when available. Measure again when data or the
 // viewport changes so the scroll runway always matches the actual card row.
 export default function ExploreByEvents({ events = placeholderEvents }) {
@@ -32,9 +134,11 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
   const [pinTop, setPinTop] = useState(0);
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
+  const setRef = useRef(null);
   const reduceMotion = useReducedMotion();
   const [desktop, setDesktop] = useState(false);
   const [travel, setTravel] = useState(0);
+  const [startOffset, setStartOffset] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const pinned = desktop && !reduceMotion && events.length > 1;
   const progress = useMotionValue(0);
@@ -43,9 +147,10 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
     offset: [`start ${pinTop}px`, `end ${pinTop + stageHeight}px`],
   });
   const trackTransform = useTransform(progress, (value) =>
-    pinned ? `translate3d(${-value * travel}px, 0, 0)` : "none",
+    pinned
+      ? `translate3d(${-(travel + startOffset + value * travel)}px, 0, 0)`
+      : "translate3d(0, 0, 0)",
   );
-  const progressTransform = useTransform(progress, (value) => `scaleX(${value})`);
 
   useEffect(() => {
     const query = window.matchMedia(PINNED_VIEWPORT);
@@ -58,9 +163,15 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
     const track = trackRef.current;
+    const cardSet = setRef.current;
     const measure = () => {
-      const distance = Math.max(0, track.scrollWidth - viewport.clientWidth);
+      const firstCard = cardSet?.querySelector(".hanging-card-slot");
+      const loopWidth = cardSet?.getBoundingClientRect().width ?? 0;
+      const distance = pinned
+        ? loopWidth
+        : Math.max(0, track.scrollWidth - viewport.clientWidth);
       setTravel(distance);
+      setStartOffset(pinned && firstCard ? firstCard.getBoundingClientRect().width * 0.79 : 0);
       setStageHeight(stageRef.current.offsetHeight);
       setPinTop(pinned ? parseFloat(getComputedStyle(stageRef.current).top) || 0 : 0);
       if (!pinned) progress.set(distance ? clamp(viewport.scrollLeft / distance) : 0);
@@ -73,6 +184,7 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
     const observer = new ResizeObserver(measure);
     observer.observe(viewport);
     observer.observe(track);
+    if (cardSet) observer.observe(cardSet);
     observer.observe(stageRef.current);
     // The navbar offset can change at a height breakpoint without resizing
     // the cards, so also remeasure on window resize.
@@ -93,26 +205,41 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
     if (pinned) progress.set(clamp(value));
   });
   useMotionValueEvent(progress, "change", (value) => {
-    setActiveIndex(Math.round(value * Math.max(0, events.length - 1)));
+    if (!events.length) return setActiveIndex(0);
+    const loopPosition = value >= 1 ? 0 : value * events.length;
+    setActiveIndex(Math.min(events.length - 1, Math.floor(loopPosition)));
   });
 
-  const goToCard = (index, instant = false) => {
-    const target = Math.max(0, Math.min(events.length - 1, index));
-    const ratio = events.length > 1 ? target / (events.length - 1) : 0;
+  const goToStep = (step, instant = false) => {
+    const target = Math.max(0, Math.min(events.length, step));
+    const ratio = events.length ? target / events.length : 0;
     const behavior = reduceMotion || instant ? "instant" : "smooth";
     if (pinned) {
       const top = journeyRef.current.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: top - pinTop + ratio * travel, behavior });
     } else {
-      viewportRef.current.scrollTo({ left: ratio * travel, behavior });
+      const card = trackRef.current.querySelector(`[data-event-index="${Math.min(target, events.length - 1)}"]`);
+      if (!card) return;
+      viewportRef.current.scrollTo({
+        left: card.offsetLeft - (viewportRef.current.clientWidth - card.offsetWidth) / 2,
+        behavior,
+      });
     }
   };
 
   const handleKeyDown = (event) => {
-    const targets = { ArrowLeft: activeIndex - 1, ArrowRight: activeIndex + 1, Home: 0, End: events.length - 1 };
+    const currentStep = pinned
+      ? Math.min(events.length, Math.round(progress.get() * events.length))
+      : activeIndex;
+    const targets = {
+      ArrowLeft: currentStep - 1,
+      ArrowRight: currentStep + 1,
+      Home: 0,
+      End: Math.max(0, events.length - 1),
+    };
     if (!(event.key in targets)) return;
     event.preventDefault();
-    goToCard(targets[event.key], true);
+    goToStep(targets[event.key], true);
   };
 
   return (
@@ -135,6 +262,7 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
         ref={journeyRef}
         className="events-journey"
         data-pinned={pinned}
+        data-ready={!pinned || travel > 0}
         style={pinned && stageHeight ? { height: stageHeight + travel } : undefined}
       >
         <div ref={stageRef} className="events-stage">
@@ -146,7 +274,7 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
               role="region"
               aria-roledescription="carousel"
               aria-label="Event collections"
-              aria-describedby="events-scroll-hint"
+              aria-describedby="events-a11y-hint"
               tabIndex={events.length > 1 ? 0 : undefined}
               onKeyDown={handleKeyDown}
               onScroll={() => {
@@ -157,30 +285,27 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
               }}
             >
               <motion.div ref={trackRef} className="events-track" style={{ transform: trackTransform }}>
-                {events.map((event, index) => (
-                  <EventCard key={event.id} event={event} index={index} count={events.length} progress={progress} pinned={pinned} />
-                ))}
+                {pinned ? (
+                  [0, 1, 2].map((copyIndex) => (
+                    <HangingCardSet
+                      key={copyIndex}
+                      events={events}
+                      duplicate={copyIndex !== 1}
+                      setRef={copyIndex === 1 ? setRef : undefined}
+                    />
+                  ))
+                ) : (
+                  <HangingCardSet events={events} duplicate={false} setRef={setRef} />
+                )}
               </motion.div>
               {!events.length && <p className="events-empty"><ImageIcon aria-hidden="true" /> More inspiration is on its way.</p>}
             </div>
           </div>
-
-          <div className="events-navigation">
-            <p id="events-scroll-hint" className="events-scroll-hint">
-              {pinned ? <ArrowDown size={16} aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
-              {pinned ? "Scroll to explore" : "Swipe or use the arrows"}
-            </p>
-            <div className="events-pagination" aria-label="Collection progress">
-              <span className="events-current">{String(events.length ? activeIndex + 1 : 0).padStart(2, "0")}</span>
-              <div className="events-progress" aria-hidden="true"><motion.div style={{ transform: progressTransform }} /></div>
-              <span>{String(events.length).padStart(2, "0")}</span>
-            </div>
-            <div className="events-controls">
-              <button type="button" aria-label="Previous event" aria-controls="events-viewport" disabled={activeIndex === 0 || !events.length} onClick={(event) => goToCard(activeIndex - 1, event.detail === 0)}><ArrowLeft size={20} aria-hidden="true" /></button>
-              <button type="button" aria-label="Next event" aria-controls="events-viewport" disabled={activeIndex >= events.length - 1} onClick={(event) => goToCard(activeIndex + 1, event.detail === 0)}><ArrowRight size={20} aria-hidden="true" /></button>
-            </div>
-          </div>
-          {pinned && <a className="events-skip" href="#events-create">Skip to start designing <ArrowRight size={13} aria-hidden="true" /></a>}
+          <p id="events-a11y-hint" className="events-a11y-hint">
+            {pinned
+              ? "Scroll down or use the left and right arrow keys to explore one complete circuit of event cards."
+              : "Swipe horizontally or use the left and right arrow keys to explore event cards."}
+          </p>
         </div>
       </div>
 

@@ -1,52 +1,35 @@
-import { ThemeImage } from '../../../theme/ThemeImage';
-import { useState } from "react";
-import { motion, useTransform } from "motion/react";
-import { ImageIcon } from "lucide-react";
+import { ThemeImage } from "../../../theme/ThemeImage";
 
-function EventPreview({ image, title }) {
-  const [failedImage, setFailedImage] = useState(null);
-  if (image && image !== failedImage) {
-    return <ThemeImage className="event-card-image" src={image} alt={title || "Event backdrop"} loading="lazy" onError={() => setFailedImage(image)} />;
-  }
+export default function EventCard({ event, index, count, duplicate = false }) {
   return (
-    <div className="event-preview-placeholder" role="img" aria-label="Event image placeholder">
-      <span className="event-preview-ring" aria-hidden="true" />
-      <span className="event-preview-spark" aria-hidden="true">✳</span>
-      <div className="event-preview-paper" aria-hidden="true">
-        <span className="event-preview-paper-kicker" />
-        <ImageIcon size={32} strokeWidth={1} />
-        <span className="event-preview-paper-title" />
-        <span className="event-preview-paper-line" />
-        <span className="event-preview-paper-footer" />
-      </div>
-      <span className="event-preview-caption">Your occasion, imagined.</span>
-      <span className="event-preview-label"><ImageIcon size={12} aria-hidden="true" /> Image placeholder</span>
-    </div>
-  );
-}
-
-export default function EventCard({ event, index, count, progress, pinned }) {
-  const transform = useTransform(progress, (value) => {
-    const distance = Math.min(1, Math.abs(value * (count - 1) - index));
-    return pinned ? `scale(${1 - distance * 0.045}) rotate(${distance * (index % 2 ? 1.5 : -1.5)}deg)` : "none";
-  });
-  const opacity = useTransform(progress, (value) =>
-    pinned ? 1 - Math.min(1, Math.abs(value * (count - 1) - index)) * 0.22 : 1,
-  );
-
-  return (
-    <div className="event-card-slot" role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${count}`}>
-      <motion.article className={`event-card event-card-tone-${index % 3}`} style={{ transform, opacity }}>
-        <div className="event-card-art">
-          <EventPreview image={event.image} title={event.title} />
-          <span className="event-card-stamp" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+    <div
+      className={`hanging-card-slot hanging-card-${event.tone}`}
+      style={{
+        "--hanging-card-offset": `${event.offset ?? 0}px`,
+        "--hanging-card-width": `${event.width ?? 270}px`,
+        "--hanging-card-gap": `${event.gapAfter ?? 40}px`,
+      }}
+      role={duplicate ? "presentation" : "group"}
+      aria-roledescription={duplicate ? undefined : "slide"}
+      aria-label={duplicate ? undefined : `${event.title}, ${index + 1} of ${count}`}
+      data-event-index={duplicate ? undefined : index}
+    >
+      <article className="hanging-card">
+        <ThemeImage
+          className="hanging-card-image"
+          src={event.image}
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+        />
+        <div
+          className="hanging-card-copy"
+          style={{ "--hanging-content-rotation": `${event.contentRotation ?? 0}deg` }}
+        >
+          <h3>{event.title}</h3>
+          <p>{event.description}</p>
         </div>
-        <div className="event-card-copy">
-          <span className="event-card-kicker">The occasion collection</span>
-          <h3>{event.title || "Event name"}</h3>
-          <p>{event.description || "Event description goes here."}</p>
-        </div>
-      </motion.article>
+      </article>
     </div>
   );
 }

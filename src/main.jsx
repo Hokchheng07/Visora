@@ -7,6 +7,7 @@ import "./index.css";
 import App from "./App.jsx";
 import Layout from "./Layout.jsx";
 import Home from "./Components/Pages/Home.jsx";
+import About from "./Components/Pages/About.jsx";
 import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
           {
             path : "/cv",
             element : <CvTemplate/>
+          },
+          {
+            path: "about",
+            element: <About />,
           },
           {
             path: "*",
