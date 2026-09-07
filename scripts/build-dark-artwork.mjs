@@ -27,6 +27,7 @@ const manualOverrides = {
   'Nav/NavbarBg.svg': 'Nav/navbarBg-dark.svg',
   ...Object.fromEntries(['OuterHeroVector', 'MiddleHeroVector', 'InnerHeroVector', 'HeroSolidVector', 'HeroDashedVector']
     .map(n => [`LandingPage/Hero-Section/${n}.svg`, `LandingPage/Hero-Section/${n}(DarkMode).svg`])),
+  'LandingPage/Hero-Section/Stats/HeroStatsBg.svg': 'LandingPage/Hero-Section/Stats/HeroStats(DarkMode).svg',
   'LandingPage/PopularTemplates/PopularTemplateTopWave.svg': 'LandingPage/PopularTemplates/PopularTemplateTopBg(DarkMode).svg',
   'LandingPage/PopularTemplates/PopularTemplateLowerWave.svg': 'LandingPage/PopularTemplates/PopularTemplateBottomBg(DarkMode).svg',
   'LandingPage/WhyChooseVisora/WhyChooseVisoraLinear.svg': 'LandingPage/WhyChooseVisora/WhyChooseVisoraLinear(DarkMode).svg',
@@ -35,8 +36,8 @@ const manualOverrides = {
   'LandingPage/HowItWorks/FirstRactangle.svg': 'LandingPage/HowItWorks/howItWorksFirstMountain(DarkMode).svg',
   'LandingPage/HowItWorks/2ndRactangle.svg': 'LandingPage/HowItWorks/HowItWorksSecondMountain(DarkMode).svg',
   'LandingPage/HowItWorks/3rdRactangle.svg': 'LandingPage/HowItWorks/HowItWorksThirdMountain(DarkMode).svg',
-  'LandingPage/ExploreByEvents/LightPurpleBackground.svg': 'LandingPage/ExploreByEvents/ExploreByEvents(DarkMode, back).svg',
-  'LandingPage/ExploreByEvents/ForegroundPurple.svg': 'LandingPage/ExploreByEvents/ExploreByEventsBlob(DarkMode, front).svg',
+  'LandingPage/ExploreByEvents/LightPurpleBackground.svg': 'LandingPage/ExploreByEvents/ExploreByEvents(DarkMode, back) copy.svg',
+  'LandingPage/ExploreByEvents/ForegroundPurple.svg': 'LandingPage/ExploreByEvents/ExploreByEventsPinkBlob(darkmode, front).svg',
 };
 // Hand-authored dark artwork with no recolorable light source (e.g. a PNG glow),
 // paired in directly rather than run through the loop below.

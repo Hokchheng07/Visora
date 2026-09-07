@@ -70,6 +70,8 @@
 .dark .site-shell .events-progress { background: #363144; }
 .dark .site-shell .event-card-kicker { color: var(--text-muted); }
 .dark .site-shell .events-controls button:last-child { color: var(--text-on-brand); }
+.dark .site-shell .events-section { --events-line: var(--color-secondary); }
+.dark .site-shell .hanging-card-copy p { color: #454050; }
 .dark .site-shell .explore-events-cta h3 span { color: #f192e2; }
 .dark .site-shell .explore-events-cta a { background: linear-gradient(135deg, #72bff1, #e35dcb); color: #141323; }
 .dark .site-shell .explore-events-up-arrow { filter: invert(1); mix-blend-mode: screen; }

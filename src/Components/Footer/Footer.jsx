@@ -1,5 +1,6 @@
 import { ThemeImage } from '../../theme/ThemeImage';
 import { motion } from "motion/react";
+import { NavLink } from "react-router";
 import visoraLogo from "../../assets/Website/VisoraLogo.png";
 import facebook from "../../assets/Website/Footer-Section/facebook.png";
 import instagram from "../../assets/Website/Footer-Section/instagram.png";
@@ -138,12 +139,21 @@ const FooterColumn = ({ title, color, links, centered = false }) => (
     <ul className="mt-5 space-y-4">
       {links.map((link) => (
         <li key={link}>
-          <a
-            href="#"
-            className="block max-w-[140px] whitespace-normal text-[14px] leading-6 text-[var(--text-body)] transition hover:text-primary sm:max-w-none sm:text-[18px]"
-          >
-            {link}
-          </a>
+          {link === "About Us" ? (
+            <NavLink
+              to="/about"
+              className="block max-w-[140px] whitespace-normal text-[14px] leading-6 text-[var(--text-body)] transition hover:text-primary sm:max-w-none sm:text-[18px]"
+            >
+              {link}
+            </NavLink>
+          ) : (
+            <a
+              href="#"
+              className="block max-w-[140px] whitespace-normal text-[14px] leading-6 text-[var(--text-body)] transition hover:text-primary sm:max-w-none sm:text-[18px]"
+            >
+              {link}
+            </a>
+          )}
         </li>
       ))}
     </ul>
