@@ -1,9 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
-import doodlePlane from "../../assets/Website/AboutUs/DoodlePlane.svg";
-import leftBlobs from "../../assets/Website/AboutUs/LeftDoubleBlob(Purple,yellow.svg";
-import rightBlobs from "../../assets/Website/AboutUs/RightDoubleBlob(Purple,Yellow).svg";
 
 export default function WhatIsVisora() {
   const reduceMotion = useReducedMotion();
@@ -17,10 +13,10 @@ export default function WhatIsVisora() {
       variants={fadeInUp}
       aria-labelledby="what-is-visora-title"
     >
-      <ThemeImage className="about-what-plane" src={doodlePlane} alt="" aria-hidden="true" />
-      <ThemeImage className="about-side-blob about-side-blob-left" src={leftBlobs} alt="" aria-hidden="true" />
-      <ThemeImage className="about-side-blob about-side-blob-right" src={rightBlobs} alt="" aria-hidden="true" />
-
+      {/* The paired side blobs and the doodle plane moved to AboutDecor —
+          the blobs sit at x=0 and x=1137, outside this section's box, and the
+          plane has to be outside this section's stacking context to render
+          behind them. */}
       <div className="about-what-copy">
         <h2 id="what-is-visora-title">What is <span>Visora?</span></h2>
         <p>

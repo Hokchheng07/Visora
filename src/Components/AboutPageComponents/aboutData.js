@@ -10,6 +10,16 @@ import purplePin from "../../assets/Website/AboutUs/PurplePin.svg";
 import bluePin from "../../assets/Website/AboutUs/BluePin.svg";
 import pinkPin from "../../assets/Website/AboutUs/PinkPin.svg";
 import yellowPin from "../../assets/Website/AboutUs/YellowPin.svg";
+import mentorChipor from "../../assets/Mentor/MentorChipor.jpg";
+import mentorVannda from "../../assets/Mentor/MentorVannda.jpg";
+import photoHokChheng from "../../assets/Team/Hokchheng.png";
+import photoSenghak from "../../assets/Team/InfinityHak.jpg";
+import photoLily from "../../assets/Team/Lily.png";
+import photoChimy from "../../assets/Team/Chimy.png";
+import photoBora from "../../assets/Team/Bora.jpg";
+import photoSovannrith from "../../assets/Team/Sovannarith.jpg";
+import photoSothearith from "../../assets/Team/Sothearith.png";
+import photoSengheang from "../../assets/Team/Sengheang.png";
 
 export const coreValues = [
   {
@@ -49,7 +59,7 @@ export const featureCards = [
     artwork: blueFeatureCard,
     pin: bluePin,
     tone: "blue",
-    offset: 54,
+    offset: 13,
   },
   {
     title: "Create Event Backdrops Easily",
@@ -57,7 +67,7 @@ export const featureCards = [
     artwork: pinkFeatureCard,
     pin: pinkPin,
     tone: "pink",
-    offset: 20,
+    offset: 36,
   },
   {
     title: "Present like PowerPoint",
@@ -65,22 +75,25 @@ export const featureCards = [
     artwork: yellowFeatureCard,
     pin: yellowPin,
     tone: "yellow",
-    offset: 68,
+    offset: 141,
   },
 ];
 
 export const mentors = [
-  { name: "Sreng Chipor", role: "Mentor", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Kung Sovannda", role: "Mentor", photo: null, github: null, facebook: null, telegram: null },
+  { name: "Sreng Chipor", role: "Mentor", photo: mentorChipor, github: null, facebook: null, telegram: null },
+  { name: "Kung Sovannda", role: "Mentor", photo: mentorVannda, github: null, facebook: null, telegram: null },
 ];
 
+/* `quote` is optional — the card reserves room for one and simply omits the
+   element when it is absent, so lines can be filled in per person later
+   without another layout pass. */
 export const members = [
-  { name: "Chhun HokChheng", role: "Leader", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Men Senghak", role: "Sub-leader", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Lay Lily", role: "Member", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Chit Chimy", role: "Member", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Nin Bora", role: "Member", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Von Sovannrith", role: "Member", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Borey Sothearith", role: "Member", photo: null, github: null, facebook: null, telegram: null },
-  { name: "Kao Sengheang", role: "Member", photo: null, github: null, facebook: null, telegram: null },
+  { name: "Chhun HokChheng", role: "Leader", photo: photoHokChheng, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Men Senghak", role: "Sub-leader", photo: photoSenghak, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Lay Lily", role: "Member", photo: photoLily, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Chit Chimy", role: "Member", photo: photoChimy, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Nin Bora", role: "Member", photo: photoBora, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Von Sovannrith", role: "Member", photo: photoSovannrith, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Borey Sothearith", role: "Member", photo: photoSothearith, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Kao Sengheang", role: "Member", photo: photoSengheang, quote: null, github: null, facebook: null, telegram: null },
 ];

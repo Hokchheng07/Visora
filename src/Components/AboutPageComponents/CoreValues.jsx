@@ -2,7 +2,6 @@ import { motion, useReducedMotion } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
 import { coreValues } from "./aboutData";
-import valueUnderline from "../../assets/Website/AboutUs/DashLineUnderValue.svg";
 
 export default function CoreValues() {
   const reduceMotion = useReducedMotion();
@@ -16,9 +15,11 @@ export default function CoreValues() {
         viewport={viewportOnce}
         variants={fadeInUp}
       >
-        <h2 id="about-values-title">Our Core <span>Values</span></h2>
-        <p className="about-section-subtitle">What drives us as we help you bring your event ideas to life.</p>
-        <ThemeImage src={valueUnderline} alt="" aria-hidden="true" />
+        {/* Figma splits this three ways: black, primary purple, secondary yellow. */}
+        <h2 id="about-values-title">
+          Our <span className="about-values-core">Core</span>{" "}
+          <span className="about-values-values">Values</span>
+        </h2>
       </motion.header>
 
       <motion.div
