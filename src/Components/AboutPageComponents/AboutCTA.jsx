@@ -3,7 +3,7 @@ import { NavLink } from "react-router";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
 import purpleWave from "../../assets/Website/AboutUs/PurpleWave(Bottom).svg";
-import doodlePlane from "../../assets/Website/AboutUs/DoodlePlane.svg";
+import doodlePlane from "../../assets/Website/AboutUs/DoodlePlane(AboutUs).svg";
 
 export default function AboutCTA() {
   const reduceMotion = useReducedMotion();

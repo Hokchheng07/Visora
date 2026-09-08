@@ -78,6 +78,18 @@ export default function PersonCard({ person, index = 0 }) {
         <span className={`about-person-role ${featuredRole ? "about-person-role-featured" : ""}`}>
           {person.role}
         </span>
+        {/* The design reserves a quote line on every card and shows it as
+            “ ······ ” until copy exists, so the empty state is the reference's
+            own placeholder rather than a gap in the middle of the card. */}
+        {person.quote ? (
+          <p className="about-person-quote">{`“${person.quote}”`}</p>
+        ) : (
+          <p className="about-person-quote about-person-quote-empty" aria-hidden="true">
+            <span>&ldquo;</span>
+            <span className="about-person-quote-dots" />
+            <span>&rdquo;</span>
+          </p>
+        )}
         <span className="about-person-divider" aria-hidden="true" />
 
         {availableSocials.length ? (

@@ -1,21 +1,24 @@
 import { motion, useReducedMotion } from "motion/react";
-import { Eye, Target } from "lucide-react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
 import cardFrame from "../../assets/Website/AboutUs/OurVisionFrame+OurMission.svg";
 import accentMark from "../../assets/Website/AboutUs/YellowExclimationMark.svg";
-import spiralArrow from "../../assets/Website/AboutUs/SpiralArrow.svg";
+import spiralArrow from "../../assets/Website/AboutUs/SpiralArrow(AboutUs).svg";
 
+/* Figma splits each heading into a black word plus a coloured one, and the
+   design has no icons inside these frames. */
 const statements = [
   {
-    title: "Our Mission",
-    description: "Make expressive event design accessible through simple tools, culturally meaningful resources, and a presentation experience anyone can use.",
-    Icon: Target,
+    lead: "Our",
+    accent: "Mission",
+    tone: "mission",
+    description: "Empower every user to create stunning event backdrops and presentations with creative tools anyone can use, anywhere.",
   },
   {
-    title: "Our Vision",
-    description: "A future where every Cambodian creator can turn an idea into a beautiful shared experience—wherever their audience gathers.",
-    Icon: Eye,
+    lead: "Our",
+    accent: "Vision",
+    tone: "vision",
+    description: "To become the leading digital backdrop platform in Cambodia and beyond, inspiring every event, creator, and story to shine.",
   },
 ];
 
@@ -44,15 +47,12 @@ export default function VisionMission() {
         viewport={viewportOnce}
         variants={staggerContainer(0.14)}
       >
-        {statements.map(({ title, description, Icon }) => (
-          <motion.article className="about-vision-card" variants={fadeInUp} key={title}>
+        {statements.map(({ lead, accent, tone, description }) => (
+          <motion.article className={`about-vision-card about-vision-card-${tone}`} variants={fadeInUp} key={accent}>
             <ThemeImage className="about-vision-frame" src={cardFrame} alt="" aria-hidden="true" />
             <div className="about-vision-copy">
-              <Icon aria-hidden="true" />
-              <div>
-                <h3>{title}</h3>
-                <p>{description}</p>
-              </div>
+              <h3>{lead} <span>{accent}</span></h3>
+              <p>{description}</p>
             </div>
           </motion.article>
         ))}
