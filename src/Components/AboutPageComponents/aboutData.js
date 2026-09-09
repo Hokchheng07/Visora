@@ -84,16 +84,14 @@ export const mentors = [
   { name: "Kung Sovannda", role: "Mentor", photo: mentorVannda, github: null, facebook: null, telegram: null },
 ];
 
-/* `quote` is optional — the card reserves room for one and simply omits the
-   element when it is absent, so lines can be filled in per person later
-   without another layout pass. */
+/* `quote` is optional; cards without one omit the quote line. */
 export const members = [
-  { name: "Chhun HokChheng", role: "Leader", photo: photoHokChheng, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Chhun HokChheng", role: "Leader", photo: photoHokChheng, quote: "Set your heart Ablaze", github: null, facebook: null, telegram: null },
   { name: "Men Senghak", role: "Sub-leader", photo: photoSenghak, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Lay Lily", role: "Member", photo: photoLily, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Chit Chimy", role: "Member", photo: photoChimy, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Lay Lily", role: "Member", photo: photoLily, quote:"Just because you don't give up doesn't mean you will make it", github: null, facebook: null, telegram: null },
+  { name: "Chit Chimy", role: "Member", photo: photoChimy, quote: "Small steps every day lead to big results.", github: null, facebook: null, telegram: null },
   { name: "Nin Bora", role: "Member", photo: photoBora, quote: null, github: null, facebook: null, telegram: null },
   { name: "Von Sovannrith", role: "Member", photo: photoSovannrith, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Borey Sothearith", role: "Member", photo: photoSothearith, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Kao Sengheang", role: "Member", photo: photoSengheang, quote: null, github: null, facebook: null, telegram: null },
+  { name: "Borey Sothearith", role: "Member", photo: photoSothearith, quote: "Every bug is a lesson. Every solution is progress.", github: null, facebook: null, telegram: null },
+  { name: "Kao Sengheang", role: "Member", photo: photoSengheang, quote: "Rain feel like home", github: null, facebook: null, telegram: null },
 ];

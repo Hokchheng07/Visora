@@ -1,6 +1,6 @@
 import { ThemeImage } from '../../theme/ThemeImage';
 import { useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router";
+import { NavLink } from "react-router";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from '../../theme/ThemeToggle';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
@@ -48,21 +48,10 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [atTop, setAtTop] = useState(true);
   const lastScrollY = useRef(0);
   const { scrollY } = useScroll();
-  const { pathname } = useLocation();
-
-  /* The About hero layers its Angkor artwork *over* the nav wave (Figma has it
-     as the front-most layer of the nav group), which a sticky bar painted on
-     top can never allow. So on that route the page draws the wave itself and
-     the bar goes background-less — but only while at the top, or the links
-     would float over the content once you scroll away from the hero. */
-  const isGhost = pathname === "/about" && atTop;
 
   useMotionValueEvent(scrollY, "change", (currentScrollY) => {
-    setAtTop(currentScrollY < 60);
-
     if (currentScrollY < 80 || mobileOpen) {
       setHidden(false);
       lastScrollY.current = currentScrollY;
@@ -80,7 +69,7 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className={`sticky top-0 z-50 will-change-transform${isGhost ? " navbar--ghost" : ""}`}
+      className="sticky top-0 z-50 will-change-transform"
       animate={{ y: hidden ? "-100%" : "0%" }}
       transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.8 }}
     >
