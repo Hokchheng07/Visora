@@ -3,25 +3,25 @@ import { useTheme } from '../../theme/useTheme';
 import { NavLink } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
-import "../../styles/phosphor-stats.css";
+import "./hero-stats.css";
 
-import heroDashed from "../../assets/Website/LandingPage/Hero-Section/HeroDashedVector.svg";
-import heroSolid from "../../assets/Website/LandingPage/Hero-Section/HeroSolidVector.svg";
-import heroInner from "../../assets/Website/LandingPage/Hero-Section/InnerHeroVector.svg";
-import heroMiddle from "../../assets/Website/LandingPage/Hero-Section/MiddleHeroVector.svg";
-import heroOuter from "../../assets/Website/LandingPage/Hero-Section/OuterHeroVector.svg";
-import cardEverydayTools from "../../assets/Website/LandingPage/Hero-Section/PurpleFrameNPicture.png";
-import cardThingsArent from "../../assets/Website/LandingPage/Hero-Section/YellowFramNPicture.png";
-import doodlePlaneLoop from "../../assets/Website/LandingPage/Hero-Section/ArrowNPlane.png";
-import airplaneDoodle from "../../assets/Website/LandingPage/Hero-Section/AirplaneDoodle.png";
-import jupiter from "../../assets/Website/LandingPage/Hero-Section/Jupiter.svg";
-import smallAstro from "../../assets/Website/LandingPage/Hero-Section/SmallAstro.svg";
-import bigAstronaut from "../../assets/Website/LandingPage/Hero-Section/BigAstronaunt.svg";
-import heroArrow from "../../assets/Website/LandingPage/Hero-Section/HeroSectionArrow.svg";
-import heroStatsBg from "../../assets/Website/LandingPage/Hero-Section/Stats/HeroStatsBg.svg";
-import statPurpleBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/PurpleBackground.svg";
-import statYellowBackground from "../../assets/Website/LandingPage/Hero-Section/Stats/YellowBackground.svg";
-import statFrameTwo from "../../assets/Website/LandingPage/Hero-Section/2ndFrame.png";
+import heroDashed from "../../assets/pages/home/hero/HeroDashedVector.svg";
+import heroSolid from "../../assets/pages/home/hero/HeroSolidVector.svg";
+import heroInner from "../../assets/pages/home/hero/InnerHeroVector.svg";
+import heroMiddle from "../../assets/pages/home/hero/MiddleHeroVector.svg";
+import heroOuter from "../../assets/pages/home/hero/OuterHeroVector.svg";
+import cardEverydayTools from "../../assets/pages/home/hero/PurpleFrameNPicture.png";
+import cardThingsArent from "../../assets/pages/home/hero/YellowFramNPicture.png";
+import doodlePlaneLoop from "../../assets/pages/home/hero/ArrowNPlane.png";
+import airplaneDoodle from "../../assets/pages/home/hero/AirplaneDoodle.png";
+import jupiter from "../../assets/pages/home/hero/Jupiter.svg";
+import smallAstro from "../../assets/pages/home/hero/SmallAstro.svg";
+import bigAstronaut from "../../assets/pages/home/hero/BigAstronaunt.svg";
+import heroArrow from "../../assets/pages/home/hero/HeroSectionArrow.svg";
+import heroStatsBg from "../../assets/pages/home/hero/stats/HeroStatsBg.svg";
+import statPurpleBackground from "../../assets/pages/home/hero/stats/PurpleBackground.svg";
+import statYellowBackground from "../../assets/pages/home/hero/stats/YellowBackground.svg";
+import statFrameTwo from "../../assets/pages/home/hero/2ndFrame.png";
 import {
   fadeIn,
   fadeInUp,
@@ -43,7 +43,7 @@ import { useAnimeHeroCopy } from "../../hooks/useAnimeSplitText";
 // their own areas so they do not compete with the hero, search, or stats.
 const CANVAS = { w: 1920, h: 1080 };
 
-// Decorative doodle positions/sizes are defined in src/index.css under the
+// Decorative doodle positions/sizes are defined in styles/pages/home.css under the
 // `.hero-doodle-*` classes (kept in CSS for easy design tweaking).
 // `dark` swaps the doodle for its astronomy counterpart under the dark palette.
 // These are kept local rather than in darkAssets because ArrowNPlane is shared

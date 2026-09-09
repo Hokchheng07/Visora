@@ -1,9 +1,7 @@
-import React from "react";
-import visora from "../../../assets/Website/visora-logo-mobile.png";
-import penIcon from "../../../assets/Website/PictureCvPage/pen.png";
-import trialIcon from "../../../assets/Website/PictureCvPage/trailIcon.png";
+import visora from "../../../assets/shared/branding/visora-logo-mobile.png";
+import penIcon from "../../../assets/pages/cv/pen.png";
+import trialIcon from "../../../assets/pages/cv/trailIcon.png";
 import {
-  Grid,
   Square,
   Type,
   Image,
@@ -11,7 +9,6 @@ import {
   Shapes,
   Clock,
   Layers,
-  Search,
   Mic,
   Bold,
   Italic,
@@ -25,7 +22,7 @@ import {
   Save,
   FileText
 } from "lucide-react";
-import { transform } from "zod";
+
 export default function CvTemplate() {
   return (
     <div className="cv-editor flex h-screen w-full flex-col bg-slate-100 font-sans text-slate-800">

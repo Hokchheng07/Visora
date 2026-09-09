@@ -1,7 +1,7 @@
 import { ThemeImage } from "../../theme/ThemeImage";
-import journeyGlow from "../../assets/Website/AboutUs/BigMiddleLinear.svg";
-import journeySolidPath from "../../assets/Website/AboutUs/BigMiddleSolidLine.svg";
-import journeyDashedPath from "../../assets/Website/AboutUs/BigMiddleDashLine.svg";
+import journeyGlow from "../../assets/pages/about/journey/BigMiddleLinear.svg";
+import journeySolidPath from "../../assets/pages/about/journey/BigMiddleSolidLine.svg";
+import journeyDashedPath from "../../assets/pages/about/journey/BigMiddleDashLine.svg";
 
 export default function AboutJourney() {
   return (

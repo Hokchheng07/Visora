@@ -12,11 +12,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
-import signupPicture from "../../assets/Website/SignUp/SignUp-pic.png";
-import signupCrown from "../../assets/Website/SignUp/SignUpCrown.png";
-import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import googleIcon from "../../assets/Website/google.svg";
-import githubIcon from "../../assets/Website/github_light.svg";
+import signupPicture from "../../assets/pages/auth/register/SignUp-pic.png";
+import signupCrown from "../../assets/pages/auth/register/SignUpCrown.png";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import googleIcon from "../../assets/shared/social/google.svg";
+import githubIcon from "../../assets/shared/social/github_light.svg";
 import { EASE } from "../../lib/animations/animations";
 
 const signUpSchema = z

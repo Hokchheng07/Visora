@@ -1,7 +1,7 @@
 import { ThemeImage } from "../../theme/ThemeImage";
-import heroClouds from "../../assets/Website/AboutUs/BigSpiralClouds.svg";
-import navWave from "../../assets/Website/Nav/NavbarBg.svg";
-import angkorArtwork from "../../assets/Website/AboutUs/AngkorRactangle.svg";
+import heroClouds from "../../assets/pages/about/hero/BigSpiralClouds.svg";
+import navWave from "../../assets/sections/navbar/NavbarBg.svg";
+import angkorArtwork from "../../assets/pages/about/hero/AngkorRactangle.svg";
 import AboutHero from "../AboutPageComponents/AboutHero";
 import OurStory from "../AboutPageComponents/OurStory";
 import CoreValues from "../AboutPageComponents/CoreValues";

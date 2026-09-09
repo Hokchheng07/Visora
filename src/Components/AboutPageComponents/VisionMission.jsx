@@ -1,9 +1,9 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
-import cardFrame from "../../assets/Website/AboutUs/OurVisionFrame+OurMission.svg";
-import accentMark from "../../assets/Website/AboutUs/YellowExclimationMark.svg";
-import spiralArrow from "../../assets/Website/AboutUs/SpiralArrow(AboutUs).svg";
+import cardFrame from "../../assets/pages/about/vision-mission/OurVisionFrame+OurMission.svg";
+import accentMark from "../../assets/pages/about/vision-mission/YellowExclimationMark.svg";
+import spiralArrow from "../../assets/pages/about/shared/doodles/SpiralArrow(AboutUs).svg";
 
 /* Figma splits each heading into a black word plus a coloured one, and the
    design has no icons inside these frames. */

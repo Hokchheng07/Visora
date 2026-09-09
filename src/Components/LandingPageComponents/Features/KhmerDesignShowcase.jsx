@@ -1,14 +1,14 @@
 import { ThemeImage, MotionThemeImage } from '../../../theme/ThemeImage';
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
-import apsara from "../../../assets/Website/LandingPage/KhmerDesignShowCase/apsara.png";
-import angkorWat from "../../../assets/Website/LandingPage/KhmerDesignShowCase/ankorwat.png";
-import topLeft from "../../../assets/Website/LandingPage/KhmerDesignShowCase/TopLeftCorner.svg";
-import topRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/TopRightCorner.svg";
-import bottomLeft from "../../../assets/Website/LandingPage/KhmerDesignShowCase/BottomLeftCorner.svg";
-import bottomRight from "../../../assets/Website/LandingPage/KhmerDesignShowCase/RightLeftCorner.svg";
-import ornament from "../../../assets/Website/LandingPage/KhmerDesignShowCase/MiddleSection.svg";
-import linearBgDark from "../../../assets/Website/LandingPage/KhmerDesignShowCase/KhmerDesignLinear(DarkMode).svg";
+import apsara from "../../../assets/pages/home/khmer-design-showcase/apsara.png";
+import angkorWat from "../../../assets/pages/home/khmer-design-showcase/ankorwat.png";
+import topLeft from "../../../assets/pages/home/khmer-design-showcase/TopLeftCorner.svg";
+import topRight from "../../../assets/pages/home/khmer-design-showcase/TopRightCorner.svg";
+import bottomLeft from "../../../assets/pages/home/khmer-design-showcase/BottomLeftCorner.svg";
+import bottomRight from "../../../assets/pages/home/khmer-design-showcase/RightLeftCorner.svg";
+import ornament from "../../../assets/pages/home/khmer-design-showcase/MiddleSection.svg";
+import linearBgDark from "../../../assets/pages/home/khmer-design-showcase/KhmerDesignLinear(DarkMode).svg";
 import TemplateCard from "../Templates/TemplateCard";
 import { templateCards } from "../Templates/templateData";
 import {
