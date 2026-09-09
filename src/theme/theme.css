@@ -61,7 +61,7 @@
 .dark .site-shell .features-section { background: linear-gradient(135deg, #181a2a, #292034); margin-bottom: -1px; }
 .dark .site-shell .features-section > .bg-gradient-to-br { background: linear-gradient(135deg, rgb(114 191 241 / .06), rgb(218 78 201 / .08)); }
 .dark .site-shell .features-plane-tile { background: transparent; }
-.dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img) { filter: invert(.85) hue-rotate(180deg); }
+.dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img, .about-journey-scissors) { filter: invert(.85) hue-rotate(180deg); }
 .dark .site-shell .hero-backdrop-word,
 .dark .site-shell .hero-backdrop-word [data-word] { filter: drop-shadow(0 2px 6px rgb(114 191 241 / .16)); }
 .dark .site-shell .khmer-showcase-button { color: var(--text-on-brand); }

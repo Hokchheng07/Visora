@@ -61,6 +61,26 @@
   overflow: hidden;
   background: linear-gradient(135deg, #a98ae9 0%, #d5b4df 46%, #ffd05d 100%);
 }
+/*
+ * The page-level art layers. Everything the canvas draws is a percentage of
+ * the canvas box, so any artwork those percentages are measured against has
+ * to share that box — sizing it to the window instead is what pulled the
+ * composition apart on screens wider than the canvas. Both layers are
+ * therefore the same width as .about-canvas and centred the same way, and are
+ * containers in their own right so their contents can be written in the same
+ * canvas-relative units the canvas uses.
+ */
+.about-page-art,
+.about-page-angkor-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.about-page-art { z-index: 0; }
+.about-page-angkor-layer { z-index: 2; }
+
 /* Mobile keeps the blob as a soft wash behind the stacked hero; the desktop
    canvas below repositions it to run up behind the navbar as Figma has it. */
 .about-page-blob {
@@ -78,7 +98,6 @@
 /* Desktop-only: the mobile hero stacks and keeps the real navbar background.
    The decoration layer is positioned in canvas coordinates that only exist on
    the desktop canvas, so it stays off below 768px too. */
-.about-page-navwave,
 .about-page-angkor,
 .about-decor { display: none; }
 .about-hero-copy {
@@ -183,6 +202,16 @@
 .about-journey-path-solid { width: min(78vw, 1123px); opacity: .34; }
 .about-journey-path-dashed { width: min(83vw, 1194px); opacity: .5; }
 
+/*
+ * The scissors that rides the journey line (JourneyScissors.jsx). The whole
+ * layer is desktop-only, like the line it follows — .about-journey is display:
+ * none below 768px — so the track only takes a box in the desktop block below.
+ * The <svg> holding the derived centreline is measured, never seen: it is kept
+ * in the layout (rather than display: none) so getPointAtLength stays reliable.
+ */
+.about-journey-scissors-track { display: none; }
+.about-journey-scissors-path { position: absolute; width: 0; height: 0; overflow: hidden; }
+
 .about-what { min-height: 720px; display: grid; place-items: center; }
 .about-what-copy {
   position: relative;
@@ -240,11 +269,11 @@
 }
 .about-feature-hanger {
   position: relative;
-  padding-top: var(--about-feature-offset);
+  padding-top: calc(var(--about-feature-offset) * 1px);
 }
 .about-feature-pin {
   position: absolute;
-  top: calc(var(--about-feature-offset) - 8px);
+  top: calc(var(--about-feature-offset) * 1px - 8px);
   left: 50%;
   z-index: 5;
   width: clamp(42px, 4vw, 56px);
@@ -406,21 +435,6 @@
   font-style: italic;
   line-height: 1.5;
 }
-/* Placeholder form: the two quote marks with a dotted rule between them. */
-.about-person-quote-empty {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-  width: 72%;
-  color: color-mix(in srgb, #5c5470 55%, transparent);
-  font-size: 1rem;
-}
-.about-person-quote-dots {
-  flex: 1;
-  border-top: 2px dotted color-mix(in srgb, #5c5470 38%, transparent);
-}
-.about-person-divider { width: 72%; margin-top: 20px; border-top: 2px dotted color-mix(in srgb, var(--color-primary) 40%, transparent); }
 .about-person-socials { display: flex; gap: 12px; margin-top: 18px; }
 .about-person-socials a { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
 .about-person-socials > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
@@ -434,11 +448,19 @@
   min-height: 560px;
   margin-top: clamp(80px, 10vw, 150px);
   overflow: hidden;
-  background: #6854dc;
+  background: transparent;
   color: white;
 }
-.about-cta-wave { position: absolute; top: -1px; left: 0; z-index: 1; width: 100%; height: auto; transform: translateY(-2px); }
-.about-cta-plane { position: absolute; right: 8%; bottom: 15%; z-index: 2; width: 120px; mix-blend-mode: multiply; opacity: .62; }
+.about-cta::before { position: absolute; inset: 100px 0 0; background: #6854da; content: ""; }
+.about-cta-wave { position: absolute; top: 0; left: 0; z-index: 1; width: 100%; height: 180px; object-fit: fill; }
+.about-cta-doodles { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.about-cta-doodle { position: absolute; object-fit: contain; }
+.about-cta-doodle-plane { left: 3.47%; top: 35%; width: 4.94%; height: 26.8%; }
+.about-cta-doodle-spiral { left: 90.42%; top: 59%; width: 6.04%; height: 32.83%; }
+.about-cta-doodle-rays { left: 59.51%; top: 16.23%; width: 5.21%; height: 28.3%; }
+.about-cta-doodle-right { left: 78.54%; top: 38.87%; width: 10.67%; height: 42.64%; }
+.about-cta-doodle-lower { left: 21.67%; top: 57%; width: 7.4%; height: 36.77%; }
+.about-cta-doodle-left { left: 10.83%; top: 35.1%; width: 8.26%; height: 34.72%; }
 .about-cta-copy {
   position: relative;
   z-index: 3;
@@ -453,26 +475,25 @@
 .about-cta-copy > p:not(.about-eyebrow) { margin-top: 22px; color: rgb(255 255 255 / .82); font-size: 1.08rem; }
 .about-cta-copy > a { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; margin-top: 32px; padding: 0 28px; border-radius: 999px; background: #ffc21c; color: #251d39; font-weight: 700; box-shadow: 0 14px 32px rgb(35 22 83 / .22); transition: transform 160ms ease, box-shadow 160ms ease; }
 
+/*
+ * Dark mode is an artwork swap, not a filter pass: darkAssets.js maps each
+ * light SVG to a dark export, so the rules here cover only what has no dark
+ * artwork of its own.
+ *
+ * The connectors, journey lines and glow, the Core Values cards and the
+ * Vision/Mission frame all used to be re-tinted here (hue-rotate on the solid
+ * lines, a brightness lift plus a blurred white halo behind the value cards,
+ * a dimmed glow). They have real dark exports now, so those corrections were
+ * removed — leaving them would tint artwork that is already dark.
+ */
 .dark .site-shell .about-decor-plane { filter: invert(1); mix-blend-mode: screen; }
-.dark .site-shell .about-story-line-solid,
-.dark .site-shell .about-journey-path-solid { filter: hue-rotate(78deg) saturate(1.2) brightness(.88); }
-.dark .site-shell .about-journey-glow { opacity: .12; }
-.dark .site-shell .about-journey-path-dashed { filter: brightness(1.8); opacity: .32; }
+/* The dark board behind the pinned cards is a solid panel where the light
+   version is a faint paper etch, so it reads much heavier — half opacity lets
+   the starfield through and puts it back in the same register. */
+.dark .site-shell .about-decor-pin-etch { opacity: .5; }
 .dark .site-shell .about-feature-clothesline { --about-feature-line: var(--color-secondary); }
-.dark .site-shell .about-value-card img {
-  filter: brightness(1.08) saturate(.92) drop-shadow(0 18px 34px rgb(0 0 0 / .2));
-}
-.dark .site-shell .about-value-card::before {
-  position: absolute;
-  inset: 20% 18%;
-  border-radius: 44%;
-  background: rgb(255 255 255 / .65);
-  content: "";
-  filter: blur(14px);
-}
-.dark .site-shell .about-vision-frame { filter: brightness(1.08); }
-.dark .site-shell .about-vision-copy { color: #241c35; }
-.dark .site-shell .about-vision-copy p { color: #5b5368; }
+/* Vision/Mission text stays on the theme tokens: these were forced dark
+   because the light frame is a pale card, and the dark frame is not. */
 
 @media (hover: hover) and (pointer: fine) {
   .about-cta-copy > a:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgb(35 22 83 / .3); }
@@ -526,7 +547,12 @@
   .about-person-card { min-height: 370px; }
   .about-cta { min-height: 500px; }
   .about-cta-copy { padding-top: 180px; }
-  .about-cta-plane { right: -15px; bottom: 8%; width: 80px; }
+  .about-cta-doodle-plane { top: 18%; left: 6%; width: 44px; height: 44px; }
+  .about-cta-doodle-spiral { top: auto; bottom: 5%; left: auto; right: 6%; width: 46px; height: 46px; }
+  .about-cta-doodle-rays { top: 22%; left: 67%; width: 42px; height: 42px; }
+  .about-cta-doodle-left { top: 17%; left: 22%; width: 60px; height: 44px; }
+  .about-cta-doodle-right { top: auto; bottom: 5%; left: 10%; width: 74px; height: 44px; }
+  .about-cta-doodle-lower { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -539,11 +565,33 @@
  * of introducing its own section height, padding, or stacking context.
  */
 @media (min-width: 768px) {
-  .about-page { background-color: var(--surface-warm); }
+  .about-page {
+    background-color: var(--surface-warm);
+    /* The one box the whole composition is measured against. 1920 is the
+       ceiling rather than 1440 so a 1080p window is filled edge to edge; past
+       it the page surface takes over, which beats scaling a design traced at
+       1440 to three times its size. */
+    --about-canvas-width: min(100%, 1920px);
+  }
   .about-canvas-shell { overflow: hidden; }
+  /* Both art layers take the canvas box, so their curves keep meeting the
+     doodles the canvas positions against them at any window width. */
+  .about-page-art,
+  .about-page-angkor-layer {
+    left: 50%;
+    width: var(--about-canvas-width);
+    transform: translateX(-50%);
+    container-type: inline-size;
+  }
   .about-canvas {
     position: relative;
-    width: min(100%, 1440px);
+    /* container-type makes 1cqw one hundredth of the canvas, which is the unit
+       every length inside this block is written in. It replaces the old
+       `min(<px>, <vw>)` pairs: those measured the window, so they only tracked
+       the canvas while the two were the same width and froze once the canvas
+       hit its cap — type stopped growing while the artwork carried on. */
+    container-type: inline-size;
+    width: var(--about-canvas-width);
     /* The Figma frame is 8354 tall, but 146 of that is the navbar and 550 the
        footer — neither lives on this canvas. It spans frame y 146..7788. */
     /* Was 7642 (the Figma frame height minus navbar and footer). Every
@@ -571,7 +619,13 @@
   }
 
   .about-canvas .about-eyebrow { display: none; }
-  .about-canvas .about-section-subtitle { font-size: clamp(.68rem, .88vw, .8rem); }
+  /* Base rules below the canvas are written in plain px, which on a canvas
+     that scales reads as the design shrinking as the window grows. Restate
+     the ones that reach the canvas in canvas units. */
+  .about-canvas .about-section-heading { max-width: 52.7778cqw; }
+  .about-canvas .about-section-heading > img { margin: 1.25cqw auto 0; }
+  .about-canvas .about-section-subtitle { margin-top: .6944cqw; }
+  .about-canvas .about-section-subtitle { font-size: .88cqw; }
   /* Every section heading in the design is Poppins 64px with a -0.96px track,
      a black word plus a coloured one. Scales with the canvas below 1440 and
      caps above it, same as the hero. */
@@ -579,9 +633,9 @@
   .about-canvas .about-story h2,
   .about-canvas .about-what h2,
   .about-canvas .about-design-heading h2 {
-    font-size: min(64px, 4.4444vw);
+    font-size: 4.4444cqw;
     line-height: 1.05;
-    letter-spacing: min(-.96px, -.0667vw);
+    letter-spacing: -.0667cqw;
   }
 
   /* Figma: Rectangle 236 / Line 88 / Line 90 all start at frame y=1016, well
@@ -606,9 +660,42 @@
     transform: translateX(-50%);
     object-fit: fill;
   }
-  .about-journey-glow { opacity: .4; }
+  .about-journey-glow { opacity: .9; }
   .about-journey-path-solid { opacity: .58; }
   .about-journey-path-dashed { opacity: .72; }
+  /* Exactly the box the dashed line is drawn into, so the scissors can be
+     placed with plain percentages of the artwork's own coordinate space. */
+  .about-journey-scissors-track {
+    position: absolute;
+    inset: 0 auto auto 50%;
+    display: block;
+    width: 92%;
+    height: 100%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  /* left/top are written by JourneyScissors and land the hinge on the line.
+     The artwork is hand-drawn: its hinge is left of centre and its blades do
+     not point along +x, so it turns about --scissors-anchor-* rather than the
+     image centre (otherwise it orbits the line as it rotates) and carries a
+     constant --scissors-offset to face the direction of travel. All three are
+     eyeballed against the page, not derived. */
+  .about-journey-scissors {
+    /* Where the blades cross in DoodleScissors.png, measured off the artwork. */
+    --scissors-anchor-x: 43%;
+    --scissors-anchor-y: 46%;
+    /* The blades point up-left, about -121deg from +x in the source image, so
+       this brings them back round to face the direction of travel. */
+    --scissors-offset: 121deg;
+    position: absolute;
+    z-index: 1;
+    width: 3.3cqw;
+    height: auto;
+    transform-origin: var(--scissors-anchor-x) var(--scissors-anchor-y);
+    transform:
+      translate(calc(-1 * var(--scissors-anchor-x)), calc(-1 * var(--scissors-anchor-y)))
+      rotate(calc(var(--scissors-angle, 0deg) + var(--scissors-offset)));
+  }
 
   /* Canvas-level scatter artwork. Positions are frame coordinates from the
      1:1 Figma render (left = x/1440, top = (y-146)/7642); widths are a % of
@@ -688,7 +775,7 @@
        canvas starts at 146 (below the navbar), so the box is lifted 61px to
        put its origin back on frame y=85 — otherwise everything in the hero
        sits 61px below the page-level blob, wave and Angkor it aligns to. */
-    top: -61px;
+    top: -4.2361cqw;
     z-index: 1;
     width: 100%;
     height: auto;
@@ -702,7 +789,7 @@
      146px navbar so its flat top edge lands at the very top of the page. */
   .about-page-blob {
     position: absolute;
-    top: -151px;
+    top: -10.4861cqw;
     left: -0.1%;
     z-index: 0;
     display: block;
@@ -715,45 +802,20 @@
     object-fit: fill;
     pointer-events: none;
   }
-  /* Figma Group 22, bottom to top: blob, nav wave, then the Angkor as the
-     front-most layer. It starts at frame y=85 — inside the 0-157 nav band —
-     so its own wavy top edge continues the wave rather than butting against
-     it. The real <header> sits above all three but is background-less here. */
-  /* .site-shell is pure white and fills the 146px behind the ghosted navbar,
-     while .about-page is #fffaf0 from 146 down — a hard seam right where the
-     Angkor meets the bar, and bare white in the gap on the right. Carry the
-     page's own surface up behind the navbar to close it. */
-  .about-page::before {
-    content: "";
-    position: absolute;
-    top: -146px;
-    right: 0;
-    left: 0;
-    z-index: 0;
-    height: 146px;
-    background: var(--surface-warm);
-  }
-  .about-page-navwave {
-    position: absolute;
-    top: -146px;
-    left: 0;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    max-width: none;
-    height: 146px;
-    object-fit: fill;
-    pointer-events: none;
-  }
+  /* Figma Group 22, bottom to top: blob, nav wave, then the Angkor. The wave
+     is the real <header>'s background, which paints above the page, so the
+     Angkor runs under the bar instead of over it — the one part of the design
+     the single navbar cannot reproduce. It still starts at frame y=85, inside
+     the nav band, so what shows below the bar is unchanged. */
   .about-page-angkor {
     position: absolute;
-    top: -71.8px;
+    top: -4.9861cqw;
     left: 0;
     z-index: 2;
     display: block;
-    width: calc(36.88 * min(1vw, 14.4px));
+    width: 36.88cqw;
     max-width: none;
-    height: calc(31.39 * min(1vw, 14.4px));
+    height: 31.39cqw;
     pointer-events: none;
   }
   .about-hero-plane {
@@ -796,18 +858,18 @@
     width: 38.68%;
     margin: 0;
     font-weight: 800;
-    font-size: min(64px, 4.4444vw);
+    font-size: 4.4444cqw;
     /* Figma's node is 218px tall for the two lines, not 2x its 120px leading —
        the text bounds are trimmed. 109px each keeps the block at 218 so the
        swoosh and paragraph below land where the design puts them. */
-    line-height: min(109px, 7.5694vw);
-    letter-spacing: min(-.96px, -.0667vw);
+    line-height: 7.5694cqw;
+    letter-spacing: -.0667cqw;
     text-align: center;
   }
   .about-hero-copy h1 span {
     display: block;
     color: #6854da;
-    font-size: min(128px, 8.8889vw);
+    font-size: 8.8889cqw;
     text-shadow: none;
   }
   .about-hero-copy > p {
@@ -818,7 +880,7 @@
     max-width: none;
     margin: 0;
     color: #464554;
-    font-size: min(20px, 1.3889vw);
+    font-size: 1.3889cqw;
     line-height: 1.44;
     text-align: center;
   }
@@ -939,17 +1001,17 @@
   .about-story-copy h2 { margin-left: 14.42%; }
   .about-story-copy > p:not(.about-eyebrow) {
     max-width: none;
-    font-size: clamp(.8rem, 1.14vw, 1rem);
+    font-size: 1.1111cqw;
     line-height: 1.55;
   }
   /* Lands the first paragraph on the design's y=885, 151px below the h2 top. */
-  .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: min(84px, 5.8333vw); }
-  .about-story-copy > p:not(.about-eyebrow) ~ p { margin-top: min(24px, 1.6667vw); }
-  .about-heading-underline { width: 145px; margin-top: 8px; }
+  .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 5.8333cqw; }
+  .about-story-copy > p:not(.about-eyebrow) ~ p { margin-top: 1.6667cqw; }
+  .about-heading-underline { width: 10.0694cqw; margin-top: .5556cqw; }
   .about-story-line { top: -30%; right: -119%; width: 115%; opacity: .72; }
-  .about-story-line-dashed { transform: translateY(12px); }
-  .about-story-snail-one { top: 4%; right: -39%; width: 92px; }
-  .about-story-snail-two { right: -70%; bottom: 5%; width: 54px; }
+  .about-story-line-dashed { transform: translateY(.8333cqw); }
+  .about-story-snail-one { top: 4%; right: -39%; width: 6.3889cqw; }
+  .about-story-snail-two { right: -70%; bottom: 5%; width: 3.75cqw; }
 
   .about-values {
     top: 15.5%;
@@ -960,12 +1022,12 @@
     height: 11%;
   }
   .about-values .about-section-heading { width: 100%; max-width: none; }
-  .about-values .about-section-heading > img { width: 160px; margin-top: 8px; }
+  .about-values .about-section-heading > img { width: 11.1111cqw; margin-top: .5556cqw; }
   .about-values-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 14px;
+    gap: 0 .9722cqw;
     width: 100%;
-    margin: 24px 0 0;
+    margin: 1.6667cqw 0 0;
   }
   .about-value-card { min-height: 0; }
   .about-value-card img { width: 100%; max-height: none; }
@@ -1004,8 +1066,8 @@
     max-width: none;
     /* Holds the paragraph on the design's y=2613 now that the heading moved
        up, which also opens the gap under the dotted rule. */
-    margin-top: min(60px, 4.1667vw);
-    font-size: clamp(.8rem, 1.12vw, 1rem);
+    margin-top: 4.1667cqw;
+    font-size: 1.1111cqw;
     line-height: 1.55;
   }
   .about-side-blob-right { top: -54%; right: -165%; }
@@ -1024,7 +1086,7 @@
     right: 4.5%;
     left: auto;
     width: 31%;
-    padding: 48px 30px;
+    padding: 3.3333cqw 2.0833cqw;
     border-radius: 48% 44% 53% 42% / 50% 56% 44% 51%;
   }
   .about-design-heading > p:last-child { display: none; }
@@ -1040,26 +1102,26 @@
     width: 60.14%;
     margin-left: 25.93%;
   }
-  .about-feature-hanger { padding-top: var(--about-feature-offset); }
+  .about-feature-hanger { padding-top: calc(var(--about-feature-offset) * .069444cqw); }
   /* Spread tuned so each pin head lands on the dashed connector, measured
      against the design's pin positions rather than derived from the grid. */
   /* Nudges derived from the three line assets: each segment's own path endpoints
      define where the pins must sit, so the pins move to the lines rather than
      the lines being stretched to reach the pins. `translate` applies before
      `transform`, so these are plain untransformed pixels. */
-  .about-feature-hanger:nth-child(2) { translate: 0 -29px; }
-  .about-feature-hanger:nth-child(3) { translate: -5px 12px; }
-  .about-feature-hanger:nth-child(4) { translate: 43px -32px; }
+  .about-feature-hanger:nth-child(2) { translate: 0 -2.0139cqw; }
+  .about-feature-hanger:nth-child(3) { translate: -0.3472cqw .8333cqw; }
+  .about-feature-hanger:nth-child(4) { translate: 2.9861cqw -2.2222cqw; }
   .about-feature-hanger:nth-child(1) { transform: translate(-36%, -10%) rotate(-7deg); }
   .about-feature-hanger:nth-child(2) { transform: translate(7%, 18%) rotate(7deg); }
   .about-feature-hanger:nth-child(3) { transform: translate(7%, -8.5%) rotate(4deg); }
   .about-feature-hanger:nth-child(4) { transform: translate(16.7%, 10%) rotate(6deg); }
-  .about-feature-pin { top: calc(var(--about-feature-offset) - 8px); width: clamp(38px, 4vw, 54px); }
+  .about-feature-pin { top: calc(var(--about-feature-offset) * .069444cqw - .5556cqw); width: 3.75cqw; }
   /* Pivot follows the padding via the shared custom property. */
-  .about-feature-swing { --about-swing-pivot: 20px; }
+  .about-feature-swing { --about-swing-pivot: 1.3889cqw; }
   .about-feature-copy { inset: 34% 9% 10%; }
-  .about-feature-copy h3 { font-size: clamp(.75rem, 1.15vw, 1.05rem); }
-  .about-feature-copy p { font-size: clamp(.63rem, .8vw, .76rem); }
+  .about-feature-copy h3 { max-width: 15.9722cqw; font-size: 1.15cqw; }
+  .about-feature-copy p { max-width: 15.2778cqw; margin-top: .6944cqw; font-size: .8cqw; }
 
   .about-vision {
     top: 51.8%;
@@ -1097,16 +1159,16 @@
      below, not a real shortage of height, and the surplus put 49px of Mission
      on top of Vision. */
   .about-vision-copy { display: block; min-height: 0; gap: 0; padding: 6.24% 12.31% 0; }
-  .about-vision-copy h3 { font-size: min(32px, 2.2222vw); line-height: 1.3; }
+  .about-vision-copy h3 { font-size: 2.2222cqw; line-height: 1.3; }
   .about-vision-copy h3 span { color: #6854da; }
   .about-vision-card-mission .about-vision-copy h3 span { color: #ffc21c; }
   .about-vision-copy p {
-    margin-top: min(7px, .486vw);
-    font-size: min(18px, 1.25vw);
+    margin-top: .486cqw;
+    font-size: 1.25cqw;
     line-height: 1.6;
   }
-  .about-vision-mark { top: 41%; right: -4%; width: 80px; }
-  .about-vision-arrow { bottom: 8%; left: 84%; width: 90px; }
+  .about-vision-mark { top: 41%; right: -4%; width: 5.5556cqw; }
+  .about-vision-arrow { bottom: 8%; left: 84%; width: 6.25cqw; }
 
   .about-mentors {
     top: 69.56%;
@@ -1123,7 +1185,7 @@
     height: 15%;
   }
   .about-people { padding: 0; }
-  .about-people .about-section-heading h2 { font-size: min(64px, 4.4444vw); }
+  .about-people .about-section-heading h2 { font-size: 4.4444cqw; }
   .about-people .about-section-heading::after {
     display: block;
     width: 150px;
@@ -1143,18 +1205,18 @@
      and the dash. max() rather than min() so the value still scales down with
      the canvas — for negative lengths max() is the one that caps magnitude. */
   .about-people .about-section-heading > img {
-    width: min(459px, 31.875vw);
-    margin: max(-18px, -1.25vw) auto 0;
+    width: 31.875cqw;
+    margin: -1.25cqw auto 0;
   }
-  .about-people .about-section-subtitle { margin-top: max(-10px, -.6944vw); }
+  .about-people .about-section-subtitle { margin-top: -.6944cqw; }
   /* The portraits overhang the card tops by ~123px now that the frame rule
      crosses them the way the design does, so the grid needs to start well
      below the subtitle or the photos sit on top of it. */
   .about-mentor-grid,
-  .about-member-grid { margin-top: min(140px, 9.7222vw); }
+  .about-member-grid { margin-top: 9.7222cqw; }
   .about-mentor-grid {
-    grid-template-columns: repeat(2, min(270px, 18.75vw));
-    gap: min(90px, 6.25vw) min(80px, 5.5556vw);
+    grid-template-columns: repeat(2, 18.75cqw);
+    gap: 6.25cqw 5.5556cqw;
   }
   /* 4 x 270 + 3 x 56 = 1248 of the 1440 canvas, so the row still centres with
      ~96px margins either side.
@@ -1164,31 +1226,32 @@
      than the value here. 136px leaves ~42px of real air between row 1's card
      foot and row 2's photo. */
   .about-member-grid {
-    grid-template-columns: repeat(4, min(270px, 18.75vw));
+    grid-template-columns: repeat(4, 18.75cqw);
     justify-content: center;
-    gap: min(136px, 9.4444vw) min(56px, 3.8889vw);
+    gap: 9.4444cqw 3.8889cqw;
     width: 100%;
   }
   .about-person-card {
     min-height: 0;
     padding: 0;
   }
-  .about-person-placeholder { font-size: 1.75rem; }
-  .about-person-card h3 { font-size: 1.13rem; font-weight: 500; }
-  .about-person-role { margin-top: 9px; padding: 5px 13px; font-size: .77rem; font-weight: 550; }
-  .about-person-divider { margin-top: 16px; }
-  .about-person-socials { gap: 8px; margin-top: 12px; }
+  .about-person-placeholder { font-size: 1.9444cqw; }
+  .about-person-card h3 { font-size: 1.2556cqw; font-weight: 500; }
+  .about-person-role { margin-top: .625cqw; padding: .3472cqw .9028cqw; font-size: .8556cqw; font-weight: 550; }
+  .about-person-quote { margin: .9722cqw 0 0; font-size: .9111cqw; }
+  .about-person-social-placeholder { margin-top: 1.1806cqw; font-size: .8cqw; }
+  .about-person-socials { gap: .5556cqw; margin-top: .8333cqw; }
   .about-person-socials > a,
-  .about-person-socials > span { width: 30px; height: 30px; }
+  .about-person-socials > span { width: 2.0833cqw; height: 2.0833cqw; }
   .about-person-socials img,
-  .about-person-socials svg { width: 15px; height: 15px; }
+  .about-person-socials svg { width: 1.0417cqw; height: 1.0417cqw; }
 
   .about-cta {
-    top: 96.55%;
+    bottom: 0;
     left: 0;
     z-index: 4;
     width: 100%;
-    height: 3.45%;
+    height: 18.4028cqw;
     min-height: 0;
     margin: 0;
     background: transparent;
@@ -1197,15 +1260,14 @@
     position: absolute;
     inset: 40% 0 0;
     z-index: 0;
-    background: #6854dc;
+    background: #6854da;
     content: "";
   }
-  .about-cta-wave { display: block; z-index: 1; width: 100%; height: auto; }
-  .about-cta-copy { width: 72%; padding: 15% 0 0; }
-  .about-cta-copy h2 { font-size: clamp(1.65rem, 3.3vw, 3rem); }
-  .about-cta-copy > p:not(.about-eyebrow) { margin-top: 13px; font-size: clamp(.75rem, 1.2vw, 1rem); }
-  .about-cta-copy > a { min-height: 42px; margin-top: 20px; padding: 0 22px; font-size: .84rem; }
-  .about-cta-plane { right: 8%; bottom: 14%; width: 85px; }
+  .about-cta-wave { display: block; z-index: 1; width: 100%; height: 100%; }
+  .about-cta-copy { width: 72%; padding: 5.9722cqw 0 0; }
+  .about-cta-copy h2 { font-size: 2.2222cqw; line-height: 2.7778cqw; letter-spacing: normal; font-weight: 600; }
+  .about-cta-copy > p:not(.about-eyebrow) { margin-top: .5556cqw; font-size: 1.1111cqw; line-height: 2.7778cqw; color: white; }
+  .about-cta-copy > a { min-height: 3.0556cqw; margin-top: 1.25cqw; padding: 0 1.5278cqw; font-size: 1.1111cqw; border-radius: .5556cqw; box-shadow: none; }
 }
 
 /* Tablet keeps the desktop composition, but removes the secondary artwork
@@ -1268,7 +1330,6 @@
     --about-mobile-hero-height: clamp(560px, 150vw, 720px);
     --about-mobile-navbar-height: 126px;
   }
-  .navbar--ghost .navbar-background { opacity: 0; }
   .about-canvas { position: relative; }
   .about-canvas > .about-journey { display: none; }
   .about-canvas > section:not(.about-hero):not(.about-cta) {

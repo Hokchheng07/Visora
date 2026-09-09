@@ -29,6 +29,11 @@ import badgeThree from "../../../assets/pages/home/how-it-works/03.svg";
 import backgroundArtwork from "../../../assets/pages/home/how-it-works/Mountain.svg";
 import dashedLineSvg from "../../../assets/pages/home/how-it-works/DashedLine.svg?raw";
 import solidLineSvg from "../../../assets/pages/home/how-it-works/HowItWorksSolidLine.svg?raw";
+import {
+  createSmoothPath,
+  dashCentrelinePoints,
+  getPathData,
+} from "../../../lib/animations/svgPath";
 
 const steps = [
   {
@@ -50,36 +55,14 @@ const steps = [
 
 const stepBadges = [badgeOne, badgeTwo, badgeThree];
 
-const getPathData = (svgSource) =>
-  svgSource.match(/<path d="([^"]+)"/)?.[1] ?? "";
-
 const dashedLinePath = getPathData(dashedLineSvg);
 const solidLinePath = getPathData(solidLineSvg);
-const dashedPathParts = (
-  dashedLinePath.match(/M[\s\S]*?(?=M|$)/g) ?? []
-).slice(6);
-const dashedLinePoints = dashedPathParts
-  .map((path) => path.match(/^M(-?[\d.]+) (-?[\d.]+)/))
-  .filter(Boolean)
-  .map(([, x, y]) => ({ x: Number(x), y: Number(y) }));
-
-const createSmoothPath = (points) => {
-  if (points.length < 2) return "";
-
-  return points.slice(0, -1).reduce((path, point, index) => {
-    const previous = points[index - 1] ?? point;
-    const next = points[index + 1];
-    const afterNext = points[index + 2] ?? next;
-    const controlOneX = point.x + (next.x - previous.x) / 6;
-    const controlOneY = point.y + (next.y - previous.y) / 6;
-    const controlTwoX = next.x - (afterNext.x - point.x) / 6;
-    const controlTwoY = next.y - (afterNext.y - point.y) / 6;
-
-    return `${path} C${controlOneX} ${controlOneY} ${controlTwoX} ${controlTwoY} ${next.x} ${next.y}`;
-  }, `M${points[0].x} ${points[0].y}`);
-};
-
-const dashedCenterlinePath = createSmoothPath(dashedLinePoints);
+// Was a hardcoded `.slice(6)` to drop this export's six leading decorations;
+// dashCentrelinePoints picks the dashes out by shape instead, which yields the
+// same 101 points here and also works on the About journey line.
+const dashedCenterlinePath = createSmoothPath(
+  dashCentrelinePoints(dashedLinePath),
+);
 
 const headingText = "How It Works";
 
