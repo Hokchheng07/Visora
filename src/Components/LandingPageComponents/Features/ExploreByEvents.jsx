@@ -5,20 +5,20 @@ import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScrol
 import { ImageIcon } from "lucide-react";
 import EventCard from "./EventCard";
 import { placeholderEvents } from "./eventData";
-import headingUnderline from "../../../assets/Website/LandingPage/ExploreByEvents/UnderLineForExploreByEvents.svg";
-import paperPlane from "../../../assets/Website/LandingPage/ExploreByEvents/PaperPlane(ExploreByEvents).svg";
+import headingUnderline from "../../../assets/pages/home/explore-by-events/UnderLineForExploreByEvents.svg";
+import paperPlane from "../../../assets/pages/home/explore-by-events/PaperPlane(ExploreByEvents).svg";
 
-import topBackground from "../../../assets/Website/LandingPage/ExploreByEvents/TopBg(ExploreByEvents).svg";
-import topLeftDoodle from "../../../assets/Website/LandingPage/ExploreByEvents/TopLeft.svg";
-import lightPurpleLayer from "../../../assets/Website/LandingPage/ExploreByEvents/LightPurpleBackground.svg";
-import foregroundPurple from "../../../assets/Website/LandingPage/ExploreByEvents/ForegroundPurple.svg";
-import leftGlow from "../../../assets/Website/LandingPage/ExploreByEvents/LeftLayerBlur(ExploreByEvents).svg";
-import centerGlow from "../../../assets/Website/LandingPage/ExploreByEvents/CenterLayerBlur(ExploreByEvents).svg";
-import rightGlow from "../../../assets/Website/LandingPage/ExploreByEvents/RightLayerBlur.svg";
-import arrowPointingUp from "../../../assets/Website/LandingPage/ExploreByEvents/ArrowPointingUp(ExploreByEvents).svg";
-import lineTop from "../../../assets/Website/LandingPage/ExploreByEvents/LineTop(ExploreByEvents).svg";
-import lineRight from "../../../assets/Website/LandingPage/ExploreByEvents/LineRight(ExploreByEvents).svg";
-import lineBottom from "../../../assets/Website/LandingPage/ExploreByEvents/LineBottom(ExploreByEvents).svg";
+import topBackground from "../../../assets/pages/home/explore-by-events/TopBg(ExploreByEvents).svg";
+import topLeftDoodle from "../../../assets/pages/home/explore-by-events/TopLeft.svg";
+import lightPurpleLayer from "../../../assets/pages/home/explore-by-events/LightPurpleBackground.svg";
+import foregroundPurple from "../../../assets/pages/home/explore-by-events/ForegroundPurple.svg";
+import leftGlow from "../../../assets/pages/home/explore-by-events/LeftLayerBlur(ExploreByEvents).svg";
+import centerGlow from "../../../assets/pages/home/explore-by-events/CenterLayerBlur(ExploreByEvents).svg";
+import rightGlow from "../../../assets/pages/home/explore-by-events/RightLayerBlur.svg";
+import arrowPointingUp from "../../../assets/pages/home/explore-by-events/ArrowPointingUp(ExploreByEvents).svg";
+import lineTop from "../../../assets/pages/home/explore-by-events/LineTop(ExploreByEvents).svg";
+import lineRight from "../../../assets/pages/home/explore-by-events/LineRight(ExploreByEvents).svg";
+import lineBottom from "../../../assets/pages/home/explore-by-events/LineBottom(ExploreByEvents).svg";
 
 const PINNED_VIEWPORT = "(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine)";
 const clamp = (value) => Math.min(1, Math.max(0, value));

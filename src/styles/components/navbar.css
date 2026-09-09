@@ -1,0 +1,37 @@
+/* On /about the page paints its own copy of this wave so the Angkor can layer
+   over it; fade rather than cut so the handover as you scroll isn't a snap.
+   Desktop only — the mobile hero stacks and has no page-level wave to stand
+   in, so ghosting there would leave the bar with no background at all. */
+@media (min-width: 768px) {
+  .navbar--ghost .navbar-background { opacity: 0; }
+}
+
+@media (max-width: 767px) {
+  .navbar-nav { padding-inline: 1.25rem; transform: translateY(-0.35rem); }
+}
+
+@media (min-width: 1024px) and (max-height: 800px) {
+  .navbar-shell { height: 126px !important; }
+  .navbar-nav { height: 96px !important; }
+}
+/* Navbar background exported from the responsive Figma design. */
+.navbar-background {
+  transition: opacity 220ms ease;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .navbar-nav {
+    padding-inline: clamp(3rem, 4vw, 5rem);
+    transform: translateY(-0.65rem);
+  }
+}

@@ -1,10 +1,10 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
-import snailOne from "../../assets/Website/AboutUs/Snail1.svg";
-import snailTwo from "../../assets/Website/AboutUs/Snail2.svg";
-import dashedConnector from "../../assets/Website/AboutUs/DashedLeftLine.svg";
-import solidConnector from "../../assets/Website/AboutUs/LeftSolidLine.svg";
+import snailOne from "../../assets/pages/about/shared/doodles/Snail1.svg";
+import snailTwo from "../../assets/pages/about/shared/doodles/Snail2.svg";
+import dashedConnector from "../../assets/pages/about/shared/connectors/DashedLeftLine.svg";
+import solidConnector from "../../assets/pages/about/shared/connectors/LeftSolidLine.svg";
 
 export default function OurStory() {
   const reduceMotion = useReducedMotion();

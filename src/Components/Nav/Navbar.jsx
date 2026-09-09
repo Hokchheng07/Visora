@@ -4,9 +4,9 @@ import { NavLink, useLocation } from "react-router";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from '../../theme/ThemeToggle';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
-import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import mobileLogo from "../../assets/Website/visora-logo-mobile.png";
-import navbarBg from "../../assets/Website/Nav/NavbarBg.svg";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
+import navbarBg from "../../assets/sections/navbar/NavbarBg.svg";
 import { EASE } from "../../lib/animations/animations";
 
 // Recreated from the Visora Figma file, "Landing Page" > navbar instance

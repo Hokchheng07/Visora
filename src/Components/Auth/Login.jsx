@@ -10,13 +10,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
-import loginStyle from "../../assets/Website/Login/3 Strips 1.png";
-import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import googleIcon from "../../assets/Website/google.svg";
-import githubIcon from "../../assets/Website/github_light.svg";
+import loginStyle from "../../assets/pages/auth/login/3 Strips 1.png";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import googleIcon from "../../assets/shared/social/google.svg";
+import githubIcon from "../../assets/shared/social/github_light.svg";
 import { EASE } from "../../lib/animations/animations";
 
-import loginPic from "../../assets/Website/Login/LoginLogo-pic.png";
+import loginPic from "../../assets/pages/auth/login/LoginLogo-pic.png";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),

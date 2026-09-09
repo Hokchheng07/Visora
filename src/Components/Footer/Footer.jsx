@@ -1,11 +1,11 @@
 import { ThemeImage } from '../../theme/ThemeImage';
 import { motion } from "motion/react";
 import { NavLink } from "react-router";
-import visoraLogo from "../../assets/Website/VisoraLogo.png";
-import facebook from "../../assets/Website/Footer-Section/facebook.png";
-import instagram from "../../assets/Website/Footer-Section/instagram.png";
-import github from "../../assets/Website/Footer-Section/github.png";
-import logo from "../../assets/Website/Footer-Section/logo.png";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import facebook from "../../assets/sections/footer/facebook.png";
+import instagram from "../../assets/sections/footer/instagram.png";
+import github from "../../assets/sections/footer/github.png";
+import logo from "../../assets/sections/footer/logo.png";
 import {
   fadeIn,
   fadeInUp,

@@ -15,20 +15,20 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../../lib/animations/animations";
-import topTornGradient from "../../../assets/Website/LandingPage/HowItWorks/Top-bg.svg";
-import bottomTornStrip from "../../../assets/Website/LandingPage/HowItWorks/BottomBg.svg";
-import leftSticker from "../../../assets/Website/LandingPage/HowItWorks/MyEveryDayToolsinFigma(LeftBig).svg";
-import rightSticker from "../../../assets/Website/LandingPage/HowItWorks/YellowFrame(SmallRight).svg";
-import squiggleCutline from "../../../assets/Website/LandingPage/HowItWorks/MiddleArrowWithScissors.svg";
-import hillOne from "../../../assets/Website/LandingPage/HowItWorks/FirstRactangle.svg";
-import hillTwo from "../../../assets/Website/LandingPage/HowItWorks/2ndRactangle.svg";
-import hillThree from "../../../assets/Website/LandingPage/HowItWorks/3rdRactangle.svg";
-import badgeOne from "../../../assets/Website/LandingPage/HowItWorks/01.svg";
-import badgeTwo from "../../../assets/Website/LandingPage/HowItWorks/02.svg";
-import badgeThree from "../../../assets/Website/LandingPage/HowItWorks/03.svg";
-import backgroundArtwork from "../../../assets/Website/LandingPage/HowItWorks/Mountain.svg";
-import dashedLineSvg from "../../../assets/Website/LandingPage/HowItWorks/DashedLine.svg?raw";
-import solidLineSvg from "../../../assets/Website/LandingPage/HowItWorks/HowItWorksSolidLine.svg?raw";
+import topTornGradient from "../../../assets/pages/home/how-it-works/Top-bg.svg";
+import bottomTornStrip from "../../../assets/pages/home/how-it-works/BottomBg.svg";
+import leftSticker from "../../../assets/pages/home/how-it-works/MyEveryDayToolsinFigma(LeftBig).svg";
+import rightSticker from "../../../assets/pages/home/how-it-works/YellowFrame(SmallRight).svg";
+import squiggleCutline from "../../../assets/pages/home/how-it-works/MiddleArrowWithScissors.svg";
+import hillOne from "../../../assets/pages/home/how-it-works/FirstRactangle.svg";
+import hillTwo from "../../../assets/pages/home/how-it-works/2ndRactangle.svg";
+import hillThree from "../../../assets/pages/home/how-it-works/3rdRactangle.svg";
+import badgeOne from "../../../assets/pages/home/how-it-works/01.svg";
+import badgeTwo from "../../../assets/pages/home/how-it-works/02.svg";
+import badgeThree from "../../../assets/pages/home/how-it-works/03.svg";
+import backgroundArtwork from "../../../assets/pages/home/how-it-works/Mountain.svg";
+import dashedLineSvg from "../../../assets/pages/home/how-it-works/DashedLine.svg?raw";
+import solidLineSvg from "../../../assets/pages/home/how-it-works/HowItWorksSolidLine.svg?raw";
 
 const steps = [
   {

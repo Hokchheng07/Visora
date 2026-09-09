@@ -1,9 +1,9 @@
-import birthdayCard from "../../../assets/Website/HangingCards/DarkBlueCard.png";
-import graduationCard from "../../../assets/Website/HangingCards/Purple.png";
-import examinationCard from "../../../assets/Website/HangingCards/PinkCard.png";
-import schoolCard from "../../../assets/Website/HangingCards/BlueCard.png";
-import khmerCard from "../../../assets/Website/HangingCards/YellowCard.png";
-import communityCard from "../../../assets/Website/HangingCards/GreenCard.png";
+import birthdayCard from "../../../assets/pages/home/explore-by-events/hanging-cards/DarkBlueCard.png";
+import graduationCard from "../../../assets/pages/home/explore-by-events/hanging-cards/Purple.png";
+import examinationCard from "../../../assets/pages/home/explore-by-events/hanging-cards/PinkCard.png";
+import schoolCard from "../../../assets/pages/home/explore-by-events/hanging-cards/BlueCard.png";
+import khmerCard from "../../../assets/pages/home/explore-by-events/hanging-cards/YellowCard.png";
+import communityCard from "../../../assets/pages/home/explore-by-events/hanging-cards/GreenCard.png";
 
 // The offsets follow the authored dashed path and intentionally produce the
 // loose, pin-board rhythm in the Figma composition. Keep ids stable when these

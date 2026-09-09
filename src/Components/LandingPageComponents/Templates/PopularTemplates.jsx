@@ -2,17 +2,17 @@ import { ThemeImage, MotionThemeImage } from '../../../theme/ThemeImage';
 import { NavLink } from "react-router";
 import { motion } from "motion/react";
 import TemplateCard from "./TemplateCard";
-import scissors from "../../../assets/Website/LandingPage/Hero-Section/DoodleScissors.png";
-import arrowWithScissors from "../../../assets/Website/LandingPage/Hero-Section/ArrowWithScissors.png";
-import spiralArrow from "../../../assets/Website/LandingPage/PopularTemplates/SpiralArrow.png";
+import scissors from "../../../assets/pages/home/hero/DoodleScissors.png";
+import arrowWithScissors from "../../../assets/pages/home/hero/ArrowWithScissors.png";
+import spiralArrow from "../../../assets/pages/home/popular-templates/SpiralArrow.png";
 import {
   fadeIn,
   fadeInUp,
   staggerContainer,
   viewportOnce,
 } from "../../../lib/animations/animations";
-import topWave from "../../../assets/Website/LandingPage/PopularTemplates/PopularTemplateTopWave.svg";
-import lowerWave from "../../../assets/Website/LandingPage/PopularTemplates/PopularTemplateLowerWave.svg";
+import topWave from "../../../assets/pages/home/popular-templates/PopularTemplateTopWave.svg";
+import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
 
 const templates = [
   { image: null, title: "Creative doodle", description: "Design with your ideas and creative" },

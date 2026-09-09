@@ -1,18 +1,18 @@
 import { Send } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
-import githubIcon from "../../assets/Website/Footer-Section/github.png";
-import facebookIcon from "../../assets/Website/Footer-Section/facebook.png";
-import purpleFrame from "../../assets/Website/AboutUs/Cards/purpleCard/PurpleFram.svg";
-import purpleBackground from "../../assets/Website/AboutUs/Cards/purpleCard/prupleBg.svg";
-import purpleBlob from "../../assets/Website/AboutUs/Cards/purpleCard/PurpleBlob.svg";
-import purpleSolidLine from "../../assets/Website/AboutUs/Cards/purpleCard/SolidLine.svg";
-import purpleDashLine from "../../assets/Website/AboutUs/Cards/purpleCard/DashLine.svg";
-import yellowFrame from "../../assets/Website/AboutUs/Cards/yellowCard/CardFrame(Yellow)..svg";
-import yellowBackground from "../../assets/Website/AboutUs/Cards/yellowCard/CardBG(Yellow).svg";
-import yellowBlob from "../../assets/Website/AboutUs/Cards/yellowCard/BlobBehindPicture(Yellow)..svg";
-import yellowSolidLine from "../../assets/Website/AboutUs/Cards/yellowCard/SolidLine(Yellow)..svg";
-import yellowDashLine from "../../assets/Website/AboutUs/Cards/yellowCard/DashCircle(Yellow)..svg";
+import githubIcon from "../../assets/sections/footer/github.png";
+import facebookIcon from "../../assets/sections/footer/facebook.png";
+import purpleFrame from "../../assets/pages/about/people/cards/purple/PurpleFram.svg";
+import purpleBackground from "../../assets/pages/about/people/cards/purple/prupleBg.svg";
+import purpleBlob from "../../assets/pages/about/people/cards/purple/PurpleBlob.svg";
+import purpleSolidLine from "../../assets/pages/about/people/cards/purple/SolidLine.svg";
+import purpleDashLine from "../../assets/pages/about/people/cards/purple/DashLine.svg";
+import yellowFrame from "../../assets/pages/about/people/cards/yellow/CardFrame(Yellow)..svg";
+import yellowBackground from "../../assets/pages/about/people/cards/yellow/CardBG(Yellow).svg";
+import yellowBlob from "../../assets/pages/about/people/cards/yellow/BlobBehindPicture(Yellow)..svg";
+import yellowSolidLine from "../../assets/pages/about/people/cards/yellow/SolidLine(Yellow)..svg";
+import yellowDashLine from "../../assets/pages/about/people/cards/yellow/DashCircle(Yellow)..svg";
 
 const socialIcons = {
   github: { image: githubIcon },

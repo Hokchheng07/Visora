@@ -1,6 +1,6 @@
 import { Download, MonitorPlay, Pencil, Save, Undo2, Redo2 } from "lucide-react";
 import { Link } from "react-router";
-import visoraLogo from "../../assets/Website/VisoraLogo.png";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { undo, redo } from "../redux/editorSlice.js";
 

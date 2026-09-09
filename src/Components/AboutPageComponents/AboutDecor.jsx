@@ -1,20 +1,20 @@
 import { ThemeImage } from "../../theme/ThemeImage";
-import burstMarks from "../../assets/Website/AboutUs/YellowExclimationMark.svg";
-import storyUnderline from "../../assets/Website/AboutUs/DashYellowUnderStory.svg";
-import whatUnderline from "../../assets/Website/AboutUs/UnderlineForWhatIsVisora.svg";
-import yellowSquiggle from "../../assets/Website/AboutUs/SvigalYellow.svg";
-import purpleSquiggle from "../../assets/Website/AboutUs/SpigalPurple.svg";
-import dashedArrow from "../../assets/Website/AboutUs/SpiralArrow(AboutUs).svg";
-import rightBlobs from "../../assets/Website/AboutUs/RightDoubleBlob(Purple,Yellow).svg";
-import leftBlobs from "../../assets/Website/AboutUs/LeftDoubleBlob(Purple,yellow.svg";
-import designBackdrop from "../../assets/Website/AboutUs/BackForDesignPresentInspire.svg";
-import pinCardBackground from "../../assets/Website/AboutUs/PinCardBackground.svg";
-import pinLineTop from "../../assets/Website/AboutUs/TopLine(AboutUs).svg";
-import pinLineSecond from "../../assets/Website/AboutUs/2ndLine(AboutUs).svg";
-import pinLineThird from "../../assets/Website/AboutUs/ThirdLine(AboutUs).svg";
-import visionLottie from "../../assets/Website/AboutUs/LottieAboveOurVision.svg";
-import valueUnderline from "../../assets/Website/AboutUs/DashLineUnderValue.svg";
-import doodlePlane from "../../assets/Website/AboutUs/DoodlePlane(AboutUs).svg";
+import burstMarks from "../../assets/pages/about/vision-mission/YellowExclimationMark.svg";
+import storyUnderline from "../../assets/pages/about/story/DashYellowUnderStory.svg";
+import whatUnderline from "../../assets/pages/about/what-is-visora/UnderlineForWhatIsVisora.svg";
+import yellowSquiggle from "../../assets/pages/about/shared/doodles/SvigalYellow.svg";
+import purpleSquiggle from "../../assets/pages/about/shared/doodles/SpigalPurple.svg";
+import dashedArrow from "../../assets/pages/about/shared/doodles/SpiralArrow(AboutUs).svg";
+import rightBlobs from "../../assets/pages/about/shared/doodles/RightDoubleBlob(Purple,Yellow).svg";
+import leftBlobs from "../../assets/pages/about/shared/doodles/LeftDoubleBlob(Purple,yellow.svg";
+import designBackdrop from "../../assets/pages/about/design-present-inspire/BackForDesignPresentInspire.svg";
+import pinCardBackground from "../../assets/pages/about/design-present-inspire/PinCardBackground.svg";
+import pinLineTop from "../../assets/pages/about/design-present-inspire/TopLine(AboutUs).svg";
+import pinLineSecond from "../../assets/pages/about/design-present-inspire/2ndLine(AboutUs).svg";
+import pinLineThird from "../../assets/pages/about/design-present-inspire/ThirdLine(AboutUs).svg";
+import visionLottie from "../../assets/pages/about/vision-mission/LottieAboveOurVision.svg";
+import valueUnderline from "../../assets/pages/about/core-values/DashLineUnderValue.svg";
+import doodlePlane from "../../assets/pages/about/shared/doodles/DoodlePlane(AboutUs).svg";
 
 /* Scatter artwork that belongs to the canvas rather than to any one section —
    most of it sits outside the section boxes it visually accompanies (the side
@@ -46,7 +46,7 @@ export default function AboutDecor() {
       <ThemeImage className="about-decor-item about-decor-design-backdrop" src={designBackdrop} alt="" />
       {/* Three separate segments rather than one connector, each positioned so
           its own endpoints land on the two pins it joins. Sits above the cards
-          — see the z-index note in index.css. */}
+          — see the z-index note in styles/pages/about.css. */}
       <ThemeImage className="about-decor-item about-decor-pin-line about-decor-pin-line-top" src={pinLineTop} alt="" />
       <ThemeImage className="about-decor-item about-decor-pin-line about-decor-pin-line-second" src={pinLineSecond} alt="" />
       <ThemeImage className="about-decor-item about-decor-pin-line about-decor-pin-line-third" src={pinLineThird} alt="" />

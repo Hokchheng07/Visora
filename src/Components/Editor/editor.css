@@ -287,3 +287,28 @@
   .editor-body, .editor-tool-panel, .editor-canvas-bar button { transition: none; }
   .editor-display-bar, .editor-display-bar button { transition: none; }
 }
+
+/* Legacy CV editor responsive shell. Kept with the editor instead of the
+   marketing-page stylesheet so its ownership and breakpoints are explicit. */
+.cv-editor-canvas { max-width: 100%; }
+
+@media (max-width: 767px) {
+  .cv-editor-header { min-height: 4.5rem; height: auto; padding: .5rem .75rem; }
+  .cv-editor-header > div:first-child { min-width: 0; gap: .5rem; }
+  .cv-editor-header img { width: 7rem; padding: .25rem; }
+  .cv-editor-header button { padding-inline: .5rem; font-size: .75rem; }
+  .cv-editor-header > div:last-child { gap: .35rem; padding: 0; }
+  .cv-editor-header > div:last-child button { padding: .55rem .6rem; }
+  .cv-editor-primary { width: 3.5rem; flex: none; gap: 1rem; overflow-y: auto; }
+  .cv-editor-secondary { display: none; }
+  .cv-editor-workspace { min-width: 0; padding: .75rem; }
+  .cv-editor-toolbar { width: 100%; flex-wrap: wrap; justify-content: center; gap: .4rem; margin-bottom: .75rem; padding: .5rem; }
+  .cv-editor-canvas { width: 100%; min-height: 700px; }
+}
+
+@media (max-width: 420px) {
+  .cv-editor-title { display: none; }
+  .cv-editor-header > div:last-child button { font-size: 0; }
+  .cv-editor-header > div:last-child button svg { margin: 0; }
+  .cv-editor-workspace { padding-inline: .5rem; }
+}

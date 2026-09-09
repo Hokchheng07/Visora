@@ -1,17 +1,17 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
-import heroPlane from "../../assets/Website/AboutUs/UpsideDownHeroPlane.svg";
-import blackExclamation from "../../assets/Website/AboutUs/BlackExclimationMark.svg";
-import yellowSwoosh from "../../assets/Website/AboutUs/DashYellowUnderStory.svg";
-import dashedLeftLine from "../../assets/Website/AboutUs/DashedLeftLine.svg";
-import solidLeftLine from "../../assets/Website/AboutUs/LeftSolidLine.svg";
-import solidRightLine from "../../assets/Website/AboutUs/RightSolid.svg";
-import dashedRightLine from "../../assets/Website/AboutUs/RightDashedLine.svg";
-import snailOne from "../../assets/Website/AboutUs/Snail1.svg";
-import snailTwo from "../../assets/Website/AboutUs/Snail2.svg";
-import yellowFrame from "../../assets/Website/AboutUs/YellowFrameHero.svg";
-import purpleFrame from "../../assets/Website/AboutUs/PurpleFrame.svg";
+import heroPlane from "../../assets/pages/about/hero/UpsideDownHeroPlane.svg";
+import blackExclamation from "../../assets/pages/about/hero/BlackExclimationMark.svg";
+import yellowSwoosh from "../../assets/pages/about/story/DashYellowUnderStory.svg";
+import dashedLeftLine from "../../assets/pages/about/shared/connectors/DashedLeftLine.svg";
+import solidLeftLine from "../../assets/pages/about/shared/connectors/LeftSolidLine.svg";
+import solidRightLine from "../../assets/pages/about/hero/RightSolid.svg";
+import dashedRightLine from "../../assets/pages/about/hero/RightDashedLine.svg";
+import snailOne from "../../assets/pages/about/shared/doodles/Snail1.svg";
+import snailTwo from "../../assets/pages/about/shared/doodles/Snail2.svg";
+import yellowFrame from "../../assets/pages/about/hero/YellowFrameHero.svg";
+import purpleFrame from "../../assets/pages/about/hero/PurpleFrame.svg";
 
 export default function AboutHero() {
   const reduceMotion = useReducedMotion();

@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { mentors } from "./aboutData";
-import headingUnderline from "../../assets/Website/AboutUs/UnderlineForWhatIsVisora.svg";
+import headingUnderline from "../../assets/pages/about/what-is-visora/UnderlineForWhatIsVisora.svg";
 import PersonCard from "./PersonCard";
 
 export default function OurMentors() {
