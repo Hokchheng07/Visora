@@ -34,6 +34,15 @@ export default function About() {
             up behind the nav — a flat, dot-less band under the header. This
             patch is its own sparkle tile reaching that same strip. See the
             longer note on .about-page-sparkle-patch in about.css. */}
+        {/* Plugs the same strip with a flat fill in .about-page's own
+            background color, so wherever the wave cutout or the art's own
+            translucency exposes bare canvas, it reveals this instead of the
+            site shell's (slightly different, near-black) default behind it —
+            those two darks are close enough to read as a color seam right
+            under the navbar otherwise. Sits below the sparkle patch and the
+            blob/Angkor art in paint order (first child, no z-index of its
+            own), so it never covers them. */}
+        <div className="about-page-bg-fill" />
         <div className="about-page-sparkle-patch" />
         <ThemeImage className="about-page-blob" src={heroClouds} alt="" aria-hidden="true" />
       </div>

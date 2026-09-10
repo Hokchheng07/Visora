@@ -101,6 +101,7 @@ export const mentors = [
     name: "Kung Sovannda",
     role: "Mentor",
     photo: mentorVannda,
+    quote:"The darkness night produces the brightest star",
     github: null,
     facebook: null,
     telegram: null,
