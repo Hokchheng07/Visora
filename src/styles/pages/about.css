@@ -80,6 +80,9 @@
 }
 .about-page-art { z-index: 0; }
 .about-page-angkor-layer { z-index: 2; }
+/* Desktop-only (see the media query below for its actual size/position);
+   mobile art never escapes .about-page's own box, so there's no gap to fill. */
+.about-page-bg-fill { display: none; pointer-events: none; }
 
 /* Mobile keeps the blob as a soft wash behind the stacked hero; the desktop
    canvas below repositions it to run up behind the navbar as Figma has it. */
@@ -850,6 +853,22 @@
     background-repeat: repeat;
     background-size: 256px 256px;
     pointer-events: none;
+  }
+  /* Same strip as the sparkle patch above, one layer further back: without
+     this, that strip falls through to the site shell's own background
+     (--surface-base) instead of the page's (--surface-warm) — the two are
+     close enough in tone that the boundary where the navbar's wave cutout
+     ends read as a visible seam. Filling it in --surface-warm here means
+     the cutout and the page background it exposes finally match. */
+  .about-page-bg-fill {
+    display: block;
+    position: absolute;
+    top: -10.4861cqw;
+    left: 0;
+    z-index: -2;
+    width: 100%;
+    height: 12cqw;
+    background: var(--surface-warm);
   }
   /* Figma: Rectangle 231 at frame y=0, i.e. flush to the page top and running
      up behind the navbar. Sized against the 1440-wide canvas, offset up by the
