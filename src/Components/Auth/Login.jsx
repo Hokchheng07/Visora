@@ -62,12 +62,12 @@ export default function Login() {
       </section>
 
       <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-center lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
-        <div className="mx-auto w-full max-w-[480px]">
+        <div className="mx-auto w-full max-w-[480px] lg:max-w-[650px]">
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
             <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
-          <header className="relative mb-8 max-w-[560px] lg:mb-10">
-            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-2 -top-10 hidden w-16 rotate-[45deg] lg:block" />
+          <header className="relative mb-8 max-w-[560px] lg:mb-10 lg:pt-[73px]">
+            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block" />
             <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl">Welcome Back</h1>
             <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7">Login to continue designing with Visora</p>
           </header>
