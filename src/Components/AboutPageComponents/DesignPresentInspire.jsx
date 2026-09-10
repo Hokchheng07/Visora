@@ -18,7 +18,7 @@ function FeatureCard({ feature }) {
         <article className="about-feature-card">
           <ThemeImage className="about-feature-frame" src={feature.artwork} alt="" aria-hidden="true" />
           <div className="about-feature-copy">
-            <h3>{feature.title}</h3>
+            <h3><span>{feature.titleAccent}</span>{feature.titleRest}</h3>
             <p>{feature.description}</p>
           </div>
         </article>

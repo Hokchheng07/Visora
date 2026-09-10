@@ -47,6 +47,8 @@ export const coreValues = [
 export const featureCards = [
   {
     title: "Khmer-Inspired Design Support",
+    titleAccent: "Khmer-Inspired",
+    titleRest: " Design Support",
     description: "Use Khmer elements, patterns, text styles, templates, and cultural illustrations.",
     artwork: purpleFeatureCard,
     pin: purplePin,
@@ -55,6 +57,8 @@ export const featureCards = [
   },
   {
     title: "Design like Canva",
+    titleAccent: "Design",
+    titleRest: " like Canva",
     description: "Drag, drop, and customize templates with easy tools.",
     artwork: blueFeatureCard,
     pin: bluePin,
@@ -63,6 +67,8 @@ export const featureCards = [
   },
   {
     title: "Create Event Backdrops Easily",
+    titleAccent: "Create Event ",
+    titleRest: "Backdrops Easily",
     description: "Make backdrops for weddings, graduations, school events, and more.",
     artwork: pinkFeatureCard,
     pin: pinkPin,
@@ -71,6 +77,8 @@ export const featureCards = [
   },
   {
     title: "Present like PowerPoint",
+    titleAccent: "Present",
+    titleRest: " like PowerPoint",
     description: "Display your backdrop in presentation mode or full screen with ease.",
     artwork: yellowFeatureCard,
     pin: yellowPin,

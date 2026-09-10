@@ -325,12 +325,12 @@
   justify-content: center;
   text-align: center;
 }
-.about-feature-copy h3 { max-width: 230px; font-size: clamp(.95rem, 1.45vw, 1.22rem); font-weight: 650; line-height: 1.25; }
-.about-feature-copy p { max-width: 220px; margin-top: 10px; color: #514b5d; font-size: clamp(.72rem, .88vw, .86rem); line-height: 1.5; }
-.about-feature-hanger-purple h3 { color: #705ae0; }
-.about-feature-hanger-blue h3 { color: #259ac5; }
-.about-feature-hanger-pink h3 { color: #d645bd; }
-.about-feature-hanger-yellow h3 { color: #cc9200; }
+.about-feature-copy h3 { max-width: 230px; color: #1b1b23; font-size: clamp(.95rem, 1.45vw, 1.22rem); font-weight: 650; line-height: 1.25; }
+.about-feature-copy p { max-width: 220px; margin-top: 10px; color: #464554; font-size: clamp(.72rem, .88vw, .86rem); line-height: 1.5; }
+.about-feature-hanger-purple h3 span { color: #6854da; }
+.about-feature-hanger-blue h3 span { color: #0080ff; }
+.about-feature-hanger-pink h3 span { color: #e84af1; }
+.about-feature-hanger-yellow h3 span { color: #ff8000; }
 
 .about-vision { min-height: 820px; }
 .about-vision-grid {
@@ -506,6 +506,36 @@
    the starfield through and puts it back in the same register. */
 .dark .site-shell .about-decor-pin-etch { opacity: .5; }
 .dark .site-shell .about-feature-clothesline { --about-feature-line: var(--color-secondary); }
+.dark .site-shell .about-page { color: #fff; }
+.dark .site-shell .about-hero-copy h1,
+.dark .site-shell .about-story h2,
+.dark .site-shell .about-what h2 { color: #fff; }
+.dark .site-shell .about-hero-copy h1 span,
+.dark .site-shell .about-story h2 span,
+.dark .site-shell .about-story-copy p span,
+.dark .site-shell .about-what h2 span { color: #da4ec9; }
+.dark .site-shell .about-hero-copy > p,
+.dark .site-shell .about-story-copy > p:not(.about-eyebrow) { color: #f2f2f2; }
+.dark .site-shell .about-what-copy > p:not(.about-eyebrow) { color: #e9e9e9; }
+.dark .site-shell .about-values h2 { color: #fff; }
+.dark .site-shell .about-values h2 .about-values-core { color: #da4ec9; }
+.dark .site-shell .about-values h2 .about-values-values { color: #72bff1; }
+.dark .site-shell .about-vision-copy h3,
+.dark .site-shell .about-vision-copy p { color: #fff; }
+.dark .site-shell .about-vision-card-mission .about-vision-copy h3 span { color: #72bff1; }
+.dark .site-shell .about-vision-card-vision .about-vision-copy h3 span { color: #da4ec9; }
+.dark .site-shell .about-mentors .about-section-heading h2,
+.dark .site-shell .about-members .about-section-heading h2,
+.dark .site-shell .about-people .about-section-subtitle { color: #fff; }
+.dark .site-shell .about-mentors .about-section-heading h2 span { color: #72bff1; }
+.dark .site-shell .about-members .about-section-heading h2 span { color: #da4ec9; }
+.dark .site-shell .about-person-card h3,
+.dark .site-shell .about-person-role,
+.dark .site-shell .about-person-quote { color: #000; }
+.dark .site-shell .about-cta-copy h2 { color: #000; }
+.dark .site-shell .about-cta-copy h2 span { color: #fff; }
+.dark .site-shell .about-cta-copy > p:not(.about-eyebrow),
+.dark .site-shell .about-cta-copy > a { color: #000; }
 /* Vision/Mission text stays on the theme tokens: these were forced dark
    because the light frame is a pale card, and the dark frame is not. */
 
@@ -733,13 +763,13 @@
     height: auto;
     max-width: none;
   }
-  .about-decor-burst            { left:  9.86%; top:  7.22%; width:  7.01%; }
+  .about-decor-burst            { left:  6.86%; top:  8.22%; width:  7.01%; }
   /* The design tucks each heading's mark right against the letters it marks:
      the swoosh's top edge sits exactly on the heading's ink bottom. These tops
      are therefore derived from where our type actually renders, not copied
      from the reference's own y — our headings do not land on the same
      baselines as the render, so copying its number leaves a visible gap. */
-  .about-decor-story-underline  { left: 27.01%; top:  8.6496%; width: 13.96%; }
+  .about-decor-story-underline  { left: 24.01%; top: 9.6496%; width: 13.96%; }
   .about-decor-values-underline { left: 74.6528%; top: 16.2392%; width: 13.9583%; }
   /* Offset from the heading, not absolute: the design sets this 41px right of
      "What", and our heading ink starts at x 119 rather than the render's 160. */
@@ -780,7 +810,7 @@
 
   /* Our Story sat 166px left and 77px low. In the design the heading and the
      paragraph are not flush: h2 starts at x=216, the copy at x=126. */
-  .about-story-copy { left: 8.75%; width: 43.33%; }
+  .about-story-copy { left: 5.75%; width: 43.33%; }
   .about-story-copy h2 { margin-left: 14.42%; }
 
   .about-hero {
@@ -993,7 +1023,7 @@
      coordinates. Figma: h2 at x=216/y=734, paragraph at x=126/y=885 — the two
      are deliberately not flush. */
   .about-story {
-    top: 7.69%;
+    top: 8.69%;
     left: 0;
     z-index: 3;
     width: 100%;
@@ -1002,7 +1032,7 @@
   }
   .about-story-copy {
     position: absolute;
-    left: 8.75%;
+    left: 5.75%;
     top: 0;
     width: 43.33%;
     padding: 0;
@@ -1019,7 +1049,7 @@
     line-height: 1.55;
   }
   /* Lands the first paragraph on the design's y=885, 151px below the h2 top. */
-  .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 5.8333cqw; }
+  .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 4.4cqw; }
   .about-story-copy > p:not(.about-eyebrow) ~ p { margin-top: 1.6667cqw; }
   .about-heading-underline { width: 10.0694cqw; margin-top: .5556cqw; }
   .about-story-line { top: -30%; right: -119%; width: 115%; opacity: .72; }
@@ -1128,7 +1158,7 @@
   .about-feature-hanger:nth-child(4) { translate: 2.9861cqw -2.2222cqw; }
   .about-feature-hanger:nth-child(1) { transform: translate(-36%, -10%) rotate(-7deg); }
   .about-feature-hanger:nth-child(2) { transform: translate(7%, 18%) rotate(7deg); }
-  .about-feature-hanger:nth-child(3) { transform: translate(7%, -8.5%) rotate(4deg); }
+  .about-feature-hanger:nth-child(3) { transform: translate(-3%, 2%) rotate(4deg); }
   .about-feature-hanger:nth-child(4) { transform: translate(16.7%, 10%) rotate(6deg); }
   .about-feature-pin { top: calc(var(--about-feature-offset) * .069444cqw - .5556cqw); width: 3.75cqw; }
   /* Pivot follows the padding via the shared custom property. */
