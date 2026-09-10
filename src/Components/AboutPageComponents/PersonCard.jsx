@@ -78,9 +78,9 @@ export default function PersonCard({ person, index = 0 }) {
         <span className={`about-person-role ${featuredRole ? "about-person-role-featured" : ""}`}>
           {person.role}
         </span>
-        {person.quote && (
-          <p className="about-person-quote">{`“${person.quote}”`}</p>
-        )}
+        {/* Rendered even when empty: the quote box reserves three lines so the
+            socials row keeps the same place on every card. */}
+        <p className="about-person-quote">{person.quote ? `“${person.quote}”` : ""}</p>
         {availableSocials.length ? (
           <div className="about-person-socials" aria-label={`${person.name} social links`}>
             {availableSocials.map(([name, { Icon, image }]) => (
