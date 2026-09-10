@@ -828,6 +828,29 @@
     overflow: visible;
     background: transparent;
   }
+  /* .about-page's own bg-sparkle background-image is confined to .about-page's
+     box, which starts at the navbar's height (146px) — below where the navbar
+     wave's cutout already shows the blob art running up behind it. That strip
+     had no sparkle at all (not dim, literally absent), reading as a flat, dot-
+     less "roof" right under the nav. This patch is its own small sparkle tile
+     reaching up to match the blob's own -10.4861cqw excursion, so the same
+     texture is present anywhere the nav's cutout or the blob's translucency
+     exposes it. Its tile phase isn't aligned with .about-page's own sparkle
+     layer below (that would need matching background-position math against a
+     variable navbar height) but speckle noise has no strong repeating edge for
+     a seam to be visible against, so the mismatch doesn't read as a seam. */
+  .about-page-sparkle-patch {
+    position: absolute;
+    top: -10.4861cqw;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 12cqw;
+    background-image: var(--sparkle-url, url("/textures/speckles.svg"));
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    pointer-events: none;
+  }
   /* Figma: Rectangle 231 at frame y=0, i.e. flush to the page top and running
      up behind the navbar. Sized against the 1440-wide canvas, offset up by the
      146px navbar so its flat top edge lands at the very top of the page. */
