@@ -1,6 +1,7 @@
 import { Download, MonitorPlay, Pencil, Save, Undo2, Redo2 } from "lucide-react";
 import { Link } from "react-router";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import { ThemeImage } from '../../theme/ThemeImage';
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { undo, redo } from "../redux/editorSlice.js";
 
@@ -11,7 +12,7 @@ export default function EditorTopBar({ onDisplay, inert }) {
     <header className="editor-topbar" inert={inert}>
       <div className="editor-document">
         <Link to="/" className="editor-home" aria-label="Visora home">
-          <img src={visoraLogo} alt="Visora" width="140" height="68" />
+          <ThemeImage src={visoraLogo} alt="Visora" width="140" height="68" />
         </Link>
         <div className="editor-document-name">
           <span>Untitled-1</span>

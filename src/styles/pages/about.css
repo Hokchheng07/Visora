@@ -423,13 +423,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Anchored to the top rather than centred: the quotes run from one line to
+     three and one mentor has none at all, and centring let that difference
+     slide the name, role pill and socials up and down from card to card. The
+     Leader card (3-line quote) is the reference placement, so the quote box
+     below reserves its three lines on every card and the whole stack lands at
+     the same height throughout the grid. */
+  justify-content: flex-start;
 }
 .about-person-card h3 { margin: 0; color: #211d31; font-size: 1.18rem; font-weight: 650; }
 .about-person-role { margin-top: 10px; padding: 5px 13px; border-radius: 999px; background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); font-size: .72rem; font-weight: 700; }
 .about-person-role-featured { background: color-mix(in srgb, var(--color-secondary) 30%, white); color: #745500; }
 .about-person-quote {
+  /* Always three lines tall, filled or not, so the socials row underneath is
+     pinned to the same y on every card. Longer quotes clamp instead of
+     pushing. */
+  display: -webkit-box;
+  height: calc(3 * 1.5em);
   margin: 14px 0 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   color: #5c5470;
   font-size: .82rem;
   font-style: italic;
@@ -1238,7 +1252,7 @@
   .about-person-placeholder { font-size: 1.9444cqw; }
   .about-person-card h3 { font-size: 1.2556cqw; font-weight: 500; }
   .about-person-role { margin-top: .625cqw; padding: .3472cqw .9028cqw; font-size: .8556cqw; font-weight: 550; }
-  .about-person-quote { margin: .9722cqw 0 0; font-size: .9111cqw; }
+  .about-person-quote { height: calc(3 * 1.5em); margin: .9722cqw 0 0; font-size: .9111cqw; }
   .about-person-social-placeholder { margin-top: 1.1806cqw; font-size: .8cqw; }
   .about-person-socials { gap: .5556cqw; margin-top: .8333cqw; }
   .about-person-socials > a,

@@ -157,6 +157,10 @@ import ctaImage110Dark from '../assets/pages/about/DarkMode/BlobBottomElements/i
 import ctaImage111Light from '../assets/pages/about/misc/bottom-blob/image 111.svg';
 import ctaImage111Dark from '../assets/pages/about/DarkMode/BlobBottomElements/image 111.svg';
 
+// --- Branding ---
+import visoraLogoLight from '../assets/shared/branding/VisoraLogo.png';
+import visoraLogoDark from '../assets/shared/branding/VisoraLogo(DarkMode).png';
+
 export const darkAssets = {
   [light0]: dark0,
   [light1]: dark1,
@@ -232,4 +236,7 @@ export const darkAssets = {
   [ctaImage106Light]: ctaImage106Dark,
   [ctaImage110Light]: ctaImage110Dark,
   [ctaImage111Light]: ctaImage111Dark,
+
+  // --- Branding ---
+  [visoraLogoLight]: visoraLogoDark,
 };

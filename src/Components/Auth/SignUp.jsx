@@ -15,6 +15,7 @@ import { Link } from "react-router";
 import signupPicture from "../../assets/pages/auth/register/SignUp-pic.png";
 import signupCrown from "../../assets/pages/auth/register/SignUpCrown.png";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
 import githubIcon from "../../assets/shared/social/github_light.svg";
 import { EASE } from "../../lib/animations/animations";
@@ -66,7 +67,7 @@ export default function SignUp() {
         <img src={signupPicture} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/75" />
         <Link to="/" className="absolute left-8 top-8 z-10 sm:left-12 sm:top-10">
-          <img src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
+          <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
         </Link>
         <div className="absolute bottom-10 left-8 z-10 max-w-[680px] text-white sm:bottom-14 sm:left-12 lg:left-16 lg:bottom-16">
           <h2 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">Begin Your Journey</h2>
@@ -79,7 +80,7 @@ export default function SignUp() {
       <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
         <div className="mx-auto w-full max-w-[480px] lg:max-w-[650px]">
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
-            <img src={visoraLogo} alt="Visora" className="h-auto w-36" />
+            <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
           <header className="relative mb-8 max-w-[560px] lg:mb-10">
             <img src={signupCrown} alt="" aria-hidden="true" className="pointer-events-none absolute -right-14 -top-14 hidden w-24 rotate-[45deg] lg:block" />
