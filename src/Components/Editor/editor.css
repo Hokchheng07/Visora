@@ -113,6 +113,12 @@
 .editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 104px 300px minmax(0, 1fr); gap: 16px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
 /* Collapsing the panel track lets the workspace reflow without measuring anything. */
 .editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
+/* The inspector is a real fourth track rather than an overlay, so the sheet
+   reflows beside it instead of hiding underneath it. Only while one timer is
+   selected — see the breakpoint note further down, the canvas runs out of room
+   long before the 760px layout flip. */
+.editor-body.has-inspector { grid-template-columns: 104px 300px minmax(0, 1fr) 300px; }
+.editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 300px; }
 .editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
 .editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
 .editor-tool-button { display: flex; flex: none; min-height: 84px; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: var(--editor-ink); cursor: pointer; transition: background-color 150ms ease, color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
@@ -360,6 +366,97 @@
 .editor-context-menu { position: fixed; z-index: 70; display: flex; flex-direction: column; min-width: 248px; padding: 6px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-float); box-shadow: 0 12px 34px rgb(var(--editor-shadow) / .22); }
 
 
+/* ---------------------------------------------------------------------------
+ * Timer element. Every size here comes from TimerArtwork in cqw, so the face
+ * scales with the sheet; this file owns only layout and the control tones.
+ * The buttons are drawn at every call site but only take the pointer inside
+ * Display mode — everywhere else the click belongs to selecting the element.
+ * ------------------------------------------------------------------------ */
+.editor-timer-art { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; text-align: center; container-type: size; }
+.editor-timer-digits { font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.01em; white-space: nowrap; }
+/* A completion message replaces the digits, so it inherits the same box and has
+   to wrap rather than push the controls off the element. Three lines is a
+   deliberate ceiling: the type scales down against the timer's own box, then
+   clips cleanly instead of silently displacing the controls. */
+.editor-timer-message { display: -webkit-box; flex: 1 1 auto; min-height: 0; max-width: 100%; overflow: hidden; font-size: min(1em, 32cqh, 10cqw); font-weight: 700; line-height: 1.12; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
+.editor-timer-controls { display: flex; flex: none; align-items: center; justify-content: center; flex-wrap: wrap; }
+.editor-timer-button { display: inline-flex; align-items: center; justify-content: center; border: 0; font: inherit; font-weight: 600; line-height: 1; color: white; cursor: default; white-space: nowrap; }
+.editor-timer-button.is-start { background: #2F7A55; }
+.editor-timer-button.is-pause { background: #C98A12; }
+.editor-timer-button.is-stop { background: #C4443E; }
+.editor-timer-button.is-reset { background: #6B6575; }
+.editor-timer-button svg { flex: none; width: 1em; height: 1em; }
+/* Inert is the default: the artwork is shared with thumbnails and the editor
+   canvas, where a click has to fall through to selection. */
+.editor-timer-art:not(.is-live) .editor-timer-button { pointer-events: none; }
+.editor-timer-art.is-live .editor-timer-button { cursor: pointer; pointer-events: auto; }
+.editor-timer-art.is-live .editor-timer-button:disabled { opacity: .4; cursor: not-allowed; }
+/* The format previews in the Timer panel are now the format choice. */
+.editor-timer-preview { display: block; width: 100%; border: 1px solid transparent; cursor: pointer; text-align: center; }
+.editor-timer-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+
+/* ---------------------------------------------------------------------------
+ * Timer inspector — the fourth column. Labelled fields are right here even
+ * though they were wrong in the toolbar: a vertical column has the room to say
+ * what each control is, and hiding those names behind icons would be worse.
+ * ------------------------------------------------------------------------ */
+.editor-inspector { display: flex; flex-direction: column; gap: 20px; min-width: 0; min-height: 0; padding: 20px 18px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); }
+.editor-inspector-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.editor-inspector-group { display: flex; flex-direction: column; gap: 9px; }
+.editor-inspector-group h3 { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--editor-muted); }
+.editor-inspector-hint { color: var(--editor-muted); font-size: 11px; line-height: 1.45; }
+.editor-inspector-select, .editor-inspector-input { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 13px; }
+.editor-inspector-select:disabled { opacity: .55; }
+.editor-inspector-input::placeholder { color: var(--editor-muted); }
+
+/* Three fields, not one millisecond box — HH:MM:SS is how a presenter thinks
+   about it, and each part clamps on its own. */
+.editor-duration { display: flex; gap: 7px; }
+.editor-duration label { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.editor-duration input { width: 100%; height: 40px; padding: 0; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-duration span { color: var(--editor-muted); font-size: 10px; font-weight: 600; letter-spacing: .06em; }
+
+.editor-inspector-swatches { display: flex; gap: 7px; }
+.editor-inspector-swatches button { width: 34px; height: 34px; padding: 0; border: 1px solid color-mix(in srgb, var(--editor-ink) 14%, transparent); border-radius: 9px; cursor: pointer; }
+.editor-inspector-swatches button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Checkbox kept as the real control and visually hidden, so the switch stays
+   keyboard-operable and announces its state without any ARIA of its own. */
+.editor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--editor-ink); cursor: pointer; }
+.editor-toggle.is-locked { cursor: default; color: var(--editor-muted); }
+.editor-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.editor-toggle-track { position: relative; flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--editor-border); transition: background-color 140ms ease; }
+.editor-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--editor-raised); box-shadow: 0 1px 3px rgb(var(--editor-shadow) / .25); transition: left 140ms ease; }
+.editor-toggle input:checked ~ .editor-toggle-track { background: var(--color-primary); }
+.editor-toggle input:checked ~ .editor-toggle-track::after { left: 18px; }
+.editor-toggle input:disabled ~ .editor-toggle-track { opacity: .5; }
+.editor-toggle input:focus-visible ~ .editor-toggle-track { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+
+.editor-inspector-xy { display: flex; gap: 7px; }
+.editor-inspector-xy label { flex: 1; display: flex; align-items: center; gap: 5px; height: 38px; padding: 0 9px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); }
+.editor-inspector-xy span { color: var(--editor-muted); font-size: 11px; font-weight: 600; }
+.editor-inspector-xy input { min-width: 0; width: 100%; border: 0; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; }
+.editor-inspector-xy small { color: var(--editor-muted); font-size: 10px; }
+
+.editor-inspector-reset { height: 40px; border: 1px solid var(--editor-border); border-radius: 9px; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* Exit confirmation. Sits above the presentation because it may be raised
+   after the browser has already dropped out of fullscreen — the overlay is
+   still the presentation at that point, and this asks whether to stay in it. */
+/* Barely-there veil on purpose. This dialog can be raised mid-ceremony by a
+   stray Escape, and the audience is watching — dimming the whole backdrop to
+   grey would make a private "are you sure?" into a very public one. Enough tint
+   to read as modal, not enough to take the design off the screen. */
+.editor-exit-scrim { position: fixed; z-index: 60; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(8 6 14 / .14); }
+.editor-exit-prompt { display: flex; flex-direction: column; gap: 14px; width: min(420px, 100%); padding: 26px 26px 22px; border-radius: 18px; background: var(--editor-float); box-shadow: 0 0 0 1px rgb(255 255 255 / .10), 0 30px 70px rgb(0 0 0 / .60); }
+.editor-exit-prompt h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--editor-ink); }
+.editor-exit-prompt p { color: var(--editor-muted); font-size: 14px; line-height: 1.55; }
+.editor-exit-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.editor-exit-actions button { flex: 1 1 auto; min-width: 140px; height: 44px; padding-inline: 16px; border-radius: 10px; border: 1px solid var(--editor-border); background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+/* Keeping the presentation is the safe choice, so it carries the weight. */
+.editor-exit-keep { border-color: var(--color-primary) !important; background: var(--color-primary) !important; color: white !important; }
+.editor-exit-stop { color: var(--editor-danger) !important; }
+
 /* Display mode: the backdrop as an audience sees it. Black surround rather
    than the editor's grey, because this is what reaches a projector or TV. */
 .editor-display { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; background: #000; }
@@ -463,6 +560,28 @@
 @media (max-width: 420px) {
   .editor-topbar-actions > button:not(.editor-export) { display: none; }
 }
+/* The inspector stops being a column here. A fourth 300px track plus the rail
+   and the tool panel leaves the sheet unusable long before the 760px layout
+   flip — roughly 309px of canvas at 1101px, and almost nothing just above 760.
+   It becomes an overlay from this width down, so the canvas keeps its room. */
+@media (max-width: 1200px) {
+  .editor-body.has-inspector,
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 300px minmax(0, 1fr); }
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
+  .editor-inspector { position: fixed; z-index: 30; top: 0; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); }
+}
+@media (max-width: 1100px) {
+  .editor-body.has-inspector { grid-template-columns: 92px 276px minmax(0, 1fr); }
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
+}
+/* Narrowest layout: the property bar already owns the bottom edge here, so the
+   inspector takes the whole sheet rather than stacking a second bar under it. */
+@media (max-width: 760px) {
+  .editor-body.has-inspector,
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 68px minmax(0, 1fr); }
+  .editor-inspector { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .editor-tool-button { transition: none; }
   .editor-tool-button:active, .editor-ctl:not(:disabled):active { transform: none; }

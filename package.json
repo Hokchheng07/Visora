@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test src/Components/Editor/*.test.js",
+    "test": "npm run test:unit && npm run test:render",
+    "test:unit": "node --test src/Components/Editor/*.test.js",
+    "test:render": "vitest run src/Components/Editor/*.test.jsx --environment jsdom",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import reducer, { elementChanged, elementInserted, elementNudged, elementsSelected, pageAdded, pageMoved,
-  selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, undo } from "../redux/editorSlice.js";
+  selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, timerChanged,
+  timerInserted, undo } from "../redux/editorSlice.js";
 import { bounds, elementsInRect, scaleSelection, selectionBounds, snapSelectionDelta } from "./elementGeometry.js";
 import { compileAnimation } from "./animationPresets.js";
-import { hydrateDocument, loadLocalDocument, saveLocalDocument, serializeDocument } from "./editorDocument.js";
+import { EDITOR_SCHEMA_VERSION, TIMER_MAX_MS, TIMER_MIN_MS, defaultTimer, hydrateDocument, loadLocalDocument,
+  migrateDocument, normalizeTimer, saveLocalDocument, serializeDocument, validateDocument } from "./editorDocument.js";
+import { controlState, formatDuration, startStopRole } from "./timerFormat.js";
 
 function send(actions) { return actions.reduce((state, action) => reducer(state, action), undefined); }
 
@@ -109,4 +112,131 @@ test("faded text keeps its opacity through a save and reload", () => {
   assert.equal(restored.opacity, 0.5);
   assert.equal(restored.content, editor.pages[0].elements[0].content);
   assert.equal(restored.letterSpacing, 4);
+});
+
+test("a timer survives save and reload with every configured field intact", () => {
+  let state = reducer(undefined, { type: "init" });
+  state = reducer(state, timerInserted("MM:SS"));
+  state = reducer(state, timerChanged({
+    durationMs: 90 * 60 * 1000,
+    onComplete: { sound: "bell", message: "\u179f\u17bc\u1798\u17a2\u179a\u1782\u17bb\u178e" },
+    controls: { reset: false },
+  }));
+  state = reducer(state, elementChanged({ fill: "#FFC21C", fontSize: 144 }));
+
+  const before = state.pages[0].elements[0];
+  const restored = hydrateDocument(serializeDocument(state)).pages[0].elements[0];
+
+  assert.equal(restored.type, "timer");
+  assert.equal(restored.timer.durationMs, 90 * 60 * 1000);
+  assert.equal(restored.timer.format, "MM:SS");
+  assert.equal(restored.timer.onComplete.sound, "bell");
+  // A Khmer completion message has to round-trip byte for byte.
+  assert.equal(restored.timer.onComplete.message, before.timer.onComplete.message);
+  assert.equal(restored.timer.controls.reset, false);
+  assert.equal(restored.timer.controls.pauseResume, true);
+  assert.equal(restored.fill, "#FFC21C");
+  assert.equal(restored.fontSize, 144);
+  assert.equal(restored.opacity, 1);
+  assert.equal(Math.round(restored.w), Math.round(before.w));
+});
+
+test("version-1 documents still open instead of being replaced by a blank one", () => {
+  // Exactly what is sitting in a user's localStorage today.
+  const v1 = {
+    clientSchemaVersion: 1,
+    uuid: "backdrop-local", name: "Graduation 2026", version: 0,
+    orientation: "LANDSCAPE", canvas: { width: 1920, height: 1080 },
+    pages: [{
+      uuid: "page-a", pageNumber: 1, background: { type: "COLOR", value: "#FFFFFF" },
+      components: [{
+        uuid: "t1", type: "TEXT", content: "Welcome",
+        position: { x: 100, y: 100 }, size: { width: 900, height: 180 },
+        rotation: 0, layerIndex: 0, locked: false, visible: true,
+        styles: { fontFamily: "Poppins", fontSize: 120, color: "#29243a", opacity: 1 },
+      }],
+    }],
+  };
+  const opened = validateDocument(v1);
+  assert.ok(opened, "a version-1 document must not validate to null");
+  assert.equal(opened.clientSchemaVersion, EDITOR_SCHEMA_VERSION);
+  assert.equal(opened.name, "Graduation 2026");
+  assert.equal(opened.pages[0].components[0].content, "Welcome");
+
+  // A document from a *newer* client is the one case we refuse, rather than guess.
+  assert.equal(migrateDocument({ ...v1, clientSchemaVersion: EDITOR_SCHEMA_VERSION + 1 }), null);
+});
+
+test("timer settings are clamped and runtime state is never persisted", () => {
+  assert.equal(normalizeTimer({ durationMs: 0 }).durationMs, TIMER_MIN_MS);
+  assert.equal(normalizeTimer({ durationMs: 99 * 60 * 60 * 1000 }).durationMs, TIMER_MAX_MS);
+  assert.equal(normalizeTimer({ durationMs: "nonsense" }).durationMs, defaultTimer().durationMs);
+  assert.equal(normalizeTimer({ onComplete: { sound: "airhorn" } }).onComplete.sound, "chime");
+  assert.equal(normalizeTimer(undefined).mode, "COUNTDOWN");
+  // Start has no toggle while there is no autoplay, so it cannot be switched off.
+  // Start/Stop has no toggle: hiding it would leave a timer that can neither
+  // be started nor stopped from the backdrop.
+  assert.equal(normalizeTimer({ controls: { startStop: false } }).controls.startStop, true);
+  // A document written under the earlier four-key draft still opens, and a
+  // hidden Pause stays hidden rather than silently coming back.
+  assert.equal(normalizeTimer({ controls: { pause: false } }).controls.pauseResume, false);
+  assert.equal(normalizeTimer({ controls: { start: true, stop: true } }).controls.stop, undefined);
+
+  // Runtime keys a live timer would own must not reach the saved document, even
+  // if something upstream attaches them to the element.
+  const polluted = {
+    documentId: "d", title: "T", version: 0,
+    pages: [{ id: "p1", elements: [{
+      id: "t1", type: "timer", x: 0, y: 0, w: 900, h: 280, rotation: 0,
+      fill: "#705AE0", opacity: 1, fontFamily: "Poppins", fontSize: 120,
+      timer: { ...defaultTimer(), remainingMs: 1234, status: "running", audio: "playing" },
+    }] }],
+  };
+  const saved = serializeDocument(polluted).pages[0].components[0].timer;
+  assert.equal(saved.remainingMs, undefined);
+  assert.equal(saved.status, undefined);
+  assert.equal(saved.audio, undefined);
+  assert.equal(saved.durationMs, defaultTimer().durationMs);
+
+  let state = reducer(undefined, { type: "init" });
+  state = reducer(state, timerInserted());
+  const reset = reducer(state, timerChanged({ durationMs: 0 }));
+  assert.equal(reset.pages[0].elements[0].timer.durationMs, TIMER_MIN_MS);
+});
+
+test("inserting a timer is one undo step and lands selected", () => {
+  let state = reducer(undefined, { type: "init" });
+  const historyBefore = state.past.length;
+  state = reducer(state, timerInserted());
+  assert.equal(state.pages[0].elements.length, 1);
+  assert.equal(state.selectedId, state.pages[0].elements[0].id);
+  assert.equal(state.past.length, historyBefore + 1);
+  assert.deepEqual(reducer(state, undo()).pages[0].elements, []);
+});
+
+test("timer durations format both faces from zero through the 24-hour ceiling", () => {
+  assert.equal(formatDuration(0), "00:00:00");
+  assert.equal(formatDuration(1000), "00:00:01");
+  assert.equal(formatDuration(3_661_000), "01:01:01");
+  assert.equal(formatDuration(TIMER_MAX_MS), "24:00:00");
+  assert.equal(formatDuration(0, "MM:SS"), "00:00");
+  assert.equal(formatDuration(90 * 60 * 1000, "MM:SS"), "90:00");
+  assert.equal(formatDuration(TIMER_MAX_MS, "MM:SS"), "1440:00");
+  assert.equal(formatDuration(-1000), "00:00:00");
+});
+
+test("timer control availability follows the ready, running, paused and completed contract", () => {
+  /* Three positions. The first is always live because it is Start before the
+     countdown begins and Stop after; Pause/Resume only matters while there is
+     a countdown to interrupt. */
+  assert.deepEqual(controlState("ready"), { startStop: true, pauseResume: false, reset: true });
+  assert.deepEqual(controlState("running"), { startStop: true, pauseResume: true, reset: true });
+  assert.deepEqual(controlState("paused"), { startStop: true, pauseResume: true, reset: true });
+  assert.deepEqual(controlState("completed"), { startStop: true, pauseResume: false, reset: true });
+
+  // Position one's identity, which is what makes a separate Stop unnecessary.
+  assert.equal(startStopRole("ready"), "start");
+  assert.equal(startStopRole("running"), "stop");
+  assert.equal(startStopRole("paused"), "stop");
+  assert.equal(startStopRole("completed"), "stop");
 });
