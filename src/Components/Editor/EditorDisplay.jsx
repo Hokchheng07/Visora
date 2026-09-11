@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
 import EditorDisplayBar from "./EditorDisplayBar";
-import { exitFullscreen, useFullscreen } from "./useFullscreen";
+import { exitFullscreen, requestFullscreen, useFullscreen } from "./useFullscreen";
 import { useIdlePointer } from "./useIdlePointer";
 import { StaticElement } from "./EditorElement.jsx";
+import DisplayTimer from "./DisplayTimer.jsx";
+import EditorExitPrompt from "./EditorExitPrompt.jsx";
 import { compileAnimation } from "./animationPresets.js";
 
 const NEXT_KEYS = ["ArrowRight", "ArrowDown", "PageDown", " "];
@@ -16,24 +18,47 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
   const isIdle = useIdlePointer();
   const reduceMotion = useReducedMotion();
   const [liveAnimations, setLiveAnimations] = useState(0);
+  const [exitPrompt, setExitPrompt] = useState(null);
+  /* Which timers have been started, paused or finished. Only a touched timer
+     earns a confirmation — leaving an untouched presentation should just leave. */
+  const touchedTimers = useRef(new Set());
 
-  const goTo = useCallback(
-    (index) => setSlide(Math.max(0, Math.min(pages.length - 1, index))),
-    [pages.length],
-  );
+  const noteTimer = useCallback((id, touched) => {
+    if (touched) touchedTimers.current.add(id);
+    else touchedTimers.current.delete(id);
+  }, []);
 
-  // Leaving fullscreen by the browser's own Escape or F11 should close the
-  // overlay too, otherwise the editor would stay hidden behind it.
-  useFullscreen(onClose);
+  const goTo = useCallback((index) => {
+    // Leaving a page resets its timers, so nothing is left running unseen.
+    touchedTimers.current.clear();
+    setSlide(Math.max(0, Math.min(pages.length - 1, index)));
+  }, [pages.length]);
 
-  const close = useCallback(() => {
+  const leave = useCallback(() => {
+    touchedTimers.current.clear();
     exitFullscreen();
     onClose();
   }, [onClose]);
 
+  /* One gate for every way out — the timer's Stop button, the display bar's
+     exit, Escape, and the browser dropping fullscreen on its own. A timer that
+     was never started needs no confirmation; there is nothing to interrupt. */
+  const requestStop = useCallback(() => {
+    if (!touchedTimers.current.size) { leave(); return; }
+    setExitPrompt(true);
+  }, [leave]);
+
+  /* Escape ends the browser's fullscreen before any of our code runs, and that
+     cannot be prevented without Keyboard Lock — which behaves inconsistently
+     across browsers and, on Opera, took the whole window out of fullscreen.
+     So the exit is not fought: the overlay stays up, asks, and "Keep
+     presenting" is the click the browser needs to restore fullscreen. */
+  useFullscreen(requestStop);
+
+
   useEffect(() => {
     function handleKeyDown(event) {
-      if (event.key === "Escape") return close();
+      if (event.key === "Escape") return requestStop();
 
       let next = null;
       if (NEXT_KEYS.includes(event.key)) next = slide + 1;
@@ -49,7 +74,7 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [close, goTo, pages.length, slide]);
+  }, [requestStop, goTo, pages.length, slide]);
 
   // Take focus so keys land here and assistive tech enters the dialog.
   // Handing focus back is deliberately the opener's job (Editor.jsx): the
@@ -104,15 +129,32 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
     >
       <div className="editor-display-frame">
         <div className="editor-display-page" data-page-id={pages[slide]?.id}>
-          {pages[slide]?.elements.map((element) => <StaticElement key={element.id} element={element} />)}
+          {pages[slide]?.elements.map((element) => (element.type === "timer"
+            ? <DisplayTimer key={element.id} element={element} onRequestStop={requestStop} onRunningChange={noteTimer} />
+            : <StaticElement key={element.id} element={element} />))}
         </div>
       </div>
       <EditorDisplayBar
         pages={pages}
         slide={slide}
         onSlideChange={goTo}
-        onClose={close}
+        onClose={requestStop}
       />
+      {exitPrompt && (
+        <EditorExitPrompt
+          onKeep={() => {
+            setExitPrompt(null);
+            /* Restore fullscreen whenever it is gone, not only when the
+               fullscreenchange path raised this. Escape can arrive as a plain
+               keydown *and* as a fullscreen exit, and whichever landed first
+               used to decide whether the presentation came back — leaving the
+               presenter stranded in a window. This click is the user gesture
+               the browser requires, so it is the one chance to recover. */
+            if (!document.fullscreenElement) requestFullscreen(rootRef.current);
+          }}
+          onStop={() => { setExitPrompt(null); leave(); }}
+        />
+      )}
       {import.meta.env.DEV && <span className="editor-animation-counter" aria-live="polite">Animations: {liveAnimations}</span>}
     </div>
   );

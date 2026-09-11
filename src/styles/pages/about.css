@@ -413,6 +413,9 @@
   border-radius: 50%;
   object-fit: cover;
 }
+.about-mentor-grid .about-person-card:nth-child(2) .about-person-photo {
+  object-position: center 8%;
+}
 .about-person-placeholder {
   background: rgb(255 255 255 / .78);
   color: #2f2850;

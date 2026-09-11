@@ -56,7 +56,7 @@ export default function EditorShapeTools() {
 
       <div className="editor-toolbar-group">
         <span className="editor-selected-name">
-          {multiple ? `${selectedIds.length} selected` : text ? "Text" : shapeName(element.shape)}
+          {multiple ? `${selectedIds.length} selected` : text ? "Text" : element.type === "timer" ? "Timer" : shapeName(element.shape)}
         </span>
       </div>
 
@@ -118,7 +118,7 @@ export default function EditorShapeTools() {
         </>
       )}
 
-      {!text && !multiple && (
+      {!text && !multiple && element.type !== "timer" && (
         <div className="editor-toolbar-group">
           <SwatchButton label="Fill" value={element.fill} disabled={busy}
             onChange={(fill) => dispatch(elementChanged({ fill }))} />

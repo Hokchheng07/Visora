@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { elementStyle } from "./elementGeometry.js";
 import { shapeDefinition, shapeName } from "./shapeCatalog.js";
+import TimerArtwork from "./TimerArtwork.jsx";
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
 import { useAppDispatch } from "../redux/hook.js";
@@ -14,6 +15,7 @@ export function ShapeArtwork({ element }) {
 }
 
 export function ElementArtwork({ element, editable = false, onCommit, onCancel, editRef }) {
+  if (element.type === "timer") return <TimerArtwork element={element} />;
   if (element.type !== "text") return <ShapeArtwork element={element} />;
   const style = { color: element.fill, opacity: element.opacity, fontFamily: element.fontFamily, fontSize: `${element.fontSize / 19.2}cqw`,
     fontWeight: element.fontWeight, fontStyle: element.fontStyle, textAlign: element.textAlign, lineHeight: element.lineHeight,
@@ -51,7 +53,7 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
           so dragging a rotated shape still follows the screen's axes. */}
       <div className="editor-element-rotation" style={{ rotate: `${element.rotation}deg` }}>
         <div ref={triggerRef} className="editor-element-hit" role="button" tabIndex={0}
-          aria-label={element.type === "text" ? `Text: ${element.content}` : `${shapeName(element.shape)} shape`} aria-pressed={selected}
+          aria-label={element.type === "text" ? `Text: ${element.content}` : element.type === "timer" ? "Countdown timer" : `${shapeName(element.shape)} shape`} aria-pressed={selected}
           onPointerDown={(event) => { if (event.button === 0) event.stopPropagation(); }}
           onDoubleClick={(event) => { if (element.type === "text") { event.stopPropagation(); setEditing(true); } }}
           onKeyDown={(event) => {

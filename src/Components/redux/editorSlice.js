@@ -1,6 +1,7 @@
 import { createSlice, current, nanoid } from "@reduxjs/toolkit";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/elementGeometry.js";
 import { shapeCatalog } from "../Editor/shapeCatalog.js";
+import { defaultTimer, normalizeTimer } from "../Editor/editorDocument.js";
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
@@ -119,6 +120,38 @@ const editorSlice = createSlice({
         state.pages[state.currentPage].elements.push(element); setSelection(state, [payload.id]);
       },
     },
+    timerInserted: {
+      prepare: (format = "HH:MM:SS") => ({ payload: { format, id: nanoid() } }),
+      reducer(state, { payload }) {
+        if (state.gesture) return;
+        remember(state);
+        const w = 900, h = 460;
+        state.pages[state.currentPage].elements.push({
+          id: payload.id, type: "timer",
+          x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h, rotation: 0,
+          fill: "#705AE0", opacity: 1, fontFamily: "Poppins", fontSize: 120,
+          locked: false, visible: true,
+          timer: defaultTimer(payload.format),
+        });
+        setSelection(state, [payload.id]);
+      },
+    },
+    /* Settings only. Nothing about a running clock reaches this reducer — live
+       state belongs to DisplayTimer, and putting it here would re-serialise the
+       whole document every tick and bury undo under countdown frames. */
+    timerChanged(state, { payload }) {
+      const element = selected(state);
+      if (!element || element.type !== "timer" || state.gesture) return;
+      const next = normalizeTimer({
+        ...element.timer,
+        ...payload,
+        onComplete: { ...element.timer?.onComplete, ...(payload.onComplete || {}) },
+        controls: { ...element.timer?.controls, ...(payload.controls || {}) },
+      });
+      if (JSON.stringify(element.timer) === JSON.stringify(next)) return;
+      remember(state);
+      element.timer = next;
+    },
     elementDeleted(state) {
       if (!state.selectedIds.length || state.gesture) return;
       remember(state); const ids = new Set(state.selectedIds);
@@ -213,7 +246,7 @@ const editorSlice = createSlice({
 });
 
 export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageAnimationChanged,
-  elementSelected, elementsSelected, elementInserted, textInserted, elementDeleted, elementChanged, elementsChanged,
+  elementSelected, elementsSelected, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, elementReordered, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo } = editorSlice.actions;
 export default editorSlice.reducer;

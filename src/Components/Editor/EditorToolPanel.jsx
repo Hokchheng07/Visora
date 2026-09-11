@@ -9,7 +9,7 @@ import { usePanelDragInsert } from "./usePanelDragInsert.js";
 import EditorLayersPanel from "./EditorLayersPanel.jsx";
 import { ShapeArtwork } from "./EditorElement.jsx";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { elementChanged, pageAnimationChanged, textInserted } from "../redux/editorSlice.js";
+import { elementChanged, pageAnimationChanged, textInserted, timerInserted } from "../redux/editorSlice.js";
 import { animationPresets, compileAnimation } from "./animationPresets.js";
 
 // Templates stay placeholders until the template API is connected.
@@ -113,13 +113,26 @@ function UploadPanel() {
   );
 }
 
+/* The two previews were always the format choice — they just had nothing behind
+   them. Picking one and pressing Add inserts a plain timer; decoration comes
+   from Elements and Text like any other page. */
 function TimerPanel() {
+  const dispatch = useAppDispatch();
+  const [format, setFormat] = useState("HH:MM:SS");
   return (
     <>
       <p className="editor-panel-description">A countdown for every occasion.</p>
-      <div className="editor-timer-preview"><span>00 : 00 : 00</span><small>HOURS <span>MINUTES</span> SECONDS</small></div>
-      <div className="editor-timer-preview light"><span>00:00</span><small>MINUTES & SECONDS</small></div>
-      <button type="button" disabled className="editor-panel-primary">Add a timer</button>
+      <button type="button" className={`editor-timer-preview${format === "HH:MM:SS" ? " is-active" : ""}`}
+        aria-pressed={format === "HH:MM:SS"} onClick={() => setFormat("HH:MM:SS")}>
+        <span>00 : 00 : 00</span><small>HOURS <span>MINUTES</span> SECONDS</small>
+      </button>
+      <button type="button" className={`editor-timer-preview light${format === "MM:SS" ? " is-active" : ""}`}
+        aria-pressed={format === "MM:SS"} onClick={() => setFormat("MM:SS")}>
+        <span>00:00</span><small>MINUTES &amp; SECONDS</small>
+      </button>
+      <button type="button" className="editor-panel-primary" onClick={() => dispatch(timerInserted(format))}>
+        Add a timer
+      </button>
     </>
   );
 }

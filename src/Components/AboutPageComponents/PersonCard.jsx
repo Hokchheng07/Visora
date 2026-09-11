@@ -63,7 +63,15 @@ export default function PersonCard({ person, index = 0 }) {
       <div className="about-person-portrait" aria-label={`${person.name}, ${person.role}`}>
         <ThemeImage className="about-person-portrait-blob" src={cardTheme.blob} alt="" aria-hidden="true" />
         {person.photo ? (
-          <ThemeImage className="about-person-photo" src={person.photo} alt={`${person.name}, ${person.role}`} />
+          <ThemeImage
+            className="about-person-photo"
+            src={person.photo}
+            alt={`${person.name}, ${person.role}`}
+            style={{
+              ...(person.photoPosition ? { objectPosition: person.photoPosition } : {}),
+              ...person.photoStyle,
+            }}
+          />
         ) : (
           <div className="about-person-placeholder" aria-hidden="true">
             {getInitials(person.name)}

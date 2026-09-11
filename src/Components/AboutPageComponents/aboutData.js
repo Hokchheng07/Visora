@@ -101,6 +101,7 @@ export const mentors = [
     name: "Kung Sovannda",
     role: "Mentor",
     photo: mentorVannda,
+    photoPosition: "center 17%",
     quote:"The darkness night produces the brightest star",
     github: null,
     facebook: null,
@@ -111,8 +112,8 @@ export const mentors = [
 /* `quote` is optional; cards without one omit the quote line. */
 export const members = [
   {
-    name: "Chhun HokChheng",
-    role: "Leader",
+    name: "Chhun Hokchheng",
+    role: "FrontEnd Developer",
     photo: photoHokChheng,
     quote:
       "If you are feeling disheartened, that you are somehow not enough, set your heart ablaze",
@@ -122,7 +123,7 @@ export const members = [
   },
   {
     name: "Men Senghak",
-    role: "Sub-leader",
+    role: "BackEnd Developer",
     photo: photoSenghak,
     quote: "You may delay, but time will not.",
     github: null,
@@ -131,7 +132,7 @@ export const members = [
   },
   {
     name: "Lay Lily",
-    role: "Member",
+    role: "FrontEnd Developer",
     photo: photoLily,
     quote: "Just because you don't give up doesn't mean you will make it",
     github: null,
@@ -140,7 +141,7 @@ export const members = [
   },
   {
     name: "Chit Chimy",
-    role: "Member",
+    role: "FrontEnd Developer",
     photo: photoChimy,
     quote: "Small steps every day lead to big results.",
     github: null,
@@ -149,7 +150,7 @@ export const members = [
   },
   {
     name: "Nin Bora",
-    role: "Member",
+    role: "FrontEnd Developer",
     photo: photoBora,
     quote: "Without music, life would be a mistake.",
     github: null,
@@ -158,7 +159,7 @@ export const members = [
   },
   {
     name: "Von Sovannrith",
-    role: "Member",
+    role: "BackEnd Developer",
     photo: photoSovannrith,
     quote: "Without music, life would be a mistake.",
     github: null,
@@ -167,7 +168,7 @@ export const members = [
   },
   {
     name: "Borey Sothearith",
-    role: "Member",
+    role: "BackEnd Developer",
     photo: photoSothearith,
     quote: "Every bug is a lesson. Every solution is progress.",
     github: null,
@@ -176,7 +177,7 @@ export const members = [
   },
   {
     name: "Kao Sengheang",
-    role: "Member",
+    role: "FrontEnd Developer",
     photo: photoSengheang,
     quote: "Rain feel like home",
     github: null,
