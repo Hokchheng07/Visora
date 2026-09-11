@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppStore } from "../redux/hook.js";
-import { elementDeleted, elementNudged, elementSelected, undo, redo } from "../redux/editorSlice.js";
+import { elementDeleted, elementNudged, elementSelected, elementsSelected, selectionCopied, selectionPasted, undo, redo } from "../redux/editorSlice.js";
 
 export function useEditorKeyboard(isDisplayOpen, shellRef) {
   const dispatch = useAppDispatch(), store = useAppStore();
@@ -17,7 +17,12 @@ export function useEditorKeyboard(isDisplayOpen, shellRef) {
         event.preventDefault(); dispatch(event.shiftKey ? redo() : undo()); return;
       }
       if (command && event.key.toLowerCase() === "y") { event.preventDefault(); dispatch(redo()); return; }
-      if (!state.selectedId) return;
+      if (command && event.key.toLowerCase() === "a") { event.preventDefault(); dispatch(elementsSelected(state.pages[state.currentPage].elements.map((element) => element.id))); return; }
+      if (command && event.key.toLowerCase() === "v") { event.preventDefault(); dispatch(selectionPasted()); return; }
+      if (command && event.key.toLowerCase() === "c" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); return; }
+      if (command && event.key.toLowerCase() === "x" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(elementDeleted()); return; }
+      if (command && event.key.toLowerCase() === "d" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(selectionPasted()); return; }
+      if (!state.selectedIds.length) return;
       if (event.key === "Escape") { event.preventDefault(); dispatch(elementSelected(null)); return; }
       if (event.key === "Delete" || event.key === "Backspace") { event.preventDefault(); dispatch(elementDeleted()); return; }
       if (command || event.altKey || !event.key.startsWith("Arrow") || event.target.closest("[role='tablist'], .editor-resize-handle, .editor-rotate-handle")) return;

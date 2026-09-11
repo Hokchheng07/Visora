@@ -13,6 +13,117 @@ export function bounds(element) {
   return { left: cx - halfW, right: cx + halfW, top: cy - halfH, bottom: cy + halfH, halfW, halfH };
 }
 
+export function selectionBounds(elements) {
+  if (!elements.length) return null;
+  const boxes = elements.map(bounds);
+  const left = Math.min(...boxes.map((box) => box.left));
+  const right = Math.max(...boxes.map((box) => box.right));
+  const top = Math.min(...boxes.map((box) => box.top));
+  const bottom = Math.max(...boxes.map((box) => box.bottom));
+  return { left, right, top, bottom, x: left, y: top, w: right - left, h: bottom - top };
+}
+
+export function clampSelectionDelta(elements, dx, dy) {
+  const box = selectionBounds(elements);
+  if (!box) return { x: 0, y: 0 };
+  return {
+    x: clamp(dx, -box.left, CANVAS_WIDTH - box.right),
+    y: clamp(dy, -box.top, CANVAS_HEIGHT - box.bottom),
+  };
+}
+
+export function intersectsRect(element, rect) {
+  const box = bounds(element);
+  return box.right >= rect.left && box.left <= rect.right && box.bottom >= rect.top && box.top <= rect.bottom;
+}
+
+export function elementsInRect(elements, rect) {
+  const normalized = {
+    left: Math.min(rect.left, rect.right), right: Math.max(rect.left, rect.right),
+    top: Math.min(rect.top, rect.bottom), bottom: Math.max(rect.top, rect.bottom),
+  };
+  return elements.filter((element) => intersectsRect(element, normalized)).map((element) => element.id);
+}
+
+export function snapSelectionDelta(selectedElements, otherElements, dx, dy, threshold = 8) {
+  const start = selectionBounds(selectedElements);
+  if (!start) return { x: dx, y: dy, guides: [] };
+  const moved = { left: start.left + dx, right: start.right + dx, top: start.top + dy, bottom: start.bottom + dy };
+  moved.cx = (moved.left + moved.right) / 2;
+  moved.cy = (moved.top + moved.bottom) / 2;
+  const xTargets = [0, CANVAS_WIDTH / 2, CANVAS_WIDTH];
+  const yTargets = [0, CANVAS_HEIGHT / 2, CANVAS_HEIGHT];
+  for (const element of otherElements) {
+    const box = bounds(element);
+    xTargets.push(box.left, (box.left + box.right) / 2, box.right);
+    yTargets.push(box.top, (box.top + box.bottom) / 2, box.bottom);
+  }
+  const xPoints = [moved.left, moved.cx, moved.right];
+  const yPoints = [moved.top, moved.cy, moved.bottom];
+  let bestX = null, bestY = null;
+  for (const point of xPoints) for (const target of xTargets) {
+    const distance = target - point;
+    if (Math.abs(distance) <= threshold && (!bestX || Math.abs(distance) < Math.abs(bestX.distance))) bestX = { distance, target };
+  }
+  for (const point of yPoints) for (const target of yTargets) {
+    const distance = target - point;
+    if (Math.abs(distance) <= threshold && (!bestY || Math.abs(distance) < Math.abs(bestY.distance))) bestY = { distance, target };
+  }
+  return {
+    x: dx + (bestX?.distance || 0), y: dy + (bestY?.distance || 0),
+    guides: [bestX && { axis: "x", value: bestX.target }, bestY && { axis: "y", value: bestY.target }].filter(Boolean),
+  };
+}
+
+export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = false) {
+  if (!startBox || !elements.length) return elements;
+  const sx = handle.includes("e") ? 1 : handle.includes("w") ? -1 : 0;
+  const sy = handle.includes("s") ? 1 : handle.includes("n") ? -1 : 0;
+  /* The anchored edge never moves, so it sets how far the opposite edge can
+     travel before the group leaves the sheet. Capping here rather than
+     nudging afterwards: a shift can only rescue one side, so a group grown
+     wider than the sheet used to be pushed off the far edge instead. */
+  const maxW = sx > 0 ? CANVAS_WIDTH - startBox.left : sx < 0 ? startBox.right : startBox.w;
+  const maxH = sy > 0 ? CANVAS_HEIGHT - startBox.top : sy < 0 ? startBox.bottom : startBox.h;
+  let nextW = clamp(startBox.w + sx * dx, MIN_SIZE, Math.max(MIN_SIZE, maxW));
+  let nextH = clamp(startBox.h + sy * dy, MIN_SIZE, Math.max(MIN_SIZE, maxH));
+  if (lockAspect && sx && sy) {
+    const ratio = startBox.w / startBox.h;
+    if (Math.abs(dx) > Math.abs(dy)) nextH = nextW / ratio;
+    else nextW = nextH * ratio;
+    // Re-fit the locked pair as a pair, so holding Shift can't defeat the caps.
+    const shrink = Math.min(1, maxW / nextW, maxH / nextH);
+    nextW *= shrink; nextH *= shrink;
+    const grow = Math.max(1, MIN_SIZE / nextW, MIN_SIZE / nextH);
+    nextW *= grow; nextH *= grow;
+  }
+  const nextLeft = sx < 0 ? startBox.right - nextW : startBox.left;
+  const nextTop = sy < 0 ? startBox.bottom - nextH : startBox.top;
+  const scaleX = nextW / startBox.w, scaleY = nextH / startBox.h;
+  const candidates = elements.map((element) => {
+    const next = {
+      ...element,
+      x: nextLeft + (element.x - startBox.left) * scaleX,
+      y: nextTop + (element.y - startBox.top) * scaleY,
+      w: Math.max(MIN_SIZE, element.w * scaleX),
+      h: Math.max(MIN_SIZE, element.h * scaleY),
+    };
+    /* Type follows the vertical scale: a corner drag scales the words with the
+       box, while dragging a side handle only makes the text box wider, which
+       is what the words reflowing inside it should do. Letter spacing rides
+       along because it is set against the font size, not the box. */
+    if (element.type === "text") {
+      if (element.fontSize) next.fontSize = Math.max(1, element.fontSize * scaleY);
+      if (element.letterSpacing) next.letterSpacing = element.letterSpacing * scaleY;
+    }
+    return next;
+  });
+  const box = selectionBounds(candidates);
+  const shiftX = box.left < 0 ? -box.left : box.right > CANVAS_WIDTH ? CANVAS_WIDTH - box.right : 0;
+  const shiftY = box.top < 0 ? -box.top : box.bottom > CANVAS_HEIGHT ? CANVAS_HEIGHT - box.bottom : 0;
+  return candidates.map((element) => ({ ...element, x: element.x + shiftX, y: element.y + shiftY }));
+}
+
 export function fitElement(element) {
   let result = { ...element, w: Math.max(MIN_SIZE, element.w), h: Math.max(MIN_SIZE, element.h) };
   let box = bounds(result);
