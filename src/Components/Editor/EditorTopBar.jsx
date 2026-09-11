@@ -1,13 +1,15 @@
-import { Download, MonitorPlay, Pencil, Save, Undo2, Redo2 } from "lucide-react";
+import { Download, MonitorPlay, Save, Undo2, Redo2 } from "lucide-react";
 import { Link } from "react-router";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from '../../theme/ThemeImage';
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { undo, redo } from "../redux/editorSlice.js";
+import { documentRenamed, undo, redo } from "../redux/editorSlice.js";
+import { downloadDocument, saveLocalDocument } from "./editorDocument.js";
 
 export default function EditorTopBar({ onDisplay, inert }) {
   const dispatch = useAppDispatch();
-  const { past, future, gesture } = useAppSelector((state) => state.editor);
+  const editor = useAppSelector((state) => state.editor);
+  const { past, future, gesture, title } = editor;
   return (
     <header className="editor-topbar" inert={inert}>
       <div className="editor-document">
@@ -15,10 +17,8 @@ export default function EditorTopBar({ onDisplay, inert }) {
           <ThemeImage src={visoraLogo} alt="Visora" width="140" height="68" />
         </Link>
         <div className="editor-document-name">
-          <span>Untitled-1</span>
-          <button type="button" disabled aria-label="Rename design (coming soon)" title="Renaming is coming soon">
-            <Pencil size={18} aria-hidden="true" />
-          </button>
+          <input aria-label="Design name" defaultValue={title} key={title} onBlur={(event) => dispatch(documentRenamed(event.target.value))}
+            onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} />
         </div>
       </div>
       <div className="editor-topbar-actions" aria-label="Document actions">
@@ -27,8 +27,8 @@ export default function EditorTopBar({ onDisplay, inert }) {
           <button type="button" aria-label="Redo" title="Redo (⌘/Ctrl Shift Z)" disabled={!future.length || !!gesture} onClick={() => dispatch(redo())}><Redo2 size={18} /></button>
         </div>
         <button type="button" onClick={onDisplay} aria-label="Display full screen" title="Display full screen"><MonitorPlay size={19} aria-hidden="true" /><span>Display</span></button>
-        <button type="button" disabled aria-label="Save (coming soon)" title="Saving is coming soon"><Save size={19} aria-hidden="true" /><span>Save</span></button>
-        <button type="button" disabled className="editor-export" aria-label="Export (coming soon)" title="Export is coming soon"><Download size={19} aria-hidden="true" /><span>Export</span></button>
+        <button type="button" onClick={() => saveLocalDocument(editor)} aria-label="Save locally" title="Save locally"><Save size={19} aria-hidden="true" /><span>Save</span></button>
+        <button type="button" onClick={() => downloadDocument(editor)} className="editor-export" aria-label="Export JSON" title="Export JSON"><Download size={19} aria-hidden="true" /><span>Export</span></button>
       </div>
     </header>
   );

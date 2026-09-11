@@ -1,4 +1,6 @@
-/* Marketing colors are scoped: authored documents and editor chrome stay light. */
+/* Marketing colors are scoped: authored documents stay light wherever they are
+   shown. Editor *chrome* follows the theme (see editor.css); the sheet inside
+   it does not, because a white backdrop must look white before it is projected. */
 :root, .theme-light-boundary {
   --surface-base: #fff;
   --surface-warm: #fffaf0;
@@ -34,13 +36,20 @@
   --sparkle-url: url('/textures/speckles-dark.svg');
   color-scheme: dark;
 }
-.theme-light-boundary, .editor-shell {
+.theme-light-boundary {
   --color-primary: #705ae0;
   --color-secondary: #ffc21c;
   --color-accent: #b294f0;
   color-scheme: light;
   background-color: white;
   color: #211d29;
+}
+/* The editor keeps the brand palette but is no longer pinned to the light
+   scheme; editor.css themes its chrome and leaves the document alone. */
+.editor-shell {
+  --color-primary: #705ae0;
+  --color-secondary: #ffc21c;
+  --color-accent: #b294f0;
 }
 .theme-toggle { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 44px; height: 44px; border-radius: 50%; color: var(--text-heading); cursor: pointer; transition: transform 140ms cubic-bezier(.23,1,.32,1), background-color 180ms ease; }
 .theme-toggle:active { transform: scale(.97); }

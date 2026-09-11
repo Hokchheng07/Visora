@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { animate } from "animejs";
+import { useReducedMotion } from "motion/react";
 import EditorDisplayBar from "./EditorDisplayBar";
 import { exitFullscreen, useFullscreen } from "./useFullscreen";
 import { useIdlePointer } from "./useIdlePointer";
 import { StaticElement } from "./EditorElement.jsx";
+import { compileAnimation } from "./animationPresets.js";
 
 const NEXT_KEYS = ["ArrowRight", "ArrowDown", "PageDown", " "];
 const PREVIOUS_KEYS = ["ArrowLeft", "ArrowUp", "PageUp"];
@@ -11,6 +14,8 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
   const [slide, setSlide] = useState(initialPage);
   const rootRef = useRef(null);
   const isIdle = useIdlePointer();
+  const reduceMotion = useReducedMotion();
+  const [liveAnimations, setLiveAnimations] = useState(0);
 
   const goTo = useCallback(
     (index) => setSlide(Math.max(0, Math.min(pages.length - 1, index))),
@@ -54,6 +59,19 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
     rootRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    const page = pages[slide]; const root = rootRef.current; if (!page || !root) return;
+    const running = [];
+    const pageParams = compileAnimation(page.animation, reduceMotion);
+    if (pageParams) running.push(animate(root.querySelector(".editor-display-page"), pageParams));
+    for (const element of page.elements) {
+      const params = compileAnimation(element.animation, reduceMotion); if (!params) continue;
+      const target = root.querySelector(`[data-element-id="${CSS.escape(element.id)}"]`); if (target) running.push(animate(target, params));
+    }
+    setLiveAnimations(running.length);
+    return () => { running.forEach((animation) => animation.revert()); };
+  }, [pages, slide, reduceMotion]);
+
   // Backdrops are shown on projectors and TVs, where the screen dimming
   // part-way through an event is the failure people remember. Unsupported in
   // Firefox and older Safari, so every step is guarded.
@@ -95,6 +113,7 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
         onSlideChange={goTo}
         onClose={close}
       />
+      {import.meta.env.DEV && <span className="editor-animation-counter" aria-live="polite">Animations: {liveAnimations}</span>}
     </div>
   );
 }
