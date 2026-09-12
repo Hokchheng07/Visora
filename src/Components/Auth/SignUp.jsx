@@ -17,7 +17,7 @@ import signupCrown from "../../assets/pages/auth/register/SignUpCrown.png";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
-import githubIcon from "../../assets/shared/social/github_light.svg";
+import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
 import { EASE } from "../../lib/animations/animations";
 
 const signUpSchema = z
@@ -181,7 +181,7 @@ export default function SignUp() {
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or Sign up with<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
               <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={googleIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Google</button>
-              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={githubIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Github</button>
+              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={facebookIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Facebook</button>
             </div>
             <p className="mt-6 text-center text-gray-400">Already have an account? <Link to="/auth/login" className="font-medium text-primary hover:underline">Log in</Link></p>
           </form>
