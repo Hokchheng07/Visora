@@ -25,9 +25,10 @@
   --surface-warm: #151520;
   --surface-card: #1a1a28;
   --surface-overlay: rgb(26 26 40 / .92);
-  --text-heading: #f0f0f5;
-  --text-body: #bcbccd;
-  --text-muted: #aaaabc;
+  /* Dark landing-page typography follows the approved Figma frame. */
+  --text-heading: #fff;
+  --text-body: #e2e1e1;
+  --text-muted: #bcbccd;
   --text-on-brand: #141323;
   --illustration-ink: #ced8ee;
   --border-default: rgb(255 255 255 / .12);
@@ -62,9 +63,14 @@
 @media (hover: hover) and (pointer: fine) { .theme-toggle:hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); } }
 
 /* Preserve image and template colors; adapt their surrounding UI. */
-.dark .site-shell :is(a,button).text-white { color: var(--text-on-brand); }
+.dark .site-shell p[data-anime-hero-copy] { color: #dbdbdb; }
+.dark .site-shell .hero-stat-row p:last-child { color: #e4e4e4; }
+.dark .site-shell .popular-templates-copy { color: #fff; }
+.dark .site-shell .features-benefit-copy { color: #e9e9e9; }
+.dark .site-shell .create-limits-header p { color: #e2e1e1; }
+.dark .site-shell .khmer-showcase-tagline { color: #fff; }
 .dark .site-shell .template-card-preview { background: #252536; }
-.dark .site-shell .template-preview-frame { background: #3c5476; }
+.dark .site-shell .template-preview-frame { background: var(--color-secondary); }
 /* margin-bottom overlaps the next section by 1px so sub-pixel layout rounding
    never exposes the darker base surface color as a hairline seam. */
 .dark .site-shell .features-section { background: linear-gradient(135deg, #181a2a, #292034); margin-bottom: -1px; }
@@ -73,7 +79,7 @@
 .dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img, .about-journey-scissors) { filter: invert(.85) hue-rotate(180deg); }
 .dark .site-shell .hero-backdrop-word,
 .dark .site-shell .hero-backdrop-word [data-word] { filter: drop-shadow(0 2px 6px rgb(114 191 241 / .16)); }
-.dark .site-shell .khmer-showcase-button { color: var(--text-on-brand); }
+.dark .site-shell .khmer-showcase-button { color: #fff; }
 .dark .site-shell .event-card { border-color: var(--border-card); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
 .dark .site-shell .event-card:not(.event-card-tone-1):not(.event-card-tone-2) { --event-color: #4b3988; }
 .dark .site-shell .events-progress { background: #363144; }
@@ -83,7 +89,6 @@
 .dark .site-shell .hanging-card-copy p { color: #454050; }
 .dark .site-shell .explore-events-cta h3 span { color: #f192e2; }
 .dark .site-shell .explore-events-cta a { background: linear-gradient(135deg, #72bff1, #e35dcb); color: #141323; }
-.dark .site-shell .explore-events-up-arrow { filter: invert(1); mix-blend-mode: screen; }
 /* hero-doodle-plane-left is excluded: dark mode swaps it for Jupiter, which is
    already full-color artwork and must not be inverted. */
 .dark .site-shell :is(.create-limits-transition-arrow, .hero-arrow-lane) { filter: invert(.85) hue-rotate(180deg); }

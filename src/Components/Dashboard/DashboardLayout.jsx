@@ -1,17 +1,17 @@
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BarChart3, ChevronDown, Clock3, FileText, FolderKanban, LayoutDashboard, Menu, Users, X, Bell } from "lucide-react";
+import { Bell, ChevronDown, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
-import logoPf from "../../assets/Website/dashboard/pf.jpg";
+import ThemeToggle from "../../theme/ThemeToggle";
 import "./dashboard.css";
 
 const navigation = [
-  ["Dashboard", "/dashboard", LayoutDashboard],
-  ["User", "/dashboard/users", Users],
-  ["Templates", "/dashboard/templates", FileText],
-  ["Categories", "/dashboard/categories", FolderKanban],
+  ["Dashboard", "/dashboard", House],
+  ["User", "/dashboard/users", UsersRound],
+  ["Templates", "/dashboard/templates", Layers],
+  ["Categories", "/dashboard/categories", Folder],
   ["Pending", "/dashboard/pending", Clock3],
-  ["Report", "/dashboard/report", BarChart3],
+  ["Report", "/dashboard/report", Flag],
 ];
 
 export default function DashboardLayout() {
@@ -20,39 +20,49 @@ export default function DashboardLayout() {
   const pageInfo = {
     "/dashboard": ["Admin Dashboard", "Welcome back, Admin!"],
     "/dashboard/users": ["User Management", "Track and analyze platform performance and activities"],
-    "/dashboard/templates": ["Template Management", "Organize and maintain your template library."],
+    "/dashboard/templates": ["Templates", "Manage all templates in the platform."],
     "/dashboard/categories": ["Categories", "Organize templates with category management."],
     "/dashboard/pending": ["Pending Review", "Review templates submitted by users."],
-    "/dashboard/report": ["Reports & Analytics", "Track workspace performance and activity."],
+    "/dashboard/report": ["Reports", "Track and analyze platform performance and activities"],
   }[pathname] || ["Dashboard", "Manage your Visora workspace."];
   return (
     <div className="dashboard-shell">
-      <button className="dashboard-menu-toggle" onClick={() => setMenuOpen(!isMenuOpen)} aria-label="Toggle dashboard menu">
+      <button className="dashboard-menu-toggle" onClick={() => setMenuOpen(!isMenuOpen)} aria-label="Toggle dashboard menu" aria-expanded={isMenuOpen}>
         {isMenuOpen ? <X /> : <Menu />}
       </button>
+      {isMenuOpen && <div className="dashboard-scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
       <aside className={`dashboard-sidebar ${isMenuOpen ? "is-open" : ""}`}>
         <NavLink to="/dashboard" className="dashboard-brand" onClick={() => setMenuOpen(false)}>
-          <img src={visoraLogo} alt="Visora Logo" className="w-35 -mt-5 mx-2"/>
+          <img src={visoraLogo} alt="Visora" />
         </NavLink>
         <nav aria-label="Dashboard navigation">
           {navigation.map(([label, to, Icon]) => (
             <NavLink key={to} to={to} end={to === "/dashboard"} onClick={() => setMenuOpen(false)} className={({ isActive }) => `dashboard-nav-item ${isActive ? "active" : ""}`}>
-              <Icon size={20} strokeWidth={1.8} /><span>{label}</span>
+              <Icon size={22} strokeWidth={1.8} /><span>{label}</span>
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar-help"><div className="help-icon">?</div><div><strong>Need help?</strong><small>Contact support</small></div></div>
       </aside>
-      <main className="dashboard-main"><header className="dashboard-header"><div><h1>{pageInfo[0]}</h1><p>{pageInfo[1]}</p></div>
-      <div className="header-account"><button className="notification -mr-2" aria-label="Notifications"><Bell size={22}/><b>5</b></button>
-      <div className="admin-avatar" style={{ width: 64, height: 64, flex: "0 0 64px", overflow: "hidden" }}>
-  <img
-    style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
-    src={logoPf}
-    alt="Admin User"
-  />
-</div><div className="admin-meta -ml-2 ">
-      <strong className="text-[16px] ">Admin User</strong><span className="!text-[13px]">Super Admin</span></div><ChevronDown size={24} className="account-chevron -ml-1" /></div></header><Outlet /></main>
+      <main className="dashboard-main">
+        <header className="dashboard-header">
+          <div>
+            <h1>{pageInfo[0]}</h1>
+            <p>{pageInfo[1]}</p>
+          </div>
+          <div className="header-account">
+            <ThemeToggle />
+            <button className="notification" aria-label="Notifications, 5 unread">
+              <Bell size={24} fill="currentColor" /><b>5</b>
+            </button>
+            <button className="account-button" aria-label="Account menu">
+              <CircleUserRound className="admin-avatar" size={48} strokeWidth={1.6} />
+              <span className="admin-meta"><strong>Admin User</strong><span>Super Admin</span></span>
+              <ChevronDown size={22} strokeWidth={2.5} className="account-chevron" />
+            </button>
+          </div>
+        </header>
+        <Outlet />
+      </main>
     </div>
   );
 }

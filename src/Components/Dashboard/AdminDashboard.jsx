@@ -1,318 +1,216 @@
 import {
-  Activity,
+  Award,
+  BriefcaseBusiness,
   Check,
   ChevronDown,
-  ChevronRight,
+  CircleUserRound,
+  Clock,
   Eye,
-  LayoutTemplate,
-  ShieldAlert,
+  Flag,
+  Globe,
+  GraduationCap,
+  Layers,
+  Network,
+  Presentation,
+  Radar,
+  Shapes,
+  Tent,
+  Trophy,
   Users,
   X,
-  Layers3,
 } from "lucide-react";
 import { useState } from "react";
-import "./portal.css";
-import "./dashboard-polish.css";
+import ActivityChart from "./ActivityChart";
+import { CardHeader, StatCards } from "./AdminUi";
 import { useDashboardData } from "./dashboardData";
-import { Clock2 } from 'lucide-react';
+import creativePortfolio from "../../assets/pages/admin/dashboard/pending-review/creative-portfolio.png";
+import frontendExam from "../../assets/pages/admin/dashboard/pending-review/frontend-exam.png";
+import backendExam from "../../assets/pages/admin/dashboard/pending-review/backend-exam.png";
+import "./admin-dashboard.css";
+
+// Seed templates have no preview images yet; these Figma exports stand in.
+const sampleThumbs = [creativePortfolio, frontendExam, backendExam];
+
 const activityData = {
-  "Last 7 days": [18, 19, 20, 21, 22, 23, 24],
-  "Last 30 days": [1, 5, 10, 15, 20, 25, 30],
+  "Last 7 days": {
+    usersMax: 200,
+    templatesMax: 80,
+    points: [
+      ["May 18", 32, 35],
+      ["May 19", 66, 50],
+      ["May 20", 72, 59],
+      ["May 21", 124, 37],
+      ["May 22", 167, 52],
+      ["May 23", 176, 33],
+      ["May 24", 150, 27],
+    ],
+  },
+  "Last 30 days": {
+    usersMax: 800,
+    templatesMax: 320,
+    points: [
+      ["Apr 25", 210, 120],
+      ["Apr 30", 340, 165],
+      ["May 5", 310, 210],
+      ["May 10", 460, 180],
+      ["May 15", 520, 260],
+      ["May 20", 690, 230],
+      ["May 24", 740, 280],
+    ],
+  },
 };
+
 const reportRows = [
-  ["Creative Portfolio", "Channa", "2 hours ago", "Under Review", "purple"],
-  ["Frontend examination", "Channay", "3 hours ago", "Resolved", "blue"],
-  ["Backend examination", "Channy", "8 hours ago", "Under Review", "orange"],
+  { name: "Creative Portfolio", creator: "Channa", time: "2 hours ago", date: "May 24, 2026", status: "Under Review", image: creativePortfolio },
+  { name: "Frontend examination", creator: "Channan", time: "3 hours ago", date: "May 24, 2026", status: "Resolved", image: frontendExam },
+  { name: "Creative Portfolio", creator: "Channa", time: "2 hours ago", date: "May 23, 2026", status: "Under Review", image: creativePortfolio },
 ];
-function Thumb({ shade = "purple" }) {
-  return (
-    <span className={`template-thumb ${shade}`}>
-      <i />
-      <b />
-      <em />
-    </span>
-  );
-}
-function Action({ kind, children, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`portal-button dashboard-action ${kind || ""}`}
-    >
-      {children}
-    </button>
-  );
-}
-function ActivityChart({ period }) {
-  const dates = activityData[period];
-  return (
-    <div className="activity-chart">
-      <div className="chart-y left !text-[12px] mt-5">
-        <span>200</span>
-        <span>150</span>
-        <span>100</span>
-        <span>50</span>
-        <span>0</span>
-      </div>
-      <div className="line-chart">
-        <div className="chart-grid" />
-        <svg viewBox="0 0 680 180" preserveAspectRatio="none">
-          <path
-            className="line-fill"
-            d="M0 144 C60 128 75 142 125 115 S185 94 220 113 S281 132 327 82 S395 77 435 95 S500 61 540 73 S605 30 680 42 V180 H0Z"
-          />
-          <path
-            className="line-main"
-            d="M0 144 C60 128 75 142 125 115 S185 94 220 113 S281 132 327 82 S395 77 435 95 S500 61 540 73 S605 30 680 42"
-          />
-          <path
-            className="line-secondary"
-            d="M0 155 C68 148 80 135 125 140 S182 112 220 124 S282 114 327 130 S389 90 435 108 S505 98 540 83 S608 70 680 78"
-          />
-          {[0, 125, 220, 327, 435, 540, 680].map((cx, i) => (
-            <circle
-              key={cx}
-              cx={cx}
-              cy={[144, 115, 113, 82, 95, 73, 42][i]}
-              r="3.5"
-              className="chart-point"
-            />
-          ))}
-        </svg>
-        <div className="chart-labels">
-          {dates.map((day) => (
-            <span className="text-[12px]" key={day}>May {day}</span>
-          ))}
-        </div>
-      </div>
-      <div className="chart-y left !text-[12px] mt-5">
-        <span>80</span>
-        <span>60</span>
-        <span>40</span>
-        <span>20</span>
-        <span>0</span>
-      </div>
-    </div>
-  );
-}
+
+const categoryIcons = {
+  Examination: GraduationCap,
+  Workshop: Network,
+  Graduation: Award,
+  "Khmer Events": Tent,
+  Events: Tent,
+  Seminar: Presentation,
+  Portfolio: BriefcaseBusiness,
+  Competition: Trophy,
+};
+
 export default function AdminDashboard() {
   const { templates, users, categories, updateTemplate } = useDashboardData();
   const [period, setPeriod] = useState("Last 7 days");
-  const [openPeriod, setOpenPeriod] = useState(false);
-  const pending = templates.filter((t) => t.status === "pending").slice(0, 3);
+  const pendingTemplates = templates.filter((t) => t.status === "pending");
+  const pending = pendingTemplates.slice(0, 3);
+  const activity = activityData[period];
+  const chartData = activity.points.map(([label, usersCount, templatesCount]) => ({ label, users: usersCount, templates: templatesCount }));
+
   const stats = [
-    ["Total User", users.length, Users, "purple"],
-    ["Total Template", templates.length, LayoutTemplate, "yellow"],
-    [
-      "Public Template",
-      templates.filter((t) => t.visibility === "public").length,
-      Eye,
-      "green",
-    ],
-    [
-      "Pending Review",
-      templates.filter((t) => t.status === "pending").length,
-      Activity,
-      "blue",
-    ],
-    [
-      "Report Template",
-      templates.filter((t) => t.status === "rejected").length,
-      ShieldAlert,
-      "red",
-    ],
+    { label: "Total User", value: users.length, icon: Users, tone: "purple" },
+    { label: "Total Template", value: templates.length, icon: Layers, tone: "yellow" },
+    { label: "Public Template", value: templates.filter((t) => t.visibility === "public").length, icon: Globe, tone: "purple", knockout: true },
+    { label: "Pending Review", value: pendingTemplates.length, icon: Clock, tone: "yellow", knockout: true },
+    { label: "Report Template", value: templates.filter((t) => t.status === "rejected").length, icon: Flag, tone: "red" },
   ];
+
   return (
-    <div className="dashboard-content portal admin-dashboard">
-      <section className="portal-stats">
-        {stats.map(([name, value, Icon, color]) => (
-          <article key={name}>
-            <span className={`portal-stat-icon ${color}`}>
-              <Icon size={19} />
-            </span>
-            <div>
-              <p>{name}</p>
-              <strong>{value}</strong>
-            </div>
-          </article>
-        ))}
-      </section>
-      <section className="portal-split review-split">
-        <article className="portal-card pending-card">
-          <header>
-            <div className="card-title-icon">
-              <span>
-                <Layers3 size={20} />
-              </span>
-              <div>
-                <h3 className="text-blue-500 font-semibold">Pending Templates Review</h3>
-                <p>Templates waiting for your approval</p>
-              </div>
-            </div>
-            <a className="!text-[13px] font-semibold">
-              View all pending review <ChevronRight size={15} />
-            </a>
-          </header>
-          {pending.map((t) => (
-            <div className="review-row" key={t.id}>
-              <Thumb shade={t.shade} />
-              {/* <img src={t.image} alt={t.name} className="template-image" /> */}
-              <div className="review-copy">
-                <strong className="!text-[13px] font-bold">{t.name}</strong>
-                <span className="!text-[11px]">by {t.creator}</span>
-                <span className="!text-[10px]">Submitted {t.createdTime}</span>
-              </div>
-              <small className="category-tag">{t.category}</small>
-              <div className="row-actions">
-                <Action
-                  kind="approve"
-                  onClick={() => updateTemplate(t.id, { status: "published" })}
-                >
-                  <Check size={14} />
-                  Approve
-                </Action>
-                <Action
-                  kind="reject"
-                  onClick={() => updateTemplate(t.id, { status: "rejected" })}
-                >
-                  <X size={14} />
-                  Reject
-                </Action>
-                <Action kind="preview">
-                  <Eye size={15} />
-                  Preview
-                </Action>
-              </div>
-            </div>
-          ))}
-        </article>
-        <article className="portal-card recent-users">
-          <header>
-            <div className="card-title-icon">
-              <span>
-                <Users size={22} />
-              </span>
-              <div>
-                <h3 className="text-blue-500 font-semibold">Recent User</h3>
-                <p>Newly joined members</p>
-              </div>
-            </div>
-            <a className="!text-[13px] font-semibold">
-              View all users <ChevronRight size={15} />
-            </a>
-          </header>
-          {users.slice(0, 5).map((u) => (
-            <div className="user-row" key={u.id}>
-              <span className="gray-avatar">
-                {u.name
-                  .split(" ")
-                  .map((part) => part[0])
-                  .join("")}
-              </span>
-              <div>
-                <strong className="!text-[12px] font-semibold">{u.name}</strong>
-                <small className="!text-[10px]">{u.email}</small>
-              </div>
-              <b className="!text-[12px]">User</b>
-            </div>
-          ))}
-        </article>
-      </section>
-      <section className="dashboard-bottom">
-        <div className="dashboard-left-stack">
-          <article className="portal-card categories-card">
-            <header>
-              <div className="card-title-icon">
-              <span>
-                <Layers3 size={20} />
-              </span>
-              <div>
-                <h3 className="text-blue-500 font-semibold">Template Categories</h3>
-                <p>Templates grouped by category</p>
-              </div>
-            </div>
-            <a className="!text-[13px] font-semibold">
-              View all <ChevronRight size={15} />
-            </a>
-            </header>
-            <div className="category-tiles">
-              {categories.slice(0, 4).map((name, index) => (
-                <div
-                  className={["exam", "work", "grad", "event"][index]}
-                  key={name}
-                >
-                  <span>{name[0]}</span>
-                  <strong>{name}</strong>
-                  <small>
-                    {templates.filter((t) => t.category === name).length}
-                  </small>
-                </div>
+    <div className="ad-page">
+      <StatCards items={stats} label="Platform totals" />
+
+      <section className="ad-row ad-row-top">
+        <article className="ad-card ad-pending">
+          <CardHeader icon={Layers} title="Pending Templates Review" linkLabel="View all pending review" to="/dashboard/pending" />
+          {pending.length === 0 ? (
+            <p className="ad-empty">No templates are waiting for review.</p>
+          ) : (
+            <ul className="ad-list">
+              {pending.map((t, index) => (
+                <li className="ad-review" key={t.id}>
+                  <img className="ad-thumb" src={t.image || sampleThumbs[index % sampleThumbs.length]} alt="" />
+                  <div className="ad-review-copy">
+                    <h3>{t.name}</h3>
+                    <p>by {t.creator}</p>
+                    <p className="ad-review-meta">
+                      <span>Submitted {t.createdTime}</span>
+                      <span className="ad-chip">{t.category}</span>
+                    </p>
+                  </div>
+                  <div className="ad-review-actions">
+                    <button type="button" className="ad-action approve" onClick={() => updateTemplate(t.id, { status: "published" })}>
+                      <Check size={14} strokeWidth={3} aria-hidden="true" /> Approve
+                    </button>
+                    <button type="button" className="ad-action reject" onClick={() => updateTemplate(t.id, { status: "rejected" })}>
+                      <X size={14} strokeWidth={3} aria-hidden="true" /> Reject
+                    </button>
+                    <button type="button" className="ad-action preview">
+                      <Eye size={14} aria-hidden="true" /> Preview
+                    </button>
+                  </div>
+                </li>
               ))}
-            </div>
-            
-          </article>
-          <article className="portal-card reports-list">
-            <header>
-              <div>
-                <h3 className="flex gap-2 text-blue-500 font-semibold"><Clock2 />Reports Overview</h3>
-                <p>Recently reported templates</p>
-              </div>
-            </header>
-            {reportRows.map(([name, creator, time, status, shade]) => (
-              <div className="report-row" key={name}>
-                <Thumb shade={shade} />
+            </ul>
+          )}
+        </article>
+
+        <article className="ad-card ad-users">
+          <CardHeader icon={Users} title="Recent User" linkLabel="View all users" to="/dashboard/users" />
+          <ul className="ad-list">
+            {users.slice(0, 5).map((u) => (
+              <li className="ad-user" key={u.id}>
+                <CircleUserRound className="ad-user-avatar" size={40} strokeWidth={1.3} aria-hidden="true" />
                 <div>
-                  <strong className="!text-[13px]">{name}</strong>
-                  <small>
-                    by {creator} · {time}
-                  </small>
+                  <h3>{u.name}</h3>
+                  <p>{u.email}</p>
                 </div>
-                <b className={status === "Resolved" ? "resolved" : "reviewing"} className="border border-accent text-yellow-500 !text-[12px]">
-                  {status}
-                </b>
-              </div>
+                <b>User</b>
+              </li>
             ))}
+          </ul>
+        </article>
+      </section>
+
+      <section className="ad-row ad-row-bottom">
+        <div className="ad-stack">
+          <article className="ad-card ad-categories">
+            <CardHeader icon={Layers} title="Templates Categories" linkLabel="View all" to="/dashboard/categories" />
+            <ul className="ad-category-tiles">
+              {categories.slice(0, 4).map((name, index) => {
+                const Icon = categoryIcons[name] || Shapes;
+                return (
+                  <li className={index % 2 ? "yellow" : "purple"} key={name}>
+                    <Icon size={24} fill="currentColor" strokeWidth={1.4} aria-hidden="true" />
+                    <span>{name}</span>
+                    <strong>{templates.filter((t) => t.category === name).length}</strong>
+                  </li>
+                );
+              })}
+            </ul>
+          </article>
+
+          <article className="ad-card ad-reports">
+            <CardHeader icon={Clock} title="Reports Overview" linkLabel="View all" to="/dashboard/report" filled={false} />
+            <ul className="ad-list">
+              {reportRows.map((row, index) => (
+                <li className="ad-report" key={index}>
+                  <img className="ad-thumb small" src={row.image} alt="" />
+                  <div className="ad-report-copy">
+                    <h3>{row.name}</h3>
+                    <p>by {row.creator}</p>
+                    <p>Submitted {row.time}</p>
+                  </div>
+                  <div className="ad-report-status">
+                    <time>{row.date}</time>
+                    <span className={`ad-status ${row.status === "Resolved" ? "resolved" : "reviewing"}`}>{row.status}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </article>
         </div>
-        <article className="portal-card platform-activity">
-          <header>
-            <div>
-              <h3 className="flex gap-2 text-blue-500"><Clock2 />Platform Activity</h3>
-              <p>New users and templates published</p>
-            </div>
-            <div className="period-picker">
-              <button className="!text-[12px]" onClick={() => setOpenPeriod(!openPeriod)}>
-                {period}
-                <ChevronDown size={15} />
-              </button>
-              {openPeriod && (
-                <div>
-                  {Object.keys(activityData).map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => {
-                        setPeriod(value);
-                        setOpenPeriod(false);
-                      }}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+
+        <article className="ad-activity">
+          <header className="ad-activity-head">
+            <h2>
+              <Radar size={28} strokeWidth={1.8} aria-hidden="true" />
+              Platform Activity
+            </h2>
+            <label className="ad-period">
+              <span className="sr-only">Time range</span>
+              <select value={period} onChange={(event) => setPeriod(event.target.value)}>
+                {Object.keys(activityData).map((value) => (
+                  <option key={value}>{value}</option>
+                ))}
+              </select>
+              <ChevronDown size={18} aria-hidden="true" />
+            </label>
           </header>
-          <div className="legend">
-            <span className="legend-item text-[14px]">
-              <i className="purple-dot" />
-              New Users
-            </span>
-            <span className="legend-item text-[14px]">
-              <i className="orange-dot" />
-              Templates Published
-            </span>
+          <div className="ad-legend">
+            <span><i className="users" />New Users</span>
+            <span><i className="templates" />Templates Published</span>
           </div>
-          <ActivityChart period={period} />
+          <div className="ad-chart">
+            <ActivityChart data={chartData} usersMax={activity.usersMax} templatesMax={activity.templatesMax} />
+          </div>
         </article>
       </section>
     </div>
