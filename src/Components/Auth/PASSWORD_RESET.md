@@ -10,6 +10,11 @@ column on mobile. It uses the existing light auth boundary and brand tokens.
 
 ## Temporary API adapter
 
+The route UI is in `ForgotPassword.jsx`. Its workflow lives in
+`forgot-password/usePasswordReset.js`, validation in
+`forgot-password/passwordResetValidation.js`, and the password input in
+`forgot-password/PasswordField.jsx`. Styles remain in `forgot-password.css`.
+
 `src/Components/API/passwordResetApi.js` is a local demo with no network requests.
 Use any valid email and code **123456**. A wrong code shows an error. The resend
 button unlocks after 60 seconds, restarting only when another send succeeds.

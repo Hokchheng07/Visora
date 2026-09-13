@@ -1,134 +1,21 @@
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
-import { z } from "zod";
-import { passwordResetApi, PASSWORD_RESET_DEMO, DEMO_RESET_CODE } from "../API/passwordResetApi.js";
+import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
+import { PASSWORD_RESET_DEMO } from "../API/passwordResetApi.js";
+import PasswordField from "./forgot-password/PasswordField.jsx";
+import usePasswordReset from "./forgot-password/usePasswordReset.js";
+import { rules } from "./forgot-password/passwordResetValidation.js";
 import artwork from "../../assets/pages/auth/forgot-password/reset-password-art.png";
 import logo from "../../assets/shared/branding/VisoraLogo.png";
 import "./forgot-password.css";
 
 const steps = ["Enter Email", "Verify Code", "Create New Password"];
-const emailSchema = z.string().trim().email();
-const rules = [
-  { label: "At least 8 characters", test: (value) => value.length >= 8 },
-  { label: "Include uppercase and lowercase letters", test: (value) => /[A-Z]/.test(value) && /[a-z]/.test(value) },
-  { label: "Include a number or special character", test: (value) => /[0-9]|[^A-Za-z0-9\s]/.test(value) },
-];
-
-function PasswordField({ label, id, value, onChange, invalid }) {
-  const [visible, setVisible] = useState(false);
-  return <label className="reset-field" htmlFor={id}>
-    <span>{label} <b>*</b></span>
-    <span className="reset-input-wrap">
-      <LockKeyhole size={20} aria-hidden="true" />
-      <input id={id} type={visible ? "text" : "password"} autoComplete="new-password" required
-        placeholder={id === "new-password" ? "Enter your new password" : "Confirm your new password"}
-        value={value} onChange={onChange} aria-invalid={invalid || undefined} aria-describedby={invalid ? "reset-error" : undefined} />
-      <button type="button" className="reset-eye" aria-label={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`} onClick={() => setVisible(!visible)}>
-        {visible ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </span>
-  </label>;
-}
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState(0);
-  const [email, setEmail] = useState("");
-  const [digits, setDigits] = useState(Array(6).fill(""));
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [challengeId, setChallengeId] = useState(null);
-  const [resetToken, setResetToken] = useState(null);
-  const [deadline, setDeadline] = useState(0);
-  const [remaining, setRemaining] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [complete, setComplete] = useState(false);
-  const pending = useRef(false);
-  const inputs = useRef([]);
-  const heading = useRef(null);
-
-  useEffect(() => {
-    if (!deadline) return;
-    const tick = () => setRemaining(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
-    tick();
-    const timer = window.setInterval(tick, 250);
-    return () => window.clearInterval(timer);
-  }, [deadline]);
-
-  useEffect(() => {
-    if (step === 1) inputs.current[0]?.focus({ preventScroll: true });
-    if (step === 2 || complete) heading.current?.focus({ preventScroll: true });
-  }, [step, complete]);
-
-  async function request(action) {
-    if (pending.current) return;
-    pending.current = true;
-    setBusy(true);
-    setError("");
-    setNotice("");
-    try { await action(); }
-    catch (failure) { setError(failure.message || "Something went wrong. Please try again."); }
-    finally { pending.current = false; setBusy(false); }
-  }
-
-  function sendCode(event) {
-    event?.preventDefault();
-    if (step === 1 && Date.now() < deadline) return;
-    const result = emailSchema.safeParse(email);
-    if (!result.success) return setError("Enter a valid email address.");
-    return request(async () => {
-      const response = await passwordResetApi.sendCode({ email: result.data });
-      setEmail(result.data);
-      setChallengeId(response.challengeId);
-      setDeadline(Date.now() + response.retryAfterSeconds * 1000);
-      setRemaining(response.retryAfterSeconds);
-      setDigits(Array(6).fill(""));
-      setStep(1);
-      setNotice(PASSWORD_RESET_DEMO ? "Demo code is ready. No email was sent." : "A verification code has been sent. Check your email.");
-      // Resending stays on the same step, so restore focus after inputs enable.
-      window.requestAnimationFrame(() => inputs.current[0]?.focus({ preventScroll: true }));
-    });
-  }
-
-  function updateCode(next) {
-    if (pending.current) return;
-    setDigits(next);
-    setError("");
-    if (next.every((digit) => /^\d$/.test(digit))) {
-      void request(async () => {
-        const response = await passwordResetApi.verifyCode({ challengeId, code: next.join("") });
-        setResetToken(response.resetToken);
-        setStep(2);
-      });
-    }
-  }
-
-  function fillCode(index, raw) {
-    const value = raw.replace(/\D/g, "");
-    const next = [...digits];
-    if (!value) next[index] = "";
-    else {
-      const start = value.length >= 6 ? 0 : index;
-      value.slice(0, 6 - start).split("").forEach((digit, offset) => { next[start + offset] = digit; });
-      inputs.current[Math.min(5, start + value.length)]?.focus();
-    }
-    updateCode(next);
-  }
-
-  function resetPassword(event) {
-    event.preventDefault();
-    if (!rules.every((rule) => rule.test(password))) return setError("Your new password must meet all three requirements.");
-    if (password !== confirm) return setError("Your passwords do not match.");
-    return request(async () => {
-      await passwordResetApi.resetPassword({ resetToken, password });
-      setPassword("");
-      setConfirm("");
-      setResetToken(null);
-      setComplete(true);
-    });
-  }
+  const {
+    step, email, digits, password, confirm, remaining, busy, error, notice,
+    complete, inputs, heading, setEmail, setPassword, setConfirm, setError,
+    sendCode, updateCode, fillCode, resetPassword,
+  } = usePasswordReset();
 
   return <main className="reset-page font-sans">
     <aside className="reset-art-panel" aria-label="Welcome to Visora">
@@ -205,7 +92,6 @@ export default function ForgotPassword() {
         {step !== 2 && !complete && <div className="reset-divider"><span />or<span /></div>}
         <Link to="/auth/login" className="reset-back"><span><ArrowLeft size={19} aria-hidden="true" />Back to Login</span></Link>
         {!complete && <p className="reset-footer">{step === 2 ? "Make sure it’s something you’ll remember!" : <>Didn’t receive the code? Check your spam folder{step === 1 ? " or resend when the countdown ends." : "."}</>}</p>}
-        {PASSWORD_RESET_DEMO && !complete && <p className="reset-demo">Demo preview · No email is sent or password changed.<br />Use code <strong>{DEMO_RESET_CODE}</strong> to try the flow.</p>}
       </div>
     </section>
   </main>;
