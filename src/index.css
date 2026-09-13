@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/*
+ * CSS entrypoint only. Keep rules next to the page or component that owns
+ * them so cascade order and responsive overrides stay easy to trace.
+ */
+@import "./styles/foundation.css";
+@import "./styles/components/navbar.css";
+@import "./styles/pages/home.css";
+@import "./styles/components/hanging-cards.css";
+@import "./styles/pages/about.css";
+@import "./styles/responsive/compact-desktop.css";

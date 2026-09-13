@@ -1,0 +1,180 @@
+import { ThemeImage } from '../../theme/ThemeImage';
+import { useRef, useState } from "react";
+import { NavLink } from "react-router";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import ThemeToggle from '../../theme/ThemeToggle';
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
+import navbarBg from "../../assets/sections/navbar/NavbarBg.svg";
+import { EASE } from "../../lib/animations/animations";
+
+// Recreated from the Visora Figma file, "Landing Page" > navbar instance
+// (master component 69:171). Logo + background are the actual exported
+// assets (Figma nodes 69:165 and the flattened 69:171 background/wave —
+// Figma has no separate hover-state variants for this component, so the
+// hover treatments below are original, not traced from the file).
+//
+// Logo asset names updated 2026-08-27: the old visora-logo.png /
+// MobilephoneLogo.png were replaced with VisoraLogo.png (desktop) and
+// visora-logo-mobile.png (mobile) — the new full-color "Visora" wordmark
+// in the brand purple. The `mix-blend-screen` treatment that worked on
+// the old light-on-dark mobile mark is no longer needed (the new mark
+// sits on the navbar background cleanly) and has been removed below.
+
+const NAV_LINKS = [
+  { label: "Home", to: "/" },
+  { label: "Templates", to: "/templates" },
+  { label: "About Us", to: "/about" },
+];
+
+function NavLinkRow({ to, label, onClick, className = "" }) {
+  return (
+    <NavLink
+      to={to}
+      end={to === "/"}
+      onClick={onClick}
+      className={`group relative inline-block font-sans text-base font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:text-primary ${className}`}
+    >
+      {label}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-primary transition-transform duration-200 ease-out group-hover:scale-x-100"
+      />
+    </NavLink>
+  );
+}
+
+export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (currentScrollY) => {
+    if (currentScrollY < 80 || mobileOpen) {
+      setHidden(false);
+      lastScrollY.current = currentScrollY;
+      return;
+    }
+
+    const scrollDelta = currentScrollY - lastScrollY.current;
+
+    // Ignore tiny trackpad movements to prevent the navbar from jittering.
+    if (Math.abs(scrollDelta) < 8) return;
+
+    setHidden(scrollDelta > 0);
+    lastScrollY.current = currentScrollY;
+  });
+
+  return (
+    <motion.header
+      className="sticky top-0 z-50 will-change-transform"
+      animate={{ y: hidden ? "-100%" : "0%" }}
+      transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.8 }}
+    >
+      <ThemeImage src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
+      <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
+        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] w-full items-center justify-between px-6 sm:px-10 md:h-[116px]">
+          {/* Logo */}
+          <NavLink to="/" className="shrink-0">
+            <ThemeImage
+              src={visoraLogo}
+              alt="Visora"
+              className="hidden h-[86px] w-auto md:block"
+              width={152}
+              height={86}
+            />
+            <ThemeImage
+              src={mobileLogo}
+              alt="Visora"
+              className="h-[57px] w-[102px] object-contain md:hidden"
+              width={1672}
+              height={941}
+            />
+          </NavLink>
+
+          {/* Desktop nav links */}
+          <ul className="hidden items-center gap-10 md:flex">
+            {NAV_LINKS.map((link) => (
+              <li key={link.to} className="pb-1.5">
+                <NavLinkRow to={link.to} label={link.label} />
+              </li>
+            ))}
+          </ul>
+
+          {/* Right-side actions */}
+          <div className="hidden items-center gap-6 md:flex">
+            <ThemeToggle />
+            <NavLink
+              to="/auth/login"
+              className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
+            >
+              Sign In
+            </NavLink>
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            type="button"
+            aria-label="Toggle menu"
+            className="text-[var(--text-heading)] md:hidden"
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={mobileOpen ? "close" : "open"}
+                className="block"
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
+                {mobileOpen ? (
+                  <XMarkIcon className="h-7 w-7" />
+                ) : (
+                  <Bars3Icon className="h-7 w-7" />
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </button>
+        </nav>
+      </div>
+
+      {/* Mobile menu panel */}
+      <AnimatePresence initial={false}>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-menu"
+            className="relative z-10 border-t border-[var(--border-default)] bg-[var(--surface-base)] px-6 py-5 md:hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: EASE }}
+          >
+            <ul className="flex flex-col gap-4">
+              {NAV_LINKS.map((link) => (
+                <li key={link.to}>
+                  <NavLinkRow
+                    to={link.to}
+                    label={link.label}
+                    onClick={() => setMobileOpen(false)}
+                    className="block"
+                  />
+                </li>
+              ))}
+            </ul>
+            <ThemeToggle mobile />
+            <NavLink
+              to="/auth/login"
+              onClick={() => setMobileOpen(false)}
+              className="mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+            >
+              Sign In
+            </NavLink>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
+  );
+}
