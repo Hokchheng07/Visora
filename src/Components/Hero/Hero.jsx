@@ -1,0 +1,356 @@
+import { ThemeImage } from '../../theme/ThemeImage';
+import { useTheme } from '../../theme/useTheme';
+import { NavLink } from "react-router";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import "./hero-stats.css";
+
+import heroDashed from "../../assets/pages/home/hero/HeroDashedVector.svg";
+import heroSolid from "../../assets/pages/home/hero/HeroSolidVector.svg";
+import heroInner from "../../assets/pages/home/hero/InnerHeroVector.svg";
+import heroMiddle from "../../assets/pages/home/hero/MiddleHeroVector.svg";
+import heroOuter from "../../assets/pages/home/hero/OuterHeroVector.svg";
+import cardEverydayTools from "../../assets/pages/home/hero/PurpleFrameNPicture.png";
+import cardThingsArent from "../../assets/pages/home/hero/YellowFramNPicture.png";
+import doodlePlaneLoop from "../../assets/pages/home/hero/ArrowNPlane.png";
+import airplaneDoodle from "../../assets/pages/home/hero/AirplaneDoodle.png";
+import jupiter from "../../assets/pages/home/hero/Jupiter.svg";
+import smallAstro from "../../assets/pages/home/hero/SmallAstro.svg";
+import bigAstronaut from "../../assets/pages/home/hero/BigAstronaunt.svg";
+import heroArrow from "../../assets/pages/home/hero/HeroSectionArrow.svg";
+import heroStatsBg from "../../assets/pages/home/hero/stats/HeroStatsBg.svg";
+import statPurpleBackground from "../../assets/pages/home/hero/stats/PurpleBackground.svg";
+import statYellowBackground from "../../assets/pages/home/hero/stats/YellowBackground.svg";
+import statFrameTwo from "../../assets/pages/home/hero/2ndFrame.png";
+// Each dark badge is one flattened export (frame, tint and icon together), so
+// it replaces the three light layers instead of pairing with one in darkAssets.
+import statBadgeOneDark from "../../assets/pages/home/hero/dark/FistStats(DarkMode).svg";
+import statBadgeTwoDark from "../../assets/pages/home/hero/dark/2ndstats.svg";
+import statBadgeThreeDark from "../../assets/pages/home/hero/dark/thirdStats.svg";
+import statBadgeFourDark from "../../assets/pages/home/hero/dark/ForthStats(DarkMode).svg";
+import {
+  fadeIn,
+  fadeInUp,
+  scaleIn,
+  staggerContainer,
+} from "../../lib/animations/animations";
+import { useAnimeHeroCopy } from "../../hooks/useAnimeSplitText";
+
+// Recreated from the Visora Figma file ("Landing Page" frame, hero region:
+// nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
+// row). Copy, colors and spacing are pulled directly from Figma Dev Mode;
+// the #705ae0 "Backdrops" highlight and the stat-badge tints are exact
+// matches for this project's primary/secondary/accent tokens, so they're
+// expressed as tokens rather than one-off hex values.
+//
+// DECORATIVE LAYER: the illustration PNGs exported from Figma (blob
+// shape, doodles, floating template cards). Positioned with percentages
+// an intentionally spacious 1920x1080 composition. Decorations are kept in
+// their own areas so they do not compete with the hero, search, or stats.
+const CANVAS = { w: 1920, h: 1080 };
+
+// Decorative doodle positions/sizes are defined in styles/pages/home.css under the
+// `.hero-doodle-*` classes (kept in CSS for easy design tweaking).
+// `dark` swaps the doodle for its astronomy counterpart under the dark palette.
+// These are kept local rather than in darkAssets because ArrowNPlane is shared
+// with WhyChooseVisora, which keeps its plane in both themes.
+const DOODLES = [
+  {
+    src: airplaneDoodle,
+    dark: jupiter,
+    className: "hero-doodle hero-doodle-plane-left",
+    imageClass: "hero-plane-left",
+    side: "left",
+  },
+  {
+    src: doodlePlaneLoop,
+    dark: smallAstro,
+    className: "hero-doodle hero-doodle-plane-right",
+    imageClass: "hero-plane-right",
+    side: "right",
+  },
+  {
+    src: cardEverydayTools,
+    dark: bigAstronaut,
+    className: "hero-doodle hero-doodle-frame-one",
+    imageClass: "hero-frame-bounce hero-frame-one",
+    side: "left",
+  },
+  {
+    src: cardThingsArent,
+    className: "hero-doodle hero-doodle-frame-two",
+    imageClass: "hero-frame-bounce hero-frame-two",
+    side: "right",
+  },
+];
+
+const STATS = [
+  {
+    value: "500+",
+    label: "Ready Templates",
+    icon: "ph-upload-simple-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
+    badgeBackground: statYellowBackground,
+    darkBadge: statBadgeOneDark,
+  },
+  {
+    value: "10K+",
+    label: "Designs Created",
+    icon: "ph-pen-nib-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
+    badgeBackground: statPurpleBackground,
+    darkBadge: statBadgeTwoDark,
+  },
+  {
+    value: "50K+",
+    label: "Happy Users",
+    icon: "ph-smiley-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
+    badgeBackground: statYellowBackground,
+    darkBadge: statBadgeThreeDark,
+  },
+  {
+    value: "27/7",
+    label: "Support",
+    icon: "ph-lifebuoy-bold",
+    frame: statFrameTwo,
+    badgeClass: "bg-[var(--surface-card)]",
+    iconClass: "text-[var(--text-heading)]",
+    badgeBackground: statPurpleBackground,
+    darkBadge: statBadgeFourDark,
+  },
+];
+
+const Hero = () => {
+  const reduceMotion = useReducedMotion();
+  const heroCopyRef = useAnimeHeroCopy();
+  const { resolvedTheme } = useTheme();
+
+  return (
+    <section className="hero-section bg-sparkle relative overflow-hidden bg-transparent font-sans">
+      {/* Decorative illustration layer — lg+ only, see note above.
+          Each wrapper flies in from its nearest side while the nested image
+          owns the existing transform-based floating loop. */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
+        style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
+        aria-hidden="true"
+      >
+        {DOODLES.map(({ src, dark, className, imageClass, side }, i) => (
+          <motion.div
+            key={i}
+            className={`absolute ${className ?? ""}`}
+            initial={
+              reduceMotion
+                ? false
+                : { opacity: 0, x: side === "left" ? -180 : 180 }
+            }
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 82,
+              damping: 17,
+              mass: 0.9,
+              delay: 0.28 + i * 0.12,
+            }}
+          >
+            <ThemeImage
+              src={resolvedTheme === "dark" && dark ? dark : src}
+              alt=""
+              className={`h-full w-full object-contain ${imageClass ?? ""}`}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="hero-content relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
+        {/* HEADLINE BLOB CARD */}
+        <div className="hero-blob-card relative mx-auto w-full max-w-[1156px]">
+          {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
+          <motion.div
+            className="relative mx-auto aspect-[799.8/512.8] w-full"
+            style={{ aspectRatio: "799.8 / 512.8" }}
+            initial="hidden"
+            animate="show"
+            variants={scaleIn}
+          >
+            <ThemeImage
+              src={heroOuter}
+              alt=""
+              className="hero-vector hero-vector-outer"
+            />
+            <ThemeImage
+              src={heroMiddle}
+              alt=""
+              className="hero-vector hero-vector-middle"
+            />
+            <ThemeImage
+              src={heroInner}
+              alt=""
+              className="hero-vector hero-vector-inner"
+            />
+            <ThemeImage
+              src={heroSolid}
+              alt=""
+              className="hero-vector hero-vector-solid"
+            />
+            <ThemeImage
+              src={heroDashed}
+              alt=""
+              className="hero-vector hero-vector-dashed"
+            />
+            <div
+              ref={heroCopyRef}
+              className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
+            >
+              <HeroCopy />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Keep the dotted path and scissors attached to the stats block. */}
+        <div className="hero-stats-group relative z-20 mx-auto mt-20 w-full max-w-[1156px]">
+          <motion.div
+            className="hero-arrow-lane relative z-10 mx-auto w-full"
+            initial="hidden"
+            animate="show"
+            variants={fadeIn}
+            transition={{ duration: 0.7, delay: 1.1 }}
+          >
+            <ThemeImage
+              src={heroArrow}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </motion.div>
+
+          {/* STATS */}
+          <motion.div
+            className="hero-stats relative z-20 mx-auto mt-0 flex min-h-[89px] max-w-[1062px] flex-col items-stretch justify-center gap-3 rounded-2xl px-5 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-10 sm:gap-y-6 sm:px-10 sm:py-[15px]"
+            initial="hidden"
+            animate="show"
+            variants={staggerContainer(0.1, 1.25)}
+          >
+          <ThemeImage
+            src={heroStatsBg}
+            alt=""
+            aria-hidden="true"
+            className="hero-stats-bg hidden sm:block"
+          />
+          {STATS.map(
+            ({
+              value,
+              label,
+              icon,
+              frame,
+              badgeClass,
+              iconClass,
+              badgeBackground,
+              darkBadge,
+            }) => (
+              <motion.div
+                key={label}
+                className="hero-stat-row flex items-center gap-3 sm:bg-transparent"
+                variants={fadeInUp}
+              >
+                {resolvedTheme === "dark" ? (
+                  <div className="relative h-[58px] w-[66px] flex-none">
+                    {/* Natural size keeps each export's 50x42 tint the same
+                        size as the light badge's background layer. */}
+                    <img
+                      src={darkBadge}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
+                  >
+                    <ThemeImage
+                      src={badgeBackground}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
+                    />
+                    <ThemeImage
+                      src={frame}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain"
+                    />
+                    <i
+                      aria-hidden="true"
+                      className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`}
+                    />
+                  </div>
+                )}
+                <div className="text-left">
+                  <p className="text-[15px] font-semibold text-[var(--text-heading)]">
+                    {value}
+                  </p>
+                  <p className="text-[13px] font-semibold text-[var(--text-body)]">
+                    {label}
+                  </p>
+                </div>
+              </motion.div>
+            ),
+          )}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+function HeroCopy() {
+  return (
+    <>
+      <h1
+        className="mx-auto mt-4 w-full max-w-[1040px] px-2 font-semibold leading-[1.18] tracking-[0.01em] text-[var(--text-heading)] text-[32px] sm:text-[44px] lg:text-[68px] xl:text-[80px]"
+      >
+        Design Stunning
+        <br />
+        <span className="hero-backdrop-word">Backdrops</span> Effortlessly
+      </h1>
+
+      <p
+        data-anime-hero-copy
+        className="mx-auto mt-4 max-w-[470px] text-[15px] leading-7 text-[var(--text-body)] sm:text-[16px]"
+      >
+        Visora helps you create beautiful event backdrops with khmer elements,
+        timers, and everything you need.
+      </p>
+
+      <div
+        data-anime-hero-copy
+        className="mt-8 flex flex-wrap items-center justify-center gap-4"
+      >
+        <NavLink
+          to="/editor"
+          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-[13px] font-semibold text-white transition-transform duration-200 hover:scale-[1.03]"
+        >
+          Start Designing
+          <ArrowRightIcon className="h-4 w-4" />
+        </NavLink>
+
+        <NavLink
+          to="/templates"
+          className="rounded-full bg-secondary/20 px-6 py-3 text-[13px] font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:bg-secondary/30"
+        >
+          Explore Templates
+        </NavLink>
+      </div>
+    </>
+  );
+}
+
+export default Hero;
