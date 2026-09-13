@@ -1,0 +1,116 @@
+/* Pending Review page (/dashboard/pending). Shared pieces are in admin-ui.css. */
+.pr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.pr-tabs button {
+  padding: 8px 12px;
+}
+.pr-toolbar-end {
+  display: flex;
+  gap: 20px;
+}
+.pr-table .ad-table th:first-child {
+  width: 32%;
+}
+.pr-table .ad-table th:last-child {
+  width: 1%;
+}
+.pr-table .ad-table td {
+  padding-block: 20px;
+}
+.pr-template {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.4cqi, 34px);
+}
+.pr-template img {
+  flex: none;
+  width: clamp(84px, 10cqi, 118px);
+  aspect-ratio: 112 / 72;
+  object-fit: cover;
+  border-radius: 2px;
+}
+.pr-template > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.pr-template strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.pr-template p {
+  color: var(--dash-body);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.pr-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0 8px;
+  color: var(--dash-accent);
+  font-size: 9px;
+}
+.pr-category {
+  min-width: 76px;
+  font-size: 11px;
+}
+.pr-actions-cell {
+  text-align: right;
+}
+.pr-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.pr-preview img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 112 / 72;
+  object-fit: cover;
+  margin-bottom: 14px;
+  border-radius: 6px;
+}
+.pr-preview p + p {
+  margin-top: 6px;
+}
+.pr-preview-meta {
+  font-size: 12px !important;
+  color: var(--dash-muted) !important;
+}
+
+@container ad-table-wide (max-width: 900px) {
+  .pr-table .ad-table tbody tr {
+    padding-right: 4px;
+  }
+  .pr-table .ad-table td {
+    padding-block: 0;
+  }
+  .pr-table .ad-table td.pr-actions-cell {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .pr-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+@container ad-table-wide (max-width: 420px) {
+  .pr-table .ad-table td[data-label="Submitted By"] {
+    grid-column: 1 / -1;
+  }
+}
+@container ad-page (max-width: 520px) {
+  .pr-toolbar-end {
+    width: 100%;
+  }
+  .pr-toolbar-end .ad-sort {
+    flex: 1;
+  }
+}

@@ -38,17 +38,17 @@ import dark12 from '../assets/pages/home/create-without-limits/dark/YellowBlob.s
 import light13 from '../assets/pages/home/create-without-limits/PurpleBlob.svg';
 import dark13 from '../assets/pages/home/create-without-limits/dark/PurpleBlob.svg';
 import light14 from '../assets/pages/home/create-without-limits/YellowCardBlob(WithoutLimits).svg';
-import dark14 from '../assets/pages/home/create-without-limits/dark/YellowCardBlob(WithoutLimits).svg';
+import dark14 from '../assets/pages/home/why-choose-visora/dark/Group 79.svg';
 import light15 from '../assets/pages/home/create-without-limits/PurpleCard(WithoutLimits).svg';
-import dark15 from '../assets/pages/home/create-without-limits/dark/PurpleCard(WithoutLimits).svg';
+import dark15 from '../assets/pages/home/why-choose-visora/dark/Group 80.svg';
 import light16 from '../assets/pages/home/create-without-limits/SoftGreenCard(WithoutLimits).svg';
-import dark16 from '../assets/pages/home/create-without-limits/dark/SoftGreenCard(WithoutLimits).svg';
+import dark16 from '../assets/pages/home/why-choose-visora/dark/Group 83.svg';
 import light17 from '../assets/pages/home/create-without-limits/SoftRedCard(WithoutLimits).svg';
-import dark17 from '../assets/pages/home/create-without-limits/dark/SoftRedCard(WithoutLimits).svg';
+import dark17 from '../assets/pages/home/why-choose-visora/dark/Group 82.svg';
 import light18 from '../assets/pages/home/create-without-limits/MajenticCard(WithoutLimits).svg';
-import dark18 from '../assets/pages/home/create-without-limits/dark/MajenticCard(WithoutLimits).svg';
+import dark18 from '../assets/pages/home/why-choose-visora/dark/Group 81.svg';
 import light19 from '../assets/pages/home/create-without-limits/CyanCard(WithoutLimits).svg.svg';
-import dark19 from '../assets/pages/home/create-without-limits/dark/CyanCard(WithoutLimits).svg.svg';
+import dark19 from '../assets/pages/home/why-choose-visora/dark/Group 84.svg';
 import light20 from '../assets/pages/home/how-it-works/FirstRactangle.svg';
 import dark20 from '../assets/pages/home/how-it-works/dark/FirstRactangle.svg';
 import light21 from '../assets/pages/home/how-it-works/2ndRactangle.svg';
@@ -68,7 +68,9 @@ import dark27 from '../assets/pages/home/how-it-works/dark/02.svg';
 import light28 from '../assets/pages/home/how-it-works/03.svg';
 import dark28 from '../assets/pages/home/how-it-works/dark/03.svg';
 import light29 from '../assets/pages/home/explore-by-events/TopBg(ExploreByEvents).svg';
-import dark29 from '../assets/pages/home/explore-by-events/dark/TopBg(ExploreByEvents).svg';
+import dark29 from '../assets/pages/home/explore-by-events/dark/ExploreByEventTop(DarkMode).svg';
+import exploreTopLeftLight from '../assets/pages/home/explore-by-events/TopLeft.svg';
+import exploreTopLeftDark from '../assets/pages/home/explore-by-events/dark/DashedArrow(DarkMode).svg';
 import light30 from '../assets/pages/home/explore-by-events/LightPurpleBackground.svg';
 import dark30 from '../assets/pages/home/explore-by-events/dark/LightPurpleBackground.svg';
 import light31 from '../assets/pages/home/explore-by-events/ForegroundPurple.svg';
@@ -81,6 +83,10 @@ import light34 from '../assets/pages/home/explore-by-events/RightLayerBlur.svg';
 import dark34 from '../assets/pages/home/explore-by-events/dark/RightLayerBlur.svg';
 import light35 from '../assets/pages/home/why-choose-visora/why-choose-blob.png';
 import dark35 from '../assets/pages/home/why-choose-visora/WhyChooseVisoraRightBlob(DarkMode).svg';
+import khmerApsaraLight from '../assets/pages/home/khmer-design-showcase/apsara.png';
+import khmerApsaraDark from '../assets/pages/home/khmer-design-showcase/apsara(DarkMode).svg';
+import khmerAngkorLight from '../assets/pages/home/khmer-design-showcase/ankorwat.png';
+import khmerAngkorDark from '../assets/pages/home/khmer-design-showcase/angkorwat(DarkMode).svg';
 
 
 // --- About page ---
@@ -198,6 +204,9 @@ export const darkAssets = {
   [light33]: dark33,
   [light34]: dark34,
   [light35]: dark35,
+  [exploreTopLeftLight]: exploreTopLeftDark,
+  [khmerApsaraLight]: khmerApsaraDark,
+  [khmerAngkorLight]: khmerAngkorDark,
 
   // --- About page ---
   [heroYellowFrameLight]: heroYellowFrameDark,

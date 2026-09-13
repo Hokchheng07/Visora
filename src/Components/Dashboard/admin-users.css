@@ -1,0 +1,133 @@
+/* User management page (/dashboard/users). Shared pieces are in admin-ui.css.
+   Wide: toolbar, table and pagination on the left; Recent Registrations on
+   the right, starting level with the table. Narrow: everything stacks. */
+.um-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(300px, 1fr);
+  grid-template-areas:
+    "toolbar ."
+    "table aside"
+    "pages aside";
+  grid-template-rows: auto auto 1fr;
+  gap: clamp(14px, 1.6vw, 24px) clamp(16px, 1.6vw, 20px);
+  align-items: start;
+}
+.um-toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  min-width: 0;
+}
+.um-toolbar .ad-tabs {
+  min-width: 0;
+}
+.um-toolbar-controls {
+  display: flex;
+  gap: 12px;
+}
+.um-toolbar-controls .ad-control select,
+.um-toolbar-controls .ad-button {
+  min-height: 30px;
+  font-size: 12px;
+}
+.um-table {
+  grid-area: table;
+}
+.um-table .ad-table th:first-child {
+  width: 40%;
+}
+.um-pagination {
+  grid-area: pages;
+}
+.um-registrations {
+  grid-area: aside;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+.um-registrations .ad-card-head {
+  border-bottom: 0;
+  padding-top: 32px;
+}
+.um-registrations li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px clamp(4px, 1vw, 12px) 22px;
+}
+.um-registrations li > div {
+  display: grid;
+  min-width: 0;
+}
+.um-registrations strong {
+  font-size: 15px;
+  font-weight: 400;
+}
+.um-registrations small {
+  font-size: 11px;
+  color: var(--dash-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.um-registrations small.um-joined {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--dash-muted);
+}
+.um-registrations .ad-pill {
+  min-width: 82px;
+  min-height: 30px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.um-view-all {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  color: var(--dash-accent);
+  font-size: 15px;
+  text-decoration: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .um-view-all:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@container ad-page (max-width: 1080px) {
+  .um-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "toolbar"
+      "table"
+      "pages"
+      "aside";
+    grid-template-rows: none;
+  }
+}
+@container ad-page (max-width: 520px) {
+  .um-toolbar-controls {
+    width: 100%;
+  }
+  .um-toolbar-controls .ad-control {
+    flex: 1;
+  }
+  .ad-pagination p {
+    font-size: 13px;
+  }
+}
+.um-registrations .ad-card-head {
+  flex-wrap: nowrap;
+}
+.um-registrations .ad-card-head h2 {
+  min-width: 0;
+  font-size: clamp(15px, 1.2vw, 17px);
+}

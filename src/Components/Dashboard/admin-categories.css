@@ -1,0 +1,88 @@
+/* Categories page (/dashboard/categories). Shared pieces are in admin-ui.css. */
+.cm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.cm-search {
+  width: min(320px, 100%);
+}
+.cm-toolbar-end {
+  display: flex;
+  gap: 16px;
+}
+.cm-table .ad-table th:first-child {
+  width: 22%;
+}
+.cm-table .ad-table th:nth-child(2) {
+  width: 32%;
+}
+.cm-name {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.cm-name strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+.cm-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  color: var(--cm-color);
+  background: color-mix(in srgb, var(--cm-color) 18%, var(--dash-surface));
+}
+.cm-icon.purple { --cm-color: #6155f5; }
+.cm-icon.orange { --cm-color: #f97316; }
+.cm-icon.green { --cm-color: #22a55b; }
+.cm-icon.red { --cm-color: #ef3e5c; }
+.cm-icon.blue { --cm-color: #1e88f5; }
+.cm-icon.violet { --cm-color: #7c5cf2; }
+.cm-icon.teal { --cm-color: #14b8a6; }
+.cm-icon.yellow { --cm-color: #f59e0b; }
+.dark .cm-icon.purple { --cm-color: #a78dff; }
+.dark .cm-icon.violet { --cm-color: #b39dff; }
+.cm-description {
+  color: var(--dash-body);
+  line-height: 1.6;
+}
+.ad-table td.cm-description {
+  font-size: 13px;
+}
+.cm-count {
+  color: var(--dash-accent);
+  font-size: 15px;
+  font-weight: 600;
+}
+.cm-status {
+  min-width: 80px;
+  min-height: 32px;
+  font-size: 15px;
+}
+.cm-status .dot {
+  width: 7px;
+  height: 7px;
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+@container ad-table-wide (max-width: 900px) {
+  .cm-table .ad-table td.cm-description {
+    grid-column: 1 / -1;
+  }
+}
+@container ad-page (max-width: 520px) {
+  .cm-search,
+  .cm-toolbar-end {
+    width: 100%;
+  }
+  .cm-toolbar-end .ad-sort {
+    flex: 1;
+  }
+}

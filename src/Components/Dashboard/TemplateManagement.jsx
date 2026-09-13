@@ -1,26 +1,41 @@
 import { useMemo, useState } from "react";
-import {
-  Check,
-  ChevronDown,
-  Eye,
-  Filter,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Trash2,
-  X,
-} from "lucide-react";
-import { Avatar, Pagination, StatusBadge, TemplateThumb } from "./ManagementUi";
+import { Check, ChevronDown, Clock, Eye, Funnel, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { Modal, Pagination, RowMenu, UserAvatar, formatDate } from "./AdminUi";
 import { useDashboardData } from "./dashboardData";
-import "./management.css";
+import graduationCeremony from "../../assets/pages/admin/templates/template-table/graduation-ceremony.png";
+import businessSeminar from "../../assets/pages/admin/templates/template-table/business-seminar.png";
+import khmerNewYear from "../../assets/pages/admin/templates/template-table/khmer-new-year.png";
+import finalExamination from "../../assets/pages/admin/templates/template-table/final-examination.png";
+import creativeWorkshop from "../../assets/pages/admin/templates/template-table/creative-workshop.png";
+import databaseFundamentals from "../../assets/pages/admin/templates/template-table/database-fundamentals.png";
+import codingCompetition from "../../assets/pages/admin/templates/template-table/coding-competition.png";
+import "./admin-templates.css";
+
+// Seed templates have no preview images yet; these Figma exports stand in,
+// picked by category.
+const previewByCategory = {
+  Graduation: graduationCeremony,
+  Seminar: businessSeminar,
+  "Khmer Events": khmerNewYear,
+  Examination: finalExamination,
+  Workshop: creativeWorkshop,
+  Competition: codingCompetition,
+};
+const previewFor = (template) => template.image || previewByCategory[template.category] || databaseFundamentals;
 
 const tabs = [
-  "All Templates",
-  "Public",
-  "Private",
-  "Pending Review",
-  "Rejected",
+  ["all", "All Templates", () => true],
+  ["public", "Public", (t) => t.visibility === "public"],
+  ["private", "Private", (t) => t.visibility === "private"],
+  ["pending", "Pending Review", (t) => t.status === "pending"],
+  ["rejected", "Rejected", (t) => t.status === "rejected"],
 ];
+const statusInfo = {
+  published: { label: "Published", tone: "green", icon: Check },
+  pending: { label: "Pending", tone: "yellow", icon: Clock },
+  rejected: { label: "Rejected", tone: "red", icon: X },
+};
+const perPage = 7;
 const empty = {
   name: "",
   creator: "",
@@ -30,83 +45,95 @@ const empty = {
   visibility: "public",
   createdAt: "2024-05-25",
 };
-function TemplateForm({ initial = empty, onSave, onClose, categories }) {
+
+function SelectControl({ label, value, onChange, children, className = "" }) {
+  return (
+    <label className={`ad-control ${className}`}>
+      <span className="sr-only">{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        {children}
+      </select>
+      <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
+    </label>
+  );
+}
+
+// Sub-label under the template name: review state wins over visibility.
+function TemplateState({ template }) {
+  if (template.status === "pending") return <span className="tm-state"><Clock size={13} fill="currentColor" className="is-knockout" aria-hidden="true" />Pending</span>;
+  if (template.status === "rejected") return <span className="tm-state is-rejected"><X size={14} strokeWidth={3} aria-hidden="true" />Rejected</span>;
+  return <span className="tm-state"><Check size={14} strokeWidth={2.5} aria-hidden="true" />{template.visibility === "private" ? "Private" : "Public"}</span>;
+}
+
+function TemplateForm({ initial, onSave, onClose, categories }) {
   const [form, setForm] = useState(initial);
   const set = (key, value) => setForm((old) => ({ ...old, [key]: value }));
+  const title = initial.id ? "Edit Template" : "Add Template";
   return (
-    <div className="modal-backdrop">
+    <Modal title={title} onClose={onClose}>
       <form
-        className="dashboard-modal"
-        onSubmit={(e) => {
-          e.preventDefault();
+        className="ad-form"
+        onSubmit={(event) => {
+          event.preventDefault();
           onSave(form);
           onClose();
         }}
       >
         <header>
-          <h2>{initial.id ? "Edit Template" : "Add Template"}</h2>
-          <button type="button" onClick={onClose}>
+          <h2>{title}</h2>
+          <button type="button" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
         </header>
         {[
-          ["name", "Template name"],
-          ["creator", "Creator name"],
-          ["email", "Creator email"],
-          ["createdAt", "Created date"],
-        ].map(([key, label]) => (
+          ["name", "Template name", "text"],
+          ["creator", "Creator name", "text"],
+          ["email", "Creator email", "email"],
+          ["createdAt", "Created date", "date"],
+        ].map(([key, label, type]) => (
           <label key={key}>
             {label}
-            <input
-              required
-              value={form[key]}
-              type={key === "createdAt" ? "date" : "text"}
-              onChange={(e) => set(key, e.target.value)}
-            />
+            <span className="ad-control">
+              <input required value={form[key]} type={type} onChange={(event) => set(key, event.target.value)} />
+            </span>
           </label>
         ))}
         <label>
           Category
-          <select
-            value={form.category}
-            onChange={(e) => set("category", e.target.value)}
-          >
+          <SelectControl label="Category" value={form.category} onChange={(value) => set("category", value)}>
             {categories.map((c) => (
               <option key={c}>{c}</option>
             ))}
-          </select>
+          </SelectControl>
         </label>
         <label>
           Status
-          <select
-            value={form.status}
-            onChange={(e) => set("status", e.target.value)}
-          >
+          <SelectControl label="Status" value={form.status} onChange={(value) => set("status", value)}>
             <option value="published">Published</option>
             <option value="pending">Pending</option>
             <option value="rejected">Rejected</option>
-          </select>
+          </SelectControl>
         </label>
         <label>
           Visibility
-          <select
-            value={form.visibility}
-            onChange={(e) => set("visibility", e.target.value)}
-          >
+          <SelectControl label="Visibility" value={form.visibility} onChange={(value) => set("visibility", value)}>
             <option value="public">Public</option>
             <option value="private">Private</option>
-          </select>
+          </SelectControl>
         </label>
-        <button className="modal-submit">Save Template</button>
+        <div className="ad-modal-actions">
+          <button type="button" className="ad-button" onClick={onClose}>Cancel</button>
+          <button type="submit" className="ad-button primary">Save Template</button>
+        </div>
       </form>
-    </div>
+    </Modal>
   );
 }
+
 export default function TemplateManagement() {
-  const { templates, categories, addTemplate, updateTemplate, deleteTemplate } =
-    useDashboardData();
+  const { templates, categories, addTemplate, updateTemplate, deleteTemplate } = useDashboardData();
   const [query, setQuery] = useState("");
-  const [tab, setTab] = useState("All Templates");
+  const [tab, setTab] = useState("all");
   const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("all");
   const [creator, setCreator] = useState("all");
@@ -116,212 +143,207 @@ export default function TemplateManagement() {
   const [viewing, setViewing] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const creators = [...new Set(templates.map((t) => t.creator))];
-  const result = useMemo(
-    () =>
-      templates
-        .filter((t) =>
-          `${t.name} ${t.creator}`.toLowerCase().includes(query.toLowerCase()),
-        )
-        .filter((t) =>
-          tab === "All Templates" || tab === "Public"
-            ? tab !== "Public" || t.visibility === "public"
-            : tab === "Private"
-              ? t.visibility === "private"
-              : tab === "Pending Review"
-                ? t.status === "pending"
-                : t.status === "rejected",
-        )
-        .filter((t) => status === "all" || t.status === status)
-        .filter((t) => category === "all" || t.category === category)
-        .filter((t) => creator === "all" || t.creator === creator)
-        .sort((a, b) =>
-          sort === "name-asc"
-            ? a.name.localeCompare(b.name)
-            : sort === "name-desc"
-              ? b.name.localeCompare(a.name)
-              : sort === "oldest"
-                ? a.createdAt.localeCompare(b.createdAt)
-                : b.createdAt.localeCompare(a.createdAt),
-        ),
-    [templates, query, tab, status, category, creator, sort],
-  );
-  const perPage = 7;
-  const current = result.slice((page - 1) * perPage, page * perPage);
+
+  const result = useMemo(() => {
+    const tabFilter = tabs.find(([key]) => key === tab)[2];
+    const needle = query.trim().toLowerCase();
+    return templates
+      .filter(tabFilter)
+      .filter((t) => `${t.name} ${t.creator}`.toLowerCase().includes(needle))
+      .filter((t) => status === "all" || t.status === status)
+      .filter((t) => category === "all" || t.category === category)
+      .filter((t) => creator === "all" || t.creator === creator)
+      .sort((a, b) => {
+        if (sort === "name-asc") return a.name.localeCompare(b.name);
+        if (sort === "name-desc") return b.name.localeCompare(a.name);
+        if (sort === "oldest") return a.createdAt.localeCompare(b.createdAt);
+        return b.createdAt.localeCompare(a.createdAt);
+      });
+  }, [templates, query, tab, status, category, creator, sort]);
+
+  const pageCount = Math.ceil(result.length / perPage);
+  const currentPage = Math.min(page, Math.max(pageCount, 1));
+  const current = result.slice((currentPage - 1) * perPage, currentPage * perPage);
+  // Any filter change sends the list back to page 1.
+  const withReset = (setter) => (value) => {
+    setter(value);
+    setPage(1);
+  };
+
   return (
-    <div className="dashboard-content page-content management-page templates-page">
-      <div className="template-title">
-        <div>
+    <div className="ad-page tm-page">
+      <div className="tm-top">
+        <div className="ad-tabs" role="tablist" aria-label="Filter templates">
+          {tabs.map(([key, label]) => (
+            <button type="button" role="tab" key={key} aria-selected={tab === key} onClick={() => withReset(setTab)(key)}>
+              {label}
+            </button>
+          ))}
         </div>
-        <button className="add-button" onClick={() => setEditing(empty)}>
-          <Plus size={16} />
-          Add Template
+        <button type="button" className="ad-button primary tm-add" onClick={() => setEditing(empty)}>
+          <Plus size={20} strokeWidth={2.5} aria-hidden="true" /> Add Template
         </button>
       </div>
-      <div className="template-tabs">
-        {tabs.map((item) => (
-          <button
-            className={tab === item ? "active" : ""}
-            onClick={() => {
-              setTab(item);
-              setPage(1);
-            }}
-            key={item}
-          >
-            {item}{" "}
-            <span className="!text-[13px] font-semibold text-gray-500">
-              {item === "All Templates"
-                ? templates.length
-                : item === "Public"
-                  ? templates.filter((t) => t.visibility === "public").length
-                  : item === "Private"
-                    ? templates.filter((t) => t.visibility === "private").length
-                    : item === "Pending Review"
-                      ? templates.filter((t) => t.status === "pending").length
-                      : templates.filter((t) => t.status === "rejected").length}
-            </span>
-          </button>
-        ))}
-      </div>
-      <div className="template-filters">
-        <label className="search-control">
-          <Search size={16} />
-          <input
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search template by name or creator..."
-          />
+
+      <div className="tm-filters">
+        <label className="ad-control search tm-search">
+          <Search size={18} strokeWidth={2.5} aria-hidden="true" />
+          <span className="sr-only">Search templates</span>
+          <input value={query} onChange={(event) => withReset(setQuery)(event.target.value)} placeholder="Search template by name or creator..." />
         </label>
-        <div>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <div className="tm-selects">
+          <SelectControl label="Status" value={status} onChange={withReset(setStatus)}>
             <option value="all">All Status</option>
             <option value="published">Published</option>
             <option value="pending">Pending</option>
             <option value="rejected">Rejected</option>
-          </select>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
+          </SelectControl>
+          <SelectControl label="Category" value={category} onChange={withReset(setCategory)}>
             <option value="all">All Categories</option>
             {categories.map((c) => (
               <option key={c}>{c}</option>
             ))}
-          </select>
-          <select value={creator} onChange={(e) => setCreator(e.target.value)}>
+          </SelectControl>
+          <SelectControl label="Creator" value={creator} onChange={withReset(setCreator)}>
             <option value="all">All Creators</option>
             {creators.map((c) => (
               <option key={c}>{c}</option>
             ))}
-          </select>
-          <select value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="newest">Sort by Newest</option>
-            <option value="oldest">Sort by Oldest</option>
-            <option value="name-asc">Name A-Z</option>
-            <option value="name-desc">Name Z-A</option>
-          </select>
-          <button>
-            <Filter size={15} />
-            Filter
+          </SelectControl>
+        </div>
+        <div className="tm-sort">
+          <label className="ad-control ad-sort">
+            <span className="ad-sort-label">Sort by</span>
+            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+            </select>
+            <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
+          </label>
+          <button type="button" className="ad-button icon-only" disabled title="More filters coming soon" aria-label="More filters, coming soon">
+            <Funnel size={16} fill="currentColor" aria-hidden="true" />
           </button>
         </div>
       </div>
-      <div className="management-card table-scroll">
-        <div className="management-table templates-table">
-          <div className="management-head">
-            <span>Template</span>
-            <span>Creator</span>
-            <span>Category</span>
-            <span>Status</span>
-            <span>Created At</span>
-            <span>Actions</span>
-          </div>
-          {current.map((t) => (
-            <div className="management-row" key={t.id}>
-              <button
-                className="pending-template template-link"
-                onClick={() => setViewing(t)}
-              >
-                <TemplateThumb shade={t.shade} label={t.name} />
-                <div>
-                  <strong>{t.name}</strong>
-                  <small>{t.visibility}</small>
-                </div>
-              </button>
-              <div className="person">
-                <Avatar name={t.creator} />
-                <div>
-                  <strong>{t.creator}</strong>
-                  <small>{t.email}</small>
-                </div>
-              </div>
-              <span className="outlined-tag">{t.category}</span>
-              <StatusBadge status={t.status} />
-              <div className="date-cell">
-                <strong>{t.createdAt}</strong>
-                <small>{t.createdTime}</small>
-              </div>
-              <div className="row-menu">
-                <button onClick={() => setEditing(t)}>
-                  <MoreHorizontal size={18} />
-                </button>
-                <button onClick={() => setConfirm(t)}>
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+
+      <div className="ad-table-card stack-wide tm-table">
+        <table className="ad-table">
+          <thead>
+            <tr>
+              <th scope="col">Template</th>
+              <th scope="col">Creator</th>
+              <th scope="col" className="is-center">Category</th>
+              <th scope="col" className="is-center">Status</th>
+              <th scope="col">Created At</th>
+              <th scope="col" className="is-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {current.length === 0 && (
+              <tr>
+                <td colSpan={6} className="ad-table-empty">No templates match these filters.</td>
+              </tr>
+            )}
+            {current.map((t) => {
+              const info = statusInfo[t.status] || statusInfo.pending;
+              const StatusIcon = info.icon;
+              return (
+                <tr key={t.id}>
+                  <td className="is-primary">
+                    <button type="button" className="tm-template" onClick={() => setViewing(t)}>
+                      <img src={previewFor(t)} alt="" />
+                      <span>
+                        <strong>{t.name}</strong>
+                        <TemplateState template={t} />
+                      </span>
+                    </button>
+                  </td>
+                  <td data-label="Creator">
+                    <div className="ad-person">
+                      <UserAvatar size={38} />
+                      <div>
+                        <strong>{t.creator}</strong>
+                        <small>{t.email}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Category" className="is-center">
+                    <span className="ad-pill purple tinted tm-pill">{t.category}</span>
+                  </td>
+                  <td data-label="Status" className="is-center">
+                    <span className={`ad-pill ${info.tone} tm-pill tm-status`}>
+                      <StatusIcon size={12} strokeWidth={3} aria-hidden="true" />
+                      {info.label}
+                    </span>
+                  </td>
+                  <td data-label="Created At">
+                    <div className="ad-date">
+                      <strong>{formatDate(t.createdAt)}</strong>
+                      <small>{t.createdTime}</small>
+                    </div>
+                  </td>
+                  <td className="is-center is-actions">
+                    <RowMenu
+                      label={`Actions for ${t.name}`}
+                      items={[
+                        { label: "Preview", icon: Eye, onSelect: () => setViewing(t) },
+                        { label: "Edit", icon: Pencil, onSelect: () => setEditing(t) },
+                        { label: "Delete", icon: Trash2, danger: true, onSelect: () => setConfirm(t) },
+                      ]}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <Pagination
-        text={`Showing ${result.length ? (page - 1) * perPage + 1 : 0} to ${Math.min(page * perPage, result.length)} of ${result.length} templates`}
-      />
+
+      <Pagination page={currentPage} pageCount={pageCount} total={result.length} perPage={perPage} noun="templates" onChange={setPage} variant="outlined" />
+
       {editing && (
         <TemplateForm
           initial={editing}
           categories={categories}
-          onSave={(item) =>
-            item.id ? updateTemplate(item.id, item) : addTemplate(item)
-          }
+          onSave={(item) => (item.id ? updateTemplate(item.id, item) : addTemplate(item))}
           onClose={() => setEditing(null)}
         />
-      )}{" "}
+      )}
       {viewing && (
-        <div className="modal-backdrop">
-          <article className="dashboard-modal preview-modal">
-            <header>
-              <h2>{viewing.name}</h2>
-              <button onClick={() => setViewing(null)}>
-                <X size={18} />
-              </button>
-            </header>
-            <TemplateThumb shade={viewing.shade} label={viewing.name} />
-            <p>{viewing.description}</p>
-            <span className="outlined-tag">{viewing.category}</span>
-          </article>
-        </div>
-      )}{" "}
+        <Modal title={viewing.name} onClose={() => setViewing(null)} className="tm-preview">
+          <header>
+            <h2>{viewing.name}</h2>
+            <button type="button" onClick={() => setViewing(null)} aria-label="Close">
+              <X size={18} />
+            </button>
+          </header>
+          <img src={previewFor(viewing)} alt={`${viewing.name} preview`} />
+          <p>{viewing.description}</p>
+          <span className="ad-pill purple tinted">{viewing.category}</span>
+        </Modal>
+      )}
       {confirm && (
-        <div className="modal-backdrop">
-          <article className="dashboard-modal confirm-modal">
+        <Modal title="Delete template" onClose={() => setConfirm(null)}>
+          <header>
             <h2>Delete template?</h2>
-            <p>This action cannot be undone.</p>
-            <div>
-              <button onClick={() => setConfirm(null)}>Cancel</button>
-              <button
-                className="danger"
-                onClick={() => {
-                  deleteTemplate(confirm.id);
-                  setConfirm(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </article>
-        </div>
+          </header>
+          <p>“{confirm.name}” will be removed. This action cannot be undone.</p>
+          <div className="ad-modal-actions">
+            <button type="button" className="ad-button" onClick={() => setConfirm(null)}>Cancel</button>
+            <button
+              type="button"
+              className="ad-button danger"
+              onClick={() => {
+                deleteTemplate(confirm.id);
+                setConfirm(null);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

@@ -1,240 +1,202 @@
 import { useState } from "react";
-import {
-  ChevronDown,
-  Filter,
-  MoreHorizontal,
-  UserRound,
-  UserRoundCheck,
-  UserRoundX,
-  Users,
-} from "lucide-react";
-import { Avatar, Pagination, StatusBadge, StatCards } from "./ManagementUi";
+import { ArrowRight, Ban, ChevronDown, FileUser, Funnel, RotateCcw, Trash2, UserCog, UserRoundMinus, UserRoundPlus, Users } from "lucide-react";
+import { Link } from "react-router";
+import { CardHeader, Modal, Pagination, RowMenu, StatCards, UserAvatar, formatDate } from "./AdminUi";
 import { useDashboardData } from "./dashboardData";
-import "./management.css";
-const stats = [
-  ["Total User", "1,345", UserRound, "purple"],
-  ["Active Users", "3,234", UserRoundCheck, "amber"],
-  ["New This Week", "2,567", Users, "green"],
-  ["Suspended Users", "12", UserRoundX, "red"],
-];
-import { ArrowRight } from 'lucide-react';
+import "./admin-users.css";
+
 const tabs = [
-  ["all", "All Users", "1,248"],
-  ["active", "Active", "1,086"],
-  ["inactive", "Inactive", "128"],
-  ["suspended", "Suspended", "34"],
+  ["all", "All Users"],
+  ["active", "Active"],
+  ["inactive", "Inactive"],
+  ["suspended", "Suspended"],
 ];
-const users = [
-  [
-    "Sok Chantha",
-    "sok.chantha@visora.com",
-    "Active",
-    "May 24, 2024",
-    "10:30 AM",
-    24,
-  ],
-  [
-    "Dara Vannak",
-    "dara.vannak@visora.com",
-    "Active",
-    "May 24, 2024",
-    "9:12 AM",
-    18,
-  ],
-  [
-    "Srey Pich",
-    "srey.pich@visora.com",
-    "Inactive",
-    "May 23, 2024",
-    "4:45 PM",
-    12,
-  ],
-  [
-    "Vuthy Keo",
-    "vuthy.keo@visora.com",
-    "Active",
-    "May 23, 2024",
-    "2:20 PM",
-    37,
-  ],
-  [
-    "Nita Sorn",
-    "nita.sorn@visora.com",
-    "Active",
-    "May 22, 2024",
-    "11:05 AM",
-    9,
-  ],
-  [
-    "Bora Chea",
-    "bora.chea@visora.com",
-    "Inactive",
-    "May 22, 2024",
-    "8:40 AM",
-    7,
-  ],
-  [
-    "Ratha Kim",
-    "ratha.kim@visora.com",
-    "Active",
-    "May 21, 2024",
-    "5:15 PM",
-    31,
-  ],
-  [
-    "Malis Phan",
-    "malis.phan@visora.com",
-    "Active",
-    "May 21, 2024",
-    "1:30 PM",
-    15,
-  ],
-  [
-    "Sophea Lim",
-    "sophea.lim@visora.com",
-    "Inactive",
-    "May 20, 2024",
-    "10:10 AM",
-    5,
-  ],
-  [
-    "Chan Dara",
-    "chan.dara@visora.com",
-    "Active",
-    "May 20, 2024",
-    "9:00 AM",
-    22,
-  ],
-];
-const registrations = [
-  ["Sok Chantha", "sok.chantha@visora.com", "2 min ago", "Designer"],
-  ["Dara Vannak", "dara.vannak@visora.com", "18 min ago", "Editor"],
-  ["Srey Pich", "srey.pich@visora.com", "1 hour ago", "Contributor"],
-  ["Vuthy Keo", "vuthy.keo@visora.com", "3 hours ago", "Viewer"],
-  ["Nita Sorn", "nita.sorn@visora.com", "5 hours ago", "Designer"],
-  ["Nita heng", "nita.heng@visora.com", "5 hours ago", "Designer"],
-];
+const statusTone = { active: "green", inactive: "red", suspended: "red" };
+const roleTone = { Designer: "purple", Editor: "purple", Contributor: "yellow", Viewer: "gray" };
+const perPage = 10;
+const dayMs = 24 * 60 * 60 * 1000;
+const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+
 export default function UserManagement() {
-  const [selectedTab, setSelectedTab] = useState("all");
-  const { users: dataUsers, templates } = useDashboardData();
-  const shown = dataUsers.filter(
-    (u) => selectedTab === "all" || u.status === selectedTab,
-  );
-  const dynamicStats = [
-    ["Total User", dataUsers.length, UserRound, "purple"],
-    [
-      "Active Users",
-      dataUsers.filter((u) => u.status === "active").length,
-      UserRoundCheck,
-      "amber",
-    ],
-    ["New This Week", dataUsers.length, Users, "green"],
-    [
-      "Suspended Users",
-      dataUsers.filter((u) => u.status === "suspended").length,
-      UserRoundX,
-      "red",
-    ],
+  const { users, templates, updateUser, deleteUser } = useDashboardData();
+  const [tab, setTab] = useState("all");
+  const [role, setRole] = useState("all");
+  const [page, setPage] = useState(1);
+  const [confirm, setConfirm] = useState(null);
+
+  // Mock data has no clock, so "this week" is measured from the newest signup.
+  const newest = Math.max(...users.map((u) => new Date(u.joinedAt).getTime()));
+  const daysAgo = (u) => Math.round((newest - new Date(u.joinedAt).getTime()) / dayMs);
+  const joinedLabel = (u) => {
+    const days = daysAgo(u);
+    return days === 0 ? "Joined today" : `Joined ${days} day${days === 1 ? "" : "s"} ago`;
+  };
+
+  const roles = [...new Set(users.map((u) => u.role))];
+  const countFor = (key) => (key === "all" ? users.length : users.filter((u) => u.status === key).length);
+  const filtered = users.filter((u) => (tab === "all" || u.status === tab) && (role === "all" || u.role === role));
+  const pageCount = Math.ceil(filtered.length / perPage);
+  const currentPage = Math.min(page, Math.max(pageCount, 1));
+  const shown = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const recent = [...users].sort((a, b) => b.joinedAt.localeCompare(a.joinedAt)).slice(0, 5);
+
+  const stats = [
+    { label: "Total User", value: users.length, icon: Users, tone: "purple" },
+    { label: "Active Users", value: countFor("active"), icon: UserRoundPlus, tone: "yellow" },
+    { label: "New This Week", value: users.filter((u) => daysAgo(u) < 7).length, icon: UserCog, tone: "purple" },
+    { label: "Suspended Users", value: countFor("suspended"), icon: UserRoundMinus, tone: "red" },
   ];
+
   return (
-    <div className="dashboard-content management-page">
-      <StatCards items={dynamicStats} />
-      <div className="management-columns">
-        <section>
-          <div className="management-toolbar">
-            <div className="management-tabs">
-              {tabs.map(([key, label]) => (
-                <button
-                  key={key}
-                  className={selectedTab === key ? "active" : ""}
-                  onClick={() => setSelectedTab(key)}
-                >
-                  {label}{" "}
-                  <span>
-                    (
-                    {key === "all"
-                      ? dataUsers.length
-                      : dataUsers.filter((u) => u.status === key).length}
-                    )
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="toolbar-controls">
-              <button>
-                All Roles <ChevronDown size={15} />
+    <div className="ad-page um-page">
+      <StatCards items={stats} label="User totals" />
+
+      <div className="um-layout">
+        <div className="um-toolbar">
+          <div className="ad-tabs" role="tablist" aria-label="Filter users by status">
+            {tabs.map(([key, label]) => (
+              <button
+                type="button"
+                role="tab"
+                key={key}
+                aria-selected={tab === key}
+                onClick={() => {
+                  setTab(key);
+                  setPage(1);
+                }}
+              >
+                {label} ({countFor(key).toLocaleString()})
               </button>
-              <button>
-                <Filter size={15} />
-                Filter
-              </button>
-            </div>
+            ))}
           </div>
-          <div className="management-card table-scroll">
-            <div className="management-table users-table">
-              <div className="management-head">
-                <span className="text-[12px]">Names</span>
-                <span className="text-[12px]">Status</span>
-                <span className="text-[12px]">Joined Date</span>
-                <span className="text-[12px]">Templates</span>
-                <span className="text-[12px]">Actions</span>
-              </div>
+          <div className="um-toolbar-controls">
+            <label className="ad-control">
+              <span className="sr-only">Role</span>
+              <select
+                value={role}
+                onChange={(event) => {
+                  setRole(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="all">All Roles</option>
+                {roles.map((value) => (
+                  <option key={value}>{value}</option>
+                ))}
+              </select>
+              <ChevronDown size={16} aria-hidden="true" />
+            </label>
+            <button type="button" className="ad-button" disabled title="More filters coming soon" aria-label="Filter, coming soon">
+              <Funnel size={14} fill="currentColor" aria-hidden="true" /> Filter
+            </button>
+          </div>
+        </div>
+
+        <div className="ad-table-card um-table">
+          <table className="ad-table">
+            <thead>
+              <tr>
+                <th scope="col">Names</th>
+                <th scope="col">Status</th>
+                <th scope="col">Joined Date</th>
+                <th scope="col" className="is-center">Templates</th>
+                <th scope="col" className="is-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="ad-table-empty">No users match these filters.</td>
+                </tr>
+              )}
               {shown.map((u) => (
-                <div className="management-row" key={u.id}>
-                  <div className="person">
-                    <Avatar name={u.name} />
-                    <div>
-                      <strong className="!text-[14px] font-semibold mt-1">{u.name}</strong>
-                      <small className="!text-[10px] font-semibold">{u.email}</small>
+                <tr key={u.id}>
+                  <td className="is-primary">
+                    <div className="ad-person">
+                      <UserAvatar size={38} />
+                      <div>
+                        <strong>{u.name}</strong>
+                        <small>{u.email}</small>
+                      </div>
                     </div>
-                  </div>
-                  <StatusBadge className="border" status={u.status}/>
-                  <div className="date-cell ">
-                    <strong >{u.joinedAt}</strong>
-                    <small>10:30 AM</small>
-                  </div>
-                  <a className="count-link">
+                  </td>
+                  <td data-label="Status">
+                    <span className={`ad-pill ${statusTone[u.status] || "gray"}`}>
+                      <i className="dot" aria-hidden="true" />
+                      {capitalize(u.status)}
+                    </span>
+                  </td>
+                  <td data-label="Joined Date">
+                    <div className="ad-date">
+                      <strong>{formatDate(u.joinedAt)}</strong>
+                    </div>
+                  </td>
+                  <td data-label="Templates" className="is-center">
                     {templates.filter((t) => t.email === u.email).length}
-                  </a>
-                  <button className="menu-button">
-                    <MoreHorizontal size={19} />
-                  </button>
-                </div>
+                  </td>
+                  <td className="is-center is-actions">
+                    <RowMenu
+                      label={`Actions for ${u.name}`}
+                      items={[
+                        u.status === "suspended"
+                          ? { label: "Reactivate", icon: RotateCcw, onSelect: () => updateUser(u.id, { status: "active" }) }
+                          : { label: "Suspend", icon: Ban, onSelect: () => updateUser(u.id, { status: "suspended" }) },
+                        { label: "Delete user", icon: Trash2, danger: true, onSelect: () => setConfirm(u) },
+                      ]}
+                    />
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
-          <Pagination
-            text={`Showing 1 to ${shown.length} of ${shown.length} Users`}
-          />
-        </section>
-        <aside className="management-card registrations">
-          <header>
-            <div>
-              <span className="panel-icon">
-                <Users size={18} />
-              </span>
-              <h2 className="!text-[16px] text-blue-500 font-semibold">Recent Registrations</h2>
-            </div>
-            <button className="!text-[12px] -mr-39">View all</button><span className="text-blue-500"><ArrowRight size={13} /></span>
-          </header>
-          {dataUsers.slice(0, 10).map((u, index) => (
-            <div className="registration-row" key={u.id}>
-              <Avatar name={u.name} />
-              <div>
-                <strong className="!text-[14px] font-semibold mt-2">{u.name}</strong>
-                <small className="!text-[10px] font-semibold">{u.email}</small>
-                <small>{index + 1} hour ago</small>
-              </div>
-              <section>
-                <b className="!text-[12px] border font-semibold mt-3"> {u.role}</b>
-              </section>
-            </div>
-          ))}
-          <div className="text-blue-500 flex items-center mt-7 font-semibold justify-center" >
-            View all registrations <span className="text-blue-500"><ArrowRight size={13} /></span>
-          </div>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="um-pagination">
+          <Pagination page={currentPage} pageCount={pageCount} total={filtered.length} perPage={perPage} noun="Users" onChange={setPage} />
+        </div>
+
+        <aside className="ad-card um-registrations">
+          <CardHeader icon={FileUser} title="Recent Registrations" linkLabel="View all" to="/dashboard/users" />
+          <ul className="ad-list">
+            {recent.map((u) => (
+              <li key={u.id}>
+                <UserAvatar size={38} />
+                <div>
+                  <strong>{u.name}</strong>
+                  <small>{u.email}</small>
+                  <small className="um-joined">{joinedLabel(u)}</small>
+                </div>
+                <span className={`ad-pill ${roleTone[u.role] || "gray"}`}>{u.role}</span>
+              </li>
+            ))}
+          </ul>
+          <Link className="um-view-all" to="/dashboard/users">
+            View all registration <ArrowRight size={18} aria-hidden="true" />
+          </Link>
         </aside>
       </div>
+
+      {confirm && (
+        <Modal title="Delete user" onClose={() => setConfirm(null)}>
+          <header>
+            <h2>Delete {confirm.name}?</h2>
+          </header>
+          <p>This removes the user from the list. This action cannot be undone.</p>
+          <div className="ad-modal-actions">
+            <button type="button" className="ad-button" onClick={() => setConfirm(null)}>Cancel</button>
+            <button
+              type="button"
+              className="ad-button danger"
+              onClick={() => {
+                deleteUser(confirm.id);
+                setConfirm(null);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

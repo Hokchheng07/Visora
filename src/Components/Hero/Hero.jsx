@@ -22,6 +22,12 @@ import heroStatsBg from "../../assets/pages/home/hero/stats/HeroStatsBg.svg";
 import statPurpleBackground from "../../assets/pages/home/hero/stats/PurpleBackground.svg";
 import statYellowBackground from "../../assets/pages/home/hero/stats/YellowBackground.svg";
 import statFrameTwo from "../../assets/pages/home/hero/2ndFrame.png";
+// Each dark badge is one flattened export (frame, tint and icon together), so
+// it replaces the three light layers instead of pairing with one in darkAssets.
+import statBadgeOneDark from "../../assets/pages/home/hero/dark/FistStats(DarkMode).svg";
+import statBadgeTwoDark from "../../assets/pages/home/hero/dark/2ndstats.svg";
+import statBadgeThreeDark from "../../assets/pages/home/hero/dark/thirdStats.svg";
+import statBadgeFourDark from "../../assets/pages/home/hero/dark/ForthStats(DarkMode).svg";
 import {
   fadeIn,
   fadeInUp,
@@ -87,6 +93,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
+    darkBadge: statBadgeOneDark,
   },
   {
     value: "10K+",
@@ -96,6 +103,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
+    darkBadge: statBadgeTwoDark,
   },
   {
     value: "50K+",
@@ -105,6 +113,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
+    darkBadge: statBadgeThreeDark,
   },
   {
     value: "27/7",
@@ -114,6 +123,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
+    darkBadge: statBadgeFourDark,
   },
 ];
 
@@ -243,32 +253,46 @@ const Hero = () => {
               badgeClass,
               iconClass,
               badgeBackground,
+              darkBadge,
             }) => (
               <motion.div
                 key={label}
                 className="hero-stat-row flex items-center gap-3 sm:bg-transparent"
                 variants={fadeInUp}
               >
-                <div
-                  className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
-                >
-                  <ThemeImage
-                    src={badgeBackground}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
-                  />
-                  <ThemeImage
-                    src={frame}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain"
-                  />
-                  <i
-                    aria-hidden="true"
-                    className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`}
-                  />
-                </div>
+                {resolvedTheme === "dark" ? (
+                  <div className="relative h-[58px] w-[66px] flex-none">
+                    {/* Natural size keeps each export's 50x42 tint the same
+                        size as the light badge's background layer. */}
+                    <img
+                      src={darkBadge}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
+                  >
+                    <ThemeImage
+                      src={badgeBackground}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
+                    />
+                    <ThemeImage
+                      src={frame}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain"
+                    />
+                    <i
+                      aria-hidden="true"
+                      className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`}
+                    />
+                  </div>
+                )}
                 <div className="text-left">
                   <p className="text-[15px] font-semibold text-[var(--text-heading)]">
                     {value}
