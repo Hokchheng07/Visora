@@ -1,0 +1,329 @@
+/* Admin dashboard overview (/dashboard). Shared pieces (page, stats, cards) are in admin-ui.css. Colors come from the --dash-* tokens
+   in dashboard.css, so light and dark mode both work without extra rules.
+   Layout responds to the width of the page and of each card (container
+   queries), not to Figma coordinates, so it holds at any desktop size. */
+/* Cards */
+.ad-row {
+  display: grid;
+  gap: clamp(16px, 2.2cqi, 30px);
+  align-items: start;
+}
+.ad-row-top {
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  align-items: stretch;
+}
+.ad-row-bottom {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: stretch;
+}
+.ad-stack {
+  display: grid;
+  gap: clamp(16px, 1.5vw, 20px);
+  align-content: start;
+}
+
+/* Pending templates review */
+.ad-review {
+  display: grid;
+  grid-template-columns: clamp(96px, 22cqi, 150px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px clamp(14px, 3cqi, 24px);
+  padding: 16px clamp(4px, 1vw, 10px);
+  border-bottom: 1px solid var(--dash-divider);
+}
+.ad-review:last-child {
+  border-bottom: 0;
+}
+.ad-review-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.ad-review-copy h3 {
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 500;
+}
+.ad-review-copy p {
+  color: var(--dash-muted);
+  font-size: 11px;
+}
+.ad-review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+.ad-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@container (max-width: 600px) {
+  .ad-review {
+    grid-template-columns: clamp(80px, 26cqi, 120px) minmax(0, 1fr);
+  }
+  .ad-review-actions {
+    grid-column: 2;
+  }
+}
+@container (max-width: 380px) {
+  .ad-review {
+    grid-template-columns: 1fr;
+  }
+  .ad-review .ad-thumb {
+    max-width: 180px;
+  }
+  .ad-review-actions {
+    grid-column: 1;
+  }
+}
+
+/* Recent users */
+.ad-user {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 77px;
+  padding: 12px clamp(4px, 2cqi, 30px);
+  border-bottom: 1px solid var(--dash-divider);
+}
+.ad-user:last-child {
+  border-bottom: 0;
+}
+.ad-user-avatar {
+  color: var(--dash-muted);
+  background: var(--dash-divider);
+  border-radius: 50%;
+}
+.ad-user h3 {
+  font-size: 15px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-user p {
+  color: var(--dash-muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-user b {
+  color: var(--dash-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Template categories */
+.ad-category-tiles {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 4cqi, 20px);
+  padding: 14px 0 16px;
+}
+.ad-category-tiles li {
+  min-height: 80px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: 1.5px solid;
+  border-radius: 4px;
+  text-align: center;
+}
+.ad-category-tiles li.purple {
+  border-color: var(--dash-accent);
+}
+.ad-category-tiles li.purple svg {
+  color: var(--dash-accent);
+}
+.ad-category-tiles li.yellow {
+  border-color: var(--dash-yellow);
+}
+.ad-category-tiles li.yellow svg {
+  color: var(--dash-yellow);
+}
+.ad-category-tiles span {
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.ad-category-tiles strong {
+  font-size: 11px;
+  font-weight: 400;
+}
+@container (max-width: 340px) {
+  .ad-category-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Reports overview */
+.ad-report {
+  display: grid;
+  grid-template-columns: clamp(64px, 20cqi, 80px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dash-divider);
+}
+.ad-report:last-child {
+  border-bottom: 0;
+}
+.ad-report-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.ad-report-copy h3 {
+  font-size: 12px;
+  font-weight: 500;
+}
+.ad-report-copy p {
+  color: var(--dash-muted);
+  font-size: 9px;
+}
+.ad-report-status {
+  display: grid;
+  justify-items: stretch;
+  gap: 6px;
+  text-align: center;
+}
+.ad-report-status time {
+  color: var(--dash-muted);
+  font-size: 9px;
+}
+.ad-status {
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.ad-status.reviewing {
+  color: var(--dash-yellow-ink);
+  border-color: var(--dash-yellow);
+  background: color-mix(in srgb, var(--dash-yellow-tint) 50%, transparent);
+}
+.ad-status.resolved {
+  color: var(--dash-green);
+  border-color: color-mix(in srgb, var(--dash-green) 45%, transparent);
+  background: var(--dash-green-tint);
+}
+@container (max-width: 330px) {
+  .ad-report {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .ad-report-status {
+    grid-column: 2;
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+/* Platform activity */
+.ad-activity {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--dash-raised);
+  border-radius: 12px;
+  box-shadow: var(--dash-shadow);
+  padding: clamp(14px, 1.4vw, 20px) clamp(10px, 1.2vw, 18px) 16px;
+}
+.dark .ad-activity {
+  border: 1px solid var(--dash-border);
+}
+.ad-activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ad-activity-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--dash-soft-accent);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 500;
+}
+.ad-period {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.ad-period select {
+  appearance: none;
+  min-height: 42px;
+  padding: 0 40px 0 14px;
+  border: 1px solid var(--dash-divider);
+  border-radius: 6px;
+  background: var(--dash-surface);
+  color: var(--dash-ink);
+  font: 500 15px Poppins, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(20 15 60 / 0.06);
+}
+.ad-period svg {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: var(--dash-ink);
+}
+.ad-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 36px;
+  margin: 18px 0 8px clamp(6px, 2vw, 30px);
+  color: var(--dash-muted);
+  font-size: 14px;
+}
+.ad-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.ad-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.ad-legend i.users {
+  background: #8d7ff3;
+}
+.ad-legend i.templates {
+  background: #fcc97a;
+}
+.dark .ad-legend i.users {
+  background: #a78dff;
+}
+.dark .ad-legend i.templates {
+  background: #ffc21c;
+}
+.ad-chart {
+  flex: 1;
+  min-height: clamp(240px, 26vw, 330px);
+}
+
+/* Page-level breakpoints, measured on the content width, not the window. */
+@container ad-page (max-width: 1080px) {
+  .ad-row-top,
+  .ad-row-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ad-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container ad-page (max-width: 620px) {
+  .ad-stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+

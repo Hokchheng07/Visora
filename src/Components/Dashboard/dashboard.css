@@ -1,0 +1,291 @@
+/* Dashboard shell tokens. Light values follow the Figma admin frame; dark
+   values follow the marketing dark palette in theme/theme.css (surface
+   #0f0f14 / card #1a1a28, white headings, 12% white borders). Brand purple
+   is lifted to #a78dff in dark, as the editor does, because #705ae0 is too
+   low-contrast on the dark ground. */
+.dashboard-shell {
+  --dash-bg: #fff;
+  --dash-surface: #fff;
+  --dash-raised: linear-gradient(160deg, #f8f8fb, #f1f0f6);
+  --dash-hover: #f5f3ff;
+  --dash-border: #d9d9d9;
+  --dash-divider: #e4e4e7;
+  --dash-ink: #111;
+  --dash-body: #585858;
+  --dash-muted: #8e8e99;
+  --dash-primary: #705ae0;
+  --dash-accent: #6155f5;
+  --dash-soft-accent: #8d7ff3;
+  --dash-yellow: #ffc21c;
+  --dash-yellow-ink: #d89a00;
+  --dash-red: #ef3340;
+  --dash-green: #16a34a;
+  --dash-purple-tint: #e9e6ff;
+  --dash-yellow-tint: #fff1c7;
+  --dash-red-tint: #ffe0e3;
+  --dash-green-tint: #dcfce7;
+  --dash-blue: #1e88f5;
+  --dash-blue-tint: #dbeafe;
+  --dash-shadow: 0 2px 10px rgb(20 15 60 / 0.05);
+  --dash-gutter: clamp(16px, 3.6vw, 56px);
+  --text-heading: var(--dash-ink);
+  color-scheme: light;
+}
+.dark .dashboard-shell {
+  --dash-bg: #0f0f14;
+  --dash-surface: #1a1a28;
+  --dash-raised: linear-gradient(160deg, #1d1c2c, #171622);
+  --dash-hover: rgb(167 141 255 / 0.1);
+  --dash-border: rgb(255 255 255 / 0.12);
+  --dash-divider: rgb(255 255 255 / 0.08);
+  --dash-ink: #fff;
+  --dash-body: #e2e1e1;
+  --dash-muted: #bcbccd;
+  --dash-primary: #a78dff;
+  --dash-accent: #a78dff;
+  --dash-soft-accent: #b9a6ff;
+  --dash-yellow-ink: #ffc21c;
+  --dash-red: #ff8a80;
+  --dash-green: #4ade80;
+  --dash-purple-tint: rgb(167 141 255 / 0.16);
+  --dash-yellow-tint: rgb(255 194 28 / 0.14);
+  --dash-red-tint: rgb(255 138 128 / 0.14);
+  --dash-green-tint: rgb(74 222 128 / 0.12);
+  --dash-blue: #72bff1;
+  --dash-blue-tint: rgb(114 191 241 / 0.14);
+  --dash-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+.dashboard-shell {
+  min-height: 100dvh;
+  background: var(--dash-bg);
+  color: var(--dash-ink);
+  display: flex;
+  font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
+}
+.dashboard-sidebar {
+  position: fixed;
+  z-index: 40;
+  inset: 0 auto 0 0;
+  width: 238px;
+  background: var(--dash-surface);
+  box-shadow: 4px 0 18px rgb(20 15 60 / 0.08);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.dark .dashboard-sidebar {
+  box-shadow: none;
+  border-right: 1px solid var(--dash-border);
+}
+.dashboard-brand {
+  display: flex;
+  justify-content: center;
+  margin: 0 8px 44px;
+}
+.dashboard-brand img {
+  width: 132px;
+  height: auto;
+}
+.dark .dashboard-brand img {
+  /* The logo is dark purple ink; lift it so it reads on the dark sidebar. */
+  filter: brightness(1.9) saturate(0.85);
+}
+.dashboard-sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+.dashboard-nav-item {
+  min-height: 48px;
+  border-radius: 10px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--dash-body);
+  font-size: 17px;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.dashboard-nav-item svg {
+  flex: none;
+  color: var(--dash-ink);
+  transition: color 160ms ease;
+}
+.dashboard-nav-item.active {
+  color: var(--dash-accent);
+  background: var(--dash-hover);
+  font-weight: 500;
+}
+.dashboard-nav-item.active svg {
+  color: var(--dash-accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .dashboard-nav-item:hover {
+    background: var(--dash-hover);
+    color: var(--dash-accent);
+  }
+  .dashboard-nav-item:hover svg {
+    color: var(--dash-accent);
+  }
+}
+.dashboard-shell :is(a, button, select):focus-visible {
+  outline: 2px solid var(--dash-accent);
+  outline-offset: 2px;
+}
+.dashboard-main {
+  width: calc(100% - 238px);
+  margin-left: 238px;
+  min-width: 0;
+}
+.dashboard-header {
+  padding: clamp(20px, 2.4vw, 34px) var(--dash-gutter) 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.dashboard-header h1 {
+  margin: 0;
+  font-size: clamp(22px, 2.3vw, 32px);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--dash-ink);
+}
+.dashboard-header p {
+  margin: 4px 0 0;
+  color: var(--dash-body);
+  font-size: clamp(14px, 1.4vw, 20px);
+}
+.header-account {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vw, 20px);
+}
+.header-account .theme-toggle {
+  color: var(--dash-ink);
+}
+.notification {
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 8px;
+  color: var(--dash-ink);
+  cursor: pointer;
+}
+.notification b {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  background: var(--dash-accent);
+  color: #fff;
+  border: 2px solid var(--dash-bg);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+}
+.dark .notification b {
+  color: #141323;
+}
+.account-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--dash-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.admin-avatar {
+  flex: none;
+}
+.admin-meta {
+  display: grid;
+}
+.admin-meta strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.admin-meta span {
+  font-size: 13px;
+  color: var(--dash-body);
+}
+.dashboard-menu-toggle,
+.dashboard-scrim {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .admin-meta,
+  .account-chevron {
+    display: none;
+  }
+}
+/* Below 900px the sidebar becomes a drawer. */
+@media (max-width: 900px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .dashboard-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .dashboard-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgb(10 8 20 / 0.35);
+  }
+  .dashboard-main {
+    width: 100%;
+    margin-left: 0;
+  }
+  .dashboard-menu-toggle {
+    position: fixed;
+    z-index: 50;
+    left: 14px;
+    top: 18px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    border-radius: 10px;
+    color: var(--dash-accent);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .dashboard-header {
+    padding-left: 70px;
+    padding-top: 16px;
+  }
+}
+@media (max-width: 520px) {
+  .header-account .theme-toggle {
+    width: 36px;
+  }
+  .admin-avatar {
+    width: 38px;
+    height: 38px;
+  }
+}
+@media (max-width: 460px) {
+  .dashboard-header p {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-sidebar,
+  .dashboard-nav-item,
+  .dashboard-nav-item svg {
+    transition: none;
+  }
+}

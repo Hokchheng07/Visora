@@ -47,7 +47,7 @@ export default function PopularTemplates() {
           className="templates-arrow-scissors"
         />
         <motion.p
-          className="mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[var(--text-body)] sm:text-base"
+          className="popular-templates-copy mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[var(--text-body)] sm:text-base"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}

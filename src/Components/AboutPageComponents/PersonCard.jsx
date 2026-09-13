@@ -63,7 +63,15 @@ export default function PersonCard({ person, index = 0 }) {
       <div className="about-person-portrait" aria-label={`${person.name}, ${person.role}`}>
         <ThemeImage className="about-person-portrait-blob" src={cardTheme.blob} alt="" aria-hidden="true" />
         {person.photo ? (
-          <ThemeImage className="about-person-photo" src={person.photo} alt={`${person.name}, ${person.role}`} />
+          <ThemeImage
+            className="about-person-photo"
+            src={person.photo}
+            alt={`${person.name}, ${person.role}`}
+            style={{
+              ...(person.photoPosition ? { objectPosition: person.photoPosition } : {}),
+              ...person.photoStyle,
+            }}
+          />
         ) : (
           <div className="about-person-placeholder" aria-hidden="true">
             {getInitials(person.name)}
@@ -78,20 +86,9 @@ export default function PersonCard({ person, index = 0 }) {
         <span className={`about-person-role ${featuredRole ? "about-person-role-featured" : ""}`}>
           {person.role}
         </span>
-        {/* The design reserves a quote line on every card and shows it as
-            “ ······ ” until copy exists, so the empty state is the reference's
-            own placeholder rather than a gap in the middle of the card. */}
-        {person.quote ? (
-          <p className="about-person-quote">{`“${person.quote}”`}</p>
-        ) : (
-          <p className="about-person-quote about-person-quote-empty" aria-hidden="true">
-            <span>&ldquo;</span>
-            <span className="about-person-quote-dots" />
-            <span>&rdquo;</span>
-          </p>
-        )}
-        <span className="about-person-divider" aria-hidden="true" />
-
+        {/* Rendered even when empty: the quote box reserves three lines so the
+            socials row keeps the same place on every card. */}
+        <p className="about-person-quote">{person.quote ? `“${person.quote}”` : ""}</p>
         {availableSocials.length ? (
           <div className="about-person-socials" aria-label={`${person.name} social links`}>
             {availableSocials.map(([name, { Icon, image }]) => (

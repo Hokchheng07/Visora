@@ -5,7 +5,7 @@ import { shapeName } from "./shapeCatalog.js";
 
 export default function EditorLayersPanel() {
   const dispatch = useAppDispatch();
-  const { pages, currentPage, selectedId, gesture } = useAppSelector((state) => state.editor);
+  const { pages, currentPage, selectedId, selectedIds, gesture } = useAppSelector((state) => state.editor);
   const elements = pages[currentPage].elements;
   const selectedIndex = elements.findIndex((el) => el.id === selectedId);
   if (!elements.length) return <div className="editor-empty-state">
@@ -16,9 +16,9 @@ export default function EditorLayersPanel() {
     <p className="editor-panel-description">Front to back · Page {currentPage + 1}</p>
     <div className="editor-layer-list" role="group" aria-label="Page layers">
       {[...elements].reverse().map((el) => <button type="button" key={el.id} className="editor-layer-row"
-        aria-pressed={el.id === selectedId} disabled={!!gesture} onClick={() => dispatch(elementSelected(el.id))}>
+        aria-pressed={selectedIds.includes(el.id)} disabled={!!gesture} onClick={(event) => dispatch(elementSelected({ id: el.id, additive: event.shiftKey || event.metaKey || event.ctrlKey }))}>
         <span className={`editor-layer-swatch editor-shape-${el.shape}`} style={{ background: el.fill }} aria-hidden="true" />
-        <span>{shapeName(el.shape)}</span>
+        <span>{el.type === "text" ? el.content : shapeName(el.shape)}</span>
       </button>)}
     </div>
     <div className="editor-layer-actions">

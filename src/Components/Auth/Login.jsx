@@ -12,8 +12,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 import loginStyle from "../../assets/pages/auth/login/3 Strips 1.png";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
+import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
-import githubIcon from "../../assets/shared/social/github_light.svg";
+import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
 import { EASE } from "../../lib/animations/animations";
 
 import loginPic from "../../assets/pages/auth/login/LoginLogo-pic.png";
@@ -45,12 +46,12 @@ export default function Login() {
   }, [submitted]);
 
   return (
-    <main className="h-dvh min-h-0 overflow-hidden bg-white font-sans lg:grid lg:grid-cols-2">
+    <main className="min-h-dvh overflow-y-auto bg-white font-sans lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
       <section className="relative hidden h-full min-h-0 overflow-hidden lg:block">
         <img src={loginPic} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/75" />
         <Link to="/" className="absolute left-8 top-8 z-10 sm:left-12 sm:top-10">
-          <img src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
+          <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
         </Link>
         <div className="absolute bottom-10 left-8 z-10 max-w-[680px] text-white sm:bottom-14 sm:left-12 lg:left-16 lg:bottom-16">
           <h2 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">Unleash your creativity.</h2>
@@ -60,13 +61,13 @@ export default function Login() {
         </div>
       </section>
 
-      <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-center lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
-        <div className="mx-auto w-full max-w-[480px]">
+      <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-start lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
+        <div className="mx-auto w-full max-w-[480px] lg:my-auto lg:max-w-[650px]">
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
-            <img src={visoraLogo} alt="Visora" className="h-auto w-36" />
+            <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
-          <header className="relative mb-8 max-w-[560px] lg:mb-10">
-            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-2 -top-10 hidden w-16 rotate-[45deg] lg:block" />
+          <header className="relative mb-8 max-w-[560px] lg:mb-10 lg:pt-[73px]">
+            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block" />
             <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl">Welcome Back</h1>
             <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7">Login to continue designing with Visora</p>
           </header>
@@ -148,8 +149,8 @@ export default function Login() {
 
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
-              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={googleIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Google</button>
-              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={githubIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Github</button>
+              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Google</span></span></button>
+              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Facebook</span></span></button>
             </div>
             <p className="mt-6 text-center text-gray-400">Don't have an account? <Link to="/auth/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
           </form>
