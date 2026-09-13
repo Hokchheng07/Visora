@@ -18,6 +18,16 @@ import Editor from "./Components/Pages/Editor.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
 import Templates from "./Components/Pages/Templates.jsx";
+import DashboardLayout from "./Components/Dashboard/DashboardLayout.jsx";
+import UserManagement from "./Components/Dashboard/UserManagement.jsx";
+import {
+  CategoriesPage,
+  PendingPage,
+  ReportPage,
+  TemplatesPage,
+} from "./Components/Dashboard/DashboardPages.jsx";
+import AdminDashboard from "./Components/Dashboard/AdminDashboard.jsx";
+import { DashboardDataProvider } from "./Components/Dashboard/dashboardData.jsx";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +86,18 @@ const router = createBrowserRouter([
         element: <Navigate to="/auth/login" replace />,
       },
       {
+        path: "dashboard",
+        element: <DashboardLayout />,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "users", element: <UserManagement /> },
+          { path: "templates", element: <TemplatesPage /> },
+          { path: "categories", element: <CategoriesPage /> },
+          { path: "pending", element: <PendingPage /> },
+          { path: "report", element: <ReportPage /> },
+        ],
+      },
+      {
         path: "signup",
         element: <Navigate to="/auth/register" replace />,
       },
@@ -89,7 +111,9 @@ ReactDOM.createRoot(root).render(
   <StrictMode>
     <Provider store={store}>
       <ThemeProvider>
-        <RouterProvider router={router} />
+        <DashboardDataProvider>
+          <RouterProvider router={router} />
+        </DashboardDataProvider>
       </ThemeProvider>
     </Provider>
   </StrictMode>,

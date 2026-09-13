@@ -249,15 +249,6 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
       aria-labelledby="events-title"
       style={{ "--events-scroll-distance": `${pinned ? travel : 0}px` }}
     >
-      <ThemeImage src={topBackground} alt="" aria-hidden="true" className="explore-events-top-background" />
-      <ThemeImage src={topLeftDoodle} alt="" aria-hidden="true" className="explore-events-top-left" />
-      <header className="explore-events-heading">
-        <h2 id="events-title">
-          Explore By <span className="text-primary">Event</span><span className="text-secondary">s</span>
-        </h2>
-        <ThemeImage src={headingUnderline} alt="" aria-hidden="true" />
-      </header>
-      <ThemeImage src={arrowPointingUp} alt="" aria-hidden="true" className="explore-events-up-arrow" />
       <div
         ref={journeyRef}
         className="events-journey"
@@ -265,47 +256,68 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
         data-ready={!pinned || travel > 0}
         style={pinned && stageHeight ? { height: stageHeight + travel } : undefined}
       >
-        <div ref={stageRef} className="events-stage">
-          <div className="events-gallery">
-            <div
-              ref={viewportRef}
-              id="events-viewport"
-              className="events-viewport"
-              role="region"
-              aria-roledescription="carousel"
-              aria-label="Event collections"
-              aria-describedby="events-a11y-hint"
-              tabIndex={events.length > 1 ? 0 : undefined}
-              onKeyDown={handleKeyDown}
-              onScroll={() => {
-                if (pinned) return;
-                const viewport = viewportRef.current;
-                const distance = viewport.scrollWidth - viewport.clientWidth;
-                progress.set(distance > 0 ? clamp(viewport.scrollLeft / distance) : 0);
-              }}
-            >
-              <motion.div ref={trackRef} className="events-track" style={{ transform: trackTransform }}>
-                {pinned ? (
-                  [0, 1, 2].map((copyIndex) => (
-                    <HangingCardSet
-                      key={copyIndex}
-                      events={events}
-                      duplicate={copyIndex !== 1}
-                      setRef={copyIndex === 1 ? setRef : undefined}
-                    />
-                  ))
-                ) : (
-                  <HangingCardSet events={events} duplicate={false} setRef={setRef} />
-                )}
-              </motion.div>
-              {!events.length && <p className="events-empty"><ImageIcon aria-hidden="true" /> More inspiration is on its way.</p>}
+        {/* The heading and its artwork pin together with the card row, so
+            only the track moves while the section is being scrolled through. */}
+        <div ref={stageRef} className="events-frame">
+          <ThemeImage src={topBackground} alt="" aria-hidden="true" className="explore-events-top-background" />
+          <ThemeImage src={topLeftDoodle} alt="" aria-hidden="true" className="explore-events-top-left" />
+          <header className="explore-events-heading">
+            <h2 id="events-title">
+              Explore By <span className="text-primary">Event</span><span className="text-secondary">s</span>
+            </h2>
+            <ThemeImage src={headingUnderline} alt="" aria-hidden="true" />
+          </header>
+          {/* The arrow export is a PNG on solid white. Blend modes cannot knock
+              that out inside the sticky frame's own stacking context, so this
+              filter turns brightness into transparency instead. */}
+          <svg width="0" height="0" className="absolute" aria-hidden="true">
+            <filter id="explore-events-knockout-white" colorInterpolationFilters="sRGB">
+              <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -3 -3 -3 8.7 0" />
+            </filter>
+          </svg>
+          <ThemeImage src={arrowPointingUp} alt="" aria-hidden="true" className="explore-events-up-arrow" />
+          <div className="events-stage">
+            <div className="events-gallery">
+              <div
+                ref={viewportRef}
+                id="events-viewport"
+                className="events-viewport"
+                role="region"
+                aria-roledescription="carousel"
+                aria-label="Event collections"
+                aria-describedby="events-a11y-hint"
+                tabIndex={events.length > 1 ? 0 : undefined}
+                onKeyDown={handleKeyDown}
+                onScroll={() => {
+                  if (pinned) return;
+                  const viewport = viewportRef.current;
+                  const distance = viewport.scrollWidth - viewport.clientWidth;
+                  progress.set(distance > 0 ? clamp(viewport.scrollLeft / distance) : 0);
+                }}
+              >
+                <motion.div ref={trackRef} className="events-track" style={{ transform: trackTransform }}>
+                  {pinned ? (
+                    [0, 1, 2].map((copyIndex) => (
+                      <HangingCardSet
+                        key={copyIndex}
+                        events={events}
+                        duplicate={copyIndex !== 1}
+                        setRef={copyIndex === 1 ? setRef : undefined}
+                      />
+                    ))
+                  ) : (
+                    <HangingCardSet events={events} duplicate={false} setRef={setRef} />
+                  )}
+                </motion.div>
+                {!events.length && <p className="events-empty"><ImageIcon aria-hidden="true" /> More inspiration is on its way.</p>}
+              </div>
             </div>
+            <p id="events-a11y-hint" className="events-a11y-hint">
+              {pinned
+                ? "Scroll down or use the left and right arrow keys to explore one complete circuit of event cards."
+                : "Swipe horizontally or use the left and right arrow keys to explore event cards."}
+            </p>
           </div>
-          <p id="events-a11y-hint" className="events-a11y-hint">
-            {pinned
-              ? "Scroll down or use the left and right arrow keys to explore one complete circuit of event cards."
-              : "Swipe horizontally or use the left and right arrow keys to explore event cards."}
-          </p>
         </div>
       </div>
 

@@ -39,8 +39,6 @@
 .hero-vector-dashed { z-index: 4; }
 .hero-blob-copy { z-index: 10; }
 .hero-blob-card { width: min(1156px, 100%); margin-inline: auto; }
-.hero-section { min-height: 1100px; }
-.hero-content { min-height: 1100px; }
 .hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
 /* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row —
@@ -156,17 +154,14 @@
 }
 
 .hero-stats-group { position: relative; }
-.hero-arrow-lane { position: absolute; left: 50%; bottom: calc(100% - 2.75rem); height: auto; aspect-ratio: 550 / 118; width: min(560px, 60vw); transform: translateX(-50%); }
+.hero-arrow-lane { position: relative; height: auto; aspect-ratio: 550 / 118; width: min(560px, 60vw); margin: 0 auto 1rem; }
 .hero-arrow-lane img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
+/* Desktop keeps the group in normal flow under the blob. It used to be pinned
+   to the bottom of the fixed-height hero, so the gap above the scissors path
+   depended on the blob's rendered height and could collapse to an overlap. */
 @media (min-width: 1024px) {
-  .hero-stats-group {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    margin-top: 0;
-    transform: translateX(-50%);
-  }
+  .hero-stats-group { margin-top: clamp(3rem, 5vw, 5rem); }
 }
 
 /*
@@ -208,7 +203,7 @@
 /* Why Choose Visora decorative picture layers. */
 .features-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .features-linear-bg { position: absolute; top: 0; left: 50%; z-index: 1; display: block; width: 100vw; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; transform: translateX(-50%); pointer-events: none; }
-.features-section { aspect-ratio: 1441 / 927; }
+.features-section { aspect-ratio: 1441 / 927; margin-top: -1px; }
 .features-benefits-grid { margin-inline: 0; }
 .features-decorations { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: none; }
 @media (min-width: 1024px) {
@@ -222,9 +217,28 @@
 @media (max-width: 1023px) {
   .hero-section { min-height: auto; }
   .hero-content { min-height: 0; }
-  .hero-stats-group { position: relative; left: auto; bottom: auto; transform: none; }
   .features-section { aspect-ratio: auto !important; min-height: 0; }
   .features-linear-bg { left: 0; width: 100%; transform: none; }
+}
+
+/* Tablet has enough room for two balanced columns, but not the desktop's
+   single stats row. Reserve a real row for the scissors path so neither
+   element can overlap or depend on browser zoom rounding. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-stats-group { margin-top: 3.5rem; padding-bottom: 3rem; }
+  .hero-arrow-lane { width: min(520px, 68vw); margin-bottom: 1.25rem; }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(760px, 100%);
+    min-height: 0;
+    gap: 1rem 1.5rem;
+    overflow: hidden;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(90deg, rgb(178 148 240 / .72), rgb(255 194 28 / .56));
+  }
+  .hero-stats .hero-stats-bg { display: none !important; }
+  .hero-stat-row { min-width: 0; justify-content: flex-start; }
 }
 
 /* Create without Limits — the next feature showcase section. */
@@ -298,14 +312,19 @@
   .hero-search-exclamation { left: .5rem; top: -3.25rem; width: 3.5rem; height: 3rem; }
   .hero-arrow-lane { margin-top: 1.25rem; max-width: 82vw; }
   .hero-stats-group { margin-top: 2.5rem; }
-  .hero-arrow-lane { position: relative; left: auto; bottom: auto; width: 72vw; margin: 0 auto 1.75rem; transform: translateY(.75rem); }
+  .hero-arrow-lane { width: 72vw; margin: 0 auto 1.75rem; transform: translateY(.75rem); }
   .features-section { padding-inline: 1.25rem; padding-block: 4rem; }
   .features-section h2 { font-size: clamp(2.25rem, 11vw, 3.5rem); line-height: 1.1; }
   .create-limits-transition-arrow { left: 50%; width: 100%; }
 }
 
 /* Khmer Design Showcase */
-.khmer-showcase { position: relative; isolation: isolate; min-height: 1280px; overflow: hidden; background: linear-gradient(115deg, var(--gradient-khmer-from), var(--surface-warm)); }
+/* Two layers, sparkle on top of the gradient. The `background` shorthand used
+   to be here, and a shorthand resets background-image — which silently wiped
+   the .bg-sparkle texture this section also asks for, since both selectors are
+   one class deep and this file loads last. Stating both layers keeps the
+   gradient and puts the speckles back over it. */
+.khmer-showcase { position: relative; isolation: isolate; min-height: 1280px; overflow: hidden; background-image: var(--sparkle-url, url("/textures/speckles.svg")), linear-gradient(115deg, var(--gradient-khmer-from), var(--surface-warm)); background-repeat: repeat, no-repeat; background-size: 256px 256px, cover; }
 .khmer-showcase-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .khmer-showcase-linear-bg { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .khmer-showcase-apsara { position: absolute; inset: 9% 10% 10%; width: 80%; height: 85%; object-fit: contain; opacity: 40%; }
@@ -334,9 +353,11 @@
 .khmer-showcase-tagline { margin-top: .75rem; color: var(--text-muted); font-size: 1.05rem; }
 @media (max-width: 700px) { .khmer-showcase { min-height: auto; } .khmer-showcase-content { padding: 4rem 1.25rem; } .khmer-showcase-cards { grid-template-columns: 1fr; gap: 1.25rem; } .khmer-showcase-corner { width: 24%; padding: .5rem; } .khmer-showcase-angkor { left: 5%; width: 90%; } }
 
-/* Original Explore by Events composition. Only the card row sticks; the
- * measured horizontal travel adds space above the original bottom artwork.
- * overflow: clip preserves the page as the sticky row's scroll container. */
+/* Original Explore by Events composition. The frame (top wave, heading,
+ * doodles and card row) sticks to the top of the viewport -- the navbar hides
+ * while scrolling down -- so only the card track moves. The measured
+ * horizontal travel adds space above the original bottom artwork.
+ * overflow: clip preserves the page as the sticky frame's scroll container. */
 .explore-events-section {
   --events-canvas: max(1200px, 92vw);
   --events-rail-extra: 200px;
@@ -344,16 +365,24 @@
   isolation: isolate;
   width: 100%;
   min-height: calc(var(--events-canvas) + var(--events-rail-extra) + var(--events-scroll-distance, 0px));
-  padding-top: clamp(17rem, 23vw, 22rem);
   overflow: clip;
   background-color: var(--surface-warm);
+}
+.events-frame { position: relative; padding-top: clamp(17rem, 23vw, 22rem); }
+.events-journey[data-pinned="true"] .events-frame { position: sticky; top: 0; }
+/* Same order the pieces had as section siblings: arrow (4) under the card row,
+   top wave (8) and heading (12) over it. */
+.events-frame > .events-stage { z-index: 6; }
+/* Short laptop screens: pull the row up so the pinned frame fits in view. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .events-frame { padding-top: clamp(15rem, 20vw, 18rem); }
 }
 .explore-events-top-background { position: absolute; inset: 0 0 auto; z-index: 8; display: block; width: 100%; height: auto; max-width: none; pointer-events: none; }
 .explore-events-heading { position: absolute; top: clamp(5.5rem, 9vw, 8.5rem); left: 50%; z-index: 12; width: min(820px, 90vw); transform: translateX(-50%); text-align: center; }
 .explore-events-heading h2 { font-size: clamp(2.6rem, 4.7vw, 5.5rem); font-weight: 600; line-height: 1.05; letter-spacing: -.045em; color: var(--text-heading); }
 .explore-events-heading img { display: block; width: 31.875vw; height: auto; max-width: none; margin: .65rem auto 0; }
 .explore-events-top-left { position: absolute; top: clamp(7.5rem, 11vw, 9.75rem); left: clamp(1.25rem, 5.8vw, 5.25rem); z-index: 10; width: clamp(88px, 9vw, 129px); height: auto; pointer-events: none; }
-.explore-events-up-arrow { position: absolute; top: clamp(15rem, 20vw, 19rem); left: 52%; z-index: 4; width: 12%; height: auto; max-width: none; mix-blend-mode: multiply; pointer-events: none; }
+.explore-events-up-arrow { position: absolute; top: clamp(7rem, 10vw, 9.5rem); right: clamp(1.25rem, 5.8vw, 5.25rem); z-index: 4; width: 12%; height: auto; max-width: none; filter: url(#explore-events-knockout-white); pointer-events: none; }
 
 .explore-events-layers { position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; }
 .explore-events-rear-layer,
@@ -383,7 +412,8 @@
 }
 
 @media (max-width: 767px) {
-  .explore-events-section { --events-canvas: 1200px; --events-rail-extra: 140px; padding-top: 20rem; }
+  .explore-events-section { --events-canvas: 1200px; --events-rail-extra: 140px; }
+  .events-frame { padding-top: 20rem; }
   .explore-events-heading { top: 6.5rem; width: calc(100% - 2rem); }
   .explore-events-heading h2 { font-size: clamp(2.35rem, 11.2vw, 3.25rem); }
   .explore-events-heading img { width: 88vw; margin-top: .5rem; }
@@ -409,4 +439,3 @@
   .explore-events-cta a { transition-duration: 120ms; }
   .khmer-showcase-button { transition-duration: 120ms; }
 }
-

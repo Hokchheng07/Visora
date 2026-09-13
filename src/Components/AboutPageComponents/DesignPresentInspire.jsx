@@ -6,7 +6,10 @@ function FeatureCard({ feature }) {
   return (
     <div
       className={`about-feature-hanger about-feature-hanger-${feature.tone}`}
-      style={{ "--about-feature-offset": `${feature.offset}px` }}
+      /* Unitless on purpose: the value is a 1440-canvas measurement, and CSS
+         gives it its unit per breakpoint — plain px while the cards stack,
+         canvas-relative once they hang on the desktop canvas. */
+      style={{ "--about-feature-offset": feature.offset }}
     >
       <ThemeImage className="about-feature-pin" src={feature.pin} alt="" aria-hidden="true" />
       {/* data-swing is the handle the Anime scope binds to — rotation happens
@@ -15,7 +18,7 @@ function FeatureCard({ feature }) {
         <article className="about-feature-card">
           <ThemeImage className="about-feature-frame" src={feature.artwork} alt="" aria-hidden="true" />
           <div className="about-feature-copy">
-            <h3>{feature.title}</h3>
+            <h3><span>{feature.titleAccent}</span>{feature.titleRest}</h3>
             <p>{feature.description}</p>
           </div>
         </article>

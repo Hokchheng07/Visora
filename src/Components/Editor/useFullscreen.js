@@ -24,10 +24,16 @@ export function useFullscreen(onExit) {
   }, [onExit]);
 }
 
-// Kept next to the hook so both halves of the fullscreen dance live together.
-// Must be called straight from a click handler: browsers only honour the
-// request inside a user gesture, and the gesture does not survive a state
-// update. A refusal is not an error — the overlay stands on its own.
+/* Escape is deliberately not intercepted. Keyboard Lock can stop the browser
+   acting on it, but it behaves differently across browsers and it fights what
+   the key means — someone pressing Escape wants out now, and answering that
+   with a dialog is the wrong trade for a presentation tool. The confirmation
+   lives on the Stop button instead, where the intent is unambiguous.
+
+   Kept next to the hook so both halves of the fullscreen dance live together.
+   Must be called straight from a click handler: browsers only honour the
+   request inside a user gesture, and the gesture does not survive a state
+   update. A refusal is not an error — the overlay stands on its own. */
 export function requestFullscreen(element) {
   element?.requestFullscreen?.().catch(() => {});
 }

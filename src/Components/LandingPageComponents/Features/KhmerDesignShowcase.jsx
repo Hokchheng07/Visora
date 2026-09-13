@@ -8,7 +8,7 @@ import topRight from "../../../assets/pages/home/khmer-design-showcase/TopRightC
 import bottomLeft from "../../../assets/pages/home/khmer-design-showcase/BottomLeftCorner.svg";
 import bottomRight from "../../../assets/pages/home/khmer-design-showcase/RightLeftCorner.svg";
 import ornament from "../../../assets/pages/home/khmer-design-showcase/MiddleSection.svg";
-import linearBgDark from "../../../assets/pages/home/khmer-design-showcase/KhmerDesignLinear(DarkMode).svg";
+import linearBgDark from "../../../assets/pages/home/khmer-design-showcase/KhmerDesignLinearBg.svg";
 import TemplateCard from "../Templates/TemplateCard";
 import { templateCards } from "../Templates/templateData";
 import {
