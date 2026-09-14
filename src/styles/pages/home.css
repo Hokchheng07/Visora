@@ -175,9 +175,10 @@
 .templates-spiral-arrow { right: 9.8%; top: 20%; width: 15%; opacity: 0.85; transform: scaleX(1) rotate(75deg); }
 .templates-arrow-scissors { display: block; margin: 1rem auto 0; height: 4.5rem; width: 320px; object-fit: contain; }
 
+.dark .site-shell .template-card { box-shadow: 0 0 0 1px var(--border-default), 0 8px 24px rgb(0 0 0 / .35); }
 .popular-templates-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .popular-templates-top-wave { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
-.popular-templates-lower-wave { position: absolute; bottom: 0; left: 0; width: 100%; height: auto; }
+.popular-templates-lower-wave { position: absolute; bottom: -1px; left: 0; width: 100%; height: auto; }
 
 /*
  * ============================================================
@@ -201,9 +202,12 @@
 }
 
 /* Why Choose Visora decorative picture layers. */
-.features-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+/* why-choose-blob.png has 1-2px of near-black baked into its top, left and
+   bottom edges. Bleed it 3px past every side; the section's overflow-hidden
+   clips that dark frame so it never shows as a seam under Popular Templates. */
+.features-art { position: absolute; inset: -3px; z-index: 0; width: calc(100% + 6px); height: calc(100% + 6px); object-fit: cover; pointer-events: none; }
 .features-linear-bg { position: absolute; top: 0; left: 50%; z-index: 1; display: block; width: 100vw; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; transform: translateX(-50%); pointer-events: none; }
-.features-section { aspect-ratio: 1441 / 927; margin-top: -1px; }
+.features-section { aspect-ratio: 1441 / 927; margin-top: -2px; border-top: 0; }
 .features-benefits-grid { margin-inline: 0; }
 .features-decorations { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: none; }
 @media (min-width: 1024px) {
