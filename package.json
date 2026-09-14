@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "test": "npm run test:unit && npm run test:render",
     "test:unit": "node --test src/Components/Editor/*.test.js",
-    "test:render": "vitest run src/Components/Editor/*.test.jsx --environment jsdom",
+    "test:render": "vitest run src/Components/Editor/*.test.jsx src/Components/Auth/*.test.jsx --environment jsdom",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "fontawesome": "^5.6.3",
     "heroicons": "^2.2.0",
     "lucide-react": "^1.37.0",
-    "motion": "^13.1.1",
+    "motion": "^13.2.0",
     "phosphor-icons": "^1.4.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

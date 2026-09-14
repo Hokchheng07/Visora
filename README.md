@@ -2,6 +2,10 @@
 
 **Design. Display. Inspire.**
 
+See [Design notes](DESIGN_NOTES.md) for the project's color schemes, typography, visual style, and theme boundaries before making UI changes.
+
+See [Codebase guide](CODEBASE_GUIDE.md) to find the files responsible for each feature and follow the project organization conventions.
+
 Visora is a digital backdrop design platform that helps schools, organizations, and event hosts create customized, branded event displays. Combining a Canva-style drag-and-drop editor with live, on-screen elements like countdown timers, current time, and event announcements, Visora lets users design once and display live — full-screen on a projector, TV, or large screen — for exams, graduations, seminars, workshops, competitions, and Khmer traditional events.
 
 
