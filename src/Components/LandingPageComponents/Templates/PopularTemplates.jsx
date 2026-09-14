@@ -13,14 +13,14 @@ import {
 } from "../../../lib/animations/animations";
 import topWave from "../../../assets/pages/home/popular-templates/PopularTemplateTopWave.svg";
 import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
-
-const templates = [
-  { image: null, title: "Creative doodle", description: "Design with your ideas and creative" },
-  { image: null, title: "Design your ideas", description: "Bring your ideas to life with ease" },
-  { image: null, title: "Creative doodle", description: "Create beautiful backdrops your way" },
-];
+import useFetchHomepage from '../../../hooks/useFetchHomepage';
 
 export default function PopularTemplates() {
+  const {
+    data: templates,
+    loading,
+    error,
+  } = useFetchHomepage("templates");
   return (
     <section className="popular-templates bg-sparkle relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
       <div className="popular-templates-art" aria-hidden="true">
@@ -65,9 +65,30 @@ export default function PopularTemplates() {
           viewport={viewportOnce}
           variants={staggerContainer(0.15, 0.15)}
         >
-          {templates.map((template, index) => (
-            <TemplateCard key={`${template.title}-${index}`} template={template} index={index} />
-          ))}
+          {loading && (
+            <p className="col-span-full py-12 text-center text-lg text-[var(--text-muted)]">
+              Loading templates…
+            </p>
+          )}
+
+          {!loading && error && (
+            <p
+              role="alert"
+              className="col-span-full rounded-2xl bg-red-50 px-5 py-4 text-center text-red-700"
+            >
+              Could not load templates. Please refresh the page.
+            </p>
+          )}
+
+          {!loading &&
+            !error &&
+            templates.map((template, index) => (
+              <TemplateCard
+                key={template.id ?? `${template.title}-${index}`}
+                template={template}
+                index={index}
+              />
+            ))}
         </motion.div>
 
         <motion.div

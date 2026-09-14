@@ -1,0 +1,123 @@
+{
+  "templates": [
+    {
+      "id": "leadership-qa-session",
+      "title": "Leadership Q&A Session",
+      "description": "A bold closing slide for leadership talks, interviews, and audience questions.",
+      "image": "/db/Homepage/iamges/Presentation1.png",
+      "imageAlt": "Leadership presentation thank-you and question-and-answer slide",
+      "tags": ["Leadership", "Modern", "Creative"],
+      "uses": 250,
+      "featured": true,
+      "order": 1
+    },
+    {
+      "id": "modern-business-presentation",
+      "title": "Modern Business Presentation",
+      "description": "A playful geometric template for business plans, workshops, and team presentations.",
+      "image": "/db/Homepage/iamges/Presentation2.png",
+      "imageAlt": "Pink and purple modern business presentation cover",
+      "tags": ["Business", "Workshop", "Modern"],
+      "uses": 184,
+      "featured": true,
+      "order": 2
+    },
+    {
+      "id": "retail-forecast-report",
+      "title": "Retail Forecast Report",
+      "description": "A clean data-focused template for forecasts, market insights, and planning sessions.",
+      "image": "/db/Homepage/iamges/Presentation3.png",
+      "imageAlt": "Retail forecast presentation with market insight highlights",
+      "tags": ["Retail", "Report", "Minimal"],
+      "uses": 126,
+      "featured": true,
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "birthday",
+      "title": "Birthdays",
+      "description": "Make birthdays shine with joyful backdrops for every celebration.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/DarkBlueCard.png",
+      "imageAlt": "Birthday event backdrop preview",
+      "tone": "dark-blue",
+      "offset": 0,
+      "pin": { "x": 0.52, "y": 0.145 },
+      "contentRotation": 1,
+      "width": 258,
+      "gapAfter": 29,
+      "order": 1
+    },
+    {
+      "id": "graduation",
+      "title": "Graduation",
+      "description": "Celebrate achievements with elegant graduation backdrops.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/Purple.png",
+      "imageAlt": "Graduation event backdrop preview",
+      "tone": "purple",
+      "offset": 46,
+      "pin": { "x": 0.569, "y": 0.168 },
+      "contentRotation": 9,
+      "width": 285,
+      "gapAfter": 48,
+      "order": 2
+    },
+    {
+      "id": "examination",
+      "title": "Examination",
+      "description": "Create professional backdrops for exams, assessments, and academic events.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/PinkCard.png",
+      "imageAlt": "Examination event backdrop preview",
+      "tone": "pink",
+      "offset": 124,
+      "pin": { "x": 0.479, "y": 0.143 },
+      "contentRotation": -1,
+      "width": 254,
+      "gapAfter": 43,
+      "order": 3
+    },
+    {
+      "id": "school-events",
+      "title": "School Events",
+      "description": "Fun and memorable designs for school celebrations and activities.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/BlueCard.png",
+      "imageAlt": "School event backdrop preview",
+      "tone": "blue",
+      "offset": 122,
+      "pin": { "x": 0.519, "y": 0.148 },
+      "contentRotation": 1,
+      "width": 259,
+      "gapAfter": 51,
+      "order": 4
+    },
+    {
+      "id": "khmer-event",
+      "title": "Khmer Event",
+      "description": "Beautiful Khmer-inspired backdrops featuring traditional patterns.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/YellowCard.png",
+      "imageAlt": "Khmer cultural event backdrop preview",
+      "tone": "yellow",
+      "offset": 69,
+      "pin": { "x": 0.427, "y": 0.191 },
+      "contentRotation": -8,
+      "width": 281,
+      "gapAfter": 28,
+      "order": 5
+    },
+    {
+      "id": "community-events",
+      "title": "Community Events",
+      "description": "Bring workshops and community gatherings to life with fresh designs.",
+      "image": "../src/assets/pages/home/explore-by-events/hanging-cards/GreenCard.png",
+      "imageAlt": "Community event backdrop preview",
+      "tone": "green",
+      "offset": 16,
+      "pin": { "x": 0.462, "y": 0.154 },
+      "contentRotation": -1,
+      "width": 262,
+      "gapAfter": 29,
+      "order": 6
+    }
+  ]
+}
