@@ -74,6 +74,7 @@ const router = createBrowserRouter([
         path: "signup",
         element: <Navigate to="/auth/register" replace />,
       },
+    
     ],
   },
 ]);
