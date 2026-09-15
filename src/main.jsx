@@ -16,6 +16,7 @@ import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
+import Profile from "./Components/Pages/Profile.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
 import Templates from "./Components/Pages/Templates.jsx";
@@ -37,6 +38,11 @@ const router = createBrowserRouter([
       {
         path: "editor",
         element: <Editor />,
+      },
+      {
+        // Standalone like the editor: the page carries its own "Back to Visora" bar.
+        path: "profile",
+        element: <Profile />,
       },
       {
         path: "/",

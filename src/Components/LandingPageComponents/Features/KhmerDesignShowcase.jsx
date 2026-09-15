@@ -147,8 +147,8 @@ export default function KhmerDesignShowcase() {
             viewport={viewportOnce}
             variants={fadeInUp}
           >
-            <NavLink to="/templates" className="khmer-showcase-button">
-              More Templates <span>→</span>
+            <NavLink to="/templates" className="more-templates-button khmer-showcase-button">
+              More Templates <span aria-hidden="true">→</span>
             </NavLink>
           </motion.div>
           <motion.p
