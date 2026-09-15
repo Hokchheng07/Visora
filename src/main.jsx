@@ -11,10 +11,18 @@ import About from "./Components/Pages/About.jsx";
 import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
+<<<<<<< HEAD
+=======
+import ForgotPassword from "./Components/Auth/ForgotPassword.jsx";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
+<<<<<<< HEAD
+=======
+import Profile from "./Components/Pages/Profile.jsx";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
 import Templates from "./Components/Pages/Templates.jsx";
@@ -38,6 +46,14 @@ const router = createBrowserRouter([
         element: <Editor />,
       },
       {
+<<<<<<< HEAD
+=======
+        // Standalone like the editor: the page carries its own "Back to Visora" bar.
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         path: "/",
         element: <Layout />,
         children: [
@@ -79,12 +95,20 @@ const router = createBrowserRouter([
             path: "register",
             element: <SignUp />,
           },
+<<<<<<< HEAD
+=======
+          { path: "forgot-password", element: <ForgotPassword /> },
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         ],
       },
       {
         path: "login",
         element: <Navigate to="/auth/login" replace />,
       },
+<<<<<<< HEAD
+=======
+      { path: "forgot-password", element: <Navigate to="/auth/forgot-password" replace /> },
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
       {
         path: "dashboard",
         element: <DashboardLayout />,

@@ -126,10 +126,17 @@ export default function Login() {
             </div>
 
             <div className="mt-3 text-right">
+<<<<<<< HEAD
               <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
             </div>
 
             <button type="submit" className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-secondary via-[#e9b56b] to-primary text-base font-semibold text-white transition hover:brightness-105 lg:mt-6 lg:h-14 lg:text-xl">
+=======
+              <Link to="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
+            </div>
+
+            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
               Login <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
             <AnimatePresence>

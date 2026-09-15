@@ -317,6 +317,15 @@
   .about-feature-swing,
   .about-feature-swing * { user-select: auto; -webkit-user-select: auto; }
 }
+<<<<<<< HEAD
+=======
+/* Dashed clothesline drawn between the pin heads (see PinConnector). It only
+   exists where the cards hang on the canvas; the stacked layout has no line. */
+.about-design { --about-pin-line: rgb(0 0 0 / .54); }
+.dark .site-shell .about-design { --about-pin-line: var(--color-secondary); }
+.about-pin-connector { display: none; position: absolute; top: 0; left: 0; z-index: 4; overflow: visible; pointer-events: none; }
+@media (min-width: 1024px) { .about-pin-connector { display: block; } }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-feature-card { position: relative; width: 100%; aspect-ratio: 1; }
 .about-feature-frame { display: block; width: 100%; height: 100%; object-fit: contain; }
 .about-feature-copy {
@@ -423,8 +432,15 @@
   font-weight: 700;
 }
 .about-person-content {
+<<<<<<< HEAD
   position: absolute;
   inset: 44% 9% 5%;
+=======
+  position: relative;
+  /* Keep the original text start (44% of a 252 × 328 frame), but let
+     content determine the minimum card height so three quote lines fit. */
+  padding: 57.27% 9% 8%;
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   z-index: 6;
   display: flex;
   flex-direction: column;
@@ -437,6 +453,10 @@
      the same height throughout the grid. */
   justify-content: flex-start;
 }
+<<<<<<< HEAD
+=======
+.about-person-content > * { flex-shrink: 0; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-person-card h3 { margin: 0; color: #211d31; font-size: 1.18rem; font-weight: 650; }
 .about-person-role { margin-top: 10px; padding: 5px 13px; border-radius: 999px; background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); font-size: .72rem; font-weight: 700; }
 .about-person-role-featured { background: color-mix(in srgb, var(--color-secondary) 30%, white); color: #745500; }
@@ -458,8 +478,13 @@
 .about-person-socials { display: flex; gap: 12px; margin-top: 18px; }
 .about-person-socials a { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
 .about-person-socials > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
+<<<<<<< HEAD
 .about-person-socials img { width: 17px; height: 17px; object-fit: contain; }
 .about-person-socials svg { width: 17px; height: 17px; }
+=======
+.about-person-socials img { width: 20.4px; height: 20.4px; object-fit: contain; transform: translateY(-2px); }
+.about-person-socials svg { width: 20.4px; height: 20.4px; transform: translateY(-2px); }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-person-social-placeholder { margin-top: 17px; color: var(--text-muted); font-size: .72rem; }
 
 .about-cta {
@@ -782,7 +807,13 @@
   .about-decor-what-underline   { left: 11.3889%; top: 31.17%; width: 31.53%; }
   .about-decor-squiggle-right   { left: 74.51%; top: 11.32%; width: 25.90%; }
   .about-decor-squiggle-left    { left:  0;     top: 12.81%; width: 28.40%; }
+<<<<<<< HEAD
   .about-decor-arrow            { left: 18.26%; top: 17.10%; width: 16.11%; }
+=======
+  /* Tucked against the left edge, just under where the left squiggle starts
+     (its 409 x 74 art is 5.14cqw tall). */
+  .about-decor-arrow            { left: 0; top: calc(12.81% + 3.8cqw); width: 16.11%; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   /* Behind the blobs (z-index 2) rather than merely low within its old
      section — see the note in AboutDecor.jsx. Rendered at the asset's natural
      132px because the design's plane ink measures 100x105 against the asset's
@@ -804,10 +835,13 @@
   /* Three hand-split segments, each solved so its path's own start/end land on
      the pins it joins. Explicit height (not auto) because each is scaled to
      span its pin pair exactly. Above the cards, like the old connector. */
+<<<<<<< HEAD
   .about-decor-pin-line { z-index: 4; }
   .about-decor-pin-line-top    { left: 48.17%; top: 40.44%; width: 32.64%; height: 1.596%; }
   .about-decor-pin-line-second { left: 57.64%; top: 41.34%; width: 23.19%; height: 3.625%; }
   .about-decor-pin-line-third  { left: 57.56%; top: 44.92%; width: 27.29%; height: 2.107%; }
+=======
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-decor-vision-lottie    { left: 13.89%; top: 51.22%; width: 36.25%; }
 
   /* Figma: "Our" black, "Core" primary purple, "Values" secondary yellow. */
@@ -1256,8 +1290,15 @@
     font-size: 1.25cqw;
     line-height: 1.6;
   }
+<<<<<<< HEAD
   .about-vision-mark { top: 41%; right: -4%; width: 5.5556cqw; }
   .about-vision-arrow { bottom: 8%; left: 84%; width: 6.25cqw; }
+=======
+  /* Mark sits left of the Mission frame, above Vision, at 2x its original size.
+     The 2x spiral sits above the thinking-woman illustration, top-left. */
+  .about-vision-mark { top: calc(51.4% - 2.7778cqw); left: calc(12.5% - 2.7778cqw); right: auto; width: 11.1111cqw; }
+  .about-vision-arrow { top: calc(3% - 34.3cqw); bottom: auto; left: 1%; width: 20cqw; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
   .about-mentors {
     top: 69.56%;
@@ -1333,7 +1374,11 @@
   .about-person-socials > a,
   .about-person-socials > span { width: 2.0833cqw; height: 2.0833cqw; }
   .about-person-socials img,
+<<<<<<< HEAD
   .about-person-socials svg { width: 1.0417cqw; height: 1.0417cqw; }
+=======
+  .about-person-socials svg { width: 1.25cqw; height: 1.25cqw; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
   .about-cta {
     bottom: 0;

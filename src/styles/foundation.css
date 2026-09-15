@@ -36,7 +36,11 @@
 .dark {
   color-scheme: dark;
 
+<<<<<<< HEAD
   --surface-base: #101012;
+=======
+  --surface-base: #000000;
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   --surface-card: #18181b;
   --surface-overlay: #202024;
   --surface-warm: #000000;
@@ -125,4 +129,8 @@ body {
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
