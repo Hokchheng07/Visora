@@ -153,7 +153,7 @@ const desktopSteps = [
     badgeX: 870,
     badgeY: 458,
     contentCenterX: 870,
-    contentCenterY: 705,
+    contentCenterY: 675,
     contentWidth: 370,
     contentHeight: 180,
   },
@@ -166,7 +166,7 @@ const desktopSteps = [
     badgeX: 1170,
     badgeY: 334,
     contentCenterX: 1170,
-    contentCenterY: 645,
+    contentCenterY: 550,
     contentWidth: 330,
     contentHeight: 160,
   },
@@ -427,11 +427,13 @@ export default function HowItWorks() {
       ref={sectionRef}
       className="how-it-works-section bg-sparkle relative isolate w-full overflow-hidden bg-[var(--surface-warm)] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
     >
+      {/* Sits in front of the step mountains (DesktopSteps is z-10) but under
+          the stickers (z-20) and the bottom torn strip (z-30). */}
       <ThemeImage
         src={backgroundArtwork}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 block h-full w-full max-w-none object-fill"
+        className="how-mountain-overlay pointer-events-none absolute inset-0 z-[11] block h-full w-full max-w-none object-fill"
       />
       <ThemeImage
         src={topTornGradient}
