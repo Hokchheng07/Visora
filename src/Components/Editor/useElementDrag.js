@@ -22,6 +22,8 @@ export function useElementDrag(element, pageId, sheetRef) {
     }
     function down(event) {
       if (event.button !== 0 || store.getState().editor.gesture || !sheetRef.current) return;
+      // Inside text being edited a press places the caret or selects words; it must not start a drag.
+      if (event.target.closest?.("[contenteditable='true'], [contenteditable='plaintext-only']")) return;
       event.stopPropagation();
       const additive = event.shiftKey || event.metaKey || event.ctrlKey;
       const before = store.getState().editor;

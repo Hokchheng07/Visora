@@ -1,4 +1,49 @@
-export const EDITOR_SCHEMA_VERSION = 2;
+import { normalizeEffects } from "./effectsFilter.js";
+
+export const EDITOR_SCHEMA_VERSION = 3;
+export const STROKE_ALIGNS = ["inside", "center", "outside"];
+const unit = (value, fallback = 1) => (Number.isFinite(Number(value)) ? Math.min(1, Math.max(0, Number(value))) : fallback);
+
+/* Shape styles, v3. New fields are written only when they differ from the
+   default, so an untouched shape saves exactly as it did in v2. `fill: null`
+   means the shape has no fill; a stroke of "transparent" (the v2 spelling)
+   means no stroke. */
+function shapeStyles(element) {
+  const hasStroke = !!element.stroke && element.stroke !== "transparent";
+  const effects = normalizeEffects(element.effects);
+  return {
+    fill: element.fill ?? null, opacity: element.opacity,
+    stroke: hasStroke ? element.stroke : "transparent", strokeWidth: hasStroke ? element.strokeWidth || 0 : 0,
+    ...(element.fill && unit(element.fillOpacity) !== 1 ? { fillOpacity: unit(element.fillOpacity) } : {}),
+    ...(element.fill && element.fillVisible === false ? { fillVisible: false } : {}),
+    ...(hasStroke ? {
+      strokeAlign: STROKE_ALIGNS.includes(element.strokeAlign) ? element.strokeAlign : "inside",
+      ...(unit(element.strokeOpacity) !== 1 ? { strokeOpacity: unit(element.strokeOpacity) } : {}),
+      ...(element.strokeVisible === false ? { strokeVisible: false } : {}),
+    } : {}),
+    ...(element.cornerRadius > 0 ? { cornerRadius: element.cornerRadius } : {}),
+    ...(effects.length ? { effects } : {}),
+  };
+}
+
+// The old CSS rounded rectangle used 18% of its box; the nearest circular radius.
+export const legacyCornerRadius = (component) => Math.round(Math.min(component.size?.width || 0, component.size?.height || 0) * 0.18);
+
+function hydrateShape(component) {
+  const styles = component.styles || {};
+  const stroke = styles.stroke && styles.stroke !== "transparent" ? styles.stroke : null;
+  return {
+    fill: styles.fill === null ? null : styles.fill || "#AD8DEA",
+    fillOpacity: unit(styles.fillOpacity), fillVisible: styles.fillVisible !== false,
+    stroke, strokeWidth: stroke ? Math.min(50, Math.max(0, Number(styles.strokeWidth) || 0)) : 0,
+    strokeAlign: STROKE_ALIGNS.includes(styles.strokeAlign) ? styles.strokeAlign : "inside",
+    strokeOpacity: unit(styles.strokeOpacity), strokeVisible: styles.strokeVisible !== false,
+    cornerRadius: Number.isFinite(Number(styles.cornerRadius)) && styles.cornerRadius !== null ? Math.max(0, Number(styles.cornerRadius))
+      : component.shape === "rounded-rectangle" ? legacyCornerRadius(component) : 0,
+    effects: normalizeEffects(styles.effects),
+    flipX: !!component.flipX, flipY: !!component.flipY, lockAspect: !!component.lockAspect,
+  };
+}
 /* Deliberately still ".v1": the key is where saved work lives, not a statement
    about the schema. Bumping it would orphan every document already on disk —
    the app would look in a new empty slot and quietly show a blank page. The
@@ -85,6 +130,9 @@ export function serializeDocument(editor) {
         type: element.type === "text" ? "TEXT" : element.type === "timer" ? "COUNTDOWN_TIMER" : "SHAPE",
         ...(element.content !== undefined ? { content: element.content } : {}),
         ...(element.shape ? { shape: element.shape } : {}),
+        ...(element.flipX ? { flipX: true } : {}),
+        ...(element.flipY ? { flipY: true } : {}),
+        ...(element.lockAspect ? { lockAspect: true } : {}),
         position: { x: element.x, y: element.y },
         size: { width: element.w, height: element.h },
         rotation: element.rotation || 0,
@@ -101,12 +149,15 @@ export function serializeDocument(editor) {
           fontFamily: element.fontFamily, fontSize: element.fontSize, fontWeight: element.fontWeight,
           fontStyle: element.fontStyle || "normal", textAlign: element.textAlign, color: element.fill,
           lineHeight: element.lineHeight, letterSpacing: element.letterSpacing,
+          // v3. Sent only when set, so a plain text box stays byte-identical to v2.
+          ...(element.textDecoration === "underline" ? { textDecoration: "underline" } : {}),
+          ...(normalizeEffects(element.effects).length ? { effects: normalizeEffects(element.effects) } : {}),
           // hydrateDocument reads styles.opacity for every component type, so
           // leaving it off here silently reset faded text to fully opaque on
           // the next load — and this object is the API payload, so the server
           // would have inherited the same hole.
           opacity: element.opacity,
-        } : { fill: element.fill, opacity: element.opacity, stroke: element.stroke, strokeWidth: element.strokeWidth },
+        } : shapeStyles(element),
         ...(element.animation ? { animation: element.animation } : {}),
       })),
     })),
@@ -123,7 +174,9 @@ export function migrateDocument(value) {
   if (from > EDITOR_SCHEMA_VERSION) return null;   // written by a newer client; do not guess
   if (from === EDITOR_SCHEMA_VERSION) return value;
 
-  /* 1 -> 2 added the timer. No v1 document can contain one, because the type
+  /* 2 -> 3 only added optional fields (textDecoration so far); a missing one
+     means "off", so a v2 document needs no rewriting.
+     1 -> 2 added the timer. No v1 document can contain one, because the type
      was not insertable then — but a hand-edited or partially-written file
      might, so any timer found is normalised rather than trusted. */
   return {
@@ -179,6 +232,7 @@ export function hydrateDocument(document) {
           fontFamily: component.styles?.fontFamily || "Poppins",
           fontSize: component.styles?.fontSize || 120,
         } : {}),
+        ...(component.type === "SHAPE" ? hydrateShape(component) : {}),
         ...(component.type === "TEXT" ? {
           fontFamily: component.styles?.fontFamily || "Poppins",
           fontSize: component.styles?.fontSize || 72,
@@ -187,6 +241,8 @@ export function hydrateDocument(document) {
           textAlign: component.styles?.textAlign || "center",
           lineHeight: component.styles?.lineHeight || 1.2,
           letterSpacing: component.styles?.letterSpacing || 0,
+          textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
+          effects: normalizeEffects(component.styles?.effects),
         } : {}),
         ...(component.animation ? { animation: component.animation } : {}),
       })),

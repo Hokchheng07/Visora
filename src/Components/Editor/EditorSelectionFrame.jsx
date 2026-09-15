@@ -57,7 +57,7 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
       let rotation = g.start.rotation + (Math.atan2(event.clientY - g.cy, event.clientX - g.cx) - g.angle) * 180 / Math.PI;
       if (event.shiftKey) rotation = Math.round(rotation / 15) * 15;
       changes = { rotation: ((rotation % 360) + 360) % 360 };
-    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey);
+    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey !== !!g.start.lockAspect);
     dispatch(elementTransformed({ token, changes }));
   }
   function end(event, cancelled = false) {
@@ -77,7 +77,8 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
     } else {
       const dx = event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
       const dy = event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
-      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey)));
+      // A locked shape keeps its proportions; Shift does the opposite, as in Figma.
+      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey !== !!element.lockAspect)));
     }
   }
   function events(handle) {

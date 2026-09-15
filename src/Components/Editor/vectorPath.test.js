@@ -75,3 +75,44 @@ test("a pill keeps semicircle ends at any size, wide or tall", () => {
   }
   assert.equal(presetVector("pill", 300, 300).subpaths[0].nodes.length, 4, "a square pill is a circle");
 });
+
+test("all seventeen catalog shapes have point data", async () => {
+  const { shapeCatalog } = await import("./shapeCatalog.js");
+  for (const shape of shapeCatalog) assert.ok(presetVector(shape.id, shape.w, shape.h), `${shape.id} has no point data`);
+});
+
+test("corner radius rounds straight corners with a real circular arc and leaves curves alone", async () => {
+  const { roundCorners } = await import("./vectorPath.js");
+  const square = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }].map((n) => ({ ...n, in: null, out: null }));
+  const rounded = roundCorners(square, 10);
+  assert.equal(rounded.length, 8);
+  const near = (node, x, y) => assert.ok(Math.abs(node.x - x) < 1e-9 && Math.abs(node.y - y) < 1e-9, `${node.x},${node.y} is not ${x},${y}`);
+  near(rounded[0], 0, 10);
+  near(rounded[1], 10, 0);
+  // For a right angle the handle is 4/3·tan(π/8)·r ≈ 0.5523·r.
+  assert.ok(Math.abs(Math.hypot(rounded[0].out.dx, rounded[0].out.dy) - 5.523) < 0.01);
+  const circle = presetVectors.circle.subpaths[0].nodes;
+  assert.equal(roundCorners(circle, 20).length, circle.length);
+});
+
+test("a radius too big for the shape shrinks to fit instead of overlapping", async () => {
+  const { roundCorners } = await import("./vectorPath.js");
+  const thin = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 10 }, { x: 0, y: 10 }].map((n) => ({ ...n, in: null, out: null }));
+  const rounded = roundCorners(thin, 500);
+  assert.ok(rounded.every((node) => node.y >= -1e-9 && node.y <= 10 + 1e-9 && node.x >= -1e-9 && node.x <= 100 + 1e-9));
+  assert.ok(Math.abs(rounded[0].x) < 1e-9 && Math.abs(rounded[0].y - 5) < 1e-9);
+});
+
+test("shape paths are drawn in the element's pixels, so corners stay circular when stretched", async () => {
+  const { shapePath } = await import("./vectorPath.js");
+  assert.equal(shapePath({ shape: "rectangle", w: 400, h: 100 }), "M0 0L400 0L400 100L0 100Z");
+  const d = shapePath({ shape: "rectangle", w: 400, h: 100, cornerRadius: 20 });
+  assert.match(d, /^M0 20C/);
+  assert.match(d, /L380 0C/);
+});
+
+test("flipping mirrors the outline inside the same box", async () => {
+  const { shapePath } = await import("./vectorPath.js");
+  assert.equal(shapePath({ shape: "triangle", w: 100, h: 100, flipY: true }), "M50 100L100 0L0 0Z");
+  assert.equal(shapePath({ shape: "arrow-right", w: 100, h: 100, flipX: true }).startsWith("M40 8L2 50"), true);
+});

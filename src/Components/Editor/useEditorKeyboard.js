@@ -1,13 +1,20 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppStore } from "../redux/hook.js";
-import { elementDeleted, elementNudged, elementSelected, elementsSelected, selectionCopied, selectionPasted, undo, redo } from "../redux/editorSlice.js";
+import { editCancelled, elementDeleted, elementNudged, elementSelected, elementsSelected, selectionCopied, selectionPasted, undo, redo } from "../redux/editorSlice.js";
+
+/*
+ * Escape has one order across the editor, each step stopping the key before
+ * the next: cancel the active drag (canvas drags and inspector sliders handle
+ * this themselves) → close the open pop-up (Headless UI prevents the default)
+ * → leave point editing (phase F) → an inspector edit still open → deselect.
+ */
 
 export function useEditorKeyboard(isDisplayOpen, shellRef) {
   const dispatch = useAppDispatch(), store = useAppStore();
   useEffect(() => {
     if (isDisplayOpen) return;
     function keyDown(event) {
-      if (event.defaultPrevented || event.isComposing || event.target.closest("input, textarea, select, [contenteditable='true'], [role='menu']")) return;
+      if (event.defaultPrevented || event.isComposing || event.target.closest("input, textarea, select, [contenteditable='true'], [contenteditable='plaintext-only'], [role='menu']")) return;
       if (!shellRef.current?.contains(event.target) && event.target !== document.body) return;
       if (shellRef.current.querySelector(".editor-page-menu")) return;
       const state = store.getState().editor;
@@ -22,6 +29,7 @@ export function useEditorKeyboard(isDisplayOpen, shellRef) {
       if (command && event.key.toLowerCase() === "c" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); return; }
       if (command && event.key.toLowerCase() === "x" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(elementDeleted()); return; }
       if (command && event.key.toLowerCase() === "d" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(selectionPasted()); return; }
+      if (event.key === "Escape" && state.edit) { event.preventDefault(); dispatch(editCancelled(state.edit.token)); return; }
       if (!state.selectedIds.length) return;
       if (event.key === "Escape") { event.preventDefault(); dispatch(elementSelected(null)); return; }
       if (event.key === "Delete" || event.key === "Backspace") { event.preventDefault(); dispatch(elementDeleted()); return; }

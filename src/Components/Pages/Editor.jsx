@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import EditorCanvas from "../Editor/EditorCanvas";
-import EditorTimerInspector from "../Editor/EditorTimerInspector.jsx";
+import EditorInspector from "../Editor/EditorInspector.jsx";
+import EditorEffectDefs from "../Editor/EditorEffectDefs.jsx";
+import { hasVisibleEffects, strokeOverflow } from "../Editor/effectsFilter.js";
 import EditorDisplay from "../Editor/EditorDisplay";
 import EditorSidebar from "../Editor/EditorSidebar";
 import EditorToolPanel from "../Editor/EditorToolPanel";
@@ -9,15 +11,30 @@ import { requestFullscreen } from "../Editor/useFullscreen";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAdded, pageCopied, pageCloned, pageDeleted } from "../redux/editorSlice.js";
 import { useEditorKeyboard } from "../Editor/useEditorKeyboard.js";
+import { useMediaQuery } from "../Editor/useMediaQuery.js";
+import { usePointerHeld } from "../Editor/usePointerHeld.js";
 import "../Editor/editor.css";
 
 export default function Editor() {
   const dispatch = useAppDispatch();
   const { pages, copiedPage, selectedId, selectedIds, currentPage } = useAppSelector((state) => state.editor);
-  // The fourth column appears only for a single selected timer — a multi-select
-  // has no one timer to configure, and every other element is served by the bar.
-  const hasInspector = selectedIds.length === 1
-    && pages[currentPage].elements.find((element) => element.id === selectedId)?.type === "timer";
+  /* The Customize column appears while something is selected and goes away
+     with nothing selected, when the page bar above the canvas takes over.
+
+     On wide screens it is a grid column, so the canvas re-fits when it comes
+     and goes. That change waits until the pointer is released: selection
+     happens on pointerdown, and resizing the canvas under a drag that has just
+     started would move the element away from the cursor. Below 1441px the
+     column is a drawer over the canvas instead (a fourth 300px track would
+     leave too little canvas); its close button hides it until the selection
+     changes. */
+  const inspectorDocked = useMediaQuery("(min-width: 1441px)");
+  const pointerHeld = usePointerHeld();
+  const selectionKey = selectedIds.join(" ");
+  const [shownFor, setShownFor] = useState(selectionKey);
+  if (!pointerHeld && shownFor !== selectionKey) setShownFor(selectionKey);
+  const [dismissedFor, setDismissedFor] = useState(null);
+  const showInspector = shownFor !== "" && dismissedFor !== shownFor;
   const [activeTool, setActiveTool] = useState("templates");
   // The canvas is the point of the page, so it starts unobstructed.
   const [isPanelOpen, setPanelOpen] = useState(false);
@@ -95,9 +112,13 @@ export default function Editor() {
 
   return (
     <div className="editor-shell font-sans" ref={shellRef}>
+      {/* One filter per element with shadows, for every page, shared by the
+          canvas, the page strip and display mode. */}
+      <EditorEffectDefs items={pages.flatMap((page) => page.elements.filter(hasVisibleEffects)
+        .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) })))} />
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
       <div
-        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${hasInspector ? " has-inspector" : ""}`}
+        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showInspector && inspectorDocked ? " has-inspector" : ""}`}
         inert={isDisplayOpen}
       >
         <EditorSidebar
@@ -114,7 +135,7 @@ export default function Editor() {
           showRulers={showRulers}
           onToggleRulers={() => setShowRulers((visible) => !visible)}
         />
-        <EditorTimerInspector />
+        {showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
       </div>
       {/* Rendered inside the shell, not through a portal, so it keeps the
           --editor-* tokens and focus ring scoped to .editor-shell. */}

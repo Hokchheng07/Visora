@@ -7,7 +7,7 @@ export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null,
-  past: [], future: [], gesture: null, copiedPage: null, copiedElements: [], zoom: null, snapGuides: [],
+  past: [], future: [], gesture: null, edit: null, copiedPage: null, copiedElements: [], zoom: null, snapGuides: [],
 };
 
 function setSelection(state, ids) {
@@ -31,12 +31,64 @@ function cancelGesture(state) {
   if (state.gesture) restore(state, state.gesture.before);
   state.gesture = null; state.snapGuides = [];
 }
+/*
+ * Inspector edit sessions.
+ *
+ * A slider drag, a colour-picker drag or a scrub sends dozens of changes, but
+ * the person made one edit, so it must be one undo step. A session records the
+ * document when the edit starts and adds a single history entry when it ends.
+ *
+ * Sessions are separate from canvas gestures on purpose. A gesture locks the
+ * whole editor (every reducer refuses changes while one is running); a session
+ * only groups its own changes, so the control being dragged keeps working. A
+ * session also names its target when it starts — element ids, a timer or a
+ * page — rather than following the selection, because a field can commit after
+ * the selection has already moved on (blur fires after the click that selected
+ * something else), and it works with nothing selected, for page settings.
+ *
+ * Any other action settles an open session first (see the wrapper at the
+ * bottom of the reducers), so a session can never swallow an unrelated change
+ * into its undo step: undo during a drag finishes the drag and then undoes it.
+ */
+function settleEdit(state) {
+  if (!state.edit) return;
+  const { before } = state.edit;
+  state.edit = null;
+  if (JSON.stringify(before.pages) !== JSON.stringify(current(state).pages)) remember(state, before);
+}
+const mergeTimer = (timer, changes) => normalizeTimer({
+  ...timer, ...changes,
+  onComplete: { ...timer?.onComplete, ...(changes.onComplete || {}) },
+  controls: { ...timer?.controls, ...(changes.controls || {}) },
+});
+const PAGE_FIELDS = ["background", "animation"];
+function validTarget(state, target) {
+  const page = state.pages.find((item) => item.id === target?.pageId);
+  if (!page) return null;
+  if (target.kind === "page") return { kind: "page", pageId: page.id };
+  if (target.kind !== "elements" && target.kind !== "timer") return null;
+  const ids = (target.ids || []).filter((id) => page.elements.some((element) => element.id === id));
+  return ids.length ? { kind: target.kind, pageId: page.id, ids } : null;
+}
+function applyToTarget(state, target, changes) {
+  const page = state.pages.find((item) => item.id === target.pageId);
+  if (!page || !changes || typeof changes !== "object") return;
+  if (target.kind === "page") {
+    for (const key of PAGE_FIELDS) if (key in changes) page[key] = changes[key];
+    return;
+  }
+  const ids = new Set(target.ids);
+  for (const element of page.elements) {
+    if (!ids.has(element.id)) continue;
+    if (target.kind === "timer") { if (element.type === "timer") element.timer = mergeTimer(element.timer, changes); }
+    else Object.assign(element, fitElement({ ...element, ...changes }));
+  }
+}
+
 const selected = (state) => state.pages[state.currentPage].elements.find((element) => element.id === state.selectedId);
 const selectedElements = (state) => state.pages[state.currentPage].elements.filter((element) => state.selectedIds.includes(element.id));
 
-const editorSlice = createSlice({
-  name: "editor", initialState: initialEditorState,
-  reducers: {
+const reducers = {
     documentLoaded(state, { payload }) {
       Object.assign(state, initialEditorState, payload); state.currentPage = 0; setSelection(state, []);
     },
@@ -100,7 +152,9 @@ const editorSlice = createSlice({
         const x = payload.position ? payload.position.x - preset.w / 2 : (CANVAS_WIDTH - preset.w) / 2 + offset;
         const y = payload.position ? payload.position.y - preset.h / 2 : (CANVAS_HEIGHT - preset.h) / 2 + offset;
         elements.push(fitElement({ id: payload.id, type: "shape", shape: preset.id, x, y, w: preset.w, h: preset.h, rotation: 0,
-          fill: "#ad8dea", stroke: "transparent", strokeWidth: 0, opacity: 1, locked: false, visible: true }));
+          fill: "#ad8dea", fillOpacity: 1, fillVisible: true, opacity: 1, locked: false, visible: true,
+          stroke: null, strokeWidth: 0, strokeAlign: "inside", strokeOpacity: 1, strokeVisible: true,
+          cornerRadius: preset.id === "rounded-rectangle" ? 50 : 0, flipX: false, flipY: false, lockAspect: false, effects: [] }));
         setSelection(state, [payload.id]);
       },
     },
@@ -142,12 +196,7 @@ const editorSlice = createSlice({
     timerChanged(state, { payload }) {
       const element = selected(state);
       if (!element || element.type !== "timer" || state.gesture) return;
-      const next = normalizeTimer({
-        ...element.timer,
-        ...payload,
-        onComplete: { ...element.timer?.onComplete, ...(payload.onComplete || {}) },
-        controls: { ...element.timer?.controls, ...(payload.controls || {}) },
-      });
+      const next = mergeTimer(element.timer, payload);
       if (JSON.stringify(element.timer) === JSON.stringify(next)) return;
       remember(state);
       element.timer = next;
@@ -181,7 +230,10 @@ const editorSlice = createSlice({
       remember(state); const [element] = elements.splice(from, 1); elements.splice(to, 0, element);
     },
     selectionAligned(state, { payload }) {
-      const elements = selectedElements(state), box = selectionBounds(elements); if (elements.length < 2 || !box) return;
+      // One element aligns to the page, several align to their shared bounds, as in Figma.
+      const elements = selectedElements(state); if (!elements.length) return;
+      const box = elements.length === 1 ? { left: 0, top: 0, right: CANVAS_WIDTH, bottom: CANVAS_HEIGHT } : selectionBounds(elements);
+      if (!box) return;
       remember(state); elements.forEach((element) => {
         const own = selectionBounds([element]);
         if (payload === "left") element.x += box.left - own.left;
@@ -242,11 +294,55 @@ const editorSlice = createSlice({
     redo(state) {
       if (state.gesture || !state.future.length) return; state.past.push(snapshot(state)); restore(state, state.future.pop());
     },
-  },
-});
+
+    /* payload: { token, target, property }. target is { kind: "elements" | "timer", pageId, ids } or { kind: "page", pageId }. */
+    editStarted(state, { payload }) {
+      if (state.gesture || state.edit?.token === payload?.token) return;
+      settleEdit(state);
+      const target = validTarget(state, payload?.target);
+      if (!target) return;
+      state.edit = { token: payload.token, target, property: payload.property || null, before: snapshot(state) };
+    },
+    editUpdated(state, { payload }) {
+      if (!state.edit || state.edit.token !== payload?.token) return;
+      applyToTarget(state, state.edit.target, payload.changes);
+    },
+    editFinished(state, { payload }) { if (state.edit?.token === payload) settleEdit(state); },
+    editCancelled(state, { payload }) {
+      if (state.edit?.token !== payload) return;
+      state.pages = state.edit.before.pages; state.edit = null;
+    },
+    /* A single committed change to a named target — a typed value, a swatch, a
+       toggle. One undo step, and it still lands on the right element if the
+       selection changed between focusing the field and committing it. */
+    targetChanged(state, { payload }) {
+      if (state.gesture) return;
+      const target = validTarget(state, payload?.target);
+      if (!target) return;
+      const before = snapshot(state);
+      applyToTarget(state, target, payload.changes);
+      if (JSON.stringify(before.pages) !== JSON.stringify(current(state).pages)) remember(state, before);
+    },
+};
+
+// Actions that may run while a session is open without settling it: the session's
+// own actions, canvas-gesture updates (a gesture can only start after settling),
+// and actions that do not touch the document.
+const SESSION_SAFE = new Set(["editStarted", "editUpdated", "editFinished", "editCancelled", "elementsChanged", "elementTransformed", "zoomChanged", "pageCopied", "selectionCopied"]);
+for (const [name, definition] of Object.entries(reducers)) {
+  if (SESSION_SAFE.has(name)) continue;
+  if (typeof definition === "function") {
+    reducers[name] = (state, action) => { settleEdit(state); return definition(state, action); };
+  } else {
+    reducers[name] = { ...definition, reducer: (state, action) => { settleEdit(state); return definition.reducer(state, action); } };
+  }
+}
+
+const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
 export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageAnimationChanged,
   elementSelected, elementsSelected, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, elementReordered, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
-  gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo } = editorSlice.actions;
+  gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
+  editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
 export default editorSlice.reducer;

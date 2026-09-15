@@ -44,6 +44,17 @@ export function normalizeEffects(list) {
   return list.map(normalizeEffect).filter(Boolean).slice(0, MAX_EFFECTS);
 }
 
+export const hasVisibleEffects = (element) => (element?.type === "shape" || element?.type === "text")
+  && normalizeEffects(element.effects).some((effect) => effect.visible);
+
+/* Pixels a shape's stroke reaches past its box, which the effect filter has to
+   leave room for: all of an outside stroke, half of a centred one. */
+export function strokeOverflow(element) {
+  if (!element.stroke || element.stroke === "transparent" || element.strokeVisible === false) return 0;
+  const width = element.strokeWidth || 0;
+  return element.strokeAlign === "outside" ? width : element.strokeAlign === "center" ? width / 2 : 0;
+}
+
 export const filterId = (elementId) => `fx-${String(elementId).replace(/[^A-Za-z0-9_-]/g, "_")}`;
 
 /* How far past the element box the filter must reach, as fractions of the box.

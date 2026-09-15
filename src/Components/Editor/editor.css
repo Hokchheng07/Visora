@@ -113,12 +113,16 @@
 .editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 104px 300px minmax(0, 1fr); gap: 16px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
 /* Collapsing the panel track lets the workspace reflow without measuring anything. */
 .editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
-/* The inspector is a real fourth track rather than an overlay, so the sheet
-   reflows beside it instead of hiding underneath it. Only while one timer is
-   selected — see the breakpoint note further down, the canvas runs out of room
-   long before the 760px layout flip. */
-.editor-body.has-inspector { grid-template-columns: 104px 300px minmax(0, 1fr) 300px; }
-.editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 300px; }
+/* Wide screens: while something is selected, Customize is a fourth track.
+   The track list always has four entries (the last one 0 when hidden) so the
+   column slides in and out instead of snapping. Narrower screens get a drawer;
+   see the Customize block below. */
+@media (min-width: 1441px) {
+  .editor-body { grid-template-columns: 104px 300px minmax(0, 1fr) 0; }
+  .editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 0; }
+  .editor-body.has-inspector { grid-template-columns: 104px 300px minmax(0, 1fr) 300px; }
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 300px; }
+}
 .editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
 .editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
 .editor-tool-button { display: flex; flex: none; min-height: 84px; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: var(--editor-ink); cursor: pointer; transition: background-color 150ms ease, color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
@@ -150,12 +154,6 @@
 .editor-shape-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 9px; margin-top: 12px; }
 .editor-shape-tile { display: grid; min-width: 0; min-height: 106px; grid-template-rows: 52px minmax(28px, auto); align-content: center; place-items: center; gap: 7px; padding: 10px 4px 8px; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); }
 .editor-shape { display: block; width: 28px; height: 28px; background: var(--color-accent); }
-.editor-shape-circle { border-radius: 50%; }
-.editor-shape-triangle { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.editor-shape-diamond { width: 24px; height: 24px; transform: rotate(45deg); }
-.editor-shape-star { clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 93%,50% 72%,21% 93%,32% 57%,2% 35%,39% 35%); }
-.editor-shape-pill { width: 34px; height: 20px; border-radius: 999px; }
-.editor-shape-rounded-rectangle { border-radius: 18%; }
 .editor-graphic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .editor-graphic-grid > span { display: grid; height: 92px; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); color: var(--color-primary); font-size: 42px; }
 .editor-panel-empty { margin-top: 20px; color: var(--editor-muted); font-size: 13px; line-height: 1.55; }
@@ -222,8 +220,10 @@
 .editor-element-art { display: block; width: 100%; height: 100%; pointer-events: none; }
 .editor-vector-art { background: transparent !important; overflow: visible; }
 .editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; }
-.editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }
-.editor-element-art.editor-shape-diamond, .editor-layer-swatch.editor-shape-diamond, .editor-ghost-art.editor-shape-diamond { transform: none; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.editor-text-art[contenteditable="plaintext-only"], .editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }
+/* Shapes are SVG and draw their own outline; the effects wrapper only carries the filter. */
+.editor-element-effects { position: relative; }
+.editor-element-effects > svg { position: absolute; inset: 0; }
 .editor-selection-frame { position: absolute; inset: 0; border: 1.5px solid var(--color-primary); pointer-events: none; }
 .editor-group-selection { position: absolute; z-index: 4; border: 1.5px solid var(--color-primary); pointer-events: none; }
 .editor-marquee { position: absolute; z-index: 8; border: 1px solid var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); pointer-events: none; }
@@ -268,6 +268,7 @@
 .editor-layer-row > span:last-child { font-size: 12px; }
 .editor-layer-row[aria-pressed="true"] { border-color: var(--color-primary); background: var(--editor-raised); }
 .editor-layer-swatch { display: block; flex: none; width: 24px; height: 24px; }
+.editor-layer-swatch .editor-element-art { width: 100%; height: 100%; }
 .editor-layer-actions { display: flex; gap: 8px; }
 .editor-layer-actions button { background: var(--editor-raised); }
 .editor-topbar-actions .editor-history-actions { display: flex; gap: 3px; }
@@ -396,49 +397,135 @@
 .editor-timer-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 
 /* ---------------------------------------------------------------------------
- * Timer inspector — the fourth column. Labelled fields are right here even
- * though they were wrong in the toolbar: a vertical column has the room to say
- * what each control is, and hiding those names behind icons would be worse.
+ * Customize column.
+ *
+ * One field anatomy: 32px tall, 8px radius, raised fill, a 1px border that
+ * turns primary on focus. Sections are real groups separated by a hairline
+ * rule, with a 12px sentence-case title in ink (not tiny grey capitals, which
+ * read as decoration). Spacing is on a 4px scale: 8 between fields in a group,
+ * 14/16 around a group. The header is sticky so the selection's name and its
+ * layer and delete actions never scroll away.
  * ------------------------------------------------------------------------ */
-.editor-inspector { display: flex; flex-direction: column; gap: 20px; min-width: 0; min-height: 0; padding: 20px 18px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); }
-.editor-inspector-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
-.editor-inspector-group { display: flex; flex-direction: column; gap: 9px; }
-.editor-inspector-group h3 { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--editor-muted); }
-.editor-inspector-hint { color: var(--editor-muted); font-size: 11px; line-height: 1.45; }
-.editor-inspector-select, .editor-inspector-input { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 13px; }
-.editor-inspector-select:disabled { opacity: .55; }
-.editor-inspector-input::placeholder { color: var(--editor-muted); }
+.editor-inspector, .editor-popover-effect {
+  --field-h: 32px; --field-r: 8px; --field-bg: var(--editor-raised); --field-line: var(--editor-border);
+  --rule: color-mix(in srgb, var(--editor-ink) 9%, transparent);
+}
+.editor-inspector {
+  display: flex; flex-direction: column; min-width: 0; min-height: 0; padding-bottom: 12px;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint);
+  color: var(--editor-ink); font-size: 12.5px;
+}
+.editor-inspector-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px; padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--rule); background: inherit; }
+.editor-inspector-title { display: flex; min-width: 0; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; letter-spacing: -.005em; }
+.editor-inspector-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-inspector-title svg { flex: none; color: var(--color-primary); }
+.editor-inspector-actions { display: flex; flex: none; align-items: center; gap: 2px; }
+.editor-inspector-icon, .editor-ctl.editor-inspector-icon { display: grid; place-items: center; width: 30px; height: 30px; min-width: 0; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--editor-muted); cursor: pointer; }
+.editor-inspector-icon .editor-ctl-caret { display: none; }
+.editor-inspector-icon.is-on, .editor-inspector-icon[aria-expanded="true"] { background: color-mix(in srgb, var(--color-primary) 16%, transparent); color: var(--color-primary); }
+.editor-inspector-icon.is-danger { color: var(--editor-danger); }
+.editor-inspector-icon:disabled { opacity: .4; cursor: default; }
 
-/* Three fields, not one millisecond box — HH:MM:SS is how a presenter thinks
-   about it, and each part clamps on its own. */
-.editor-duration { display: flex; gap: 7px; }
-.editor-duration label { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.editor-duration input { width: 100%; height: 40px; padding: 0; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-inspector-group { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+.editor-inspector-group + .editor-inspector-group { border-top: 1px solid var(--rule); }
+.editor-inspector-group-head { display: flex; align-items: center; justify-content: space-between; min-height: 18px; }
+.editor-inspector-group h3 { margin: 0; font-size: 12px; font-weight: 600; color: var(--editor-ink); }
+.editor-inspector-note { padding: 7px 9px; border-radius: var(--field-r); background: color-mix(in srgb, #FFC21C 16%, var(--editor-mix)); color: var(--editor-ink); font-size: 11.5px; line-height: 1.4; }
+.editor-inspector-hint { color: var(--editor-muted); font-size: 11.5px; line-height: 1.4; }
+
+.editor-inspector-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; }
+.editor-inspector-grid.is-labelled > div { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.editor-inspector-label { margin-bottom: -3px; color: var(--editor-muted); font-size: 11px; font-weight: 500; }
+.editor-inspector-dimensions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px; align-items: center; gap: 8px; }
+.editor-inspector-paint { display: flex; align-items: center; gap: 2px; }
+.editor-inspector-paint > .editor-inspector-frame, .editor-inspector-paint > .editor-inspector-select { flex: 1; min-width: 0; margin-right: 4px; }
+.editor-inspector-paint > .editor-ctl-popover-root { margin-right: 2px; }
+.is-dimmed > .editor-inspector-frame, .editor-inspector-frame.is-dimmed, .editor-inspector-paint.is-dimmed > .editor-inspector-select { opacity: .45; }
+
+/* Shadow pop-up */
+.editor-popover.editor-popover-effect { width: 272px; gap: 10px; padding: 12px; color: var(--editor-ink); font-size: 12.5px; }
+.editor-effect-settings { display: flex; flex-direction: column; gap: 10px; }
+.editor-effect-type { display: flex; padding: 2px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); }
+.editor-effect-type button { flex: 1; height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--editor-muted); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-effect-type button[aria-checked="true"] { background: color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); color: var(--editor-ink); }
+.editor-effect-direction { display: grid; grid-template-columns: 108px 1fr; gap: 10px; align-items: center; }
+.editor-effect-pad { position: relative; width: 108px; height: 108px; border: 1px solid var(--field-line); border-radius: 10px; cursor: crosshair; touch-action: none;
+  background: linear-gradient(var(--field-line), var(--field-line)) center / 1px 84% no-repeat, linear-gradient(var(--field-line), var(--field-line)) center / 84% 1px no-repeat, var(--field-bg); }
+.editor-effect-pad:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.editor-effect-line { position: absolute; top: 50%; left: 50%; height: 2px; margin-top: -1px; background: var(--color-primary); transform-origin: 0 50%; pointer-events: none; }
+.editor-effect-knob { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border: 2px solid white; border-radius: 50%; background: var(--color-primary); box-shadow: 0 1px 4px rgb(0 0 0 / .35); pointer-events: none; }
+.editor-effect-xy { display: grid; gap: 8px; }
+.editor-inspector-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+/* Fields */
+.editor-inspector-select, .editor-inspector-input, .editor-inspector-number, .editor-inspector-frame {
+  width: 100%; height: var(--field-h); border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg);
+  color: var(--editor-ink); font: inherit; font-size: 12.5px; transition: border-color 120ms ease;
+}
+.editor-inspector-select, .editor-inspector-input { padding: 0 9px; }
+.editor-inspector-select { cursor: pointer; }
+.editor-inspector-input::placeholder, .editor-inspector-textarea::placeholder { color: var(--editor-muted); }
+.editor-inspector-select:focus-visible, .editor-inspector-input:focus, .editor-inspector-textarea:focus,
+.editor-inspector-number:focus-within, .editor-inspector-frame:focus-within { border-color: var(--color-primary); outline: none; }
+.editor-inspector-select:disabled, .editor-inspector-input:disabled, .editor-inspector-frame.is-disabled { opacity: .5; }
+.editor-inspector-textarea { width: 100%; min-height: 56px; padding: 7px 9px; resize: vertical; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 12.5px; line-height: 1.45; }
+
+.editor-inspector-number { display: flex; min-width: 0; align-items: center; gap: 6px; padding: 0 9px 0 0; }
+.editor-inspector-number input { min-width: 0; width: 100%; height: 100%; padding: 0 0 0 9px; border: 0; background: transparent; color: inherit; font: inherit; font-variant-numeric: tabular-nums; outline: none; }
+.editor-inspector-scrub { display: grid; flex: none; place-items: center; align-self: stretch; min-width: 24px; margin-right: -9px; padding-left: 4px; color: var(--editor-muted); font-size: 11px; font-weight: 600; cursor: ew-resize; user-select: none; touch-action: none; }
+.editor-inspector-scrub:empty { display: none; }
+.editor-inspector-number small { flex: none; color: var(--editor-muted); font-size: 11px; }
+.editor-inspector-number.is-bare { width: 64px; flex: none; height: 100%; border: 0; border-left: 1px solid var(--field-line); border-radius: 0; background: transparent; }
+
+/* Colour: swatch, hex and opacity in one frame. */
+.editor-inspector-frame { display: flex; align-items: stretch; overflow: hidden; }
+.editor-inspector-colour .editor-ctl-popover-root { display: flex; }
+.editor-ctl.editor-inspector-swatch-trigger { display: grid; place-items: center; width: 34px; min-width: 0; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.editor-inspector-swatch-trigger .editor-ctl-caret { display: none; }
+.editor-inspector-swatch { width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 18%, transparent); }
+.editor-inspector-hex { flex: 1; min-width: 0; padding: 0 4px; border: 0; background: transparent; color: inherit; font: inherit; font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; text-transform: uppercase; outline: none; }
+.editor-inspector-quick { display: flex; gap: 6px; }
+.editor-inspector-quick button { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); cursor: pointer; }
+.editor-inspector-quick button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Grouped icon buttons: one frame, the pressed item filled. */
+.editor-inspector-grid > .editor-inspector-buttons { justify-self: start; }
+.editor-inspector-buttons { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); }
+.editor-inspector-buttons button { display: grid; place-items: center; width: 30px; height: 26px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--editor-ink); cursor: pointer; transition: background-color 120ms ease, color 120ms ease; }
+.editor-inspector-buttons button.is-on { background: color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); color: var(--color-primary); }
+.editor-inspector-buttons button:disabled { opacity: .4; cursor: default; }
+
+.editor-inspector-reset { align-self: flex-start; height: 30px; margin: 6px 10px 0; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--editor-muted); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+
+/* Press feedback on every inspector button, hover only where a mouse is. */
+.editor-inspector button { transition: transform 120ms cubic-bezier(.23, 1, .32, 1), background-color 120ms ease, color 120ms ease; }
+.editor-inspector button:not(:disabled):active { transform: scale(.96); }
+@media (hover: hover) and (pointer: fine) {
+  .editor-inspector-icon:not(:disabled):hover, .editor-inspector-reset:not(:disabled):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); color: var(--editor-ink); }
+  .editor-inspector-icon.is-danger:not(:disabled):hover { background: color-mix(in srgb, var(--editor-danger) 12%, transparent); color: var(--editor-danger); }
+  .editor-inspector-buttons button:not(:disabled):not(.is-on):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); }
+  .editor-inspector-select:not(:disabled):hover, .editor-inspector-number:hover, .editor-inspector-frame:not(.is-disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
+  .editor-inspector-scrub:hover { color: var(--color-primary); }
+}
+
+/* Countdown duration: three centred parts under one label. */
+.editor-duration { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.editor-duration label { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.editor-duration input { width: 100%; height: 36px; padding: 0; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-duration input:focus { border-color: var(--color-primary); outline: none; }
 .editor-duration span { color: var(--editor-muted); font-size: 10px; font-weight: 600; letter-spacing: .06em; }
-
-.editor-inspector-swatches { display: flex; gap: 7px; }
-.editor-inspector-swatches button { width: 34px; height: 34px; padding: 0; border: 1px solid color-mix(in srgb, var(--editor-ink) 14%, transparent); border-radius: 9px; cursor: pointer; }
-.editor-inspector-swatches button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 /* Checkbox kept as the real control and visually hidden, so the switch stays
    keyboard-operable and announces its state without any ARIA of its own. */
-.editor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--editor-ink); cursor: pointer; }
+.editor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; font-size: 12.5px; color: var(--editor-ink); cursor: pointer; }
 .editor-toggle.is-locked { cursor: default; color: var(--editor-muted); }
 .editor-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.editor-toggle-track { position: relative; flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--editor-border); transition: background-color 140ms ease; }
-.editor-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--editor-raised); box-shadow: 0 1px 3px rgb(var(--editor-shadow) / .25); transition: left 140ms ease; }
+.editor-toggle-track { position: relative; flex: none; width: 32px; height: 18px; border-radius: 999px; background: var(--editor-border); transition: background-color 140ms ease; }
+.editor-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--editor-raised); box-shadow: 0 1px 3px rgb(var(--editor-shadow) / .25); transition: left 140ms ease; }
 .editor-toggle input:checked ~ .editor-toggle-track { background: var(--color-primary); }
-.editor-toggle input:checked ~ .editor-toggle-track::after { left: 18px; }
+.editor-toggle input:checked ~ .editor-toggle-track::after { left: 16px; }
 .editor-toggle input:disabled ~ .editor-toggle-track { opacity: .5; }
 .editor-toggle input:focus-visible ~ .editor-toggle-track { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-
-.editor-inspector-xy { display: flex; gap: 7px; }
-.editor-inspector-xy label { flex: 1; display: flex; align-items: center; gap: 5px; height: 38px; padding: 0 9px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); }
-.editor-inspector-xy span { color: var(--editor-muted); font-size: 11px; font-weight: 600; }
-.editor-inspector-xy input { min-width: 0; width: 100%; border: 0; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; }
-.editor-inspector-xy small { color: var(--editor-muted); font-size: 10px; }
-
-.editor-inspector-reset { height: 40px; border: 1px solid var(--editor-border); border-radius: 9px; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 
 /* Exit confirmation. Sits above the presentation because it may be raised
    after the browser has already dropped out of fullscreen — the overlay is
@@ -560,32 +647,28 @@
 @media (max-width: 420px) {
   .editor-topbar-actions > button:not(.editor-export) { display: none; }
 }
-/* The inspector stops being a column here. A fourth 300px track plus the rail
-   and the tool panel leaves the sheet unusable long before the 760px layout
-   flip — roughly 309px of canvas at 1101px, and almost nothing just above 760.
-   It becomes an overlay from this width down, so the canvas keeps its room. */
-@media (max-width: 1200px) {
-  .editor-body.has-inspector,
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 300px minmax(0, 1fr); }
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
-  .editor-inspector { position: fixed; z-index: 30; top: 0; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); }
+/* Customize as a drawer. The fixed columns add up to 792px, so a fourth
+   300px column at 1200px would leave a 408px canvas. Below 1441px the column
+   slides over the canvas instead of taking a track, so it never resizes the
+   sheet. It opens when something is selected and starts below the 93px top
+   bar so Display, Save and Export stay reachable. */
+@media (max-width: 1440px) {
+  .editor-inspector.is-drawer { position: fixed; z-index: 30; top: 93px; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); animation: editor-drawer-in 240ms cubic-bezier(.23, 1, .32, 1); }
+  @keyframes editor-drawer-in { from { transform: translateX(104%); } }
 }
-@media (max-width: 1100px) {
-  .editor-body.has-inspector { grid-template-columns: 92px 276px minmax(0, 1fr); }
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
-}
-/* Narrowest layout: the property bar already owns the bottom edge here, so the
-   inspector takes the whole sheet rather than stacking a second bar under it. */
+/* Narrowest layout: a bottom sheet, like a phone app's settings. */
 @media (max-width: 760px) {
-  .editor-body.has-inspector,
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 68px minmax(0, 1fr); }
-  .editor-inspector { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+  .editor-inspector.is-drawer { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+  .editor-inspector.is-drawer { animation-name: editor-sheet-in; }
+  @keyframes editor-sheet-in { from { transform: translateY(104%); } }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .editor-tool-button { transition: none; }
   .editor-tool-button:active, .editor-ctl:not(:disabled):active { transform: none; }
   .editor-body, .editor-tool-panel, .editor-canvas-bar button { transition: none; }
+  .editor-inspector.is-drawer { animation: none; }
+  .editor-inspector button, .editor-inspector button:not(:disabled):active { transition: none; transform: none; }
   .editor-display-bar, .editor-display-bar button { transition: none; }
 }
 

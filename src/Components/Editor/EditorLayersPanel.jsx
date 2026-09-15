@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, Layers, Trash2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { elementSelected, elementReordered, elementDeleted } from "../redux/editorSlice.js";
 import { shapeName } from "./shapeCatalog.js";
+import { ShapeArtwork } from "./EditorElement.jsx";
 
 export default function EditorLayersPanel() {
   const dispatch = useAppDispatch();
@@ -17,7 +18,9 @@ export default function EditorLayersPanel() {
     <div className="editor-layer-list" role="group" aria-label="Page layers">
       {[...elements].reverse().map((el) => <button type="button" key={el.id} className="editor-layer-row"
         aria-pressed={selectedIds.includes(el.id)} disabled={!!gesture} onClick={(event) => dispatch(elementSelected({ id: el.id, additive: event.shiftKey || event.metaKey || event.ctrlKey }))}>
-        <span className={`editor-layer-swatch editor-shape-${el.shape}`} style={{ background: el.fill }} aria-hidden="true" />
+        <span className="editor-layer-swatch" style={el.type === "shape" ? undefined : { background: el.fill }} aria-hidden="true">
+          {el.type === "shape" && <ShapeArtwork element={{ ...el, w: 100, h: 100 * el.h / el.w, effects: [], stroke: null, opacity: 1 }} />}
+        </span>
         <span>{el.type === "text" ? el.content : shapeName(el.shape)}</span>
       </button>)}
     </div>

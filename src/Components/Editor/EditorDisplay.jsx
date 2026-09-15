@@ -131,7 +131,7 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
         <div className="editor-display-page" data-page-id={pages[slide]?.id}>
           {pages[slide]?.elements.map((element) => (element.type === "timer"
             ? <DisplayTimer key={element.id} element={element} onRequestStop={requestStop} onRunningChange={noteTimer} />
-            : <StaticElement key={element.id} element={element} />))}
+            : <StaticElement key={element.id} element={element} layered />))}
         </div>
       </div>
       <EditorDisplayBar

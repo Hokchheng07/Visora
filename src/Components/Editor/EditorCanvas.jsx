@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { elementDeleted, elementReordered, elementSelected, elementsSelected, pageMoved, pageSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, zoomChanged } from "../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
-import EditorShapeTools from "./EditorShapeTools.jsx";
+import EditorPageBar from "./EditorPageBar.jsx";
 import EditorGroupSelectionFrame from "./EditorGroupSelectionFrame.jsx";
 import { elementsInRect } from "./elementGeometry.js";
 import EditorContextMenu from "./EditorContextMenu.jsx";
@@ -31,7 +31,7 @@ export default function EditorCanvas({
   const pan = useRef(null), spacePressed = useRef(false);
 
   useEffect(() => {
-    function key(event) { if (event.code === "Space" && !event.target.closest("input, textarea, [contenteditable='true']")) spacePressed.current = event.type === "keydown"; }
+    function key(event) { if (event.code === "Space" && !event.target.closest("input, textarea, [contenteditable='true'], [contenteditable='plaintext-only']")) spacePressed.current = event.type === "keydown"; }
     window.addEventListener("keydown", key); window.addEventListener("keyup", key);
     return () => { window.removeEventListener("keydown", key); window.removeEventListener("keyup", key); };
   }, []);
@@ -95,7 +95,7 @@ export default function EditorCanvas({
       aria-label="Design workspace"
     >
       <div className="editor-canvas-area">
-        <EditorShapeTools />
+        <EditorPageBar />
         {showRulers && (
           <>
             <span className="editor-ruler-corner" aria-hidden="true" />
