@@ -136,6 +136,8 @@ import featurePinEtchLight from '../assets/pages/about/design-present-inspire/Pi
 import featurePinEtchDark from '../assets/pages/about/DarkMode/HangingCardBackground.svg';
 import visionFrameLight from '../assets/pages/about/vision-mission/OurVisionFrame+OurMission.svg';
 import visionFrameDark from '../assets/pages/about/DarkMode/OurMissionFrame.svg';
+import visionLottieLight from '../assets/pages/about/vision-mission/LottieAboveOurVision.svg';
+import visionLottieDark from '../assets/pages/about/vision-mission/LottieDarkMode.svg';
 import cardPurpleFrameLight from '../assets/pages/about/people/cards/purple/PurpleFram.svg';
 import cardPurpleFrameDark from '../assets/pages/about/DarkMode/PinkFrame.svg';
 import cardPurpleBgLight from '../assets/pages/about/people/cards/purple/prupleBg.svg';
@@ -232,6 +234,7 @@ export const darkAssets = {
   [featureBackdropLight]: featureBackdropDark,
   [featurePinEtchLight]: featurePinEtchDark,
   [visionFrameLight]: visionFrameDark,
+  [visionLottieLight]: visionLottieDark,
   [cardPurpleFrameLight]: cardPurpleFrameDark,
   [cardPurpleBgLight]: cardPurpleBgDark,
   [cardPurpleBlobLight]: cardPurpleBlobDark,

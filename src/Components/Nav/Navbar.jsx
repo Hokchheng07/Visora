@@ -108,7 +108,7 @@ export default function Navbar() {
             <ThemeToggle />
             <NavLink
               to="/auth/login"
-              className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
+              className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
             >
               Sign In
             </NavLink>
@@ -168,7 +168,7 @@ export default function Navbar() {
             <NavLink
               to="/auth/login"
               onClick={() => setMobileOpen(false)}
-              className="mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+              className="navbar-sign-in mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
             >
               Sign In
             </NavLink>

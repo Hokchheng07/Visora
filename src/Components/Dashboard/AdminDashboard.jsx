@@ -57,11 +57,11 @@ export default function AdminDashboard() {
   const chartData = activity.points;
 
   const stats = [
-    { label: "Total User", value: apiStats.totalUsers, icon: Users, tone: "purple" },
-    { label: "Total Template", value: apiStats.totalTemplates, icon: Layers, tone: "yellow" },
-    { label: "Public Template", value: apiStats.publicTemplates, icon: Globe, tone: "purple", knockout: true },
-    { label: "Pending Review", value: apiStats.pendingReview, icon: Clock, tone: "yellow", knockout: true },
-    { label: "Report Template", value: apiStats.reportedTemplates, icon: Flag, tone: "red" },
+    { label: "Total User", value: apiStats?.totalUsers ?? users.length, icon: Users, tone: "purple" },
+    { label: "Total Template", value: apiStats?.totalTemplates ?? templates.length, icon: Layers, tone: "yellow" },
+    { label: "Public Template", value: apiStats?.publicTemplates ?? templates.filter((t) => t.visibility === "public").length, icon: Globe, tone: "purple", knockout: true },
+    { label: "Pending Review", value: apiStats?.pendingReview ?? pendingTemplates.length, icon: Clock, tone: "yellow", knockout: true },
+    { label: "Report Template", value: apiStats?.reportedTemplates ?? 0, icon: Flag, tone: "red" },
   ];
 
   return (

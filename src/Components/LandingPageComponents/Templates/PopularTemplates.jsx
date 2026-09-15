@@ -92,7 +92,7 @@ export default function PopularTemplates() {
         </motion.div>
 
         <motion.div
-          className="mt-4 text-center"
+          className="mt-12 text-center"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -101,9 +101,9 @@ export default function PopularTemplates() {
         >
           <NavLink
             to="/templates"
-            className="inline-flex items-center rounded-[14px] bg-gradient-to-r from-primary to-accent px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:-translate-y-0.5"
+            className="more-templates-button"
           >
-            More Templates <span className="ml-2 text-xl leading-none">→</span>
+            More Templates <span aria-hidden="true">→</span>
           </NavLink>
         </motion.div>
       </div>

@@ -1,0 +1,300 @@
+{
+  "stats": {
+    "totalUsers": 8,
+    "totalTemplates": 12,
+    "publicTemplates": 10,
+    "pendingReview": 7,
+    "reportedTemplates": 2
+  },
+  "templates": [
+    {
+      "id": 1,
+      "name": "Graduation Ceremony 2026",
+      "creator": "Sok Chantha",
+      "email": "sok.chantha@visora.com",
+      "category": "Graduation",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-24",
+      "createdTime": "10:30 AM",
+      "shade": "yellow",
+      "description": "A polished graduation template for Visora."
+    },
+    {
+      "id": 2,
+      "name": "Workshop on AI",
+      "creator": "Dara Vannak",
+      "email": "dara.vannak@visora.com",
+      "category": "Workshop",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-24",
+      "createdTime": "9:15 AM",
+      "shade": "blue",
+      "description": "A polished workshop template for Visora."
+    },
+    {
+      "id": 3,
+      "name": "Khmer New Year Celebration",
+      "creator": "Srey Pich",
+      "email": "srey.pich@visora.com",
+      "category": "Khmer Events",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-23",
+      "createdTime": "4:45 PM",
+      "shade": "pink",
+      "description": "A polished Khmer event template for Visora."
+    },
+    {
+      "id": 4,
+      "name": "Certificate of Achievement",
+      "creator": "Vuthy Keo",
+      "email": "vuthy.keo@visora.com",
+      "category": "Examination",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-23",
+      "createdTime": "2:20 PM",
+      "shade": "violet",
+      "description": "A polished examination template for Visora."
+    },
+    {
+      "id": 5,
+      "name": "Business Seminar Beige",
+      "creator": "Nita Sorn",
+      "email": "nita.sorn@visora.com",
+      "category": "Seminar",
+      "status": "pending",
+      "visibility": "private",
+      "createdAt": "2024-05-22",
+      "createdTime": "11:05 AM",
+      "shade": "peach",
+      "description": "A polished seminar template for Visora."
+    },
+    {
+      "id": 6,
+      "name": "Creative Portfolio Red",
+      "creator": "Bora Chea",
+      "email": "bora.chea@visora.com",
+      "category": "Portfolio",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-22",
+      "createdTime": "8:40 AM",
+      "shade": "red",
+      "description": "A polished portfolio template for Visora."
+    },
+    {
+      "id": 7,
+      "name": "Children's Day Celebration",
+      "creator": "Ratha Kim",
+      "email": "ratha.kim@visora.com",
+      "category": "Others",
+      "status": "pending",
+      "visibility": "public",
+      "createdAt": "2024-05-21",
+      "createdTime": "5:15 PM",
+      "shade": "green",
+      "description": "A polished event template for Visora."
+    },
+    {
+      "id": 8,
+      "name": "Design Competition 2026",
+      "creator": "Malis Phan",
+      "email": "malis.phan@visora.com",
+      "category": "Competition",
+      "status": "published",
+      "visibility": "public",
+      "createdAt": "2024-05-20",
+      "createdTime": "1:20 PM",
+      "shade": "violet",
+      "description": "A polished competition template for Visora."
+    },
+    {
+      "id": 9,
+      "name": "Modern CV Portfolio",
+      "creator": "Chan Dara",
+      "email": "chan.dara@visora.com",
+      "category": "Portfolio",
+      "status": "published",
+      "visibility": "public",
+      "createdAt": "2024-05-19",
+      "createdTime": "10:00 AM",
+      "shade": "blue",
+      "description": "A polished portfolio template for Visora."
+    },
+    {
+      "id": 10,
+      "name": "Team Building Workshop",
+      "creator": "Sophea Lim",
+      "email": "sophea.lim@visora.com",
+      "category": "Workshop",
+      "status": "published",
+      "visibility": "private",
+      "createdAt": "2024-05-18",
+      "createdTime": "3:40 PM",
+      "shade": "green",
+      "description": "A polished workshop template for Visora."
+    },
+    {
+      "id": 11,
+      "name": "Annual Seminar Poster",
+      "creator": "Kosal Nhem",
+      "email": "kosal.nhem@visora.com",
+      "category": "Seminar",
+      "status": "rejected",
+      "visibility": "public",
+      "createdAt": "2024-05-17",
+      "createdTime": "8:30 AM",
+      "shade": "peach",
+      "description": "A polished seminar template for Visora."
+    },
+    {
+      "id": 12,
+      "name": "Final Exam Schedule",
+      "creator": "Thyda Vong",
+      "email": "thyda.vong@visora.com",
+      "category": "Examination",
+      "status": "rejected",
+      "visibility": "public",
+      "createdAt": "2024-05-16",
+      "createdTime": "4:10 PM",
+      "shade": "yellow",
+      "description": "A polished examination template for Visora."
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Sok Chantha",
+      "email": "sok.chantha@visora.com",
+      "role": "Designer",
+      "status": "active",
+      "joinedAt": "2024-05-24"
+    },
+    {
+      "id": 2,
+      "name": "Dara Vannak",
+      "email": "dara.vannak@visora.com",
+      "role": "Editor",
+      "status": "active",
+      "joinedAt": "2024-05-24"
+    },
+    {
+      "id": 3,
+      "name": "Vuthy Keo",
+      "email": "vuthy.keo@visora.com",
+      "role": "Viewer",
+      "status": "active",
+      "joinedAt": "2024-05-23"
+    },
+    {
+      "id": 4,
+      "name": "Nita Sorn",
+      "email": "nita.sorn@visora.com",
+      "role": "Designer",
+      "status": "active",
+      "joinedAt": "2024-05-22"
+    },
+    {
+      "id": 5,
+      "name": "Bora Chea",
+      "email": "bora.chea@visora.com",
+      "role": "Editor",
+      "status": "active",
+      "joinedAt": "2024-05-21"
+    },
+    {
+      "id": 6,
+      "name": "Ratha Kim",
+      "email": "ratha.kim@visora.com",
+      "role": "Viewer",
+      "status": "active",
+      "joinedAt": "2024-05-20"
+    },
+    {
+      "id": 7,
+      "name": "Sophea Lim",
+      "email": "sophea.lim@visora.com",
+      "role": "Designer",
+      "status": "active",
+      "joinedAt": "2024-05-18"
+    },
+    {
+      "id": 8,
+      "name": "Chan Dara",
+      "email": "chan.dara@visora.com",
+      "role": "Viewer",
+      "status": "active",
+      "joinedAt": "2024-05-17"
+    }
+  ],
+  "categories": [
+    "Graduation",
+    "Workshop",
+    "Khmer Events",
+    "Examination",
+    "Seminar",
+    "Portfolio",
+    "Competition",
+    "Others"
+  ],
+  "reports": [
+    {
+      "id": 1,
+      "name": "Creative Portfolio",
+      "creator": "Channa",
+      "time": "2 hours ago",
+      "date": "May 24, 2026",
+      "status": "Under Review",
+      "imageKey": "creativePortfolio"
+    },
+    {
+      "id": 2,
+      "name": "Frontend examination",
+      "creator": "Channan",
+      "time": "3 hours ago",
+      "date": "May 24, 2026",
+      "status": "Resolved",
+      "imageKey": "frontendExam"
+    },
+    {
+      "id": 3,
+      "name": "Creative Portfolio",
+      "creator": "Channa",
+      "time": "2 hours ago",
+      "date": "May 23, 2026",
+      "status": "Under Review",
+      "imageKey": "creativePortfolio"
+    }
+  ],
+  "activity": {
+    "Last 7 days": {
+      "usersMax": 200,
+      "templatesMax": 80,
+      "points": [
+        { "label": "May 18", "users": 32, "templates": 35 },
+        { "label": "May 19", "users": 66, "templates": 50 },
+        { "label": "May 20", "users": 72, "templates": 59 },
+        { "label": "May 21", "users": 124, "templates": 37 },
+        { "label": "May 22", "users": 167, "templates": 52 },
+        { "label": "May 23", "users": 176, "templates": 33 },
+        { "label": "May 24", "users": 150, "templates": 27 }
+      ]
+    },
+    "Last 30 days": {
+      "usersMax": 800,
+      "templatesMax": 320,
+      "points": [
+        { "label": "Apr 25", "users": 210, "templates": 120 },
+        { "label": "Apr 30", "users": 340, "templates": 165 },
+        { "label": "May 5", "users": 310, "templates": 210 },
+        { "label": "May 10", "users": 460, "templates": 180 },
+        { "label": "May 15", "users": 520, "templates": 260 },
+        { "label": "May 20", "users": 690, "templates": 230 },
+        { "label": "May 24", "users": 740, "templates": 280 }
+      ]
+    }
+  }
+}
