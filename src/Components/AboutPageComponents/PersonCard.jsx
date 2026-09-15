@@ -63,7 +63,19 @@ export default function PersonCard({ person, index = 0 }) {
       <div className="about-person-portrait" aria-label={`${person.name}, ${person.role}`}>
         <ThemeImage className="about-person-portrait-blob" src={cardTheme.blob} alt="" aria-hidden="true" />
         {person.photo ? (
+<<<<<<< HEAD
           <ThemeImage className="about-person-photo" src={person.photo} alt={`${person.name}, ${person.role}`} />
+=======
+          <ThemeImage
+            className="about-person-photo"
+            src={person.photo}
+            alt={`${person.name}, ${person.role}`}
+            style={{
+              ...(person.photoPosition ? { objectPosition: person.photoPosition } : {}),
+              ...person.photoStyle,
+            }}
+          />
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         ) : (
           <div className="about-person-placeholder" aria-hidden="true">
             {getInitials(person.name)}
@@ -78,9 +90,15 @@ export default function PersonCard({ person, index = 0 }) {
         <span className={`about-person-role ${featuredRole ? "about-person-role-featured" : ""}`}>
           {person.role}
         </span>
+<<<<<<< HEAD
         {person.quote && (
           <p className="about-person-quote">{`“${person.quote}”`}</p>
         )}
+=======
+        {/* Rendered even when empty: the quote box reserves three lines so the
+            socials row keeps the same place on every card. */}
+        <p className="about-person-quote">{person.quote ? `“${person.quote}”` : ""}</p>
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         {availableSocials.length ? (
           <div className="about-person-socials" aria-label={`${person.name} social links`}>
             {availableSocials.map(([name, { Icon, image }]) => (

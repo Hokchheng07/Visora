@@ -32,6 +32,7 @@
 
 /* Responsive SVG reconstruction for the hero blob. */
 .hero-vector { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+<<<<<<< HEAD
 .hero-vector-outer { z-index: 0; }
 .hero-vector-middle { z-index: 1; }
 .hero-vector-inner { z-index: 2; }
@@ -41,6 +42,49 @@
 .hero-blob-card { width: min(1156px, 100%); margin-inline: auto; }
 .hero-section { min-height: 1100px; }
 .hero-content { min-height: 1100px; }
+=======
+/* Each layer keeps its own box from Figma hero group 1781:193400 (1156 x 653.66,
+   the heading included). Stretching every export to the full box distorted
+   them by different amounts, so the solid and dashed outlines drifted off the
+   fills and read as two overlapping dashed paths cutting through the blob. */
+.hero-vector-outer { z-index: 0; inset: auto; left: 8.853%; top: 10.705%; width: 81.410%; height: 85.305%; }
+.hero-vector-middle { z-index: 1; inset: auto; left: 13.801%; top: 15.641%; width: 74.093%; height: 76.854%; }
+.hero-vector-inner { z-index: 2; inset: auto; left: 13.801%; top: 15.641%; width: 69.504%; height: 74.155%; }
+.hero-vector-solid { z-index: 3; inset: auto; left: 6.315%; top: 3.242%; width: 84.118%; height: 90.061%; }
+.hero-vector-dashed { z-index: 4; inset: auto; left: 7.306%; top: 0; width: 88.196%; height: 100%; }
+.hero-blob-copy { z-index: 10; }
+.hero-blob-card { width: min(1156px, 100%); margin-inline: auto; container-type: inline-size; }
+/* Figma sizes everything against the 1156px group, so the copy scales in cqw
+   from the card width. From md up the copy block starts where Figma puts it
+   (heading top at 204/1156 of the width) instead of being centred. */
+@media (min-width: 768px) {
+  .hero-blob-copy { justify-content: flex-start !important; padding: 17.6% 0 0 !important; }
+  .hero-blob-copy h1 { margin-top: 0 !important; padding-inline: 0 !important; max-width: none !important; font-size: clamp(40px, 6.49cqw, 75px) !important; line-height: 1.2667 !important; letter-spacing: 0 !important; }
+  .hero-blob-copy p { margin-top: 0 !important; max-width: 51.9cqw !important; font-size: clamp(15px, 1.73cqw, 20px) !important; line-height: 1.5 !important; }
+  .hero-blob-copy > div { margin-top: clamp(20px, 3.3cqw, 38px) !important; }
+}
+/* 80.3vw matches Figma at 1440 (1156px). The doodles stay in the gutters
+   outside the dashed outline, which spans 7.3%-95.5% of the card. */
+@media (min-width: 1024px) {
+  .hero-blob-card { width: min(1156px, 80.3vw); }
+}
+
+/* Hero CTAs from Figma nodes 1781:143798 / 1781:143805 (light) and
+   1781:193411 / 1781:193417 (dark): 259x62, 17.5px radius, 20px semibold. */
+.hero-cta { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 14px; min-width: clamp(210px, 22.4cqw, 259px); min-height: clamp(50px, 5.33cqw, 62px); white-space: nowrap; padding: 0 28px; border-radius: 17.5px; font-size: clamp(16px, 1.73cqw, 20px); font-weight: 600; line-height: 1; transition: transform 160ms cubic-bezier(.23, 1, .32, 1), filter 160ms ease, box-shadow 200ms ease, background-color 200ms ease; -webkit-tap-highlight-color: transparent; }
+.hero-cta-primary { background: linear-gradient(90deg, #6854da, #b294f0); color: #fff; box-shadow: 0 10px 24px rgb(104 84 218 / .22); }
+.hero-cta-secondary { background: rgb(255 194 28 / .38); color: var(--text-heading); }
+.hero-cta-arrow { width: 39px; height: 39px; margin-right: -10px; background: currentColor; transform: rotate(90deg); -webkit-mask: url("../../assets/shared/icons/ArrowThin.svg") center / 100% 100% no-repeat; mask: url("../../assets/shared/icons/ArrowThin.svg") center / 100% 100% no-repeat; transition: translate 160ms cubic-bezier(.23, 1, .32, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta-primary:hover { filter: brightness(1.05); box-shadow: 0 14px 30px rgb(104 84 218 / .3); }
+  .hero-cta-primary:hover .hero-cta-arrow { translate: 4px 0; }
+  .hero-cta-secondary:hover { background: rgb(255 194 28 / .5); }
+}
+.hero-cta:active { transform: scale(.97); }
+.hero-cta:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+@media (max-width: 639px) { .hero-cta { min-width: 0; min-height: 52px; padding: 0 22px; font-size: 16px; border-radius: 14px; } .hero-cta-arrow { width: 32px; height: 32px; } }
+@media (prefers-reduced-motion: reduce) { .hero-cta, .hero-cta-arrow { transition-duration: 1ms; } .hero-cta:active { transform: none; filter: brightness(.95); } }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
 /* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row —
@@ -121,7 +165,11 @@
   height: 21.85%;
 }
 .hero-doodle-frame-two {
+<<<<<<< HEAD
   left: 84.64%;
+=======
+  left: 86.6%;
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   top: 52.78%;
   width: 10.94%;
   height: 21.67%;
@@ -136,6 +184,7 @@
 .hero-big-arrow { right: 0; bottom: -7%; width: 55%; opacity: 0.9; }
 .hero-big-strip { right: -4%; bottom: -9%; width: 67%; opacity: 0.95; }
 
+<<<<<<< HEAD
 /* "Backdrops" gradient highlight in the hero headline. */
 .hero-backdrop-word {
   display: inline-block;
@@ -167,6 +216,27 @@
     margin-top: 0;
     transform: translateX(-50%);
   }
+=======
+/* "Backdrops" is two stacked copies in Figma (1781:193408 + 1781:193409): a pale
+   face offset 4px up-left over a saturated copy. A hard text-shadow draws the
+   lower copy. Anime.js splits the word into [data-word] spans, which inherit it. */
+.hero-backdrop-word,
+.hero-backdrop-word [data-word] {
+  display: inline-block;
+  color: #b294f0;
+  text-shadow: .35cqw .35cqw 0 #6854da;
+}
+
+.hero-stats-group { position: relative; }
+.hero-arrow-lane { position: relative; height: auto; aspect-ratio: 550 / 118; width: min(560px, 60vw); margin: 0 auto 1rem; }
+.hero-arrow-lane img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* Desktop keeps the group in normal flow under the blob. It used to be pinned
+   to the bottom of the fixed-height hero, so the gap above the scissors path
+   depended on the blob's rendered height and could collapse to an overlap. */
+@media (min-width: 1024px) {
+  .hero-stats-group { margin-top: clamp(3rem, 5vw, 5rem); }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 }
 
 /*
@@ -180,9 +250,27 @@
 .templates-spiral-arrow { right: 9.8%; top: 20%; width: 15%; opacity: 0.85; transform: scaleX(1) rotate(75deg); }
 .templates-arrow-scissors { display: block; margin: 1rem auto 0; height: 4.5rem; width: 320px; object-fit: contain; }
 
+<<<<<<< HEAD
 .popular-templates-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .popular-templates-top-wave { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
 .popular-templates-lower-wave { position: absolute; bottom: 0; left: 0; width: 100%; height: auto; }
+=======
+.dark .site-shell .template-card { box-shadow: 0 0 0 1px var(--border-default), 0 8px 24px rgb(0 0 0 / .35); }
+/* One "More Templates" button for every section: brand gradient (primary to
+   accent, so dark mode becomes blue to pink), 14px radius and a soft glow. */
+.more-templates-button { display: inline-flex; align-items: center; gap: .5rem; border-radius: 14px; padding: .75rem 1.75rem; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); color: #fff; font-size: .875rem; font-weight: 600; line-height: 1.25rem; box-shadow: 0 10px 22px color-mix(in srgb, var(--color-primary) 24%, transparent); transition: transform 160ms cubic-bezier(.23, 1, .32, 1), box-shadow 200ms ease, filter 160ms ease; -webkit-tap-highlight-color: transparent; }
+.more-templates-button span { font-size: 1.25rem; line-height: 1; transition: translate 160ms cubic-bezier(.23, 1, .32, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .more-templates-button:hover { filter: brightness(1.05); box-shadow: 0 14px 28px color-mix(in srgb, var(--color-primary) 34%, transparent); }
+  .more-templates-button:hover span { translate: 3px 0; }
+}
+.more-templates-button:active { transform: scale(.97); }
+.more-templates-button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .more-templates-button, .more-templates-button span { transition-duration: 1ms; } .more-templates-button:active { transform: none; filter: brightness(.95); } }
+.popular-templates-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.popular-templates-top-wave { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+.popular-templates-lower-wave { position: absolute; bottom: -1px; left: 0; width: 100%; height: auto; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 /*
  * ============================================================
@@ -206,10 +294,21 @@
 }
 
 /* Why Choose Visora decorative picture layers. */
+<<<<<<< HEAD
 .features-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .features-linear-bg { position: absolute; top: 0; left: 50%; z-index: 1; display: block; width: 100vw; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; transform: translateX(-50%); pointer-events: none; }
 .features-section { aspect-ratio: 1441 / 927; }
 .features-benefits-grid { margin-inline: 0; }
+=======
+/* why-choose-blob.png has 1-2px of near-black baked into its top, left and
+   bottom edges. Bleed it 3px past every side; the section's overflow-hidden
+   clips that dark frame so it never shows as a seam under Popular Templates. */
+.features-art { position: absolute; inset: -3px; z-index: 0; width: calc(100% + 6px); height: calc(100% + 6px); object-fit: cover; pointer-events: none; }
+.features-linear-bg { position: absolute; top: 0; left: 50%; z-index: 1; display: block; width: 100vw; max-width: none; height: 100%; object-fit: cover; object-position: center bottom; transform: translateX(-50%); pointer-events: none; }
+.features-section { aspect-ratio: 1441 / 927; margin-top: -2px; border-top: 0; }
+.features-benefits-grid { margin-inline: 0; }
+@media (min-width: 1024px) { .features-benefits-grid { position: relative; left: 2%; } }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .features-decorations { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: none; }
 @media (min-width: 1024px) {
   .features-decorations {
@@ -222,13 +321,41 @@
 @media (max-width: 1023px) {
   .hero-section { min-height: auto; }
   .hero-content { min-height: 0; }
+<<<<<<< HEAD
   .hero-stats-group { position: relative; left: auto; bottom: auto; transform: none; }
+=======
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .features-section { aspect-ratio: auto !important; min-height: 0; }
   .features-linear-bg { left: 0; width: 100%; transform: none; }
 }
 
+<<<<<<< HEAD
 /* Create without Limits — the next feature showcase section. */
 .create-limits-section { min-height: 1750px; background-color: var(--surface-base); }
+=======
+/* Tablet has enough room for two balanced columns, but not the desktop's
+   single stats row. Reserve a real row for the scissors path so neither
+   element can overlap or depend on browser zoom rounding. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-stats-group { margin-top: 3.5rem; padding-bottom: 3rem; }
+  .hero-arrow-lane { width: min(520px, 68vw); margin-bottom: 1.25rem; }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(760px, 100%);
+    min-height: 0;
+    gap: 1rem 1.5rem;
+    overflow: hidden;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(90deg, rgb(178 148 240 / .72), rgb(255 194 28 / .56));
+  }
+  .hero-stats .hero-stats-bg { display: none !important; }
+  .hero-stat-row { min-width: 0; justify-content: flex-start; }
+}
+
+/* Create without Limits — the next feature showcase section. */
+.create-limits-section { min-height: 1680px; background-color: var(--surface-base); }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .create-limits-corners { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .create-limits-yellow-art { position: absolute; top: 0; right: 0; width: 100%; max-width: none; height: auto; aspect-ratio: 1440 / 967; object-fit: contain; }
 .create-limits-purple-art { position: absolute; bottom: 0; left: 0; width: 100%; max-width: none; height: auto; object-fit: contain; }
@@ -241,7 +368,14 @@
 .create-limits-underline { position: relative; width: min(459px, 90vw); height: 71px; margin: .65rem auto 0; }
 .create-limits-underline img:first-child { position: absolute; top: 27px; left: 0; width: 100%; height: 17px; }
 .create-limits-underline img:last-child { position: absolute; top: 0; left: 50%; width: 73px; height: 71px; transform: translateX(-50%); }
+<<<<<<< HEAD
 .create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 580px)); justify-content: center; gap: 1.5rem; margin: 6.5rem auto 0; max-width: 1840px; }
+=======
+.create-limits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 580px)); justify-content: center; gap: 0 .75rem; margin: 6.5rem auto 0; max-width: 1840px; }
+/* The blob shapes leave clear space inside each card box, so the visible gap
+   between rows was far larger than the grid gap. Pull rows together. */
+@media (min-width: 621px) { .create-limits-card { margin-block: -1.75rem; } .create-limits-grid { padding-block: 1.75rem; } }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .create-limits-card { position: relative; width: 98.5%; max-width: 571.3px; height: 591px; justify-self: center; isolation: isolate; }
 .create-limits-card-shape { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; }
 .create-limits-first-shape { position: absolute; inset: 0; z-index: -1; }
@@ -272,18 +406,30 @@
   .features-benefits-grid article p { max-width: 38rem; font-size: clamp(.95rem, 4vw, 1.1rem); }
 }
 @media (min-width: 901px) and (max-width: 1500px) {
+<<<<<<< HEAD
   .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; max-width: 1400px; }
+=======
+  .create-limits-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 .5rem; max-width: 1400px; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .create-limits-card { height: auto; aspect-ratio: 580 / 600; }
   .create-limits-card h3 { white-space: normal; }
 }
 @media (max-width: 900px) {
   .create-limits-section { min-height: auto; }
+<<<<<<< HEAD
   .create-limits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+=======
+  .create-limits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .75rem; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .create-limits-card { width: 100%; height: auto; aspect-ratio: 452.32 / 436.07; }
   .create-limits-card h3 { white-space: normal; }
 }
 @media (max-width: 620px) {
+<<<<<<< HEAD
   .create-limits-grid { grid-template-columns: 1fr; margin-top: 3rem; }
+=======
+  .create-limits-grid { grid-template-columns: 1fr; row-gap: 1.25rem; margin-top: 3rem; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .create-limits-card { max-width: 479.87px; width: 100%; margin-inline: auto; }
   .create-limits-corners { opacity: .85; }
   .create-limits-yellow-art { width: 100%; max-width: none; }
@@ -298,25 +444,53 @@
   .hero-search-exclamation { left: .5rem; top: -3.25rem; width: 3.5rem; height: 3rem; }
   .hero-arrow-lane { margin-top: 1.25rem; max-width: 82vw; }
   .hero-stats-group { margin-top: 2.5rem; }
+<<<<<<< HEAD
   .hero-arrow-lane { position: relative; left: auto; bottom: auto; width: 72vw; margin: 0 auto 1.75rem; transform: translateY(.75rem); }
+=======
+  .hero-arrow-lane { width: 72vw; margin: 0 auto 1.75rem; transform: translateY(.75rem); }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .features-section { padding-inline: 1.25rem; padding-block: 4rem; }
   .features-section h2 { font-size: clamp(2.25rem, 11vw, 3.5rem); line-height: 1.1; }
   .create-limits-transition-arrow { left: 50%; width: 100%; }
 }
 
 /* Khmer Design Showcase */
+<<<<<<< HEAD
 .khmer-showcase { position: relative; isolation: isolate; min-height: 1280px; overflow: hidden; background: linear-gradient(115deg, var(--gradient-khmer-from), var(--surface-warm)); }
 .khmer-showcase-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .khmer-showcase-linear-bg { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .khmer-showcase-apsara { position: absolute; inset: 9% 10% 10%; width: 80%; height: 85%; object-fit: contain; opacity: 40%; }
 .khmer-showcase-angkor { position: absolute; bottom: 0; left: 21%; width: 60%; opacity: 40%; }
+=======
+/* Two layers, sparkle on top of the gradient. The `background` shorthand used
+   to be here, and a shorthand resets background-image — which silently wiped
+   the .bg-sparkle texture this section also asks for, since both selectors are
+   one class deep and this file loads last. Stating both layers keeps the
+   gradient and puts the speckles back over it. */
+.khmer-showcase { position: relative; isolation: isolate; min-height: 1280px; overflow: hidden; background-image: var(--sparkle-url, url("/textures/speckles.svg")), linear-gradient(115deg, var(--gradient-khmer-from), var(--surface-warm)); background-repeat: repeat, no-repeat; background-size: 256px 256px, cover; }
+.khmer-showcase-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.khmer-showcase-linear-bg { display: none; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+/* The apsara's top is capped at the bottom of the "Khmer Design Showcase"
+   heading and its bottom stays 26% above the section end (947px of the fixed
+   1280px section), so its height is the gap between the two and its width
+   follows the 1310x648 artwork. Angkor Wat keeps its original 0.75 ratio to
+   the apsara's width (60% vs 80%), so both scale together at every width.
+   Left/right/margin centre them because Motion owns their transform. */
+.khmer-showcase { --khmer-h2: clamp(2.5rem, 5vw, 4rem); --khmer-art-h: calc(867px - 1.5 * var(--khmer-h2)); }
+.khmer-showcase-apsara { position: absolute; top: calc(5rem + 1.5 * var(--khmer-h2)); left: 0; right: 0; width: auto; height: var(--khmer-art-h); max-width: none; margin-inline: auto; opacity: 40%; }
+.khmer-showcase-angkor { position: absolute; bottom: 0; left: 0; right: 0; width: calc(1.5162 * var(--khmer-art-h)); max-width: none; margin-inline: auto; opacity: 40%; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .khmer-showcase-corner { position: absolute; width: 15%; max-width: 210px; padding: 1.25rem; }
 .khmer-showcase-corner-tl { top: 1%; left: 1%; }
 .khmer-showcase-corner-tr { top: 1%; right: 1%; }
 .khmer-showcase-corner-bl { bottom: 1%; left: 1%; }
 .khmer-showcase-corner-br { right: 1%; bottom: 1%; }
 .khmer-showcase-content { position: relative; z-index: 1; max-width: 1344px; margin: 0 auto; padding: 5rem 2rem 6rem; text-align: center; }
+<<<<<<< HEAD
 .khmer-showcase-content h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 600; letter-spacing: -.04em; }
+=======
+.khmer-showcase-content h2 { font-size: var(--khmer-h2); line-height: 1.5; font-weight: 600; letter-spacing: -.04em; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .khmer-showcase-content h2 span { color: var(--color-primary); }
 .khmer-showcase-ornament-wrap { position: relative; display: flex; align-items: center; justify-content: center; height: auto; margin-bottom: 10%; margin-top: 2%; }
 .khmer-showcase-ornament { width: min(400px, 60vw); height: auto; margin: .5rem auto -1rem; object-fit: contain; }
@@ -325,6 +499,7 @@
 .khmer-showcase-card { position: relative; width: 100%; aspect-ratio: 1.58; display: flex; align-items: center; justify-content: center; }
 .khmer-showcase-card > img:first-child { position: relative; z-index: 2; display: block; width: 90%; height: 90%; border-radius: 18px; object-fit: cover; }
 .khmer-showcase-card-frame { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+<<<<<<< HEAD
 .khmer-showcase-button { display: inline-flex; align-items: center; gap: .6rem; margin-top: 4rem; margin-bottom: 2rem; border-radius: 14px; padding: .8rem 1.5rem; background: var(--color-primary); color: var(--text-on-brand); font-weight: 600; box-shadow: 0 8px 16px rgb(112 90 224 / .2); transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1), filter 180ms cubic-bezier(0.22, 1, 0.36, 1); }
 .khmer-showcase-button span { font-size: 1.5rem; line-height: 1; }
 .khmer-showcase-button:active { transform: translateY(0) scale(0.98); }
@@ -339,21 +514,54 @@
  * overflow: clip preserves the page as the sticky row's scroll container. */
 .explore-events-section {
   --events-canvas: max(1200px, 92vw);
+=======
+.khmer-showcase-button { margin-top: 4rem; margin-bottom: 2rem; }
+.khmer-showcase-tagline { margin-top: .75rem; color: var(--text-muted); font-size: 1.05rem; }
+@media (max-width: 700px) { .khmer-showcase { min-height: auto; } .khmer-showcase-content { padding: 4rem 1.25rem; } .khmer-showcase-cards { grid-template-columns: 1fr; gap: 1.25rem; } .khmer-showcase-corner { width: 24%; padding: .5rem; } .khmer-showcase-apsara { top: 6rem; height: auto; width: 110%; left: -5%; right: auto; } .khmer-showcase-angkor { left: 5%; right: auto; width: 90%; } }
+
+/* Original Explore by Events composition. The frame (top wave, heading,
+ * doodles and card row) sticks to the top of the viewport -- the navbar hides
+ * while scrolling down -- so only the card track moves. The measured
+ * horizontal travel adds space above the original bottom artwork.
+ * overflow: clip preserves the page as the sticky frame's scroll container. */
+.explore-events-section {
+  /* 5% shorter than the original 92vw so the bottom blob sits higher. */
+  --events-canvas: max(1140px, 87vw);
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   --events-rail-extra: 200px;
   position: relative;
   isolation: isolate;
   width: 100%;
   min-height: calc(var(--events-canvas) + var(--events-rail-extra) + var(--events-scroll-distance, 0px));
+<<<<<<< HEAD
   padding-top: clamp(17rem, 23vw, 22rem);
   overflow: clip;
   background-color: var(--surface-warm);
 }
+=======
+  overflow: clip;
+  background-color: var(--surface-warm);
+}
+.events-frame { position: relative; padding-top: clamp(17rem, 23vw, 22rem); }
+.events-journey[data-pinned="true"] .events-frame { position: sticky; top: 0; }
+/* Same order the pieces had as section siblings: arrow (4) under the card row,
+   top wave (8) and heading (12) over it. */
+.events-frame > .events-stage { z-index: 6; }
+/* Short laptop screens: pull the row up so the pinned frame fits in view. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .events-frame { padding-top: clamp(15rem, 20vw, 18rem); }
+}
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .explore-events-top-background { position: absolute; inset: 0 0 auto; z-index: 8; display: block; width: 100%; height: auto; max-width: none; pointer-events: none; }
 .explore-events-heading { position: absolute; top: clamp(5.5rem, 9vw, 8.5rem); left: 50%; z-index: 12; width: min(820px, 90vw); transform: translateX(-50%); text-align: center; }
 .explore-events-heading h2 { font-size: clamp(2.6rem, 4.7vw, 5.5rem); font-weight: 600; line-height: 1.05; letter-spacing: -.045em; color: var(--text-heading); }
 .explore-events-heading img { display: block; width: 31.875vw; height: auto; max-width: none; margin: .65rem auto 0; }
 .explore-events-top-left { position: absolute; top: clamp(7.5rem, 11vw, 9.75rem); left: clamp(1.25rem, 5.8vw, 5.25rem); z-index: 10; width: clamp(88px, 9vw, 129px); height: auto; pointer-events: none; }
+<<<<<<< HEAD
 .explore-events-up-arrow { position: absolute; top: clamp(15rem, 20vw, 19rem); left: 52%; z-index: 4; width: 12%; height: auto; max-width: none; mix-blend-mode: multiply; pointer-events: none; }
+=======
+.explore-events-up-arrow { position: absolute; top: clamp(7rem, 10vw, 9.5rem); right: clamp(1.25rem, 5.8vw, 5.25rem); z-index: 4; width: 12%; height: auto; max-width: none; filter: url(#explore-events-knockout-white); pointer-events: none; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 .explore-events-layers { position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; }
 .explore-events-rear-layer,
@@ -383,7 +591,12 @@
 }
 
 @media (max-width: 767px) {
+<<<<<<< HEAD
   .explore-events-section { --events-canvas: 1200px; --events-rail-extra: 140px; padding-top: 20rem; }
+=======
+  .explore-events-section { --events-canvas: 1200px; --events-rail-extra: 140px; }
+  .events-frame { padding-top: 20rem; }
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .explore-events-heading { top: 6.5rem; width: calc(100% - 2rem); }
   .explore-events-heading h2 { font-size: clamp(2.35rem, 11.2vw, 3.25rem); }
   .explore-events-heading img { width: 88vw; margin-top: .5rem; }
@@ -407,6 +620,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .explore-events-cta a { transition-duration: 120ms; }
+<<<<<<< HEAD
   .khmer-showcase-button { transition-duration: 120ms; }
 }
 
+=======
+}
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb

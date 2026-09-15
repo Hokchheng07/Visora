@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import EditorCanvas from "../Editor/EditorCanvas";
+<<<<<<< HEAD
+=======
+import EditorTimerInspector from "../Editor/EditorTimerInspector.jsx";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import EditorDisplay from "../Editor/EditorDisplay";
 import EditorSidebar from "../Editor/EditorSidebar";
 import EditorToolPanel from "../Editor/EditorToolPanel";
@@ -12,7 +16,15 @@ import "../Editor/editor.css";
 
 export default function Editor() {
   const dispatch = useAppDispatch();
+<<<<<<< HEAD
   const { pages, copiedPage, selectedId, currentPage } = useAppSelector((state) => state.editor);
+=======
+  const { pages, copiedPage, selectedId, selectedIds, currentPage } = useAppSelector((state) => state.editor);
+  // The fourth column appears only for a single selected timer — a multi-select
+  // has no one timer to configure, and every other element is served by the bar.
+  const hasInspector = selectedIds.length === 1
+    && pages[currentPage].elements.find((element) => element.id === selectedId)?.type === "timer";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   const [activeTool, setActiveTool] = useState("templates");
   // The canvas is the point of the page, so it starts unobstructed.
   const [isPanelOpen, setPanelOpen] = useState(false);
@@ -92,7 +104,11 @@ export default function Editor() {
     <div className="editor-shell font-sans" ref={shellRef}>
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
       <div
+<<<<<<< HEAD
         className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}`}
+=======
+        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${hasInspector ? " has-inspector" : ""}`}
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         inert={isDisplayOpen}
       >
         <EditorSidebar
@@ -109,6 +125,10 @@ export default function Editor() {
           showRulers={showRulers}
           onToggleRulers={() => setShowRulers((visible) => !visible)}
         />
+<<<<<<< HEAD
+=======
+        <EditorTimerInspector />
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
       </div>
       {/* Rendered inside the shell, not through a portal, so it keeps the
           --editor-* tokens and focus ring scoped to .editor-shell. */}

@@ -8,9 +8,14 @@ import topRight from "../../../assets/pages/home/khmer-design-showcase/TopRightC
 import bottomLeft from "../../../assets/pages/home/khmer-design-showcase/BottomLeftCorner.svg";
 import bottomRight from "../../../assets/pages/home/khmer-design-showcase/RightLeftCorner.svg";
 import ornament from "../../../assets/pages/home/khmer-design-showcase/MiddleSection.svg";
+<<<<<<< HEAD
 import linearBgDark from "../../../assets/pages/home/khmer-design-showcase/KhmerDesignLinear(DarkMode).svg";
 import TemplateCard from "../Templates/TemplateCard";
 import { templateCards } from "../Templates/templateData";
+=======
+import linearBgDark from "../../../assets/pages/home/khmer-design-showcase/KhmerDesignLinearBg.svg";
+import TemplateCard from "../Templates/TemplateCard";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import {
   EASE,
   fadeInUp,
@@ -18,6 +23,10 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../../lib/animations/animations";
+<<<<<<< HEAD
+=======
+import useFetchHomepage from "../../../hooks/useFetchHomepage";
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 const fadedArtworkReveal = {
   hidden: { opacity: 0, scale: 0.94, y: 30 },
@@ -41,6 +50,14 @@ const cornerReveal = {
 };
 
 export default function KhmerDesignShowcase() {
+<<<<<<< HEAD
+=======
+  const {
+    data: templates,
+    loading,
+    error,
+  } = useFetchHomepage("templates");
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   return (
     <motion.section
       className="khmer-showcase bg-sparkle"
@@ -110,6 +127,7 @@ export default function KhmerDesignShowcase() {
             viewport={viewportOnce}
             variants={staggerContainer(0.16, 0.05)}
           >
+<<<<<<< HEAD
             {templateCards.map((template, index) => (
               <TemplateCard
                 key={`${template.title}-${index}`}
@@ -118,6 +136,33 @@ export default function KhmerDesignShowcase() {
                 animateContent
               />
             ))}
+=======
+            {loading && (
+              <p className="col-span-full py-12 text-center text-lg text-[var(--text-muted)]">
+                Loading Khmer designs…
+              </p>
+            )}
+
+            {!loading && error && (
+              <p
+                role="alert"
+                className="col-span-full rounded-2xl bg-red-50 px-5 py-4 text-center text-red-700"
+              >
+                Could not load Khmer designs. Please refresh the page.
+              </p>
+            )}
+
+            {!loading &&
+              !error &&
+              templates.map((template, index) => (
+                <TemplateCard
+                  key={template.id ?? `${template.title}-${index}`}
+                  template={template}
+                  index={index}
+                  animateContent
+                />
+              ))}
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
           </motion.div>
           <motion.div
             initial="hidden"
@@ -125,8 +170,13 @@ export default function KhmerDesignShowcase() {
             viewport={viewportOnce}
             variants={fadeInUp}
           >
+<<<<<<< HEAD
             <NavLink to="/templates" className="khmer-showcase-button">
               More Templates <span>→</span>
+=======
+            <NavLink to="/templates" className="more-templates-button khmer-showcase-button">
+              More Templates <span aria-hidden="true">→</span>
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
             </NavLink>
           </motion.div>
           <motion.p

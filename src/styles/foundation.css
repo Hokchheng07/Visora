@@ -1,5 +1,6 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
+<<<<<<< HEAD
 /*
  * Visora theme tokens (Tailwind v4 CSS-first config).
  *
@@ -39,6 +40,61 @@
    weights actually in use are included: 400/500/600/700. Need another
    weight (e.g. 800 for a big display headline)? Drop the matching .ttf into
    public/fonts/ and add another @font-face block here. */
+=======
+@theme {
+  --color-primary: #705ae0;
+  --color-secondary: #ffc21c;
+  --color-accent: #b294f0;
+
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-handwritten: "Freehand", cursive;
+}
+
+/* ================================
+   LIGHT MODE
+================================ */
+
+:root {
+  color-scheme: light;
+
+  --surface-base: #ffffff;
+  --surface-card: #ffffff;
+  --surface-overlay: #ffffff;
+  --surface-warm: #fffdf8;
+
+  --text-heading: #171717;
+  --text-body: #57515f;
+  --text-muted: #8b8793;
+
+  --border-default: #e7e0f3;
+  --border-card: #ddd4f5;
+}
+
+/* ================================
+   DARK MODE
+================================ */
+
+.dark {
+  color-scheme: dark;
+
+  --surface-base: #000000;
+  --surface-card: #18181b;
+  --surface-overlay: #202024;
+  --surface-warm: #000000;
+
+  --text-heading: #ffffff;
+  --text-body: #d4d1d9;
+  --text-muted: #96919d;
+
+  --border-default: #343139;
+  --border-card: #453d55;
+}
+
+/* ================================
+   FONTS
+================================ */
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 @font-face {
   font-family: "Poppins";
   src: url("/fonts/Poppins-Regular.ttf") format("truetype");
@@ -46,6 +102,10 @@
   font-style: normal;
   font-display: swap;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 @font-face {
   font-family: "Poppins";
   src: url("/fonts/Poppins-Medium.ttf") format("truetype");
@@ -53,6 +113,10 @@
   font-style: normal;
   font-display: swap;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 @font-face {
   font-family: "Poppins";
   src: url("/fonts/Poppins-SemiBold.ttf") format("truetype");
@@ -60,6 +124,10 @@
   font-style: normal;
   font-display: swap;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 @font-face {
   font-family: "Poppins";
   src: url("/fonts/Poppins-Bold.ttf") format("truetype");
@@ -67,6 +135,10 @@
   font-style: normal;
   font-display: swap;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 @font-face {
   font-family: "Freehand";
   src: url("/fonts/Freehand-Regular.ttf") format("truetype");
@@ -75,6 +147,7 @@
   font-display: swap;
 }
 
+<<<<<<< HEAD
 /*
  * Background sparkle/grain texture.
  *
@@ -98,12 +171,43 @@
  * the ambient sparkle background (stack it under real content, e.g. as an
  * absolutely-positioned full-bleed div, or directly on a section wrapper).
  */
+=======
+/* ================================
+   GLOBAL
+================================ */
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--surface-base);
+  color: var(--text-body);
+}
+
+/* ================================
+   SPARKLE
+================================ */
+
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .bg-sparkle {
   background-image: var(--sparkle-url, url("/textures/speckles.svg"));
   background-repeat: repeat;
   background-size: 256px 256px;
 }
 
+<<<<<<< HEAD
 body {
   font-family: var(--font-sans);
+=======
+/* ================================
+   SCROLLBAR
+================================ */
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 }

@@ -17,6 +17,7 @@
     padding-left: 1rem;
   }
 
+<<<<<<< HEAD
   .hero-blob-copy h1 {
     font-size: clamp(3rem, 7.5vh, 4.25rem) !important;
     line-height: 1.24;
@@ -30,6 +31,8 @@
     margin-top: 1.25rem;
   }
 
+=======
+>>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .hero-search {
     margin-top: 0.75rem !important;
   }
