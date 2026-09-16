@@ -154,6 +154,68 @@ describe("EditorInspector", () => {
     expect(element().effects.length).toBe(3);
   });
 
+  it("fill switches to a linear gradient, and its stops can be added, edited, reversed and removed", () => {
+    const { element, editor } = setup([elementInserted("square")]);
+    fireEvent.change(screen.getByRole("combobox", { name: "Fill type" }), { target: { value: "LINEAR" } });
+    const gradient = () => element().gradient;
+    expect(gradient().type).toBe("LINEAR");
+    expect(gradient().angle).toBe(90);
+    expect(gradient().stops).toHaveLength(2);
+    // The row reads "Linear", as in Figma, instead of a hex value.
+    expect(document.querySelector(".editor-gradient-label").textContent).toBe("Linear");
+
+    const angle = screen.getByLabelText("Gradient angle");
+    fireEvent.focus(angle);
+    fireEvent.change(angle, { target: { value: "45" } });
+    fireEvent.blur(angle);
+    expect(gradient().angle).toBe(45);
+
+    fireEvent.click(screen.getByRole("button", { name: "Add stop" }));
+    expect(gradient().stops.map((stop) => stop.offset)).toEqual([0, 0.5, 1]);
+    const position = screen.getByLabelText("Stop 2 position");
+    fireEvent.focus(position);
+    fireEvent.change(position, { target: { value: "75" } });
+    fireEvent.blur(position);
+    expect(gradient().stops.map((stop) => stop.offset)).toEqual([0, 0.75, 1]);
+
+    const hex = screen.getByLabelText("Stop 1 colour hex");
+    fireEvent.focus(hex);
+    fireEvent.change(hex, { target: { value: "112233" } });
+    fireEvent.keyDown(hex, { key: "Enter" });
+    expect(gradient().stops[0].color).toBe("#112233");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reverse gradient" }));
+    expect(gradient().stops.at(-1).color).toBe("#112233");
+    expect(gradient().stops.map((stop) => stop.offset)).toEqual([0, 0.25, 1]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop 2" }));
+    expect(gradient().stops).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Remove stop 1" }).disabled).toBe(true);
+
+    const history = editor().past.length;
+    fireEvent.change(screen.getByRole("combobox", { name: "Fill type" }), { target: { value: "SOLID" } });
+    expect(gradient()).toBe(null);
+    expect(element().fill).toBeTruthy();
+    expect(editor().past.length).toBe(history + 1);
+  });
+
+  it("stroke settings set the dash style, the dash size and the corner join", () => {
+    const { element } = setup([elementInserted("square")]);
+    fireEvent.click(screen.getByRole("button", { name: "Add stroke" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stroke settings" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Stroke style" }), { target: { value: "dashed" } });
+    expect(element().strokeStyle).toBe("dashed");
+    const gap = screen.getByLabelText("Dash gap");
+    fireEvent.focus(gap);
+    fireEvent.change(gap, { target: { value: "6" } });
+    fireEvent.blur(gap);
+    expect(element().strokeDash).toEqual([12, 6]);
+    fireEvent.click(screen.getByRole("button", { name: "Round corners" }));
+    expect(element().strokeJoin).toBe("round");
+    // The miter angle only applies to sharp corners, so it goes away with them.
+    expect(screen.queryByLabelText("Miter angle")).toBe(null);
+  });
+
   it("locked proportions keep the shape's ratio when a size is typed", () => {
     const { element } = setup([elementInserted("rectangle")]);
     const { w, h } = element();

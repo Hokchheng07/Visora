@@ -3,6 +3,7 @@ import { elementStyle } from "./elementGeometry.js";
 import { shapeDefinition, shapeName } from "./shapeCatalog.js";
 import { filterId, hasVisibleEffects } from "./effectsFilter.js";
 import { shapePath } from "./vectorPath.js";
+import { gradientVector, normalizeGradient, strokePaint } from "./shapePaint.js";
 import TimerArtwork from "./TimerArtwork.jsx";
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
@@ -23,13 +24,20 @@ import { elementsTarget } from "./inspectorEdit.js";
  *
  * Shadows are an SVG filter defined once for the whole editor
  * (EditorEffectDefs) and applied to the effects wrapper, never to the path.
+ *
+ * A gradient fill is a <linearGradient> in the same local defs, measured in the
+ * shape's own box, so one definition is right at every size the shape is drawn.
+ * `fill` stays the solid colour underneath it, which is what a client that
+ * cannot resolve the definition still sees.
  */
 export function ShapeArtwork({ element }) {
   const id = useId().replace(/:/g, "");
   const preset = shapeDefinition(element.shape);
   const w = element.w || preset?.w || 100, h = element.h || preset?.h || 100;
   const d = shapePath({ shape: element.shape, vector: element.vector, w, h, cornerRadius: element.cornerRadius || 0, cornerRadii: element.cornerRadii, flipX: element.flipX, flipY: element.flipY });
-  const fillOn = !!element.fill && element.fillVisible !== false;
+  const gradient = normalizeGradient(element.gradient);
+  const fillOn = (!!element.fill || !!gradient) && element.fillVisible !== false;
+  const ramp = gradient && gradientVector(gradient.angle);
   const strokeWidth = element.strokeWidth || 0;
   const strokeOn = !!element.stroke && element.stroke !== "transparent" && element.strokeVisible !== false && strokeWidth > 0;
   const align = strokeOn ? element.strokeAlign || "inside" : null;
@@ -39,8 +47,15 @@ export function ShapeArtwork({ element }) {
   const svg = (
     <svg className="editor-element-art editor-vector-art" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true"
       style={effects ? undefined : { opacity: element.opacity }}>
-      {align && align !== "center" && (
+      {((align && align !== "center") || gradient) && (
         <defs>
+          {gradient && (
+            <linearGradient id={`fill-${id}`} x1={ramp.x1} y1={ramp.y1} x2={ramp.x2} y2={ramp.y2}>
+              {gradient.stops.map((stop, index) => (
+                <stop key={`${stop.offset}-${index}`} offset={stop.offset} stopColor={stop.color} stopOpacity={stop.opacity} />
+              ))}
+            </linearGradient>
+          )}
           {align === "inside" && <clipPath id={`clip-${id}`}><path d={d} /></clipPath>}
           {align === "outside" && (
             <mask id={`mask-${id}`} maskUnits="userSpaceOnUse" x={-margin} y={-margin} width={w + margin * 2} height={h + margin * 2}>
@@ -50,10 +65,10 @@ export function ShapeArtwork({ element }) {
           )}
         </defs>
       )}
-      {fillOn && <path d={d} fill={element.fill} fillOpacity={element.fillOpacity ?? 1} />}
+      {fillOn && <path d={d} fill={gradient ? `url(#fill-${id})` : element.fill} fillOpacity={element.fillOpacity ?? 1} />}
       {strokeOn && (
         <path d={d} fill="none" stroke={element.stroke} strokeOpacity={element.strokeOpacity ?? 1}
-          strokeWidth={align === "center" ? strokeWidth : strokeWidth * 2}
+          strokeWidth={align === "center" ? strokeWidth : strokeWidth * 2} {...strokePaint(element)}
           clipPath={align === "inside" ? `url(#clip-${id})` : undefined} mask={align === "outside" ? `url(#mask-${id})` : undefined} />
       )}
     </svg>

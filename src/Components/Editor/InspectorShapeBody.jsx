@@ -11,6 +11,8 @@ import {
 } from "./EditorInspectorFields.jsx";
 import { normalizeRotation } from "./inspectorEdit.js";
 import EffectsSection from "./InspectorEffects.jsx";
+import { FillPaint, StrokeSettings } from "./InspectorPaint.jsx";
+import { gradientCss, normalizeGradient } from "./shapePaint.js";
 
 /*
  * Shape settings, in Figma's order: Position (alignment, X/Y, rotation and
@@ -24,14 +26,16 @@ import EffectsSection from "./InspectorEffects.jsx";
 const STROKE_LABELS = { inside: "Inside", center: "Center", outside: "Outside" };
 const NEW_FILL = { fill: "#D9D9D9", fillOpacity: 1, fillVisible: true };
 const NEW_STROKE = { stroke: "#211D29", strokeWidth: 4, strokeAlign: "inside", strokeOpacity: 1, strokeVisible: true };
-const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacity: 1, stroke: null, strokeWidth: 0, cornerRadius: 0, cornerRadii: null, effects: [] };
+const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacity: 1, stroke: null, strokeWidth: 0, cornerRadius: 0, cornerRadii: null,
+  gradient: null, strokeStyle: "solid", strokeDash: null, strokeJoin: "miter", miterAngle: 28.96, effects: [] };
 // The corner icon rounds its top right, so each field turns it to point at its own corner.
 const CORNER_TURNS = [-90, 0, 90, 180];
 
 export default function InspectorShapeBody({ element, target, busy }) {
   const dispatch = useAppDispatch();
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
-  const hasFill = !!element.fill;
+  const gradient = normalizeGradient(element.gradient);
+  const hasFill = !!element.fill || !!gradient;
   const hasStroke = !!element.stroke && element.stroke !== "transparent";
   const ratio = element.h / element.w;
   const align = (edge) => () => dispatch(selectionAligned(edge));
@@ -121,18 +125,33 @@ export default function InspectorShapeBody({ element, target, busy }) {
 
       <InspectorSection title="Fill" action={!hasFill && <IconAction icon={Plus} label="Add fill" disabled={busy} onClick={() => commit(NEW_FILL)} />}>
         {hasFill && (
-          <div className="editor-inspector-paint">
-            <ColourRow label="Fill" value={element.fill} opacity={element.fillOpacity ?? 1} target={target} disabled={busy}
-              dimmed={element.fillVisible === false} toChanges={(fill) => ({ fill })}
-              opacityProperty="fillOpacity" toOpacityChanges={(next) => ({ fillOpacity: next / 100 })} />
-            <IconAction icon={element.fillVisible === false ? EyeOff : Eye} disabled={busy}
-              label={element.fillVisible === false ? "Show fill" : "Hide fill"} onClick={() => commit({ fillVisible: element.fillVisible === false })} />
-            <IconAction icon={Minus} label="Remove fill" disabled={busy} onClick={() => commit({ fill: null })} />
-          </div>
+          <>
+            <div className={`editor-inspector-paint${element.fillVisible === false ? " is-dimmed" : ""}`}>
+              {gradient ? (
+                // The ramp itself stands in for the swatch and hex of a solid fill.
+                <div className="editor-inspector-frame editor-gradient-row">
+                  <span className="editor-gradient-swatch" style={{ background: gradientCss(gradient) }} aria-hidden="true" />
+                  <span className="editor-gradient-label">Linear</span>
+                  <NumberField className="is-bare" label="Fill opacity" name="" suffix="%" min={0} max={100} value={(element.fillOpacity ?? 1) * 100}
+                    target={target} property="fillOpacity" disabled={busy} toChanges={(next) => ({ fillOpacity: next / 100 })} />
+                </div>
+              ) : (
+                <ColourRow label="Fill" value={element.fill} opacity={element.fillOpacity ?? 1} target={target} disabled={busy}
+                  dimmed={element.fillVisible === false} toChanges={(fill) => ({ fill })}
+                  opacityProperty="fillOpacity" toOpacityChanges={(next) => ({ fillOpacity: next / 100 })} />
+              )}
+              <IconAction icon={element.fillVisible === false ? EyeOff : Eye} disabled={busy}
+                label={element.fillVisible === false ? "Show fill" : "Hide fill"} onClick={() => commit({ fillVisible: element.fillVisible === false })} />
+              <IconAction icon={Minus} label="Remove fill" disabled={busy} onClick={() => commit({ fill: null, gradient: null })} />
+            </div>
+            <FillPaint element={element} target={target} busy={busy} />
+          </>
         )}
       </InspectorSection>
 
-      <InspectorSection title="Stroke" action={!hasStroke && <IconAction icon={Plus} label="Add stroke" disabled={busy} onClick={() => commit(NEW_STROKE)} />}>
+      <InspectorSection title="Stroke" action={hasStroke
+        ? <StrokeSettings element={element} target={target} busy={busy} />
+        : <IconAction icon={Plus} label="Add stroke" disabled={busy} onClick={() => commit(NEW_STROKE)} />}>
         {hasStroke && (
           <>
             <div className="editor-inspector-paint">

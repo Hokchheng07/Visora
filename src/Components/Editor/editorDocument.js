@@ -1,6 +1,7 @@
 import { normalizeEffects } from "./effectsFilter.js";
 import { cleanName, normalizeGroups } from "./layerModel.js";
 import { cornerRadiiFor } from "./vectorPath.js";
+import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./shapePaint.js";
 
 export const EDITOR_SCHEMA_VERSION = 3;
 export const STROKE_ALIGNS = ["inside", "center", "outside"];
@@ -17,17 +18,26 @@ function shapeStyles(element) {
   const radii = cornerRadiiFor(element.shape, element.vector, element.cornerRadii);
   const sameCorners = !!radii && radii.every((value) => value === radii[0]);
   const radius = sameCorners ? radii[0] : element.cornerRadius;
+  const gradient = normalizeGradient(element.gradient);
+  const dashed = hasStroke && strokeStyleOf(element.strokeStyle) !== "solid";
+  const join = hasStroke ? strokeJoinOf(element.strokeJoin) : "miter";
   return {
     fill: element.fill ?? null, opacity: element.opacity,
     stroke: hasStroke ? element.stroke : "transparent", strokeWidth: hasStroke ? element.strokeWidth || 0 : 0,
     ...(element.fill && unit(element.fillOpacity) !== 1 ? { fillOpacity: unit(element.fillOpacity) } : {}),
     ...(element.fill && element.fillVisible === false ? { fillVisible: false } : {}),
+    ...(dashed ? { strokeStyle: strokeStyleOf(element.strokeStyle) } : {}),
+    ...(dashed && Array.isArray(element.strokeDash) && element.strokeDash.length === 2 ? { strokeDash: element.strokeDash.map(Number) } : {}),
+    ...(join !== "miter" ? { strokeJoin: join } : {}),
+    ...(hasStroke && join === "miter" && miterAngleOf(element.miterAngle) !== 28.96 ? { miterAngle: miterAngleOf(element.miterAngle) } : {}),
     ...(hasStroke ? {
       strokeAlign: STROKE_ALIGNS.includes(element.strokeAlign) ? element.strokeAlign : "inside",
       ...(unit(element.strokeOpacity) !== 1 ? { strokeOpacity: unit(element.strokeOpacity) } : {}),
       ...(element.strokeVisible === false ? { strokeVisible: false } : {}),
     } : {}),
     ...(radius > 0 ? { cornerRadius: radius } : {}),
+    // v3 paint. A gradient rides beside `fill`, which stays the solid fallback.
+    ...(gradient ? { gradient } : {}),
     ...(radii && !sameCorners ? { cornerRadii: radii } : {}),
     ...(effects.length ? { effects } : {}),
   };
@@ -49,6 +59,11 @@ function hydrateShape(component) {
       : component.shape === "rounded-rectangle" ? legacyCornerRadius(component) : 0,
     cornerRadii: cornerRadiiFor(component.shape, component.vector, styles.cornerRadii),
     effects: normalizeEffects(styles.effects),
+    gradient: normalizeGradient(styles.gradient),
+    strokeStyle: strokeStyleOf(styles.strokeStyle),
+    strokeDash: Array.isArray(styles.strokeDash) && styles.strokeDash.length === 2 ? styles.strokeDash.map(Number) : null,
+    strokeJoin: strokeJoinOf(styles.strokeJoin),
+    miterAngle: miterAngleOf(styles.miterAngle),
     flipX: !!component.flipX, flipY: !!component.flipY, lockAspect: !!component.lockAspect,
   };
 }

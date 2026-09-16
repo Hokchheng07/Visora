@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import reducer, { elementInserted, elementChanged, elementSelected, elementTransformed, layersStepped,
   gestureStarted, gestureFinished, gestureCancelled, undo, redo, pageAdded, pageSelected,
   pageCloned, pageDeleted, elementDeleted, elementNudged } from "../redux/editorSlice.js";
-import { bounds, fitElement, resizeElement, radians, selectionBounds } from "./elementGeometry.js";
+import { bounds, fitElement, onPage, resizeElement, radians, selectionBounds, WORK_AREA } from "./elementGeometry.js";
 
 function editor() {
   let state = reducer(undefined, { type: "test/init" });
@@ -83,21 +83,34 @@ test("all eight rotated resize handles preserve the opposite anchor", () => {
   }
 });
 
-test("Shift corner resize preserves ratio and page bounds without shifting the anchor", () => {
+test("Shift corner resize preserves ratio and work-area bounds without shifting the anchor", () => {
   const start = { x: 700, y: 350, w: 320, h: 240, rotation: 45 };
   const resized = resizeElement(start, "se", 3000, 2500, true);
   close(resized.w / resized.h, start.w / start.h);
   const before = point(start, -1, -1), after = point(resized, -1, -1);
   close(before.x, after.x); close(before.y, after.y);
   const box = bounds(resized);
-  assert.ok(box.right <= 1920.01 && box.bottom <= 1080.01);
+  assert.ok(box.right <= WORK_AREA.right + 0.01 && box.bottom <= WORK_AREA.bottom + 0.01);
 });
 
-test("rotated, oversized and out-of-bounds shapes are fitted inside the sheet", () => {
+test("an element may sit off the page, but never outside the work area", () => {
+  // A page of room on every side, and the page itself is what display mode shows.
+  assert.deepEqual(WORK_AREA, { left: -1920, top: -1080, right: 3840, bottom: 2160 });
+  const parked = fitElement({ x: -600, y: -400, w: 400, h: 300, rotation: 0 });
+  assert.equal(parked.x, -600, "an element just off the sheet is left where it is");
+  assert.equal(onPage(parked), false);
+  assert.equal(onPage(fitElement({ x: -200, y: -100, w: 400, h: 300, rotation: 0 })), true, "a shape half on the page still shows");
+  const pushed = fitElement({ x: -9000, y: -9000, w: 400, h: 300, rotation: 0 });
+  assert.equal(pushed.x, WORK_AREA.left);
+  assert.equal(pushed.y, WORK_AREA.top);
+});
+
+test("rotated, oversized and out-of-bounds shapes are fitted inside the work area", () => {
   for (const rotation of [0, 30, 45, 90, 135, 270]) {
-    const result = fitElement({ x: -300, y: 950, w: 3000, h: 1500, rotation });
+    const result = fitElement({ x: -3000, y: 9500, w: 30000, h: 15000, rotation });
     const box = bounds(result);
-    assert.ok(box.left >= -0.01 && box.top >= -0.01 && box.right <= 1920.01 && box.bottom <= 1080.01);
+    assert.ok(box.left >= WORK_AREA.left - 0.01 && box.top >= WORK_AREA.top - 0.01
+      && box.right <= WORK_AREA.right + 0.01 && box.bottom <= WORK_AREA.bottom + 0.01, JSON.stringify(box));
   }
 });
 

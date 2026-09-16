@@ -32,6 +32,8 @@ export default function EditorCanvas({
   const [marquee, setMarquee] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const pan = useRef(null), spacePressed = useRef(false);
+  // Set when the view should jump back to the page: a page change, or Fit.
+  const centreOnPage = useRef(true);
 
   useEffect(() => {
     function key(event) { if (event.code === "Space" && !event.target.closest("input, textarea, [contenteditable='true'], [contenteditable='plaintext-only']")) spacePressed.current = event.type === "keydown"; }
@@ -39,16 +41,32 @@ export default function EditorCanvas({
     return () => { window.removeEventListener("keydown", key); window.removeEventListener("keyup", key); };
   }, []);
 
+  /* The page sits in the middle of a work area three times its size, so the
+     view has to be put back on the page when the page changes or Fit is
+     pressed. Zooming with the wheel keeps its own anchor and is left alone. */
+  const pageId = pages[currentPage].id;
+  useEffect(() => { centreOnPage.current = true; }, [pageId]);
+  useEffect(() => {
+    const scroller = scrollRef.current, sheet = pageRef.current;
+    if (!centreOnPage.current || !scroller || !sheet || !metrics.scale) return;
+    centreOnPage.current = false;
+    const view = scroller.getBoundingClientRect(), rect = sheet.getBoundingClientRect();
+    scroller.scrollLeft += rect.left - view.left - (view.width - rect.width) / 2;
+    scroller.scrollTop += rect.top - view.top - (view.height - rect.height) / 2;
+  }, [pageId, metrics.scale, metrics.viewWidth, metrics.viewHeight, scrollRef, pageRef]);
+
   useEffect(() => {
     const scroller = scrollRef.current; if (!scroller) return;
     function wheel(event) {
       if (!event.metaKey && !event.ctrlKey) return;
       event.preventDefault();
-      const rect = scroller.getBoundingClientRect();
+      const sheet = pageRef.current?.getBoundingClientRect();
       const oldScale = metrics.scale || metrics.fitScale || .5;
+      if (!sheet) return;
       const next = Math.max(.1, Math.min(2, oldScale * Math.exp(-event.deltaY * .002)));
-      const designX = (event.clientX - rect.left + scroller.scrollLeft - metrics.originX) / oldScale;
-      const designY = (event.clientY - rect.top + scroller.scrollTop - metrics.originY) / oldScale;
+      // Where the pointer sits on the page, so that point stays under it while the zoom changes.
+      const designX = (event.clientX - sheet.left) / oldScale;
+      const designY = (event.clientY - sheet.top) / oldScale;
       dispatch(zoomChanged(next));
       requestAnimationFrame(() => {
         scroller.scrollLeft += designX * (next - oldScale);
@@ -56,15 +74,20 @@ export default function EditorCanvas({
       });
     }
     scroller.addEventListener("wheel", wheel, { passive: false }); return () => scroller.removeEventListener("wheel", wheel);
-  }, [dispatch, metrics, scrollRef]);
+  }, [dispatch, metrics, scrollRef, pageRef]);
 
+  /* One page of room on every side, in real pixels at the current zoom. A
+     percentage would be measured against a parent that is itself sized by its
+     content, which collapses the sheet to nothing. */
+  const workStyle = metrics.scale ? { width: `${CANVAS_WIDTH * 3 * metrics.scale}px`, height: `${CANVAS_HEIGHT * 3 * metrics.scale}px` } : undefined;
   const selectedElements = page.elements.filter((element) => selectedIds.includes(element.id));
   // Hidden layers selected from the Layers panel get no frame; the canvas cannot transform what it does not show.
   const framedElements = selectedElements.filter((element) => effectiveVisible(page, element));
   const selectionLocked = selectedElements.some((element) => effectiveLocked(page, element));
 
   function canvasPointerDown(event) {
-    if (event.target !== event.currentTarget || event.button !== 0) return;
+    // Anything but an element or one of its handles: the press is a marquee.
+    if (event.button !== 0 || event.target.closest("[data-element-id], .editor-resize-handle, .editor-rotate-handle")) return;
     if (spacePressed.current) return;
     const rect = pageRef.current.getBoundingClientRect();
     const x = (event.clientX - rect.left) / metrics.scale, y = (event.clientY - rect.top) / metrics.scale;
@@ -121,7 +144,21 @@ export default function EditorCanvas({
 
         <div className="editor-canvas-scroll" ref={scrollRef} onPointerDown={panStart} onPointerMove={panMove} onPointerUp={panEnd} onPointerCancel={panEnd}>
           <div className="editor-page-stack">
-              <div className="editor-page" style={pageStyle} data-page-id={pages[currentPage].id}>
+              <div className="editor-page" data-page-id={pages[currentPage].id}>
+                {/* The work area is the page plus a page of room on every side.
+                    Pressing anywhere in it — on the sheet or out on the grey —
+                    starts a marquee, so an element parked off-stage can be
+                    picked up the same way as one on the page. */}
+                <div className="editor-work-area" style={workStyle}
+                  onPointerDown={canvasPointerDown} onPointerMove={canvasPointerMove} onPointerUp={canvasPointerUp} onPointerCancel={() => setMarquee(null)}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    const hit = event.target.closest("[data-element-id]");
+                    const id = hit?.dataset.elementId;
+                    if (id && !selectedIds.includes(id)) dispatch(elementSelected(id));
+                    setContextMenu({ x: event.clientX, y: event.clientY, target: id ? "element" : "canvas" });
+                  }}>
+                <div className="editor-page-frame" style={pageStyle}>
                 <div className="editor-canvas-meta"><span>{CANVAS_WIDTH} × {CANVAS_HEIGHT} px</span></div>
                 <div
                   ref={pageRef}
@@ -130,14 +167,6 @@ export default function EditorCanvas({
                   tabIndex={0}
                   aria-label={`Canvas for page ${currentPage + 1}, ${CANVAS_WIDTH} by ${CANVAS_HEIGHT} pixels`}
                   style={{ background: page.background?.type === "COLOR" ? page.background.value : "#fff" }}
-                  onPointerDown={canvasPointerDown} onPointerMove={canvasPointerMove} onPointerUp={canvasPointerUp} onPointerCancel={() => setMarquee(null)}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    const hit = event.target.closest("[data-element-id]");
-                    const id = hit?.dataset.elementId;
-                    if (id && !selectedIds.includes(id)) dispatch(elementSelected(id));
-                    setContextMenu({ x: event.clientX, y: event.clientY, target: id ? "element" : "canvas" });
-                  }}
                 >
                   {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
                     sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={framedElements.length}
@@ -147,6 +176,8 @@ export default function EditorCanvas({
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
                   {snapGuides.map((guide) => <span key={`${guide.axis}:${guide.value}`} className={`editor-snap-guide is-${guide.axis}`}
                     style={guide.axis === "x" ? { left: `${guide.value / 19.2}%` } : { top: `${guide.value / 10.8}%` }} />)}
+                </div>
+                </div>
                 </div>
               </div>
           </div>
@@ -161,7 +192,7 @@ export default function EditorCanvas({
               setPageMenu({ index, x: event.clientX, y: event.clientY });
             }}
             zoom={Math.round(metrics.scale * 100)}
-            onZoom={(value) => dispatch(zoomChanged(value))}
+            onZoom={(value) => { if (value === null) centreOnPage.current = true; dispatch(zoomChanged(value)); }}
             showRulers={showRulers}
             onToggleRulers={onToggleRulers}
           />

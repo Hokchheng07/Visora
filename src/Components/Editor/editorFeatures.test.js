@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import reducer, { elementChanged, elementInserted, elementNudged, elementsSelected, pageAdded, pageMoved,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, timerChanged,
   timerInserted, undo } from "../redux/editorSlice.js";
-import { bounds, elementsInRect, scaleSelection, selectionBounds, snapSelectionDelta } from "./elementGeometry.js";
+import { bounds, elementsInRect, onPage, scaleSelection, selectionBounds, snapSelectionDelta, WORK_AREA } from "./elementGeometry.js";
 import { compileAnimation } from "./animationPresets.js";
 import { EDITOR_SCHEMA_VERSION, TIMER_MAX_MS, TIMER_MIN_MS, defaultTimer, hydrateDocument, loadLocalDocument,
   migrateDocument, normalizeTimer, saveLocalDocument, serializeDocument, validateDocument } from "./editorDocument.js";
@@ -20,13 +20,17 @@ function send(actions) {
   }, undefined);
 }
 
-test("multi-selection moves as one clamped group and undo is atomic", () => {
+test("multi-selection moves as one group, off the page but inside the work area, and undo is atomic", () => {
   let state = send([elementInserted("square"), elementInserted("circle")]);
   const ids = state.pages[0].elements.map((element) => element.id);
   state = reducer(state, elementsSelected(ids));
   state = reducer(state, elementNudged({ x: -5000, y: -5000 }));
   const box = selectionBounds(state.pages[0].elements);
-  assert.ok(box.left >= 0 && box.top >= 0); assert.equal(state.selectedIds.length, 2);
+  // Stopped by the edge of the work area, a page out from the sheet — not by the sheet.
+  assert.ok(box.left >= WORK_AREA.left - 0.01 && box.top >= WORK_AREA.top - 0.01, JSON.stringify(box));
+  assert.ok(box.left < 0 && box.top < 0, "the selection should now sit off the page");
+  assert.ok(state.pages[0].elements.every((element) => !onPage(element)));
+  assert.equal(state.selectedIds.length, 2);
   state = reducer(state, undo());
   assert.notEqual(selectionBounds(state.pages[0].elements).left, box.left);
 });
@@ -95,13 +99,14 @@ test("distribute equalises the gaps between differently sized elements", () => {
   assert.equal(settled.past.length, state.past.length);
 });
 
-test("group resize stays on the sheet and scales text with the box", () => {
+test("group resize stays in the work area and scales text with the box", () => {
   const group = [{ id: "a", type: "shape", x: 100, y: 100, w: 400, h: 300, rotation: 0 },
     { id: "b", type: "shape", x: 900, y: 500, w: 400, h: 300, rotation: 0 }];
   const start = selectionBounds(group);
   for (const [handle, dx, dy, lock] of [["se", 9000, 9000, false], ["nw", -9000, -9000, false], ["se", 9000, 9000, true]]) {
     const box = selectionBounds(scaleSelection(group, start, handle, dx, dy, lock));
-    assert.ok(box.left >= -0.01 && box.top >= -0.01 && box.right <= 1920.01 && box.bottom <= 1080.01,
+    assert.ok(box.left >= WORK_AREA.left - 0.01 && box.top >= WORK_AREA.top - 0.01
+      && box.right <= WORK_AREA.right + 0.01 && box.bottom <= WORK_AREA.bottom + 0.01,
       `${handle}${lock ? " locked" : ""} escaped: ${JSON.stringify(box)}`);
   }
   const text = [{ id: "t", type: "text", x: 100, y: 100, w: 800, h: 200, rotation: 0, fontSize: 100, letterSpacing: 10 }];

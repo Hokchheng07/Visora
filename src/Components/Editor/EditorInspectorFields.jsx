@@ -76,7 +76,11 @@ export function DraftInput({ value, parse, onCommit, context, onStep, multiline 
       onChange={(event) => setDraft(event.target.value)}
       onBlur={(event) => { commit(); props.onBlur?.(event); }}
       onKeyDown={(event) => {
-        if (event.key === "Enter" && (!multiline || event.metaKey || event.ctrlKey)) { event.preventDefault(); commit(); setDraft(String(parse(draft ?? "") ?? value)); return; }
+        /* Enter commits and drops the draft: what the field shows then comes from
+           the value that was just saved. Keeping a draft here left a field that
+           had already committed able to commit again when it unmounted — with
+           the value it held before, which undid whatever came after it. */
+        if (event.key === "Enter" && (!multiline || event.metaKey || event.ctrlKey)) { event.preventDefault(); commit(); setDraft(null); return; }
         if (event.key === "Escape" && draft !== null) {
           // Handled here so the editor's Escape (deselect) does not also run.
           event.preventDefault(); event.stopPropagation(); setDraft(String(value)); return;

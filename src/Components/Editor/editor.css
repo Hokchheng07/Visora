@@ -223,11 +223,18 @@
 .editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
 .editor-canvas-area { position: relative; min-height: 0; container-type: size; }
 .editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; }
-.editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; padding-bottom: 26px; }
+.editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; }
 /* Fit the sheet to the actual space left above the controls, including its
    metadata and scroll padding, rather than assuming a fixed header height. */
-.editor-page { flex: none; width: min(100%, calc((100cqh - var(--editor-ruler) - var(--editor-canvas-bar) - 78px) * 1.777778)); max-width: none; }
-.editor-canvas-meta { display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.editor-page { flex: none; width: max-content; max-width: none; }
+/* The work area: one page of room on every side of the sheet. The padding is a
+   percentage of the page's own width, so the margin scales with the zoom
+   without measuring anything. Elements out here are drawn (nothing clips the
+   sheet) but display mode, thumbnails and exports show only the page. */
+.editor-work-area { position: relative; }
+.editor-page-frame { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+
+.editor-canvas-meta { position: absolute; right: 0; bottom: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 /* Rulers ride the workspace edges rather than framing the page, so they stay
    put while the pages scroll underneath them. */
 .editor-ruler-corner { position: absolute; z-index: 2; top: 0; left: 0; width: var(--editor-ruler); height: var(--editor-ruler); border-right: 1px solid var(--editor-border); border-bottom: 1px solid var(--editor-border); background: var(--editor-surface); }
@@ -570,6 +577,15 @@
 .editor-inspector-quick { display: flex; gap: 6px; }
 .editor-inspector-quick button { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); cursor: pointer; }
 .editor-inspector-quick button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Gradient fill: the ramp stands in for a swatch, and the preview bar under the
+   type row shows the whole ramp while its stops are edited. */
+.editor-gradient-row { flex: 1; min-width: 0; align-items: center; gap: 8px; padding-left: 8px; }
+.editor-gradient-swatch { flex: none; width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 18%, transparent); }
+.editor-gradient-label { flex: 1; min-width: 0; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.editor-gradient-preview { display: block; height: 34px; border-radius: var(--field-r); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); }
+.editor-inspector-number.editor-gradient-offset { width: 70px; flex: none; }
+.editor-gradient-offset input { text-align: right; }
 
 /* Grouped icon buttons: one frame, the pressed item filled. */
 .editor-inspector-grid > .editor-inspector-buttons { justify-self: start; }
