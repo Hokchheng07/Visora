@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useUserLoginMutation } from "../API/authApi";
+import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { setAccessToken, setRefreshToken } from "../redux/authslice";
+import z from "zod";
+// add zodResolver
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast, ToastContainer } from "react-toastify";
 import {
   EnvelopeIcon,
   EyeIcon,
@@ -19,33 +25,67 @@ import { EASE } from "../../lib/animations/animations";
 
 import loginPic from "../../assets/pages/auth/login/LoginLogo-pic.png";
 
-const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
 const fields = [
   { name: "email", label: "Email Address", placeholder: "example@gmail.com", icon: EnvelopeIcon, type: "email" },
   { name: "password", label: "Password", placeholder: "Enter your password", icon: LockClosedIcon, type: "password" },
 ];
 
 export default function Login() {
-  const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+  const [loginRequest] = useUserLoginMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const formSchema = z.object({
+    email: z
+      .string("Please input email")
+      .trim()
+      .email("Enter a valid email address"),
+    password: z
+      .string("Please input password")
+      .min(8, "Password must be at least 8 characters"),
   });
 
-  const onSubmit = () => setSubmitted(true);
+  // define useForm
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  useEffect(() => {
-    if (!submitted) return;
-    const timer = setTimeout(() => setSubmitted(false), 3000);
-    return () => clearTimeout(timer);
-  }, [submitted]);
+  // custom login logic
+  const handleLoginSubmit = async (data) => {
+    try {
+      const result = await loginRequest({
+        userLoginRequest: data,
+      });
+
+      // the server wraps the tokens inside another "data": { data: { accessToken, refreshToken } }
+      const tokens = result?.data?.data;
+
+      if (tokens?.accessToken) {
+        dispatch(setAccessToken(tokens.accessToken));
+        dispatch(setRefreshToken(tokens.refreshToken));
+        sessionStorage.setItem("refreshToken", tokens.refreshToken);
+
+        toast.success("You have logged in successfully!");
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 3000);
+      } else {
+        toast.error("Incorrect email or password!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
+    <>
+    <ToastContainer />
     <main className="min-h-dvh overflow-y-auto bg-white font-sans lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
       <section className="relative hidden h-full min-h-0 overflow-hidden lg:block">
         <img src={loginPic} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -72,7 +112,7 @@ export default function Login() {
             <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7">Login to continue designing with Visora</p>
           </header>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-4">
               {fields.map(({ name, label, placeholder, icon: Icon, type = "text" }) => (
                 <label key={name} className="block">
@@ -132,20 +172,6 @@ export default function Login() {
             <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
               Login <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
-            <AnimatePresence>
-              {submitted && (
-                <motion.p
-                  key="success"
-                  className="mt-3 text-center text-sm text-green-700"
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 0.22, ease: EASE }}
-                >
-                  Your details are valid and ready to submit.
-                </motion.p>
-              )}
-            </AnimatePresence>
 
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
@@ -157,5 +183,6 @@ export default function Login() {
         </div>
       </section>
     </main>
+    </>
   );
 }
