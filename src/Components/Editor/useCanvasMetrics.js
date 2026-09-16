@@ -9,10 +9,9 @@ export function useCanvasMetrics(zoom = null) {
   const measure = useCallback(() => {
     const scroller = scrollRef.current, page = pageRef.current; if (!scroller || !page) return;
     const view = scroller.getBoundingClientRect(), rect = page.getBoundingClientRect();
-    const controls = scroller.querySelector(".editor-canvas-bar")?.getBoundingClientRect().height || 0;
-    // 108 = the floating bar's own height plus the scroll padding that keeps
-    // the sheet clear of it, so Fit never tucks the sheet under the bar.
-    const fitScale = Math.max(.1, Math.min((view.width - 48) / CANVAS_WIDTH, (view.height - controls - 108) / CANVAS_HEIGHT));
+    // The page strip now sits below the scroll view, so Fit only has to clear
+    // the page-settings bar floating over the top (≈78px) and a small margin.
+    const fitScale = Math.max(.1, Math.min((view.width - 48) / CANVAS_WIDTH, (view.height - 118) / CANVAS_HEIGHT));
     /* The page's origin as the rulers see it: measured from the visible corner
        of the workspace, not from the start of the scrolled content. The page
        now sits in the middle of a work area three times its size, so the two

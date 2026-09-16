@@ -7,8 +7,9 @@ import { gradientVector, normalizeGradient, strokePaint } from "./shapePaint.js"
 import TimerArtwork from "./TimerArtwork.jsx";
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
+import EditorVectorEditor from "./EditorVectorEditor.jsx";
 import { useAppDispatch, useAppStore } from "../redux/hook.js";
-import { elementSelected, targetChanged } from "../redux/editorSlice.js";
+import { elementSelected, pointEditStarted, targetChanged } from "../redux/editorSlice.js";
 import { elementsTarget } from "./inspectorEdit.js";
 
 /*
@@ -118,7 +119,7 @@ export function StaticElement({ element, layered = false }) {
 
 /* `locked` (the element's own lock or its group's) makes the element ignore the
    pointer: a press passes through to whatever is behind it, as in Figma. */
-export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1, locked = false }) {
+export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1, locked = false, pointKeys = null }) {
   const { targetRef, triggerRef } = useElementDrag(element, pageId, sheetRef, scale);
   const dispatch = useAppDispatch();
   const store = useAppStore();
@@ -148,6 +149,8 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
             event.stopPropagation();
             if (element.groupId && store.getState().editor.selectionMode === "group") dispatch(elementSelected(element.id));
             else if (element.type === "text") setEditing(true);
+            // Double-clicking a shape opens its points, as in Figma.
+            else if (element.type === "shape") dispatch(pointEditStarted(element.id));
           }}
           onKeyDown={(event) => {
             /* Only when the wrapper itself has focus. Keys typed in the editable text
@@ -160,7 +163,9 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
             onCommit={(content) => { setEditing(false); if (content !== element.content) dispatch(targetChanged({ target: elementsTarget(pageId, [element.id]), changes: { content } })); }}
             onCancel={() => { setEditing(false); }} />
         </div>
-        {selected && selectedCount === 1 && <EditorSelectionFrame element={element} sheetRef={sheetRef} locked={locked} />}
+        {selected && selectedCount === 1 && (pointKeys
+          ? <EditorVectorEditor element={element} pageId={pageId} sheetRef={sheetRef} scale={scale} keys={pointKeys} />
+          : <EditorSelectionFrame element={element} sheetRef={sheetRef} locked={locked} />)}
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import {
-  AlignCenter, AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical,
+  PenTool, AlignCenter, AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical,
   AlignHorizontalSpaceAround, AlignLeft, AlignRight, AlignStartHorizontal, AlignStartVertical,
   AlignVerticalSpaceAround, ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, Bold, Box, Group, Italic, Layers, Lock,
   MoveHorizontal, MoveVertical, TimerIcon, Trash2, Type, Underline, X,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { elementDeleted, layersStepped, selectionAligned, selectionDistributed, selectionUnlocked, targetChanged } from "../redux/editorSlice.js";
+import { elementDeleted, layersStepped, selectionAligned, selectionDistributed, selectionUnlocked, targetChanged, pointEditFinished, pointEditStarted } from "../redux/editorSlice.js";
 import { effectiveLocked, layerLabel, stepLayers, selectedGroup } from "./layerModel.js";
 import InspectorGroupBody, { GroupName } from "./InspectorGroupBody.jsx";
 import { MenuRow, ToolPopover } from "./EditorControls.jsx";
@@ -202,6 +202,7 @@ function MultipleBody({ elements, pageId, busy }) {
 }
 
 export default function EditorInspector({ docked, onClose }) {
+  const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
   const { pages, currentPage, selectedIds, gesture } = editor;
   const page = pages[currentPage];
@@ -230,8 +231,15 @@ export default function EditorInspector({ docked, onClose }) {
       header = <Header icon={Type} title={element.name || "Text"} onClose={close}>{actions}</Header>;
       body = <TextBody key={element.id} element={element} target={target} busy={busy} />;
     } else {
-      header = <Header icon={Box} title={layerLabel(element)} onClose={close}>{actions}</Header>;
-      body = <InspectorShapeBody key={element.id} element={element} target={target} busy={busy} />;
+      const editingPoints = editor.pointEdit?.elementId === element.id;
+      /* Editing points gets a Done button in place of the layer actions, like
+         Figma's toolbar; otherwise the header offers to start. */
+      const pointAction = editingPoints
+        ? <button type="button" className="editor-inspector-done" onClick={() => dispatch(pointEditFinished())}>Done</button>
+        : <button type="button" className="editor-inspector-icon" aria-label="Edit points" title="Edit points (Enter)" disabled={busy}
+          onClick={() => dispatch(pointEditStarted(element.id))}><PenTool size={16} aria-hidden="true" /></button>;
+      header = <Header icon={editingPoints ? PenTool : Box} title={editingPoints ? "Vector" : layerLabel(element)} onClose={close}>{pointAction}{!editingPoints && actions}</Header>;
+      body = <InspectorShapeBody key={element.id} element={element} target={target} busy={busy} pointKeys={editingPoints ? editor.pointEdit.keys : null} />;
     }
   }
 

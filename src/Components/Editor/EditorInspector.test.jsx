@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import { afterEach, describe, expect, it } from "vitest";
-import editorReducer, { elementInserted, elementSelected, elementsSelected, pageAdded, textInserted, timerInserted } from "../redux/editorSlice.js";
+import editorReducer, { pointsSelected, elementInserted, elementSelected, elementsSelected, pageAdded, textInserted, timerInserted } from "../redux/editorSlice.js";
 import EditorInspector from "./EditorInspector.jsx";
 
 function setup(actions = [], props = { docked: true }) {
@@ -214,6 +214,44 @@ describe("EditorInspector", () => {
     expect(element().strokeJoin).toBe("round");
     // The miter angle only applies to sharp corners, so it goes away with them.
     expect(screen.queryByLabelText("Miter angle")).toBe(null);
+  });
+
+  it("Edit points swaps in the Vector panel; its controls work on the picked points", () => {
+    const { store, element, editor } = setup([elementInserted("triangle")]);
+    fireEvent.click(screen.getByRole("button", { name: "Edit points" }));
+    expect(screen.getByRole("heading", { name: "Vector", level: 2 })).toBeTruthy();
+    const titles = [...document.querySelectorAll(".editor-inspector-group h3")].map((heading) => heading.textContent);
+    expect(titles).toEqual(["Vector", "Fill", "Stroke", "Effects"]);
+    // Nothing picked yet: every point control is off.
+    expect(screen.getByLabelText("Point X").disabled).toBe(true);
+    expect(screen.getByRole("button", { name: "Mirror angle and length" }).disabled).toBe(true);
+
+    act(() => { store.dispatch(pointsSelected({ keys: ["0:0"] })); });
+    const x = screen.getByLabelText("Point X");
+    expect(x.disabled).toBe(false);
+    const apex = Number(x.value);
+    fireEvent.focus(x);
+    fireEvent.change(x, { target: { value: String(apex + 40) } });
+    fireEvent.blur(x);
+    expect(element().shape).toBe("custom");
+    expect(Number(screen.getByLabelText("Point X").value)).toBeCloseTo(apex + 40, 0);
+
+    const history = editor().past.length;
+    fireEvent.click(screen.getByRole("button", { name: "Mirror angle and length" }));
+    const top = element().vector.subpaths[0].nodes[0];
+    expect(top.mirroring).toBe("angle-and-length");
+    expect(top.in && top.out).toBeTruthy();
+    expect(editor().past.length).toBe(history + 1);
+
+    const radius = screen.getByLabelText("Point corner radius");
+    fireEvent.focus(radius);
+    fireEvent.change(radius, { target: { value: "12" } });
+    fireEvent.blur(radius);
+    expect(element().vector.subpaths[0].nodes[0].cornerRadius).toBe(12);
+
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(editor().pointEdit).toBe(null);
+    expect(screen.getByRole("heading", { name: "Vector", level: 2 })).toBeTruthy(); // an edited shape is named Vector, as in Figma
   });
 
   it("locked proportions keep the shape's ratio when a size is typed", () => {

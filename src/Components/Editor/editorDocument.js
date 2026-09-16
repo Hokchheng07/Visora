@@ -1,6 +1,7 @@
 import { normalizeEffects } from "./effectsFilter.js";
 import { cleanName, normalizeGroups } from "./layerModel.js";
 import { cornerRadiiFor } from "./vectorPath.js";
+import { normalizeVector } from "./vectorEdit.js";
 import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./shapePaint.js";
 
 export const EDITOR_SCHEMA_VERSION = 3;
@@ -49,7 +50,11 @@ export const legacyCornerRadius = (component) => Math.round(Math.min(component.s
 function hydrateShape(component) {
   const styles = component.styles || {};
   const stroke = styles.stroke && styles.stroke !== "transparent" ? styles.stroke : null;
+  /* A custom shape whose points are missing or broken cannot be drawn, so it
+     loads as a plain rectangle rather than as nothing at all. */
+  const vector = component.shape === "custom" ? normalizeVector(component.vector) : null;
   return {
+    ...(component.shape === "custom" ? (vector ? { vector } : { shape: "rectangle" }) : {}),
     fill: styles.fill === null ? null : styles.fill || "#AD8DEA",
     fillOpacity: unit(styles.fillOpacity), fillVisible: styles.fillVisible !== false,
     stroke, strokeWidth: stroke ? Math.min(50, Math.max(0, Number(styles.strokeWidth) || 0)) : 0,
@@ -158,6 +163,8 @@ export function serializeDocument(editor) {
         ...(element.groupId ? { groupUuid: element.groupId } : {}),
         ...(element.content !== undefined ? { content: element.content } : {}),
         ...(element.shape ? { shape: element.shape } : {}),
+        // A point-edited shape carries its points; a preset never does.
+        ...(element.shape === "custom" && normalizeVector(element.vector) ? { vector: normalizeVector(element.vector) } : {}),
         ...(element.flipX ? { flipX: true } : {}),
         ...(element.flipY ? { flipY: true } : {}),
         ...(element.lockAspect ? { lockAspect: true } : {}),

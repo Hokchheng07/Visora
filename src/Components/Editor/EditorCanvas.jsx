@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import EditorCanvasBar from "./EditorCanvasBar";
 import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, useCanvasMetrics } from "./useCanvasMetrics";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { canvasAllSelected, layersMovedToPage, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
+import { canvasAllSelected, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
 import EditorPageBar from "./EditorPageBar.jsx";
@@ -24,7 +24,7 @@ export default function EditorCanvas({
 }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
-  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides } = editor;
+  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides, pointEdit } = editor;
   const page = pages[currentPage];
   const { scrollRef, pageRef, metrics, pageStyle } = useCanvasMetrics(zoom);
   // Kept out of the bar so the menu doesn't inherit the bar's button styling.
@@ -55,26 +55,37 @@ export default function EditorCanvas({
     scroller.scrollTop += rect.top - view.top - (view.height - rect.height) / 2;
   }, [pageId, metrics.scale, metrics.viewWidth, metrics.viewHeight, scrollRef, pageRef]);
 
+  /* Zoom so the design point under (clientX, clientY) stays put. The work area
+     grows from its own top-left corner (a page away from the sheet), so the
+     anchor is stored in work-area units and the scroll is corrected once the
+     new size has actually been laid out, not guessed a frame later. */
+  const zoomAnchor = useRef(null);
+  const zoomAt = useCallback((next, clientX, clientY) => {
+    const work = scrollRef.current?.querySelector(".editor-work-area")?.getBoundingClientRect();
+    const oldScale = metrics.scale || metrics.fitScale || .5;
+    next = Math.max(.1, Math.min(2, next));
+    if (work) zoomAnchor.current = { x: (clientX - work.left) / oldScale, y: (clientY - work.top) / oldScale, clientX, clientY };
+    dispatch(zoomChanged(next));
+  }, [dispatch, metrics.scale, metrics.fitScale, scrollRef]);
+  useLayoutEffect(() => {
+    const anchor = zoomAnchor.current, scroller = scrollRef.current;
+    const work = scroller?.querySelector(".editor-work-area")?.getBoundingClientRect();
+    if (!anchor || !work || !metrics.scale) return;
+    zoomAnchor.current = null;
+    scroller.scrollLeft += work.left + anchor.x * metrics.scale - anchor.clientX;
+    scroller.scrollTop += work.top + anchor.y * metrics.scale - anchor.clientY;
+  }, [metrics.scale, scrollRef]);
+
   useEffect(() => {
     const scroller = scrollRef.current; if (!scroller) return;
     function wheel(event) {
       if (!event.metaKey && !event.ctrlKey) return;
       event.preventDefault();
-      const sheet = pageRef.current?.getBoundingClientRect();
-      const oldScale = metrics.scale || metrics.fitScale || .5;
-      if (!sheet) return;
-      const next = Math.max(.1, Math.min(2, oldScale * Math.exp(-event.deltaY * .002)));
       // Where the pointer sits on the page, so that point stays under it while the zoom changes.
-      const designX = (event.clientX - sheet.left) / oldScale;
-      const designY = (event.clientY - sheet.top) / oldScale;
-      dispatch(zoomChanged(next));
-      requestAnimationFrame(() => {
-        scroller.scrollLeft += designX * (next - oldScale);
-        scroller.scrollTop += designY * (next - oldScale);
-      });
+      zoomAt((metrics.scale || metrics.fitScale || .5) * Math.exp(-event.deltaY * .002), event.clientX, event.clientY);
     }
     scroller.addEventListener("wheel", wheel, { passive: false }); return () => scroller.removeEventListener("wheel", wheel);
-  }, [dispatch, metrics, scrollRef, pageRef]);
+  }, [zoomAt, metrics.scale, metrics.fitScale, scrollRef]);
 
   /* One page of room on every side, in real pixels at the current zoom. A
      percentage would be measured against a parent that is itself sized by its
@@ -88,6 +99,8 @@ export default function EditorCanvas({
   function canvasPointerDown(event) {
     // Anything but an element or one of its handles: the press is a marquee.
     if (event.button !== 0 || event.target.closest("[data-element-id], .editor-resize-handle, .editor-rotate-handle")) return;
+    // A press away from the shape being edited leaves point editing first.
+    if (pointEdit) dispatch(pointEditFinished());
     if (spacePressed.current) return;
     const rect = pageRef.current.getBoundingClientRect();
     const x = (event.clientX - rect.left) / metrics.scale, y = (event.clientY - rect.top) / metrics.scale;
@@ -123,6 +136,10 @@ export default function EditorCanvas({
       aria-label="Design workspace"
     >
       <div className="editor-canvas-area">
+        {/* The view holds everything that scrolls or overlays the canvas; the
+            page strip and zoom sit below it so the (3x page) work area can
+            never push them out of sight. */}
+        <div className="editor-canvas-view">
         <EditorPageBar />
         {showRulers && (
           <>
@@ -170,7 +187,7 @@ export default function EditorCanvas({
                 >
                   {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
                     sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={framedElements.length}
-                    locked={effectiveLocked(page, element)} />)}
+                    locked={effectiveLocked(page, element)} pointKeys={pointEdit?.elementId === element.id ? pointEdit.keys : null} />)}
                   {framedElements.length > 1 && <EditorGroupSelectionFrame elements={framedElements} sheetRef={pageRef} locked={selectionLocked} />}
                   {marquee && <span className="editor-marquee" style={{ left: `${Math.min(marquee.left, marquee.right) / 19.2}%`, top: `${Math.min(marquee.top, marquee.bottom) / 10.8}%`,
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
@@ -181,22 +198,28 @@ export default function EditorCanvas({
                 </div>
               </div>
           </div>
-          <EditorCanvasBar
-            pages={pages}
-            currentPage={currentPage}
-            onAddPage={onAddPage}
-            onPageChange={(index) => dispatch(pageSelected(index))}
-            onPageMove={(from, to) => dispatch(pageMoved({ from, to }))}
-            onPageMenu={(event, index) => {
-              event.preventDefault();
-              setPageMenu({ index, x: event.clientX, y: event.clientY });
-            }}
-            zoom={Math.round(metrics.scale * 100)}
-            onZoom={(value) => { if (value === null) centreOnPage.current = true; dispatch(zoomChanged(value)); }}
-            showRulers={showRulers}
-            onToggleRulers={onToggleRulers}
-          />
         </div>
+        </div>
+        <EditorCanvasBar
+          pages={pages}
+          currentPage={currentPage}
+          onAddPage={onAddPage}
+          onPageChange={(index) => dispatch(pageSelected(index))}
+          onPageMove={(from, to) => dispatch(pageMoved({ from, to }))}
+          onPageMenu={(event, index) => {
+            event.preventDefault();
+            setPageMenu({ index, x: event.clientX, y: event.clientY });
+          }}
+          zoom={Math.round(metrics.scale * 100)}
+          onZoom={(value) => {
+            if (value === null) { centreOnPage.current = true; dispatch(zoomChanged(null)); return; }
+            const view = scrollRef.current?.getBoundingClientRect();
+            if (view) zoomAt(value, view.left + view.width / 2, view.top + view.height / 2);
+            else dispatch(zoomChanged(value));
+          }}
+          showRulers={showRulers}
+          onToggleRulers={onToggleRulers}
+        />
       </div>
 
       {contextMenu && (

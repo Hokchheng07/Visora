@@ -2,14 +2,14 @@ import { createSlice, current, nanoid } from "@reduxjs/toolkit";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/elementGeometry.js";
 import { shapeCatalog } from "../Editor/shapeCatalog.js";
 import { defaultTimer, normalizeTimer } from "../Editor/editorDocument.js";
-import { canvasSelectable, cleanName, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
+import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
   stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/layerModel.js";
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
-  past: [], future: [], gesture: null, edit: null, copiedPage: null, copiedElements: [], copiedGroups: [], zoom: null, snapGuides: [],
+  past: [], future: [], gesture: null, edit: null, pointEdit: null, copiedPage: null, copiedElements: [], copiedGroups: [], zoom: null, snapGuides: [],
 };
 
 /* Every selection change comes through here. `mode` is "group" only when a
@@ -19,6 +19,8 @@ function setSelection(state, ids, mode = "direct") {
   state.selectedIds = [...new Set(ids)].filter((id) => valid.has(id));
   state.selectedId = state.selectedIds.at(-1) || null;
   state.selectionMode = mode === "group" && state.selectedIds.length ? "group" : "direct";
+  // Point editing belongs to one selected shape; selecting anything else ends it.
+  if (state.pointEdit && !(state.selectedIds.length === 1 && state.selectedIds[0] === state.pointEdit.elementId)) state.pointEdit = null;
 }
 const currentPageOf = (state) => state.pages[state.currentPage];
 /* Locking is enforced here, not only by greyed-out buttons: every reducer that
@@ -251,6 +253,30 @@ const reducers = {
         remember(state); page.elements = next.elements; page.groups = next.groups;
         setSelection(state, state.selectedIds, "group");
       },
+    },
+    /* Point editing (Figma's "edit object"). Only the mode and which points are
+       picked live here — never in history — so undo changes the outline without
+       throwing you out of the editor. The outline itself is changed through
+       targetChanged and canvas gestures, like every other edit. */
+    pointEditStarted(state, { payload }) {
+      if (state.gesture) return;
+      const page = currentPageOf(state);
+      const id = payload || (state.selectedIds.length === 1 ? state.selectedIds[0] : null);
+      const element = page.elements.find((item) => item.id === id);
+      if (!element || element.type !== "shape" || effectiveLocked(page, element) || !effectiveVisible(page, element)) return;
+      if (state.selectedIds.length !== 1 || state.selectedIds[0] !== id) setSelection(state, [id]);
+      state.pointEdit = { elementId: id, keys: [] };
+    },
+    pointEditFinished(state) { state.pointEdit = null; },
+    // payload: { keys, additive }. Additive toggles the given points in or out.
+    pointsSelected(state, { payload }) {
+      if (!state.pointEdit) return;
+      const keys = [...new Set(payload?.keys || [])];
+      if (!payload?.additive) { state.pointEdit.keys = keys; return; }
+      const current = new Set(state.pointEdit.keys);
+      const allIn = keys.every((key) => current.has(key));
+      keys.forEach((key) => (allIn ? current.delete(key) : current.add(key)));
+      state.pointEdit.keys = [...current];
     },
     /* Move the selection to another page: one undo step covering both pages,
        the current page and the selection. The layers land at the front of the
@@ -489,7 +515,7 @@ const reducers = {
 // Actions that may run while a session is open without settling it: the session's
 // own actions, canvas-gesture updates (a gesture can only start after settling),
 // and actions that do not touch the document.
-const SESSION_SAFE = new Set(["editStarted", "editUpdated", "editFinished", "editCancelled", "elementsChanged", "elementTransformed", "zoomChanged", "pageCopied", "selectionCopied"]);
+const SESSION_SAFE = new Set(["pointsSelected", "editStarted", "editUpdated", "editFinished", "editCancelled", "elementsChanged", "elementTransformed", "zoomChanged", "pageCopied", "selectionCopied"]);
 for (const [name, definition] of Object.entries(reducers)) {
   if (SESSION_SAFE.has(name)) continue;
   if (typeof definition === "function") {
@@ -506,5 +532,5 @@ export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCop
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
-export const { layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
+export const { pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
 export default editorSlice.reducer;

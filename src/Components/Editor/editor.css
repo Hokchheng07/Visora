@@ -221,8 +221,11 @@
 .editor-animation-demo i:nth-child(3) { height: 64%; }
 .editor-workspace { display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-radius: 18px; background: var(--editor-workspace); }
 .editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
-.editor-canvas-area { position: relative; min-height: 0; container-type: size; }
-.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; }
+.editor-canvas-area { display: flex; flex-direction: column; min-height: 0; }
+/* Rulers, the page-settings bar and the scrolling work area. The page strip is
+   a sibling below this, outside the scroll, so it is always on screen. */
+.editor-canvas-view { position: relative; flex: 1 1 auto; min-height: 0; container-type: size; }
+.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; overscroll-behavior: contain; }
 .editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; }
 /* Fit the sheet to the actual space left above the controls, including its
    metadata and scroll padding, rather than assuming a fixed header height. */
@@ -339,6 +342,40 @@
 .editor-layer-toggle:disabled { cursor: default; }
 @media (hover: none) { .editor-layer-toggle { opacity: 1; } }
 
+/* Point editing. The overlay turns with the shape and draws in its pixels;
+   strokes stay one screen pixel at any zoom (vector-effect), and points are
+   sized in screen pixels by the component. Points outside the box still take
+   presses, which is why the SVG does not clip. */
+.editor-vector-editor { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.editor-vector-editor > * { pointer-events: auto; }
+.editor-vector-backdrop { cursor: crosshair; }
+/* In edit mode the shape is covered in thin diagonal stripes and edged with a
+   one-pixel line, so it reads as "being edited", not as the shape's own paint. */
+.editor-vector-hatch { pointer-events: none; }
+.editor-vector-hatch-line { stroke: #5B3FD6; }
+.editor-vector-hatch-light { stroke: white; stroke-opacity: .75; }
+.editor-vector-line { fill: none; stroke: var(--color-primary); stroke-width: 1.25px; pointer-events: none; }
+.editor-vector-line-hit { fill: none; stroke: transparent; stroke-width: 12px; cursor: copy; }
+.editor-vector-handle-line { stroke: var(--color-primary); stroke-width: 1px; pointer-events: none; }
+.editor-vector-handle { fill: white; stroke: var(--color-primary); stroke-width: 1.25px; cursor: grab; }
+.editor-vector-point { fill: white; stroke: var(--color-primary); stroke-width: 1.5px; cursor: move; }
+.editor-vector-point.is-selected { fill: var(--color-primary); stroke: white; }
+.editor-vector-marquee { fill: color-mix(in srgb, var(--color-primary) 10%, transparent); stroke: var(--color-primary); stroke-width: 1px; stroke-dasharray: 4 3; pointer-events: none; }
+/* Figma's mirroring control: three equal segments across the whole row,
+   divided by hairlines, each tall enough for its mark to read. */
+.editor-vector-mirroring .editor-inspector-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; width: 100%; padding: 3px; }
+.editor-vector-mirroring .editor-inspector-buttons button { position: relative; width: auto; height: 34px; color: var(--editor-muted); }
+.editor-vector-mirroring .editor-inspector-buttons button + button::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1px; background: var(--field-line); pointer-events: none; }
+/* The divider beside a pressed segment disappears into it, like a segmented control. */
+.editor-vector-mirroring .editor-inspector-buttons button.is-on::before,
+.editor-vector-mirroring .editor-inspector-buttons button.is-on + button::before { opacity: 0; }
+.editor-vector-mirroring .editor-inspector-buttons button.is-on { color: var(--color-primary); }
+.editor-vector-mirroring .editor-inspector-buttons button:disabled { opacity: .45; }
+.editor-mirror-mark { width: 32px; height: 21px; }
+.editor-mirror-node { fill: var(--editor-raised); }
+.editor-inspector-done { height: 28px; padding-inline: 12px; border-radius: 7px; background: var(--color-primary); color: var(--editor-surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.editor-inspector-done:active { transform: scale(.97); }
+
 /* Locked on the canvas: the press passes through to whatever is behind. A
    locked layer picked in the Layers panel keeps a quiet outline and no handles. */
 .editor-element.is-locked .editor-element-hit { pointer-events: none; }
@@ -360,7 +397,7 @@
 .editor-page-thumb-number { z-index: 1; padding-inline: 2px; border-radius: 2px; background: rgb(255 255 255 / .8); }
 /* The controls remain inside the same workspace container. Only the selected
    page is displayed; thumbnails navigate without scrolling the canvas. */
-.editor-canvas-bar { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 4px 12px; padding: 6px 0 8px; min-height: var(--editor-canvas-bar); background: var(--editor-workspace); }
+.editor-canvas-bar { flex: none; display: grid; margin-inline: 24px; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 4px 12px; padding: 6px 0 8px; min-height: var(--editor-canvas-bar); background: var(--editor-workspace); }
 .editor-canvas-bar-tools { grid-area: tools; display: flex; min-width: 0; justify-self: end; align-items: center; gap: 10px; }
 .editor-canvas-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding-inline: 13px; border: 1px solid var(--editor-border); border-radius: 9px; background: white; color: var(--editor-muted); font-size: 13px; cursor: pointer; transition: color 150ms ease, background-color 150ms ease; }
 .editor-canvas-bar button:disabled { opacity: .5; }
@@ -722,7 +759,7 @@
      of the screen too whenever the tool panel is collapsed, which is how the
      editor opens. Order is deliberate: sheet, then bar. */
   .editor-shape-tools { top: auto; bottom: max(8px, env(safe-area-inset-bottom)); gap: 2px; padding: 4px; border-radius: 12px; max-width: calc(100% - 16px); }
-  .editor-canvas-scroll { padding-top: 16px; padding-bottom: 76px; }
+  .editor-canvas-scroll { padding-top: 16px; padding-bottom: 16px; }
   .editor-ctl { height: 36px; }
   .editor-ctl-icon { width: 36px; }
   .editor-toolbar-group { padding-inline: 5px; gap: 2px; }
@@ -757,7 +794,7 @@
   .editor-workspace { grid-column: 2; border-radius: 16px; --editor-ruler: 0px; --editor-canvas-bar: 98px; }
   .editor-canvas-scroll { padding: 16px 16px 0; }
   .editor-canvas-meta { font-size: 8px; }
-  .editor-canvas-bar { gap: 4px; padding: 7px 10px; }
+  .editor-canvas-bar { gap: 4px; margin-inline: 0; padding: 7px 10px; }
   .editor-canvas-bar .editor-ruler-toggle, .editor-page-count { display: none; }
   .editor-canvas-bar button { height: 32px; padding-inline: 9px; font-size: 11px; }
   .editor-canvas-bar .editor-page-thumb { width: 72px; height: 40px; }

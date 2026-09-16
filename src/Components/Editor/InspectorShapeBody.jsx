@@ -12,6 +12,7 @@ import {
 import { normalizeRotation } from "./inspectorEdit.js";
 import EffectsSection from "./InspectorEffects.jsx";
 import { FillPaint, StrokeSettings } from "./InspectorPaint.jsx";
+import InspectorVectorSection from "./InspectorVectorSection.jsx";
 import { gradientCss, normalizeGradient } from "./shapePaint.js";
 
 /*
@@ -31,7 +32,7 @@ const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacit
 // The corner icon rounds its top right, so each field turns it to point at its own corner.
 const CORNER_TURNS = [-90, 0, 90, 180];
 
-export default function InspectorShapeBody({ element, target, busy }) {
+export default function InspectorShapeBody({ element, target, busy, pointKeys = null }) {
   const dispatch = useAppDispatch();
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
   const gradient = normalizeGradient(element.gradient);
@@ -47,6 +48,8 @@ export default function InspectorShapeBody({ element, target, busy }) {
 
   return (
     <>
+      {/* Editing points swaps the box settings for Figma's Vector panel; paint stays. */}
+      {pointKeys ? <InspectorVectorSection element={element} target={target} keys={pointKeys} busy={busy} /> : <>
       <InspectorSection title="Position">
         <FieldLabel>Alignment</FieldLabel>
         <div className="editor-inspector-row">
@@ -123,6 +126,8 @@ export default function InspectorShapeBody({ element, target, busy }) {
         )}
       </InspectorSection>
 
+      </>}
+
       <InspectorSection title="Fill" action={!hasFill && <IconAction icon={Plus} label="Add fill" disabled={busy} onClick={() => commit(NEW_FILL)} />}>
         {hasFill && (
           <>
@@ -174,7 +179,7 @@ export default function InspectorShapeBody({ element, target, busy }) {
 
       <EffectsSection element={element} target={target} busy={busy} />
 
-      <ResetStyle disabled={busy} onReset={() => commit(SHAPE_STYLE)} />
+      {!pointKeys && <ResetStyle disabled={busy} onReset={() => commit(SHAPE_STYLE)} />}
     </>
   );
 }

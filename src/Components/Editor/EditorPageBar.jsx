@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAnimationChanged, pageBackgroundChanged } from "../redux/editorSlice.js";
 import { animationPresets } from "./animationPresets.js";
+import { pageLabel } from "./layerModel.js";
 import { SwatchButton, ToolPopover } from "./EditorControls.jsx";
 
 /*
@@ -13,19 +14,20 @@ export default function EditorPageBar() {
   const dispatch = useAppDispatch();
   const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
   if (selectedIds.length) return null;
-  return <PageProperties page={pages[currentPage]} number={currentPage + 1} busy={!!gesture} dispatch={dispatch} />;
+  return <PageProperties page={pages[currentPage]} label={pageLabel(pages[currentPage], currentPage)} busy={!!gesture} dispatch={dispatch} />;
 }
 
 /* Nothing selected: the bar describes the page. For a backdrop the background
    is most of the design, so it gets a named button rather than a bare chip. */
-function PageProperties({ page, number, busy, dispatch }) {
+function PageProperties({ page, label, busy, dispatch }) {
   const background = page.background?.value || "#FFFFFF";
   const preset = page.animation?.preset || "none";
   return (
     <div className="editor-shape-tools" role="group" aria-label="Page settings"
       onPointerDown={(event) => event.stopPropagation()}>
       <div className="editor-toolbar-group">
-        <span className="editor-selected-name">Page {number}</span>
+        {/* The page's own name, so a rename shows here too; falls back to "Page N". */}
+        <span className="editor-selected-name" title={label}>{label}</span>
       </div>
       <div className="editor-toolbar-group">
         <SwatchButton label="Background" named value={background} disabled={busy}

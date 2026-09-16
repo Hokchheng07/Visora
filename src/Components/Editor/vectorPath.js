@@ -205,7 +205,11 @@ export function shapePath({ shape, vector, w, h, cornerRadius = 0, cornerRadii =
     /* Per-corner radii follow the corner you see, after flipping: the field
        labelled "Top left" always rounds the top-left corner on the canvas. */
     if (subpath.closed && radii) nodes = roundCorners(nodes, (node) => radii[node.y < h / 2 ? (node.x < w / 2 ? 0 : 1) : (node.x < w / 2 ? 3 : 2)]);
-    else if (subpath.closed && cornerRadius > 0) nodes = roundCorners(nodes, cornerRadius);
+    /* A point can carry its own corner radius (set while editing points, as in
+       Figma); a point without one takes the shape's radius. */
+    else if (subpath.closed && (cornerRadius > 0 || subpath.nodes.some((node) => node.cornerRadius > 0))) {
+      nodes = roundCorners(nodes, (node) => node.cornerRadius ?? cornerRadius);
+    }
     return subpathToD({ closed: subpath.closed, nodes });
   }).join("");
 }

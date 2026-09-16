@@ -199,7 +199,8 @@ export function layerLabel(element) {
     const words = String(element.content || "").replace(/\s+/g, " ").trim();
     return words ? (words.length > 40 ? `${words.slice(0, 39)}…` : words) : "Empty text";
   }
-  return shapeName(element?.shape);
+  // Figma calls a shape whose points were edited a Vector.
+  return element?.shape === "custom" ? "Vector" : shapeName(element?.shape);
 }
 
 // The first unused "Page N", counting from the page's position.
