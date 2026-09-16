@@ -1,18 +1,19 @@
 import {
   AlignCenter, AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical,
   AlignHorizontalSpaceAround, AlignLeft, AlignRight, AlignStartHorizontal, AlignStartVertical,
-  AlignVerticalSpaceAround, ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, Bold, Box, Italic, Layers,
+  AlignVerticalSpaceAround, ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, Bold, Box, Group, Italic, Layers, Lock,
   MoveHorizontal, MoveVertical, TimerIcon, Trash2, Type, Underline, X,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { elementDeleted, elementReordered, selectionAligned, selectionDistributed, targetChanged } from "../redux/editorSlice.js";
-import { shapeName } from "./shapeCatalog.js";
+import { elementDeleted, layersStepped, selectionAligned, selectionDistributed, selectionUnlocked, targetChanged } from "../redux/editorSlice.js";
+import { effectiveLocked, layerLabel, stepLayers, selectedGroup } from "./layerModel.js";
+import InspectorGroupBody, { GroupName } from "./InspectorGroupBody.jsx";
 import { MenuRow, ToolPopover } from "./EditorControls.jsx";
 import InspectorTimerBody from "./InspectorTimerBody.jsx";
 import InspectorShapeBody from "./InspectorShapeBody.jsx";
 import EffectsSection from "./InspectorEffects.jsx";
 import {
-  ButtonRow, ColourRow, InspectorSection, LayoutFields, LiveTextArea, NumberField, ResetStyle, SelectField,
+  ButtonRow, ColourRow, FontSizeField, InspectorSection, LayoutFields, LiveTextArea, NumberField, ResetStyle, SelectField,
 } from "./EditorInspectorFields.jsx";
 import { elementsTarget } from "./inspectorEdit.js";
 
@@ -62,16 +63,30 @@ function Header({ icon: Icon, title, onClose, children }) {
   );
 }
 
-function LayerMenu({ index, count, busy }) {
+/* Shown under the header while the selection holds a locked layer. Every field
+   below is disabled, and this is the one control that is not. */
+function LockedNotice({ busy }) {
   const dispatch = useAppDispatch();
-  const top = index === count - 1, bottom = index === 0;
+  return (
+    <div className="editor-inspector-locked" role="status">
+      <Lock size={14} aria-hidden="true" />
+      <span>Locked — unlock to edit</span>
+      <button type="button" disabled={busy} onClick={() => dispatch(selectionUnlocked())}>Unlock</button>
+    </div>
+  );
+}
+
+function LayerMenu({ page, ids, mode, busy }) {
+  const dispatch = useAppDispatch();
+  // Groups are never split, so "can move" asks the same rule the store uses.
+  const top = stepLayers(page, ids, "forward", mode) === page.elements, bottom = stepLayers(page, ids, "backward", mode) === page.elements;
   return (
     <ToolPopover label="Layer order" disabled={busy} className="editor-inspector-icon" panelClassName="editor-popover-list"
       trigger={<Layers size={16} aria-hidden="true" />}>
-      <MenuRow icon={ArrowUpToLine} label="Bring to front" disabled={top} onSelect={() => dispatch(elementReordered(count))} />
-      <MenuRow icon={ArrowUp} label="Bring forward" shortcut="]" disabled={top} onSelect={() => dispatch(elementReordered(1))} />
-      <MenuRow icon={ArrowDown} label="Send backward" shortcut="[" disabled={bottom} onSelect={() => dispatch(elementReordered(-1))} />
-      <MenuRow icon={ArrowDownToLine} label="Send to back" disabled={bottom} onSelect={() => dispatch(elementReordered(-count))} />
+      <MenuRow icon={ArrowUpToLine} label="Bring to front" shortcut="⌘]" disabled={top} onSelect={() => dispatch(layersStepped({ direction: "front" }))} />
+      <MenuRow icon={ArrowUp} label="Bring forward" shortcut="]" disabled={top} onSelect={() => dispatch(layersStepped({ direction: "forward" }))} />
+      <MenuRow icon={ArrowDown} label="Send backward" shortcut="[" disabled={bottom} onSelect={() => dispatch(layersStepped({ direction: "backward" }))} />
+      <MenuRow icon={ArrowDownToLine} label="Send to back" shortcut="⌘[" disabled={bottom} onSelect={() => dispatch(layersStepped({ direction: "back" }))} />
     </ToolPopover>
   );
 }
@@ -107,8 +122,7 @@ function TextBody({ element, target, busy }) {
         <div className="editor-inspector-grid">
           <SelectField label="Font weight" value={String(element.fontWeight || 400)} options={WEIGHTS} disabled={busy}
             onChange={(weight) => commit({ fontWeight: Number(weight) })} />
-          <NumberField label="Font size" name="" suffix="px" min={8} max={400} value={element.fontSize} target={target}
-            property="fontSize" disabled={busy} toChanges={(fontSize) => ({ fontSize })} />
+          <FontSizeField value={element.fontSize} target={target} disabled={busy} />
         </div>
         <div className="editor-inspector-row">
           <ButtonRow label="Text style" disabled={busy} items={[
@@ -188,29 +202,35 @@ function MultipleBody({ elements, pageId, busy }) {
 }
 
 export default function EditorInspector({ docked, onClose }) {
-  const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
+  const editor = useAppSelector((state) => state.editor);
+  const { pages, currentPage, selectedIds, gesture } = editor;
   const page = pages[currentPage];
   const selection = page.elements.filter((element) => selectedIds.includes(element.id));
-  const busy = !!gesture;
+  const locked = selection.some((item) => effectiveLocked(page, item));
+  // A locked selection keeps the sidebar readable but every control disabled; the store refuses the edits anyway.
+  const busy = !!gesture || locked;
   if (!selection.length) return null;
 
   const [element] = selection;
   const close = docked ? undefined : onClose;
+  const group = selectedGroup(editor);
   let header, body;
-  if (selection.length > 1) {
-    header = <Header icon={Layers} title={`${selection.length} elements`} onClose={close}><DeleteAction busy={busy} label={`Delete ${selection.length} elements`} /></Header>;
-    body = <MultipleBody elements={selection} pageId={page.id} busy={busy} />;
+  if (selection.length > 1 || group) {
+    header = <Header icon={group ? Group : Layers} title={group ? <GroupName key={group.id} group={group} pageId={page.id} busy={!!gesture} /> : `${selection.length} elements`} onClose={close}>
+      <LayerMenu page={page} ids={selectedIds} mode={editor.selectionMode} busy={busy} /><DeleteAction busy={busy} label={`Delete ${selection.length} elements`} /></Header>;
+    const fields = <MultipleBody elements={selection} pageId={page.id} busy={busy} />;
+    body = group ? <InspectorGroupBody group={group} busy={busy}>{fields}</InspectorGroupBody> : fields;
   } else {
     const target = elementsTarget(page.id, [element.id]);
-    const actions = <><LayerMenu index={page.elements.indexOf(element)} count={page.elements.length} busy={busy} /><DeleteAction busy={busy} /></>;
+    const actions = <><LayerMenu page={page} ids={selectedIds} mode={editor.selectionMode} busy={busy} /><DeleteAction busy={busy} /></>;
     if (element.type === "timer") {
-      header = <Header icon={TimerIcon} title="Timer" onClose={close}>{actions}</Header>;
+      header = <Header icon={TimerIcon} title={element.name || "Timer"} onClose={close}>{actions}</Header>;
       body = <InspectorTimerBody key={element.id} element={element} pageId={page.id} busy={busy} />;
     } else if (element.type === "text") {
-      header = <Header icon={Type} title="Text" onClose={close}>{actions}</Header>;
+      header = <Header icon={Type} title={element.name || "Text"} onClose={close}>{actions}</Header>;
       body = <TextBody key={element.id} element={element} target={target} busy={busy} />;
     } else {
-      header = <Header icon={Box} title={shapeName(element.shape)} onClose={close}>{actions}</Header>;
+      header = <Header icon={Box} title={layerLabel(element)} onClose={close}>{actions}</Header>;
       body = <InspectorShapeBody key={element.id} element={element} target={target} busy={busy} />;
     }
   }
@@ -218,6 +238,7 @@ export default function EditorInspector({ docked, onClose }) {
   return (
     <aside id="editor-inspector" className={`editor-inspector${docked ? " is-docked" : " is-drawer"}`} aria-label="Customize">
       {header}
+      {locked && <LockedNotice busy={!!gesture} />}
       {body}
     </aside>
   );

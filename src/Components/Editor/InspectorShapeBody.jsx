@@ -1,10 +1,11 @@
 import {
   AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical, AlignStartHorizontal, AlignStartVertical,
-  Eye, EyeOff, FlipHorizontal2, FlipVertical2, Link2, Link2Off, Minus, Plus, RotateCw, SquareRoundCorner, Sun,
+  Eye, EyeOff, FlipHorizontal2, FlipVertical2, Link2, Link2Off, Minus, Plus, RotateCw, Scan, SquareRoundCorner, Sun,
 } from "lucide-react";
 import { useAppDispatch } from "../redux/hook.js";
 import { selectionAligned, targetChanged } from "../redux/editorSlice.js";
 import { STROKE_ALIGNS } from "./editorDocument.js";
+import { CORNER_NAMES, cornerRadiiFor, INDEPENDENT_CORNER_SHAPES } from "./vectorPath.js";
 import {
   ButtonRow, ColourRow, FieldLabel, IconAction, InspectorSection, NumberField, ResetStyle, SelectField,
 } from "./EditorInspectorFields.jsx";
@@ -23,7 +24,9 @@ import EffectsSection from "./InspectorEffects.jsx";
 const STROKE_LABELS = { inside: "Inside", center: "Center", outside: "Outside" };
 const NEW_FILL = { fill: "#D9D9D9", fillOpacity: 1, fillVisible: true };
 const NEW_STROKE = { stroke: "#211D29", strokeWidth: 4, strokeAlign: "inside", strokeOpacity: 1, strokeVisible: true };
-const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacity: 1, stroke: null, strokeWidth: 0, cornerRadius: 0, effects: [] };
+const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacity: 1, stroke: null, strokeWidth: 0, cornerRadius: 0, cornerRadii: null, effects: [] };
+// The corner icon rounds its top right, so each field turns it to point at its own corner.
+const CORNER_TURNS = [-90, 0, 90, 180];
 
 export default function InspectorShapeBody({ element, target, busy }) {
   const dispatch = useAppDispatch();
@@ -32,6 +35,11 @@ export default function InspectorShapeBody({ element, target, busy }) {
   const hasStroke = !!element.stroke && element.stroke !== "transparent";
   const ratio = element.h / element.w;
   const align = (edge) => () => dispatch(selectionAligned(edge));
+  const maxRadius = Math.round(Math.min(element.w, element.h) / 2);
+  const canSplitCorners = !element.vector && INDEPENDENT_CORNER_SHAPES.has(element.shape);
+  const radii = cornerRadiiFor(element.shape, element.vector, element.cornerRadii);
+  const mixed = !!radii && radii.some((value) => value !== radii[0]);
+  const radius = radii ? radii[0] : element.cornerRadius || 0;
 
   return (
     <>
@@ -87,9 +95,28 @@ export default function InspectorShapeBody({ element, target, busy }) {
             <NumberField label="Opacity" name={<Sun size={13} />} suffix="%" min={0} max={100} value={(element.opacity ?? 1) * 100}
               target={target} property="opacity" disabled={busy} toChanges={(next) => ({ opacity: next / 100 })} /></div>
           <div><FieldLabel>Corner radius</FieldLabel>
-            <NumberField label="Corner radius" name={<SquareRoundCorner size={13} />} min={0} max={Math.round(Math.min(element.w, element.h) / 2)}
-              value={element.cornerRadius || 0} target={target} property="cornerRadius" disabled={busy} toChanges={(cornerRadius) => ({ cornerRadius })} /></div>
+            <div className="editor-inspector-radius">
+              {/* With corners split, typing here sets all four at once; "Mixed" means they differ. */}
+              <NumberField label="Corner radius" name={<SquareRoundCorner size={13} />} min={0} max={maxRadius}
+                value={mixed ? Number.NaN : radius} placeholder={mixed ? "Mixed" : undefined} target={target} property="cornerRadius" disabled={busy}
+                toChanges={(cornerRadius) => (radii ? { cornerRadius, cornerRadii: [cornerRadius, cornerRadius, cornerRadius, cornerRadius] } : { cornerRadius })} />
+              {canSplitCorners && (
+                <IconAction icon={Scan} disabled={busy} pressed={!!radii} className={radii ? "is-on" : ""}
+                  label={radii ? "Use one radius for all corners" : "Independent corners"}
+                  onClick={() => commit(radii ? { cornerRadius: Math.max(...radii), cornerRadii: null } : { cornerRadii: [radius, radius, radius, radius] })} />
+              )}
+            </div></div>
         </div>
+        {radii && (
+          <div className="editor-inspector-grid editor-inspector-corners">
+            {[0, 1, 3, 2].map((corner) => (
+              <NumberField key={corner} label={`${CORNER_NAMES[corner]} radius`} min={0} max={maxRadius} value={radii[corner]}
+                name={<SquareRoundCorner size={13} style={{ rotate: `${CORNER_TURNS[corner]}deg` }} />}
+                target={target} property={`cornerRadii.${corner}`} disabled={busy}
+                toChanges={(next) => ({ cornerRadii: radii.map((value, index) => (index === corner ? next : value)) })} />
+            ))}
+          </div>
+        )}
       </InspectorSection>
 
       <InspectorSection title="Fill" action={!hasFill && <IconAction icon={Plus} label="Add fill" disabled={busy} onClick={() => commit(NEW_FILL)} />}>

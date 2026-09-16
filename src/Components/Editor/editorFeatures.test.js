@@ -9,7 +9,16 @@ import { EDITOR_SCHEMA_VERSION, TIMER_MAX_MS, TIMER_MIN_MS, defaultTimer, hydrat
   migrateDocument, normalizeTimer, saveLocalDocument, serializeDocument, validateDocument } from "./editorDocument.js";
 import { controlState, formatDuration, startStopRole } from "./timerFormat.js";
 
-function send(actions) { return actions.reduce((state, action) => reducer(state, action), undefined); }
+import { checkInvariants } from "./layerModel.js";
+
+// The layer rules are checked after every action (see layerModel.checkInvariants).
+function send(actions) {
+  return actions.reduce((state, action) => {
+    const after = reducer(state, action);
+    assert.deepEqual(checkInvariants(after), [], `after ${action.type}`);
+    return after;
+  }, undefined);
+}
 
 test("multi-selection moves as one clamped group and undo is atomic", () => {
   let state = send([elementInserted("square"), elementInserted("circle")]);

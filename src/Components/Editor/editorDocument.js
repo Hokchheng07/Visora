@@ -1,4 +1,6 @@
 import { normalizeEffects } from "./effectsFilter.js";
+import { cleanName, normalizeGroups } from "./layerModel.js";
+import { cornerRadiiFor } from "./vectorPath.js";
 
 export const EDITOR_SCHEMA_VERSION = 3;
 export const STROKE_ALIGNS = ["inside", "center", "outside"];
@@ -11,6 +13,10 @@ const unit = (value, fallback = 1) => (Number.isFinite(Number(value)) ? Math.min
 function shapeStyles(element) {
   const hasStroke = !!element.stroke && element.stroke !== "transparent";
   const effects = normalizeEffects(element.effects);
+  // Per-corner radii are saved only when the corners differ; four equal corners save as one cornerRadius.
+  const radii = cornerRadiiFor(element.shape, element.vector, element.cornerRadii);
+  const sameCorners = !!radii && radii.every((value) => value === radii[0]);
+  const radius = sameCorners ? radii[0] : element.cornerRadius;
   return {
     fill: element.fill ?? null, opacity: element.opacity,
     stroke: hasStroke ? element.stroke : "transparent", strokeWidth: hasStroke ? element.strokeWidth || 0 : 0,
@@ -21,7 +27,8 @@ function shapeStyles(element) {
       ...(unit(element.strokeOpacity) !== 1 ? { strokeOpacity: unit(element.strokeOpacity) } : {}),
       ...(element.strokeVisible === false ? { strokeVisible: false } : {}),
     } : {}),
-    ...(element.cornerRadius > 0 ? { cornerRadius: element.cornerRadius } : {}),
+    ...(radius > 0 ? { cornerRadius: radius } : {}),
+    ...(radii && !sameCorners ? { cornerRadii: radii } : {}),
     ...(effects.length ? { effects } : {}),
   };
 }
@@ -40,6 +47,7 @@ function hydrateShape(component) {
     strokeOpacity: unit(styles.strokeOpacity), strokeVisible: styles.strokeVisible !== false,
     cornerRadius: Number.isFinite(Number(styles.cornerRadius)) && styles.cornerRadius !== null ? Math.max(0, Number(styles.cornerRadius))
       : component.shape === "rounded-rectangle" ? legacyCornerRadius(component) : 0,
+    cornerRadii: cornerRadiiFor(component.shape, component.vector, styles.cornerRadii),
     effects: normalizeEffects(styles.effects),
     flipX: !!component.flipX, flipY: !!component.flipY, lockAspect: !!component.lockAspect,
   };
@@ -123,11 +131,16 @@ export function serializeDocument(editor) {
     pages: editor.pages.map((page, pageIndex) => ({
       uuid: page.id,
       pageNumber: pageIndex + 1,
+      // v3 layer fields. Written only when set, so an unnamed, ungrouped page saves as before.
+      ...(cleanName(page.name) ? { name: cleanName(page.name) } : {}),
       background: page.background || { type: "COLOR", value: "#FFFFFF" },
       ...(page.animation ? { animation: page.animation } : {}),
+      ...(page.groups?.length ? { groups: page.groups.map((group) => ({ uuid: group.id, name: group.name, visible: group.visible !== false, locked: !!group.locked })) } : {}),
       components: page.elements.map((element, layerIndex) => ({
         uuid: element.id,
         type: element.type === "text" ? "TEXT" : element.type === "timer" ? "COUNTDOWN_TIMER" : "SHAPE",
+        ...(cleanName(element.name) ? { name: cleanName(element.name) } : {}),
+        ...(element.groupId ? { groupUuid: element.groupId } : {}),
         ...(element.content !== undefined ? { content: element.content } : {}),
         ...(element.shape ? { shape: element.shape } : {}),
         ...(element.flipX ? { flipX: true } : {}),
@@ -174,8 +187,8 @@ export function migrateDocument(value) {
   if (from > EDITOR_SCHEMA_VERSION) return null;   // written by a newer client; do not guess
   if (from === EDITOR_SCHEMA_VERSION) return value;
 
-  /* 2 -> 3 only added optional fields (textDecoration so far); a missing one
-     means "off", so a v2 document needs no rewriting.
+  /* 2 -> 3 only added optional fields (textDecoration, effects, page and layer
+     names, groups); a missing one means "off", so a v2 document needs no rewriting.
      1 -> 2 added the timer. No v1 document can contain one, because the type
      was not insertable then — but a hand-edited or partially-written file
      might, so any timer found is normalised rather than trusted. */
@@ -202,51 +215,72 @@ export function validateDocument(value) {
   return { ...emptyDocument(), ...migrated, pages, clientSchemaVersion: EDITOR_SCHEMA_VERSION };
 }
 
+/* Groups from disk or the API are trusted no further than their shape: a
+   group id used on two pages gets a new id on the second, and normalizeGroups
+   then drops dangling references, gathers split groups and removes empty ones. */
+function hydrateGroups(groups, seen) {
+  return (Array.isArray(groups) ? groups : []).filter((group) => group && typeof group.uuid === "string").map((group, index) => {
+    let id = group.uuid, copy = 1;
+    while (seen.has(id)) id = `${group.uuid}~${copy++}`;
+    seen.add(id);
+    return { id, source: group.uuid, name: cleanName(group.name) || `Group ${index + 1}`, visible: group.visible !== false, locked: group.locked === true };
+  });
+}
+
 export function hydrateDocument(document) {
   const value = validateDocument(document) || emptyDocument();
+  const seenGroups = new Set();
   return {
     documentId: value.uuid,
     title: value.name,
     version: value.version || 0,
-    pages: value.pages.map((page) => ({
-      id: page.uuid,
-      background: page.background || { type: "COLOR", value: "#FFFFFF" },
-      ...(page.animation ? { animation: page.animation } : {}),
-      elements: page.components.map((component) => ({
-        id: component.uuid,
-        type: component.type === "TEXT" ? "text" : component.type === "COUNTDOWN_TIMER" ? "timer" : "shape",
-        ...(component.content !== undefined ? { content: component.content } : {}),
-        ...(component.shape ? { shape: component.shape } : {}),
-        x: component.position?.x || 0, y: component.position?.y || 0,
-        w: component.size?.width || 320, h: component.size?.height || 180,
-        rotation: component.rotation || 0,
-        locked: !!component.locked, visible: component.visible !== false,
-        fill: component.styles?.color || component.styles?.fill || "#705AE0",
-        opacity: component.styles?.opacity ?? 1,
-        stroke: component.styles?.stroke || "transparent",
-        strokeWidth: component.styles?.strokeWidth || 0,
-        ...(component.type === "COUNTDOWN_TIMER" ? {
-          // normalizeTimer supplies the whole object when a v1 document, or a
-          // truncated one, arrives without it.
-          timer: normalizeTimer(component.timer),
-          fontFamily: component.styles?.fontFamily || "Poppins",
-          fontSize: component.styles?.fontSize || 120,
-        } : {}),
-        ...(component.type === "SHAPE" ? hydrateShape(component) : {}),
-        ...(component.type === "TEXT" ? {
-          fontFamily: component.styles?.fontFamily || "Poppins",
-          fontSize: component.styles?.fontSize || 72,
-          fontWeight: component.styles?.fontWeight || 600,
-          fontStyle: component.styles?.fontStyle || "normal",
-          textAlign: component.styles?.textAlign || "center",
-          lineHeight: component.styles?.lineHeight || 1.2,
-          letterSpacing: component.styles?.letterSpacing || 0,
-          textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
-          effects: normalizeEffects(component.styles?.effects),
-        } : {}),
-        ...(component.animation ? { animation: component.animation } : {}),
-      })),
-    })),
+    pages: value.pages.map((page) => {
+      const groups = hydrateGroups(page.groups, seenGroups);
+      const groupIds = new Map(groups.map((group) => [group.source, group.id]));
+      return normalizeGroups({
+        id: page.uuid,
+        ...(cleanName(page.name) ? { name: cleanName(page.name) } : {}),
+        background: page.background || { type: "COLOR", value: "#FFFFFF" },
+        ...(page.animation ? { animation: page.animation } : {}),
+        groups: groups.map(({ source: _source, ...group }) => group),
+        elements: page.components.map((component) => ({
+          id: component.uuid,
+          type: component.type === "TEXT" ? "text" : component.type === "COUNTDOWN_TIMER" ? "timer" : "shape",
+          ...(cleanName(component.name) ? { name: cleanName(component.name) } : {}),
+          ...(groupIds.has(component.groupUuid) ? { groupId: groupIds.get(component.groupUuid) } : {}),
+          ...(component.content !== undefined ? { content: component.content } : {}),
+          ...(component.shape ? { shape: component.shape } : {}),
+          x: component.position?.x || 0, y: component.position?.y || 0,
+          w: component.size?.width || 320, h: component.size?.height || 180,
+          rotation: component.rotation || 0,
+          locked: !!component.locked, visible: component.visible !== false,
+          fill: component.styles?.color || component.styles?.fill || "#705AE0",
+          opacity: component.styles?.opacity ?? 1,
+          stroke: component.styles?.stroke || "transparent",
+          strokeWidth: component.styles?.strokeWidth || 0,
+          ...(component.type === "COUNTDOWN_TIMER" ? {
+            // normalizeTimer supplies the whole object when a v1 document, or a
+            // truncated one, arrives without it.
+            timer: normalizeTimer(component.timer),
+            fontFamily: component.styles?.fontFamily || "Poppins",
+            fontSize: component.styles?.fontSize || 120,
+          } : {}),
+          ...(component.type === "SHAPE" ? hydrateShape(component) : {}),
+          ...(component.type === "TEXT" ? {
+            fontFamily: component.styles?.fontFamily || "Poppins",
+            fontSize: component.styles?.fontSize || 72,
+            fontWeight: component.styles?.fontWeight || 600,
+            fontStyle: component.styles?.fontStyle || "normal",
+            textAlign: component.styles?.textAlign || "center",
+            lineHeight: component.styles?.lineHeight || 1.2,
+            letterSpacing: component.styles?.letterSpacing || 0,
+            textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
+            effects: normalizeEffects(component.styles?.effects),
+          } : {}),
+          ...(component.animation ? { animation: component.animation } : {}),
+        })),
+      });
+    }),
   };
 }
 

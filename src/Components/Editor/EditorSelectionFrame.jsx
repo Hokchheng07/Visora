@@ -7,7 +7,7 @@ import { CANVAS_WIDTH, resizeElement } from "./elementGeometry.js";
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
 const LABELS = { nw: "top left", n: "top", ne: "top right", e: "right", se: "bottom right", s: "bottom", sw: "bottom left", w: "left" };
 
-export default function EditorSelectionFrame({ element, sheetRef }) {
+export default function EditorSelectionFrame({ element, sheetRef, locked = false }) {
   const gestureRef = useRef(null);
   const dispatch = useAppDispatch(), store = useAppStore();
   const token = `handle:${element.id}`;
@@ -86,6 +86,8 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
       onPointerUp: (event) => end(event), onPointerCancel: (event) => end(event, true),
       onLostPointerCapture: (event) => end(event, true), onKeyDown: (event) => keyboard(event, handle) };
   }
+  // A locked layer picked from the Layers panel shows where it is, with nothing to grab.
+  if (locked) return <div className="editor-selection-frame is-locked" aria-hidden="true" />;
   return <div className="editor-selection-frame" role="group" aria-label="Transform selected shape">
     {HANDLES.map((handle) => <button key={handle} type="button" className={`editor-resize-handle is-${handle}`}
       aria-label={`Resize ${LABELS[handle]}`} title={`Resize ${LABELS[handle]}`} {...events(handle)} />)}

@@ -110,18 +110,50 @@
 .editor-topbar-actions button:disabled { border-color: var(--editor-border); color: var(--editor-muted); background: color-mix(in srgb, var(--editor-raised) 40%, transparent); opacity: .55; }
 .editor-topbar-actions .editor-export { background: var(--color-primary); border-color: var(--color-primary); color: white; }
 .editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
-.editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 104px 300px minmax(0, 1fr); gap: 16px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
+/* Track sizes are variables so the handles on the columns (the panel toggle and
+   the Customize resizer, both positioned over the grid) can line up with them.
+   --inspector-w is set inline from the width the person dragged to. */
+.editor-body { --rail-w: 104px; --panel-w: 300px; --body-gap: 16px; --body-pad: 20px; --inspector-w: 300px; position: relative; display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr); gap: var(--body-gap); padding: var(--body-pad); transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
 /* Collapsing the panel track lets the workspace reflow without measuring anything. */
-.editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
+.editor-body.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr); }
+/* While the Customize column is dragged its width follows the pointer exactly. */
+.editor-body.is-resizing { transition: none; cursor: col-resize; user-select: none; }
 /* Wide screens: while something is selected, Customize is a fourth track.
    The track list always has four entries (the last one 0 when hidden) so the
    column slides in and out instead of snapping. Narrower screens get a drawer;
    see the Customize block below. */
 @media (min-width: 1441px) {
-  .editor-body { grid-template-columns: 104px 300px minmax(0, 1fr) 0; }
-  .editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 0; }
-  .editor-body.has-inspector { grid-template-columns: 104px 300px minmax(0, 1fr) 300px; }
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 300px; }
+  .editor-body { grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr) 0; }
+  .editor-body.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr) 0; }
+  .editor-body.has-inspector { grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr) var(--inspector-w); }
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr) var(--inspector-w); }
+}
+
+/* Panel toggle: a round tab on the tool panel's right edge, halfway down. It
+   rides the same 220ms as the grid, so it stays on the edge while the panel
+   closes, and then waits beside the rail to open it again. */
+.editor-panel-toggle { position: absolute; z-index: 12; top: 50%; left: calc(var(--body-pad) + var(--rail-w) + var(--body-gap) + var(--panel-w) - 12px); display: grid; place-items: center; width: 24px; height: 40px; translate: 0 -50%; border: 1px solid var(--editor-border); border-radius: 999px; background: var(--editor-raised); color: var(--editor-ink); box-shadow: 0 2px 8px rgb(var(--editor-shadow) / .12); cursor: pointer; transition: left 220ms ease, background-color 140ms ease, color 140ms ease; }
+.editor-body.is-panel-collapsed .editor-panel-toggle { left: calc(var(--body-pad) + var(--rail-w) + var(--body-gap) - 12px); }
+.editor-panel-toggle svg { transition: rotate 220ms cubic-bezier(.23, 1, .32, 1); }
+.editor-panel-toggle.is-collapsed svg { rotate: 180deg; }
+.editor-panel-toggle:active { scale: .95; }
+.editor-panel-toggle-tip { position: absolute; top: calc(100% + 8px); left: 50%; display: flex; align-items: center; gap: 6px; padding: 6px 8px 6px 10px; translate: -50% 0; border-radius: 8px; background: #1d1a26; color: white; font-size: 13px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.editor-panel-toggle-tip kbd { display: grid; min-width: 20px; height: 20px; padding-inline: 5px; place-items: center; border-radius: 5px; background: rgb(255 255 255 / .14); font: inherit; font-size: 11px; }
+.editor-panel-toggle:focus-visible .editor-panel-toggle-tip { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-panel-toggle:hover { color: var(--color-primary); }
+  .editor-panel-toggle:hover .editor-panel-toggle-tip { opacity: 1; transition-delay: 300ms; }
+}
+
+/* Customize resizer: an invisible 12px strip centred in the gap left of the
+   column; a line shows on hover, focus and while dragging. */
+.editor-inspector-resizer { position: absolute; z-index: 12; top: var(--body-pad); bottom: var(--body-pad); right: calc(var(--body-pad) + var(--inspector-w) + var(--body-gap) / 2 - 6px); width: 12px; cursor: col-resize; touch-action: none; }
+.editor-inspector-resizer::after { content: ""; position: absolute; top: 20%; bottom: 20%; left: 50%; width: 3px; translate: -50% 0; border-radius: 3px; background: var(--color-primary); opacity: 0; transition: opacity 140ms ease; }
+.editor-inspector-resizer:hover::after, .editor-inspector-resizer.is-active::after, .editor-inspector-resizer:focus-visible::after { opacity: 1; }
+.editor-inspector-resizer:focus-visible { outline: none; }
+@media (max-width: 1440px) {
+  /* Drawer: the strip runs down the drawer's left edge instead. */
+  .editor-inspector-resizer { position: fixed; top: 93px; bottom: 0; right: calc(min(var(--inspector-w), 86vw) - 6px); z-index: 31; }
 }
 .editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
 .editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
@@ -263,13 +295,56 @@
 .editor-shape-label { display: -webkit-box; min-width: 0; max-width: 100%; min-height: 2.4em; overflow: hidden; color: var(--editor-muted); font-size: 12px; line-height: 1.2; text-align: center; white-space: normal; overflow-wrap: anywhere; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .editor-shape-ghost { position: fixed; z-index: 100; translate: -50% -50%; width: 60px; height: 60px; pointer-events: none; opacity: .7; }
 .editor-ghost-art { display: block; width: 100%; height: 100%; background: #ad8dea; }
-.editor-layer-list { display: grid; gap: 8px; margin-block: 18px; }
-.editor-layer-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; cursor: pointer; }
-.editor-layer-row > span:last-child { font-size: 12px; }
-.editor-layer-row[aria-pressed="true"] { border-color: var(--color-primary); background: var(--editor-raised); }
-.editor-layer-swatch { display: block; flex: none; width: 24px; height: 24px; }
+/* Layers: one row per layer, front to back. The row itself is the select
+   button; the eye and lock follow it and show on hover or focus, and stay
+   shown when they are on, so a hidden or locked layer reads at a glance. */
+.editor-layers-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: -6px; }
+.editor-layers-head > span { flex: none; color: var(--editor-muted); font-size: 12px; }
+.editor-layers-page { min-width: 0; overflow: hidden; padding: 3px 6px; margin-left: -6px; border-radius: 6px; color: var(--editor-ink); font-size: 13px; font-weight: 600; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: default; }
+.editor-rename-field { width: 100%; min-width: 0; height: 30px; padding: 0 8px; border: 1px solid var(--color-primary); border-radius: 6px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 13px; outline: 3px solid color-mix(in srgb, var(--color-primary) 18%, transparent); }
+.editor-rename-field.is-menu { width: 220px; }
+.editor-layer-list, .editor-layer-children { display: grid; gap: 4px; padding: 0; list-style: none; }
+.editor-layer-list { margin-block: 14px 18px; }
+/* A group's children are a nested tree container, so the indent is structure, not a margin on the row. */
+.editor-layer-children { margin-top: 4px; padding-left: 18px; }
+.editor-layer-chevron { display: grid; place-items: center; width: 24px; height: 30px; flex-shrink: 0; color: var(--editor-muted); border-radius: 5px; cursor: pointer; }
+.editor-layer-row[aria-expanded="true"] .editor-layer-chevron svg { rotate: 90deg; }
+.editor-layer-chevron svg { transition: rotate 140ms cubic-bezier(.23, 1, .32, 1); }
+.editor-layer-row.is-dragging { opacity: .45; }
+.editor-layer-row.is-drop-inside { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, var(--editor-raised)); }
+.editor-layer-drag-overlay { pointer-events: none; position: fixed; inset: 0; z-index: 1000; }
+.editor-layer-insertion { position: fixed; height: 2px; background: var(--color-primary); border-radius: 2px; }
+.editor-layer-ghost { position: fixed; max-width: 240px; padding: 8px 12px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-float); color: var(--editor-ink); box-shadow: 0 6px 20px #0002; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.editor-group-name { overflow: hidden; text-overflow: ellipsis; color: inherit; text-align: left; cursor: text; }
+.editor-group-ungroup { display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%; padding: 10px; margin-top: 14px; border: 1px solid var(--editor-border); border-radius: 8px; color: var(--editor-ink); background: var(--editor-raised); cursor: pointer; }
+.editor-layer-row { display: flex; align-items: center; gap: 2px; min-height: 38px; padding: 4px 4px 4px 10px; border: 1px solid transparent; border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); color: var(--editor-ink); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.editor-layer-row:has(> .editor-layer-chevron) { padding-left: 2px; }
+.editor-layer-row.is-selected { border-color: var(--color-primary); background: var(--editor-raised); }
+.editor-layer-row > .editor-rename-field { margin-left: 6px; }
+.editor-layer-row:focus-visible, .editor-layer-toggle:focus-visible, .editor-layers-page:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
+.editor-layer-name { flex: 1; min-width: 0; margin-left: 10px; overflow: hidden; font-size: 12.5px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.editor-layer-row.is-hidden .editor-layer-name, .editor-layer-row.is-hidden .editor-layer-swatch { opacity: .45; }
+.editor-layer-swatch { display: grid; flex: none; place-items: center; width: 22px; height: 22px; color: var(--editor-muted); }
 .editor-layer-swatch .editor-element-art { width: 100%; height: 100%; }
+.editor-layer-toggle { display: grid; flex: none; place-items: center; width: 28px; height: 28px; border-radius: 7px; color: var(--editor-muted); cursor: pointer; opacity: 0; transition: opacity 120ms ease, background-color 120ms ease; }
+.editor-layer-toggle.is-on, .editor-layer-row:hover .editor-layer-toggle, .editor-layer-row:focus-within .editor-layer-toggle { opacity: 1; }
+.editor-layer-toggle.is-on { color: var(--editor-ink); }
+.editor-layer-toggle:disabled { cursor: default; }
+@media (hover: none) { .editor-layer-toggle { opacity: 1; } }
+
+/* Locked on the canvas: the press passes through to whatever is behind. A
+   locked layer picked in the Layers panel keeps a quiet outline and no handles. */
+.editor-element.is-locked .editor-element-hit { pointer-events: none; }
+.editor-selection-frame.is-locked, .editor-group-selection.is-locked { border-style: dashed; border-color: color-mix(in srgb, var(--color-primary) 70%, transparent); }
+.editor-inspector-locked { display: flex; align-items: center; gap: 8px; margin: 12px 16px 0; padding: 6px 6px 6px 10px; border-radius: var(--field-r); background: color-mix(in srgb, var(--color-primary) 10%, var(--editor-mix)); color: var(--editor-ink); font-size: 12px; }
+.editor-inspector-locked svg { flex: none; color: var(--color-primary); }
+.editor-inspector-locked span { flex: 1; min-width: 0; }
+.editor-inspector-locked button { flex: none; height: 26px; padding-inline: 10px; border-radius: 6px; background: var(--color-primary); color: var(--editor-surface); font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-inspector-locked button:active { transform: scale(.97); }
 .editor-layer-actions { display: flex; gap: 8px; }
+.editor-ctl.editor-layer-move { width: 40px; height: 40px; padding: 0; border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); }
+.editor-layer-move .editor-ctl-caret { display: none; }
+.editor-layer-move:disabled { opacity: .3; }
 .editor-layer-actions button { background: var(--editor-raised); }
 .editor-topbar-actions .editor-history-actions { display: flex; gap: 3px; }
 .editor-topbar-actions .editor-history-actions button { min-width: 0; width: 32px; padding: 0; border: 0; background: transparent; color: var(--editor-ink); }
@@ -356,13 +431,18 @@
 .editor-segmented button.is-on, .editor-segmented button[aria-pressed="true"] { background: color-mix(in srgb, var(--editor-accent) 14%, transparent); color: var(--editor-accent); font-weight: 600; }
 
 /* Menu rows, shared by the popover lists and the right-click menu. */
+/* A heading inside a menu (the page list under "Move to page"): a label, not a row you can press. */
+.editor-menu-heading { display: flex; align-items: center; gap: 8px; padding: 6px 9px 2px; color: var(--editor-muted); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.editor-menu-heading svg { flex: none; }
+.editor-context-menu { max-height: min(70vh, 560px); overflow-y: auto; scrollbar-width: thin; }
 .editor-menu-row, .editor-context-menu button { display: flex; align-items: center; gap: 11px; width: 100%; height: 38px; padding-inline: 9px; border: 0; border-radius: 8px; background: transparent; color: var(--editor-ink); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
 .editor-menu-row > span, .editor-context-menu button > span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .editor-menu-row:disabled, .editor-context-menu button:disabled { opacity: .38; cursor: not-allowed; }
 .editor-menu-row[aria-pressed="true"] { color: var(--editor-accent); font-weight: 600; }
 .editor-menu-row.is-danger, .editor-context-menu button.is-danger { color: var(--editor-danger); }
 .editor-menu-row kbd, .editor-context-menu kbd { flex: none; color: var(--editor-muted); font-family: inherit; font-size: 12px; font-variant-numeric: tabular-nums; }
-.editor-menu-gap { flex: none; width: 16px; }
+/* The spacer is a span too, so it needs the extra specificity to stay 16px instead of sharing the label's flex. */
+.editor-menu-gap, .editor-menu-row > .editor-menu-gap, .editor-context-menu button > .editor-menu-gap { flex: none; width: 16px; }
 .editor-menu-divider, .editor-context-menu hr { margin: 5px 6px; border: 0; border-top: 1px solid var(--editor-border); }
 .editor-context-menu { position: fixed; z-index: 70; display: flex; flex-direction: column; min-width: 248px; padding: 6px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-float); box-shadow: 0 12px 34px rgb(var(--editor-shadow) / .22); }
 
@@ -465,6 +545,9 @@
 .editor-inspector-select, .editor-inspector-input { padding: 0 9px; }
 .editor-inspector-select { cursor: pointer; }
 .editor-inspector-input::placeholder, .editor-inspector-textarea::placeholder { color: var(--editor-muted); }
+/* Focus shows as the field's own border turning primary, never as the editor's
+   outline ring drawn around the input inside it. */
+.editor-inspector :is(input, textarea, select):focus-visible, .editor-popover-effect :is(input, textarea, select):focus-visible { outline: none; }
 .editor-inspector-select:focus-visible, .editor-inspector-input:focus, .editor-inspector-textarea:focus,
 .editor-inspector-number:focus-within, .editor-inspector-frame:focus-within { border-color: var(--color-primary); outline: none; }
 .editor-inspector-select:disabled, .editor-inspector-input:disabled, .editor-inspector-frame.is-disabled { opacity: .5; }
@@ -495,13 +578,35 @@
 .editor-inspector-buttons button.is-on { background: color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); color: var(--color-primary); }
 .editor-inspector-buttons button:disabled { opacity: .4; cursor: default; }
 
-.editor-inspector-reset { align-self: flex-start; height: 30px; margin: 6px 10px 0; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--editor-muted); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+/* Reset style: a full-width secondary button closing the column, quieter than
+   the fields but clearly a button. */
+.editor-inspector-reset { display: flex; align-items: center; justify-content: center; gap: 7px; height: var(--field-h); margin: 12px 16px 4px; padding: 0 12px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-inspector-reset svg { color: var(--editor-muted); transition: rotate 300ms cubic-bezier(.23, 1, .32, 1); }
+.editor-inspector-reset:disabled { opacity: .45; cursor: default; }
+.editor-inspector-reset:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Font size: typed number plus a list of common sizes, in one frame. */
+.editor-inspector-fontsize .editor-inspector-number.is-flush { flex: 1; height: 100%; border: 0; border-radius: 0; background: transparent; }
+.editor-inspector-fontsize .editor-ctl-popover-root { display: flex; }
+.editor-ctl.editor-inspector-fontsize-toggle { width: 26px; min-width: 0; height: 100%; padding: 0; border-left: 1px solid var(--field-line); border-radius: 0; color: var(--editor-muted); }
+.editor-fontsize-list { width: 120px; max-height: 280px; overflow-y: auto; scrollbar-width: thin; }
+.editor-fontsize-list .editor-menu-row { gap: 8px; height: 32px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.editor-fontsize-list .editor-menu-row.is-on { color: var(--color-primary); font-weight: 600; }
+
+/* Corner radius with its independent-corners toggle, and the four corners below. */
+.editor-inspector-radius { display: flex; min-width: 0; align-items: center; gap: 2px; }
+.editor-inspector-radius > .editor-inspector-number { flex: 1; }
+.editor-inspector-corners { margin-top: 2px; }
+.editor-inspector-number input::placeholder { color: var(--editor-muted); opacity: 1; }
 
 /* Press feedback on every inspector button, hover only where a mouse is. */
 .editor-inspector button { transition: transform 120ms cubic-bezier(.23, 1, .32, 1), background-color 120ms ease, color 120ms ease; }
 .editor-inspector button:not(:disabled):active { transform: scale(.96); }
 @media (hover: hover) and (pointer: fine) {
-  .editor-inspector-icon:not(:disabled):hover, .editor-inspector-reset:not(:disabled):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); color: var(--editor-ink); }
+  .editor-inspector-icon:not(:disabled):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); color: var(--editor-ink); }
+  .editor-inspector-reset:not(:disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 45%, var(--field-line)); background: color-mix(in srgb, var(--color-primary) 7%, var(--field-bg)); color: var(--color-primary); }
+  .editor-inspector-reset:not(:disabled):hover svg { color: var(--color-primary); rotate: -60deg; }
+  .editor-ctl.editor-inspector-fontsize-toggle:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
   .editor-inspector-icon.is-danger:not(:disabled):hover { background: color-mix(in srgb, var(--editor-danger) 12%, transparent); color: var(--editor-danger); }
   .editor-inspector-buttons button:not(:disabled):not(.is-on):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); }
   .editor-inspector-select:not(:disabled):hover, .editor-inspector-number:hover, .editor-inspector-frame:not(.is-disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
@@ -571,7 +676,8 @@
   .editor-display-bar button { width: 32px; height: 32px; }
 }
 @media (hover: hover) and (pointer: fine) {
-  .editor-shape-tile:hover, .editor-layer-row:hover, .editor-layer-actions button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, var(--editor-mix)); }
+  .editor-layer-toggle:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); }
+  .editor-shape-tile:hover, .editor-layer-row:not(.is-selected):hover, .editor-layer-actions button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, var(--editor-mix)); }
   .editor-display-bar button:not(:disabled):hover { background: rgb(255 255 255 / .16); color: white; }
   .editor-topbar-actions button:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 7%, var(--editor-mix)); }
   .editor-topbar-actions .editor-export:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 88%, black); border-color: transparent; color: white; }
@@ -587,8 +693,7 @@
   .editor-segmented button:not(.is-on):not(:disabled):hover { color: var(--editor-ink); }
 }
 @media (max-width: 1100px) {
-  .editor-body { grid-template-columns: 92px 276px minmax(0, 1fr); gap: 12px; padding: 16px; }
-  .editor-body.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
+  .editor-body { --rail-w: 92px; --panel-w: 276px; --body-gap: 12px; --body-pad: 16px; }
   .editor-tool-panel { padding: 22px 16px; }
   .editor-document { gap: 20px; }
   .editor-topbar-actions { gap: 8px; }
@@ -653,20 +758,22 @@
    sheet. It opens when something is selected and starts below the 93px top
    bar so Display, Save and Export stay reachable. */
 @media (max-width: 1440px) {
-  .editor-inspector.is-drawer { position: fixed; z-index: 30; top: 93px; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); animation: editor-drawer-in 240ms cubic-bezier(.23, 1, .32, 1); }
+  .editor-inspector.is-drawer { position: fixed; z-index: 30; top: 93px; right: 0; bottom: 0; width: min(var(--inspector-w), 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); animation: editor-drawer-in 240ms cubic-bezier(.23, 1, .32, 1); }
   @keyframes editor-drawer-in { from { transform: translateX(104%); } }
 }
 /* Narrowest layout: a bottom sheet, like a phone app's settings. */
 @media (max-width: 760px) {
   .editor-inspector.is-drawer { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
   .editor-inspector.is-drawer { animation-name: editor-sheet-in; }
+  /* The panel is a row and Customize a bottom sheet here: neither handle applies. */
+  .editor-panel-toggle, .editor-inspector-resizer { display: none; }
   @keyframes editor-sheet-in { from { transform: translateY(104%); } }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .editor-tool-button { transition: none; }
   .editor-tool-button:active, .editor-ctl:not(:disabled):active { transform: none; }
-  .editor-body, .editor-tool-panel, .editor-canvas-bar button { transition: none; }
+  .editor-body, .editor-tool-panel, .editor-canvas-bar button, .editor-panel-toggle, .editor-panel-toggle svg, .editor-inspector-reset svg { transition: none; }
   .editor-inspector.is-drawer { animation: none; }
   .editor-inspector button, .editor-inspector button:not(:disabled):active { transition: none; transform: none; }
   .editor-display-bar, .editor-display-bar button { transition: none; }

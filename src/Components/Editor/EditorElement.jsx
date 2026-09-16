@@ -6,7 +6,7 @@ import { shapePath } from "./vectorPath.js";
 import TimerArtwork from "./TimerArtwork.jsx";
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
-import { useAppDispatch } from "../redux/hook.js";
+import { useAppDispatch, useAppStore } from "../redux/hook.js";
 import { elementSelected, targetChanged } from "../redux/editorSlice.js";
 import { elementsTarget } from "./inspectorEdit.js";
 
@@ -28,7 +28,7 @@ export function ShapeArtwork({ element }) {
   const id = useId().replace(/:/g, "");
   const preset = shapeDefinition(element.shape);
   const w = element.w || preset?.w || 100, h = element.h || preset?.h || 100;
-  const d = shapePath({ shape: element.shape, vector: element.vector, w, h, cornerRadius: element.cornerRadius || 0, flipX: element.flipX, flipY: element.flipY });
+  const d = shapePath({ shape: element.shape, vector: element.vector, w, h, cornerRadius: element.cornerRadius || 0, cornerRadii: element.cornerRadii, flipX: element.flipX, flipY: element.flipY });
   const fillOn = !!element.fill && element.fillVisible !== false;
   const strokeWidth = element.strokeWidth || 0;
   const strokeOn = !!element.stroke && element.stroke !== "transparent" && element.strokeVisible !== false && strokeWidth > 0;
@@ -101,9 +101,12 @@ export function StaticElement({ element, layered = false }) {
     ...(layered && hasVisibleEffects(element) ? { willChange: "transform" } : {}) }}><ElementArtwork element={element} /></span>;
 }
 
-export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1 }) {
+/* `locked` (the element's own lock or its group's) makes the element ignore the
+   pointer: a press passes through to whatever is behind it, as in Figma. */
+export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1, locked = false }) {
   const { targetRef, triggerRef } = useElementDrag(element, pageId, sheetRef, scale);
   const dispatch = useAppDispatch();
+  const store = useAppStore();
   const [editing, setEditing] = useState(false);
   const editRef = useRef(null);
   useEffect(() => {
@@ -114,7 +117,7 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
   }, [editing]);
   if (element.visible === false) return null;
   return (
-    <div ref={targetRef} className={`editor-element${selected ? " is-selected" : ""}`} data-element-id={element.id}
+    <div ref={targetRef} className={`editor-element${selected ? " is-selected" : ""}${locked ? " is-locked" : ""}`} data-element-id={element.id}
       /* Phase 0: an element with shadows needs its own layer, or anything moving nearby re-runs its filter every frame. */
       style={hasVisibleEffects(element) ? { ...elementStyle(element), willChange: "transform" } : elementStyle(element)}>
       {/* Translation belongs to the outer wrapper. Rotation stays inside it,
@@ -125,7 +128,12 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
         <div ref={triggerRef} className="editor-element-hit" role={editing ? undefined : "button"} tabIndex={editing ? -1 : 0}
           aria-label={element.type === "text" ? `Text: ${element.content}` : element.type === "timer" ? "Countdown timer" : `${shapeName(element.shape)} shape`} aria-pressed={editing ? undefined : selected}
           onPointerDown={(event) => { if (event.button === 0) event.stopPropagation(); }}
-          onDoubleClick={(event) => { if (element.type === "text") { event.stopPropagation(); setEditing(true); } }}
+          onDoubleClick={(event) => {
+            if (locked) return;
+            event.stopPropagation();
+            if (element.groupId && store.getState().editor.selectionMode === "group") dispatch(elementSelected(element.id));
+            else if (element.type === "text") setEditing(true);
+          }}
           onKeyDown={(event) => {
             /* Only when the wrapper itself has focus. Keys typed in the editable text
                bubble through here; handling them blocked every Space. IME composition
@@ -137,7 +145,7 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
             onCommit={(content) => { setEditing(false); if (content !== element.content) dispatch(targetChanged({ target: elementsTarget(pageId, [element.id]), changes: { content } })); }}
             onCancel={() => { setEditing(false); }} />
         </div>
-        {selected && selectedCount === 1 && <EditorSelectionFrame element={element} sheetRef={sheetRef} />}
+        {selected && selectedCount === 1 && <EditorSelectionFrame element={element} sheetRef={sheetRef} locked={locked} />}
       </div>
     </div>
   );

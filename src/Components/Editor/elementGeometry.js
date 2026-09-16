@@ -75,6 +75,17 @@ export function snapSelectionDelta(selectedElements, otherElements, dx, dy, thre
   };
 }
 
+/* How much a locked corner drag scales a box. The pointer's offset is
+   projected onto the box's diagonal (anchor to dragged corner), as Figma does,
+   so the size changes smoothly wherever the pointer goes. Picking whichever of
+   width or height changed more instead flips between growing and shrinking
+   when the pointer moves across the other diagonal, and the box jumps. */
+export function diagonalScale(w, h, sx, sy, dx, dy) {
+  const cornerX = sx * w, cornerY = sy * h;
+  const length = cornerX * cornerX + cornerY * cornerY;
+  return length > 0 ? ((cornerX + dx) * cornerX + (cornerY + dy) * cornerY) / length : 1;
+}
+
 export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = false) {
   if (!startBox || !elements.length) return elements;
   const sx = handle.includes("e") ? 1 : handle.includes("w") ? -1 : 0;
@@ -88,9 +99,8 @@ export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = 
   let nextW = clamp(startBox.w + sx * dx, MIN_SIZE, Math.max(MIN_SIZE, maxW));
   let nextH = clamp(startBox.h + sy * dy, MIN_SIZE, Math.max(MIN_SIZE, maxH));
   if (lockAspect && sx && sy) {
-    const ratio = startBox.w / startBox.h;
-    if (Math.abs(dx) > Math.abs(dy)) nextH = nextW / ratio;
-    else nextW = nextH * ratio;
+    const scale = diagonalScale(startBox.w, startBox.h, sx, sy, dx, dy);
+    nextW = startBox.w * scale; nextH = startBox.h * scale;
     // Re-fit the locked pair as a pair, so holding Shift can't defeat the caps.
     const shrink = Math.min(1, maxW / nextW, maxH / nextH);
     nextW *= shrink; nextH *= shrink;
@@ -146,8 +156,7 @@ export function resizeElement(start, handle, dx, dy, lockAspect = false) {
   let w = Math.max(MIN_SIZE, start.w + sx * localX);
   let h = Math.max(MIN_SIZE, start.h + sy * localY);
   if (lockAspect && sx && sy) {
-    const rx = (w - start.w) / start.w, ry = (h - start.h) / start.h;
-    const ratio = Math.max(MIN_SIZE / start.w, MIN_SIZE / start.h, 1 + (Math.abs(rx) > Math.abs(ry) ? rx : ry));
+    const ratio = Math.max(MIN_SIZE / start.w, MIN_SIZE / start.h, diagonalScale(start.w, start.h, sx, sy, localX, localY));
     w = start.w * ratio;
     h = start.h * ratio;
   }

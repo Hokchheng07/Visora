@@ -142,15 +142,20 @@ export function presetVector(shape, width, height) {
    distance r / tan(θ/2), capped at half of each edge so neighbouring corners
    never overlap (the radius shrinks to fit instead), and the cut is bridged
    with the standard cubic arc: handle length 4/3 · tan(φ/4) · r for a turn φ.
-   Curved corners (circle, pill, heart) are left alone. */
+   Curved corners (circle, pill, heart) are left alone.
+
+   `radius` is one number for every corner, or a function (node) => number for
+   a different radius per corner. */
 export function roundCorners(nodes, radius) {
-  if (!(radius > 0) || nodes.length < 3) return nodes;
+  const radiusAt = typeof radius === "function" ? radius : () => radius;
+  if (nodes.length < 3 || (typeof radius !== "function" && !(radius > 0))) return nodes;
   const count = nodes.length;
   const straight = (from, to) => !from.out && !to.in;
   const result = [];
   nodes.forEach((node, index) => {
     const previous = nodes[(index - 1 + count) % count], next = nodes[(index + 1) % count];
-    if (node.in || node.out || !straight(previous, node) || !straight(node, next)) { result.push(node); return; }
+    const nodeRadius = radiusAt(node);
+    if (!(nodeRadius > 0) || node.in || node.out || !straight(previous, node) || !straight(node, next)) { result.push(node); return; }
     const ax = previous.x - node.x, ay = previous.y - node.y, bx = next.x - node.x, by = next.y - node.y;
     const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
     if (la < 1e-6 || lb < 1e-6) { result.push(node); return; }
@@ -158,7 +163,7 @@ export function roundCorners(nodes, radius) {
     const angle = Math.acos(Math.max(-1, Math.min(1, ua[0] * ub[0] + ua[1] * ub[1])));
     if (angle < 1e-3 || angle > Math.PI - 1e-3) { result.push(node); return; }
     const tan = Math.tan(angle / 2);
-    const distance = Math.min(radius / tan, la / 2, lb / 2);
+    const distance = Math.min(nodeRadius / tan, la / 2, lb / 2);
     const fitted = distance * tan;
     const length = (4 / 3) * Math.tan((Math.PI - angle) / 4) * fitted;
     result.push(
@@ -172,7 +177,19 @@ export function roundCorners(nodes, radius) {
 /* The SVG path for a shape element, in its own pixel space (0…w, 0…h), so the
    SVG uses viewBox="0 0 w h" and stroke widths and corner radii are real
    canvas pixels that scale evenly with the element on every surface. */
-export function shapePath({ shape, vector, w, h, cornerRadius = 0, flipX = false, flipY = false }) {
+/* Shapes whose four corners can each take their own radius, as in Figma, where
+   independent corners belong to rectangles. */
+export const INDEPENDENT_CORNER_SHAPES = new Set(["square", "rectangle", "rounded-rectangle"]);
+export const CORNER_NAMES = ["Top left", "Top right", "Bottom right", "Bottom left"];
+
+/* A valid per-corner list [top left, top right, bottom right, bottom left] for
+   this shape, or null. Custom (point-edited) shapes use the single radius. */
+export function cornerRadiiFor(shape, vector, radii) {
+  if (vector || !INDEPENDENT_CORNER_SHAPES.has(shape) || !Array.isArray(radii) || radii.length !== 4) return null;
+  return radii.every((value) => Number.isFinite(Number(value)) && Number(value) >= 0) ? radii.map(Number) : null;
+}
+
+export function shapePath({ shape, vector, w, h, cornerRadius = 0, cornerRadii = null, flipX = false, flipY = false }) {
   const source = vector || presetVector(shape, w, h);
   if (!source || !(w > 0) || !(h > 0)) return "";
   const sx = w / 100, sy = h / 100;
@@ -184,7 +201,11 @@ export function shapePath({ shape, vector, w, h, cornerRadius = 0, flipX = false
       in: node.in && handle((flipX ? -node.in.dx : node.in.dx) * sx, (flipY ? -node.in.dy : node.in.dy) * sy),
       out: node.out && handle((flipX ? -node.out.dx : node.out.dx) * sx, (flipY ? -node.out.dy : node.out.dy) * sy),
     }));
-    if (subpath.closed && cornerRadius > 0) nodes = roundCorners(nodes, cornerRadius);
+    const radii = cornerRadiiFor(shape, vector, cornerRadii);
+    /* Per-corner radii follow the corner you see, after flipping: the field
+       labelled "Top left" always rounds the top-left corner on the canvas. */
+    if (subpath.closed && radii) nodes = roundCorners(nodes, (node) => radii[node.y < h / 2 ? (node.x < w / 2 ? 0 : 1) : (node.x < w / 2 ? 3 : 2)]);
+    else if (subpath.closed && cornerRadius > 0) nodes = roundCorners(nodes, cornerRadius);
     return subpathToD({ closed: subpath.closed, nodes });
   }).join("");
 }

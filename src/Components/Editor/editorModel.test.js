@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import reducer, { elementInserted, elementChanged, elementSelected, elementTransformed, elementReordered,
+import reducer, { elementInserted, elementChanged, elementSelected, elementTransformed, layersStepped,
   gestureStarted, gestureFinished, gestureCancelled, undo, redo, pageAdded, pageSelected,
   pageCloned, pageDeleted, elementDeleted, elementNudged } from "../redux/editorSlice.js";
-import { bounds, fitElement, resizeElement, radians } from "./elementGeometry.js";
+import { bounds, fitElement, resizeElement, radians, selectionBounds } from "./elementGeometry.js";
 
 function editor() {
   let state = reducer(undefined, { type: "test/init" });
@@ -53,7 +53,7 @@ test("page clones have independent element IDs and undo restores deletion with s
 test("z-order, delete and undo preserve stable identities", () => {
   const e = editor(); e.send(elementInserted("square")); const a = e.element.id;
   e.send(elementInserted("circle")); const b = e.element.id;
-  e.send(elementReordered(-1)); assert.deepEqual(e.state.pages[0].elements.map((el) => el.id), [b, a]);
+  e.send(layersStepped({ direction: "backward" })); assert.deepEqual(e.state.pages[0].elements.map((el) => el.id), [b, a]);
   e.send(elementDeleted()); assert.equal(e.state.selectedId, null);
   e.send(undo()); assert.equal(e.state.selectedId, b);
   e.send(undo()); assert.deepEqual(e.state.pages[0].elements.map((el) => el.id), [a, b]);
@@ -98,5 +98,29 @@ test("rotated, oversized and out-of-bounds shapes are fitted inside the sheet", 
     const result = fitElement({ x: -300, y: 950, w: 3000, h: 1500, rotation });
     const box = bounds(result);
     assert.ok(box.left >= -0.01 && box.top >= -0.01 && box.right <= 1920.01 && box.bottom <= 1080.01);
+  }
+});
+
+test("a locked corner resize changes size smoothly wherever the pointer moves", async () => {
+  const { scaleSelection } = await import("./elementGeometry.js");
+  // The recording: a 586 × 488 triangle with proportions locked, dragged by its top-right corner.
+  const start = { x: 668, y: 212, w: 586, h: 488, rotation: 0 };
+  const box = { left: 668, top: 212, right: 1254, bottom: 700, w: 586, h: 488 };
+  // Sweep the pointer across the other diagonal, then out along the box's own diagonal.
+  const path = [];
+  for (let t = -40; t <= 40; t++) path.push([t, t * 586 / 488]);
+  for (let t = 0; t <= 60; t++) path.push([t, -t * 488 / 586]);
+  for (const [name, widthAt] of [
+    ["element", (dx, dy) => resizeElement(start, "ne", dx, dy, true).w],
+    ["group", (dx, dy) => selectionBounds(scaleSelection([start], box, "ne", dx, dy, true)).w],
+  ]) {
+    const widths = path.map(([dx, dy]) => widthAt(dx, dy));
+    for (let index = 1; index < widths.length; index++) {
+      if (index === 81) continue; // the second sweep starts back at the corner
+      assert.ok(Math.abs(widths[index] - widths[index - 1]) < 2, `${name} jumped from ${widths[index - 1]} to ${widths[index]}`);
+    }
+    // Across the other diagonal the size holds still; along its own diagonal it grows with the pointer.
+    assert.ok(Math.abs(widths[0] - 586) < 0.5 && Math.abs(widths[80] - 586) < 0.5, `${name}: ${widths[0]} ${widths[80]}`);
+    close(widths.at(-1), 646);
   }
 });

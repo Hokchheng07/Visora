@@ -13,6 +13,8 @@ import { pageAdded, pageCopied, pageCloned, pageDeleted } from "../redux/editorS
 import { useEditorKeyboard } from "../Editor/useEditorKeyboard.js";
 import { useMediaQuery } from "../Editor/useMediaQuery.js";
 import { usePointerHeld } from "../Editor/usePointerHeld.js";
+import { InspectorResizer, PanelToggle } from "../Editor/EditorLayoutHandles.jsx";
+import { readInspectorWidth } from "../Editor/inspectorWidth.js";
 import "../Editor/editor.css";
 
 export default function Editor() {
@@ -40,6 +42,8 @@ export default function Editor() {
   const [isPanelOpen, setPanelOpen] = useState(false);
   const [showRulers, setShowRulers] = useState(true);
   const [isDisplayOpen, setDisplayOpen] = useState(false);
+  const [inspectorWidth, setInspectorWidth] = useState(readInspectorWidth);
+  const [isResizing, setResizing] = useState(false);
 
   const railRef = useRef(null);
   const panelRef = useRef(null);
@@ -52,7 +56,8 @@ export default function Editor() {
     if (!isPanelOpen) return;
 
     function handlePointerDown(event) {
-      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar")) return;
+      // Page and context menus float outside the bar, but using them should not close the panel either.
+      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar, .editor-page-menu, .editor-context-menu, .editor-panel-toggle, .editor-inspector-resizer")) return;
       if (railRef.current?.contains(event.target) || panelRef.current?.contains(event.target)) return;
       setPanelOpen(false);
     }
@@ -67,6 +72,18 @@ export default function Editor() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isPanelOpen, selectedId]);
+
+  // ⌘/ or Ctrl+/ collapses and reopens the tool panel from anywhere in the editor.
+  useEffect(() => {
+    if (isDisplayOpen) return;
+    function handleKeyDown(event) {
+      if (!(event.metaKey || event.ctrlKey) || event.altKey || (event.key !== "/" && event.code !== "Slash")) return;
+      event.preventDefault();
+      setPanelOpen((open) => !open);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isDisplayOpen]);
 
   function handleToolChange(id) {
     if (id === activeTool) {
@@ -118,7 +135,8 @@ export default function Editor() {
         .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) })))} />
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
       <div
-        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showInspector && inspectorDocked ? " has-inspector" : ""}`}
+        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showInspector && inspectorDocked ? " has-inspector" : ""}${isResizing ? " is-resizing" : ""}`}
+        style={{ "--inspector-w": `${inspectorWidth}px` }}
         inert={isDisplayOpen}
       >
         <EditorSidebar
@@ -128,6 +146,7 @@ export default function Editor() {
           isPanelOpen={isPanelOpen}
         />
         <EditorToolPanel ref={panelRef} activeTool={activeTool} isOpen={isPanelOpen} />
+        <PanelToggle open={isPanelOpen} controls={`editor-panel-${activeTool}`} onToggle={() => setPanelOpen((open) => !open)} />
         <EditorCanvas
           canPaste={copiedPage !== null}
           onAddPage={handleAddPage}
@@ -136,6 +155,7 @@ export default function Editor() {
           onToggleRulers={() => setShowRulers((visible) => !visible)}
         />
         {showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
+        {showInspector && <InspectorResizer width={inspectorWidth} onResize={setInspectorWidth} onResizing={setResizing} />}
       </div>
       {/* Rendered inside the shell, not through a portal, so it keeps the
           --editor-* tokens and focus ring scoped to .editor-shell. */}

@@ -194,6 +194,56 @@ describe("EditorInspector", () => {
     expect(editor().pages[0].elements[1].x).not.toBe(42);
   });
 
+  it("independent corners: four fields set one corner each; the main field then reads Mixed and sets all four", () => {
+    const { element, editor } = setup([elementInserted("rectangle")]);
+    expect(screen.queryByLabelText("Top left radius")).toBe(null);
+    fireEvent.click(screen.getByRole("button", { name: "Independent corners" }));
+    expect(element().cornerRadii).toEqual([0, 0, 0, 0]);
+    const history = editor().past.length;
+    const topRight = screen.getByLabelText("Top right radius");
+    fireEvent.focus(topRight);
+    fireEvent.change(topRight, { target: { value: "30" } });
+    fireEvent.blur(topRight);
+    expect(element().cornerRadii).toEqual([0, 30, 0, 0]);
+    expect(editor().past.length).toBe(history + 1);
+    const all = screen.getByLabelText("Corner radius");
+    expect(all.value).toBe("");
+    expect(all.getAttribute("placeholder")).toBe("Mixed");
+    fireEvent.focus(all);
+    fireEvent.change(all, { target: { value: "12" } });
+    fireEvent.blur(all);
+    expect(element().cornerRadii).toEqual([12, 12, 12, 12]);
+    fireEvent.click(screen.getByRole("button", { name: "Use one radius for all corners" }));
+    expect(element().cornerRadii).toBe(null);
+    expect(element().cornerRadius).toBe(12);
+  });
+
+  it("stars and other non-rectangles have no independent corners", () => {
+    setup([elementInserted("star")]);
+    expect(screen.queryByRole("button", { name: "Independent corners" })).toBe(null);
+  });
+
+  it("font size: pick a common size from the list, or type any size", () => {
+    const { element } = setup([textInserted("heading")]);
+    fireEvent.click(screen.getByRole("button", { name: "Font sizes" }));
+    const sizes = screen.getAllByRole("button").filter((button) => /^\d+$/.test(button.textContent)).map((button) => Number(button.textContent));
+    expect(sizes.slice(0, 7)).toEqual([10, 12, 14, 16, 18, 20, 24]);
+    fireEvent.click(screen.getByRole("button", { name: "28" }));
+    expect(element().fontSize).toBe(28);
+    const typed = screen.getByLabelText("Font size");
+    fireEvent.focus(typed);
+    fireEvent.change(typed, { target: { value: "150" } });
+    fireEvent.blur(typed);
+    expect(element().fontSize).toBe(150);
+  });
+
+  it("Reset style is a labelled button that puts the style back", () => {
+    const { element } = setup([elementInserted("square")]);
+    fireEvent.click(screen.getByRole("button", { name: "Hide fill" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reset style" }));
+    expect(element().fillVisible).toBe(true);
+  });
+
   it("several selected: distribute needs three, and delete removes them all", () => {
     const { store, editor } = setup([elementInserted("square"), elementInserted("circle")]);
     act(() => { store.dispatch(elementsSelected(editor().pages[0].elements.map((item) => item.id))); });

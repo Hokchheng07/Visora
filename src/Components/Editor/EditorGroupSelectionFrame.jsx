@@ -5,7 +5,7 @@ import { CANVAS_WIDTH, scaleSelection, selectionBounds } from "./elementGeometry
 
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
 
-export default function EditorGroupSelectionFrame({ elements, sheetRef }) {
+export default function EditorGroupSelectionFrame({ elements, sheetRef, locked = false }) {
   const active = useRef(null); const dispatch = useAppDispatch(); const store = useAppStore();
   const box = selectionBounds(elements); const token = `group:${elements.map((element) => element.id).join(":")}`;
   useEffect(() => {
@@ -37,8 +37,8 @@ export default function EditorGroupSelectionFrame({ elements, sheetRef }) {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     dispatch(cancelled ? gestureCancelled(token) : gestureFinished(token));
   }
-  return <div className="editor-group-selection" style={{ left: `${box.left / 19.2}%`, top: `${box.top / 10.8}%`, width: `${box.w / 19.2}%`, height: `${box.h / 10.8}%` }}>
-    {HANDLES.map((handle) => <button type="button" key={handle} className={`editor-resize-handle is-${handle}`} aria-label={`Resize group ${handle}`}
+  return <div className={`editor-group-selection${locked ? " is-locked" : ""}`} style={{ left: `${box.left / 19.2}%`, top: `${box.top / 10.8}%`, width: `${box.w / 19.2}%`, height: `${box.h / 10.8}%` }}>
+    {!locked && HANDLES.map((handle) => <button type="button" key={handle} className={`editor-resize-handle is-${handle}`} aria-label={`Resize group ${handle}`}
       onPointerDown={(event) => start(event, handle)} onPointerMove={move} onPointerUp={(event) => end(event)}
       onPointerCancel={(event) => end(event, true)} onLostPointerCapture={(event) => end(event, true)} />)}
   </div>;

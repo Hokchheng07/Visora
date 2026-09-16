@@ -3,7 +3,14 @@ import assert from "node:assert/strict";
 import reducer, { editCancelled, editFinished, editStarted, editUpdated, elementInserted, elementSelected,
   gestureStarted, pageAdded, pageSelected, targetChanged, timerInserted, undo } from "../redux/editorSlice.js";
 
-const send = (state, ...actions) => actions.reduce((next, action) => reducer(next, action), state);
+import { checkInvariants } from "./layerModel.js";
+
+// The layer rules are checked after every action (see layerModel.checkInvariants).
+const send = (state, ...actions) => actions.reduce((next, action) => {
+  const after = reducer(next, action);
+  assert.deepEqual(checkInvariants(after), [], `after ${action.type}`);
+  return after;
+}, state);
 const start = () => send(undefined, elementInserted("square"));
 const only = (state) => state.pages[state.currentPage].elements[0];
 const elementsTarget = (state, ids = state.selectedIds) => ({ kind: "elements", pageId: state.pages[state.currentPage].id, ids });

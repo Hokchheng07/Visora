@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppStore } from "../redux/hook.js";
-import { editCancelled, elementDeleted, elementNudged, elementSelected, elementsSelected, selectionCopied, selectionPasted, undo, redo } from "../redux/editorSlice.js";
+import { canvasAllSelected, editCancelled, elementDeleted, elementNudged, elementSelected, selectionCopied, selectionPasted, undo, redo, layersStepped, selectionGrouped, groupUngrouped, groupSelected } from "../redux/editorSlice.js";
 
 /*
  * Escape has one order across the editor, each step stopping the key before
  * the next: cancel the active drag (canvas drags and inspector sliders handle
- * this themselves) → close the open pop-up (Headless UI prevents the default)
- * → leave point editing (phase F) → an inspector edit still open → deselect.
+ * this themselves, with layer drag first) → close the open pop-up → leave
+ * point editing → an inspector edit still open → select the parent group → deselect.
  */
 
 export function useEditorKeyboard(isDisplayOpen, shellRef) {
@@ -20,18 +20,30 @@ export function useEditorKeyboard(isDisplayOpen, shellRef) {
       const state = store.getState().editor;
       if (state.gesture) return;
       const command = event.metaKey || event.ctrlKey;
+      if (command && event.key.toLowerCase() === "g") {
+        event.preventDefault(); dispatch(event.shiftKey ? groupUngrouped() : selectionGrouped()); return;
+      }
+      const bracket = event.key === "]" || event.code === "BracketRight" ? "forward" : event.key === "[" || event.code === "BracketLeft" ? "backward" : null;
+      if (bracket && state.selectedIds.length && !event.altKey) {
+        event.preventDefault(); dispatch(layersStepped({ direction: command ? (bracket === "forward" ? "front" : "back") : bracket })); return;
+      }
       if (command && event.key.toLowerCase() === "z") {
         event.preventDefault(); dispatch(event.shiftKey ? redo() : undo()); return;
       }
       if (command && event.key.toLowerCase() === "y") { event.preventDefault(); dispatch(redo()); return; }
-      if (command && event.key.toLowerCase() === "a") { event.preventDefault(); dispatch(elementsSelected(state.pages[state.currentPage].elements.map((element) => element.id))); return; }
+      if (command && event.key.toLowerCase() === "a") { event.preventDefault(); dispatch(canvasAllSelected()); return; }
       if (command && event.key.toLowerCase() === "v") { event.preventDefault(); dispatch(selectionPasted()); return; }
       if (command && event.key.toLowerCase() === "c" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); return; }
       if (command && event.key.toLowerCase() === "x" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(elementDeleted()); return; }
       if (command && event.key.toLowerCase() === "d" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(selectionPasted()); return; }
       if (event.key === "Escape" && state.edit) { event.preventDefault(); dispatch(editCancelled(state.edit.token)); return; }
       if (!state.selectedIds.length) return;
-      if (event.key === "Escape") { event.preventDefault(); dispatch(elementSelected(null)); return; }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        const items = state.pages[state.currentPage].elements.filter((item) => state.selectedIds.includes(item.id));
+        const parent = items[0]?.groupId;
+        dispatch(state.selectionMode === "direct" && parent && items.every((item) => item.groupId === parent) ? groupSelected(parent) : elementSelected(null)); return;
+      }
       if (event.key === "Delete" || event.key === "Backspace") { event.preventDefault(); dispatch(elementDeleted()); return; }
       if (command || event.altKey || !event.key.startsWith("Arrow") || event.target.closest("[role='tablist'], .editor-resize-handle, .editor-rotate-handle")) return;
       const step = event.shiftKey ? 10 : 1;

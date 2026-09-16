@@ -116,3 +116,37 @@ test("flipping mirrors the outline inside the same box", async () => {
   assert.equal(shapePath({ shape: "triangle", w: 100, h: 100, flipY: true }), "M50 100L100 0L0 0Z");
   assert.equal(shapePath({ shape: "arrow-right", w: 100, h: 100, flipX: true }).startsWith("M40 8L2 50"), true);
 });
+
+test("each corner of a rectangle can take its own radius, following the corner you see after a flip", async () => {
+  const { shapePath: path } = await import("./vectorPath.js");
+  // Top left 0, top right 30, bottom right 0, bottom left 10.
+  const d = path({ shape: "rectangle", w: 200, h: 100, cornerRadii: [0, 30, 0, 10] });
+  assert.ok(d.startsWith("M0 0L170 0C"), d);
+  assert.match(d, /L200 100L10 100C/);
+  const flipped = path({ shape: "rectangle", w: 200, h: 100, cornerRadii: [0, 30, 0, 10], flipX: true });
+  // Still sharp at the top left and round at the top right after mirroring.
+  // A flip reverses the drawing direction: the arc now runs from the right edge into the top edge.
+  assert.match(flipped, /^M200 30C200 13\.431 186\.569 0 170 0L0 0L0 90C/);
+});
+
+test("per-corner radii apply only to rectangles; other shapes keep the single radius", async () => {
+  const { cornerRadiiFor, shapePath: path } = await import("./vectorPath.js");
+  assert.deepEqual(cornerRadiiFor("square", undefined, [1, 2, 3, 4]), [1, 2, 3, 4]);
+  assert.equal(cornerRadiiFor("star", undefined, [1, 2, 3, 4]), null);
+  assert.equal(cornerRadiiFor("square", undefined, [1, 2, -3, 4]), null);
+  assert.equal(cornerRadiiFor("square", { subpaths: [] }, [1, 2, 3, 4]), null);
+  assert.equal(path({ shape: "star", w: 100, h: 100, cornerRadius: 5, cornerRadii: [0, 0, 0, 0] }), path({ shape: "star", w: 100, h: 100, cornerRadius: 5 }));
+});
+
+test("corner radii save only when the corners differ, and load back", async () => {
+  const { hydrateDocument, serializeDocument } = await import("./editorDocument.js");
+  const editor = (element) => ({ title: "T", pages: [{ id: "p", elements: [{ id: "s", type: "shape", shape: "square", x: 0, y: 0, w: 100, h: 100, rotation: 0, fill: "#000000", ...element }] }] });
+  const styles = (element) => serializeDocument(editor(element)).pages[0].components[0].styles;
+  assert.deepEqual(styles({ cornerRadius: 0, cornerRadii: [4, 0, 12, 0] }).cornerRadii, [4, 0, 12, 0]);
+  const equal = styles({ cornerRadius: 0, cornerRadii: [8, 8, 8, 8] });
+  assert.equal(equal.cornerRadii, undefined);
+  assert.equal(equal.cornerRadius, 8);
+  assert.equal("cornerRadii" in styles({ cornerRadius: 6 }), false);
+  const loaded = hydrateDocument(serializeDocument(editor({ cornerRadii: [4, 0, 12, 0] })));
+  assert.deepEqual(loaded.pages[0].elements[0].cornerRadii, [4, 0, 12, 0]);
+});

@@ -4,14 +4,16 @@ import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, useCanvasMetrics } from "./useCanvasMetrics";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { elementDeleted, elementReordered, elementSelected, elementsSelected, pageMoved, pageSelected,
-  selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, zoomChanged } from "../redux/editorSlice.js";
+import { canvasAllSelected, layersMovedToPage, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
+  selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
 import EditorPageBar from "./EditorPageBar.jsx";
 import EditorGroupSelectionFrame from "./EditorGroupSelectionFrame.jsx";
 import { elementsInRect } from "./elementGeometry.js";
 import EditorContextMenu from "./EditorContextMenu.jsx";
 import { elementMenuItems, canvasMenuItems } from "./editorMenus.js";
+import { canvasSelectable, effectiveLocked, effectiveVisible, stepLayers, canGroup, selectedGroup, pageLabel } from "./layerModel.js";
+import { pageTarget } from "./inspectorEdit.js";
 
 export default function EditorCanvas({
   canPaste,
@@ -21,7 +23,8 @@ export default function EditorCanvas({
   onToggleRulers,
 }) {
   const dispatch = useAppDispatch();
-  const { pages, currentPage, selectedIds, zoom, snapGuides } = useAppSelector((state) => state.editor);
+  const editor = useAppSelector((state) => state.editor);
+  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides } = editor;
   const page = pages[currentPage];
   const { scrollRef, pageRef, metrics, pageStyle } = useCanvasMetrics(zoom);
   // Kept out of the bar so the menu doesn't inherit the bar's button styling.
@@ -56,7 +59,9 @@ export default function EditorCanvas({
   }, [dispatch, metrics, scrollRef]);
 
   const selectedElements = page.elements.filter((element) => selectedIds.includes(element.id));
-  const elementIndex = page.elements.findIndex((element) => element.id === selectedIds.at(-1));
+  // Hidden layers selected from the Layers panel get no frame; the canvas cannot transform what it does not show.
+  const framedElements = selectedElements.filter((element) => effectiveVisible(page, element));
+  const selectionLocked = selectedElements.some((element) => effectiveLocked(page, element));
 
   function canvasPointerDown(event) {
     if (event.target !== event.currentTarget || event.button !== 0) return;
@@ -74,8 +79,8 @@ export default function EditorCanvas({
   }
   function canvasPointerUp(event) {
     if (!marquee || marquee.pointerId !== event.pointerId) return;
-    const ids = elementsInRect(page.elements, marquee);
-    dispatch(elementsSelected([...marquee.base, ...ids])); setMarquee(null);
+    const ids = elementsInRect(page.elements.filter((element) => canvasSelectable(page, element)), marquee);
+    dispatch(canvasLayersSelected([...marquee.base, ...ids])); setMarquee(null);
   }
 
   function panStart(event) {
@@ -134,9 +139,10 @@ export default function EditorCanvas({
                     setContextMenu({ x: event.clientX, y: event.clientY, target: id ? "element" : "canvas" });
                   }}
                 >
-                  {page.elements.map((element) => <EditorElement key={element.id} element={element} pageId={page.id}
-                    sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={selectedIds.length} />)}
-                  {selectedElements.length > 1 && <EditorGroupSelectionFrame elements={selectedElements} sheetRef={pageRef} />}
+                  {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
+                    sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={framedElements.length}
+                    locked={effectiveLocked(page, element)} />)}
+                  {framedElements.length > 1 && <EditorGroupSelectionFrame elements={framedElements} sheetRef={pageRef} locked={selectionLocked} />}
                   {marquee && <span className="editor-marquee" style={{ left: `${Math.min(marquee.left, marquee.right) / 19.2}%`, top: `${Math.min(marquee.top, marquee.bottom) / 10.8}%`,
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
                   {snapGuides.map((guide) => <span key={`${guide.axis}:${guide.value}`} className={`editor-snap-guide is-${guide.axis}`}
@@ -167,7 +173,11 @@ export default function EditorCanvas({
           x={contextMenu.x} y={contextMenu.y}
           label={contextMenu.target === "element" ? "Element options" : "Page options"}
           items={contextMenu.target === "element"
-            ? elementMenuItems({ count: selectedIds.length, index: elementIndex, last: page.elements.length - 1 })
+            ? elementMenuItems({ count: selectedIds.length, locked: selectionLocked,
+              pages: pages.map((item, index) => pageLabel(item, index)), currentPage,
+              canGroup: canGroup(page, selectedIds), canUngroup: !!selectedGroup(editor),
+              canForward: stepLayers(page, selectedIds, "forward", selectionMode) !== page.elements,
+              canBackward: stepLayers(page, selectedIds, "backward", selectionMode) !== page.elements })
             : canvasMenuItems({ canPaste, hasElements: page.elements.length > 0 })}
           onClose={() => setContextMenu(null)}
           onAction={(id) => {
@@ -175,11 +185,11 @@ export default function EditorCanvas({
             if (id === "copy") dispatch(selectionCopied());
             if (id === "paste") dispatch(selectionPasted());
             if (id === "delete") dispatch(elementDeleted());
-            if (id === "forward") dispatch(elementReordered(1));
-            if (id === "backward") dispatch(elementReordered(-1));
-            if (id === "front") dispatch(elementReordered(page.elements.length));
-            if (id === "back") dispatch(elementReordered(-page.elements.length));
-            if (id === "select-all") dispatch(elementsSelected(page.elements.map((element) => element.id)));
+            if (id.startsWith("move-to-page:")) dispatch(layersMovedToPage({ pageIndex: Number(id.split(":")[1]) }));
+            if (["forward", "backward", "front", "back"].includes(id)) dispatch(layersStepped({ direction: id }));
+            if (id === "group") dispatch(selectionGrouped());
+            if (id === "ungroup") dispatch(groupUngrouped());
+            if (id === "select-all") dispatch(canvasAllSelected());
             if (id === "align-center") dispatch(selectionAligned("center"));
             if (id === "align-middle") dispatch(selectionAligned("middle"));
             if (id === "distribute-h") dispatch(selectionDistributed("horizontal"));
@@ -191,6 +201,8 @@ export default function EditorCanvas({
       {pageMenu && (
         <EditorPageMenu
           page={pageMenu.index + 1}
+          name={pageLabel(pages[pageMenu.index], pageMenu.index)}
+          onRename={(name) => dispatch(targetChanged({ target: pageTarget(pages[pageMenu.index].id), changes: { name } }))}
           x={pageMenu.x}
           y={pageMenu.y}
           disabled={{ paste: !canPaste, delete: pages.length === 1 }}

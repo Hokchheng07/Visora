@@ -1,5 +1,6 @@
 import { ChevronDown, Minus, Plus, Ruler } from "lucide-react";
 import { StaticElement } from "./EditorElement.jsx";
+import { pageLabel, visibleElements } from "./layerModel.js";
 
 export default function EditorCanvasBar({
   pages,
@@ -34,14 +35,15 @@ export default function EditorCanvasBar({
               className={`editor-page-thumb${index === currentPage ? " is-active" : ""}`}
               onClick={() => onPageChange(index)}
               onContextMenu={(event) => onPageMenu(event, index)}
-              aria-label={`Go to page ${index + 1}`}
+              aria-label={`Go to page ${index + 1}: ${pageLabel(page, index)}`}
+              title={pageLabel(page, index)}
               aria-current={index === currentPage}
               draggable
               onDragStart={(event) => event.dataTransfer.setData("text/x-visora-page", String(index))}
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => { event.preventDefault(); const from = Number(event.dataTransfer.getData("text/x-visora-page")); if (Number.isInteger(from)) onPageMove(from, index); }}
             >
-              <span className="editor-thumb-art" aria-hidden="true">{page.elements.map((element) => <StaticElement key={element.id} element={element} />)}</span>
+              <span className="editor-thumb-art" aria-hidden="true">{visibleElements(page).map((element) => <StaticElement key={element.id} element={element} />)}</span>
               <span className="editor-page-thumb-number">{index + 1}</span>
             </button>
           ))}

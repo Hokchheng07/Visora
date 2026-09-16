@@ -1,7 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ClipboardPaste, Copy, CopyPlus, Plus, Trash2 } from "lucide-react";
+import { ClipboardPaste, Copy, CopyPlus, Pencil, Plus, Trash2 } from "lucide-react";
+import RenameField from "./RenameField.jsx";
 
 const ITEMS = [
+  { id: "rename", label: "Rename", icon: Pencil },
+  { id: "divider-0", divider: true },
   { id: "copy", label: "Copy", icon: Copy },
   { id: "paste", label: "Paste", icon: ClipboardPaste },
   { id: "divider-1", divider: true },
@@ -11,8 +14,10 @@ const ITEMS = [
   { id: "add", label: "Add page", icon: Plus },
 ];
 
-export default function EditorPageMenu({ page, x, y, disabled, onAction, onClose }) {
+export default function EditorPageMenu({ page, name, x, y, disabled, onAction, onRename, onClose }) {
   const ref = useRef(null);
+  // Rename turns the menu into a name field in the same spot.
+  const [renaming, setRenaming] = useState(false);
   // The page strip sits at the bottom, so the menu grows upwards from the click.
   const [position, setPosition] = useState({ left: x, bottom: 0 });
 
@@ -26,7 +31,8 @@ export default function EditorPageMenu({ page, x, y, disabled, onAction, onClose
 
   useEffect(() => {
     function handlePointerDown(event) {
-      if (!ref.current?.contains(event.target)) onClose();
+      // While renaming, a click elsewhere blurs the field, which saves and closes.
+      if (!renaming && !ref.current?.contains(event.target)) onClose();
     }
     function handleKeyDown(event) {
       if (event.key === "Escape") onClose();
@@ -42,17 +48,20 @@ export default function EditorPageMenu({ page, x, y, disabled, onAction, onClose
       document.removeEventListener("scroll", onClose, true);
       window.removeEventListener("resize", onClose);
     };
-  }, [onClose]);
+  }, [onClose, renaming]);
 
   return (
     <div
       ref={ref}
       className="editor-page-menu"
       style={{ left: `${position.left}px`, bottom: `${position.bottom}px` }}
-      role="menu"
-      aria-label={`Page ${page} options`}
+      role={renaming ? "dialog" : "menu"}
+      aria-label={renaming ? `Rename page ${page}` : `Page ${page} options`}
     >
-      {ITEMS.map(({ id, label, icon: Icon, divider }) => (divider ? (
+      {renaming ? (
+        <RenameField value={name} label="Page name" className="is-menu"
+          onCommit={(next) => { onRename(next); onClose(); }} onCancel={onClose} />
+      ) : ITEMS.map(({ id, label, icon: Icon, divider }) => (divider ? (
         <hr key={id} />
       ) : (
         <button
@@ -60,7 +69,7 @@ export default function EditorPageMenu({ page, x, y, disabled, onAction, onClose
           type="button"
           role="menuitem"
           disabled={disabled[id]}
-          onClick={() => { onAction(id); onClose(); }}
+          onClick={() => { if (id === "rename") { setRenaming(true); return; } onAction(id); onClose(); }}
         >
           <Icon size={16} strokeWidth={1.7} aria-hidden="true" />
           <span>{label}</span>

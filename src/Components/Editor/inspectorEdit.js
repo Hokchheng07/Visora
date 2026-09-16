@@ -9,6 +9,7 @@ import { editCancelled, editFinished, editStarted, editUpdated } from "../redux/
 export const elementsTarget = (pageId, ids) => ({ kind: "elements", pageId, ids });
 export const timerTarget = (pageId, id) => ({ kind: "timer", pageId, ids: [id] });
 export const pageTarget = (pageId) => ({ kind: "page", pageId });
+export const groupTarget = (pageId, groupId) => ({ kind: "group", pageId, groupId });
 
 /* One edit session for one control. The window listeners end a drag even when
    the pointer is released outside the control or the window loses focus, so a

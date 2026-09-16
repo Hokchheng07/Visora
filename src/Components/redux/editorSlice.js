@@ -2,22 +2,41 @@ import { createSlice, current, nanoid } from "@reduxjs/toolkit";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/elementGeometry.js";
 import { shapeCatalog } from "../Editor/shapeCatalog.js";
 import { defaultTimer, normalizeTimer } from "../Editor/editorDocument.js";
+import { canvasSelectable, cleanName, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
+  stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/layerModel.js";
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
-  pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, elements: [] }],
-  currentPage: 0, selectedIds: [], selectedId: null,
-  past: [], future: [], gesture: null, edit: null, copiedPage: null, copiedElements: [], zoom: null, snapGuides: [],
+  pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
+  currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
+  past: [], future: [], gesture: null, edit: null, copiedPage: null, copiedElements: [], copiedGroups: [], zoom: null, snapGuides: [],
 };
 
-function setSelection(state, ids) {
+/* Every selection change comes through here. `mode` is "group" only when a
+   caller selects a whole group; anything else goes back to direct selection. */
+function setSelection(state, ids, mode = "direct") {
   const valid = new Set(state.pages[state.currentPage].elements.map((element) => element.id));
   state.selectedIds = [...new Set(ids)].filter((id) => valid.has(id));
   state.selectedId = state.selectedIds.at(-1) || null;
+  state.selectionMode = mode === "group" && state.selectedIds.length ? "group" : "direct";
+}
+const currentPageOf = (state) => state.pages[state.currentPage];
+/* Locking is enforced here, not only by greyed-out buttons: every reducer that
+   moves, restyles, reorders or deletes layers asks first, and a refused action
+   changes nothing and adds no undo step. */
+function isEditable(state, ids, page = currentPageOf(state)) {
+  const chosen = new Set(ids);
+  return !page.elements.some((element) => chosen.has(element.id) && effectiveLocked(page, element));
+}
+const selectionEditable = (state) => isEditable(state, state.selectedIds);
+// Removes groups left with no members and gathers split groups back together.
+function tidyGroups(page) {
+  const plain = current(page), tidy = normalizeGroups(plain);
+  if (tidy !== plain) { page.groups = tidy.groups; page.elements = tidy.elements; }
 }
 function snapshot(state) {
   const plain = current(state);
-  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, title: plain.title };
+  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, selectionMode: plain.selectionMode, title: plain.title };
 }
 function remember(state, before = snapshot(state)) {
   state.past.push(before); if (state.past.length > 50) state.past.shift(); state.future = [];
@@ -25,7 +44,7 @@ function remember(state, before = snapshot(state)) {
 function restore(state, saved) {
   state.pages = saved.pages; state.title = saved.title || state.title;
   state.currentPage = clamp(saved.currentPage, 0, state.pages.length - 1);
-  setSelection(state, saved.selectedIds || (saved.selectedId ? [saved.selectedId] : []));
+  setSelection(state, saved.selectedIds || (saved.selectedId ? [saved.selectedId] : []), saved.selectionMode);
 }
 function cancelGesture(state) {
   if (state.gesture) restore(state, state.gesture.before);
@@ -61,36 +80,81 @@ const mergeTimer = (timer, changes) => normalizeTimer({
   onComplete: { ...timer?.onComplete, ...(changes.onComplete || {}) },
   controls: { ...timer?.controls, ...(changes.controls || {}) },
 });
-const PAGE_FIELDS = ["background", "animation"];
-function validTarget(state, target) {
+const PAGE_FIELDS = ["background", "animation", "name"];
+const GROUP_FIELDS = ["name", "visible", "locked"];
+// The only changes a locked layer accepts: it can still be renamed, hidden, shown or unlocked.
+const LOCK_SAFE = new Set(["name", "visible", "locked"]);
+/* `changes` is passed when known, so a locked target can still take a rename
+   or an unlock; without it (a session starting) a locked target is refused. */
+function validTarget(state, target, changes) {
   const page = state.pages.find((item) => item.id === target?.pageId);
   if (!page) return null;
   if (target.kind === "page") return { kind: "page", pageId: page.id };
+  if (target.kind === "group") return (page.groups || []).some((group) => group.id === target.groupId) ? { kind: "group", pageId: page.id, groupId: target.groupId } : null;
   if (target.kind !== "elements" && target.kind !== "timer") return null;
   const ids = (target.ids || []).filter((id) => page.elements.some((element) => element.id === id));
-  return ids.length ? { kind: target.kind, pageId: page.id, ids } : null;
+  if (!ids.length) return null;
+  const lockSafe = target.kind === "elements" && changes && typeof changes === "object" && Object.keys(changes).every((key) => LOCK_SAFE.has(key));
+  if (!lockSafe && !isEditable(state, ids, page)) return null;
+  return { kind: target.kind, pageId: page.id, ids };
+}
+// Names are trimmed and capped; an empty name removes the custom name instead of storing "".
+function assignName(item, value) {
+  const name = cleanName(value);
+  if (name) item.name = name; else delete item.name;
 }
 function applyToTarget(state, target, changes) {
   const page = state.pages.find((item) => item.id === target.pageId);
   if (!page || !changes || typeof changes !== "object") return;
   if (target.kind === "page") {
-    for (const key of PAGE_FIELDS) if (key in changes) page[key] = changes[key];
+    for (const key of PAGE_FIELDS) if (key in changes) { if (key === "name") assignName(page, changes.name); else page[key] = changes[key]; }
+    return;
+  }
+  if (target.kind === "group") {
+    const group = page.groups.find((item) => item.id === target.groupId);
+    for (const key of GROUP_FIELDS) {
+      if (!(key in changes)) continue;
+      if (key === "name") { if (cleanName(changes.name)) group.name = cleanName(changes.name); }
+      else group[key] = !!changes[key];
+    }
     return;
   }
   const ids = new Set(target.ids);
   for (const element of page.elements) {
     if (!ids.has(element.id)) continue;
     if (target.kind === "timer") { if (element.type === "timer") element.timer = mergeTimer(element.timer, changes); }
-    else Object.assign(element, fitElement({ ...element, ...changes }));
+    else {
+      const { name, ...rest } = changes;
+      Object.assign(element, fitElement({ ...element, ...rest }));
+      if ("name" in changes) assignName(element, name);
+    }
   }
 }
 
 const selected = (state) => state.pages[state.currentPage].elements.find((element) => element.id === state.selectedId);
 const selectedElements = (state) => state.pages[state.currentPage].elements.filter((element) => state.selectedIds.includes(element.id));
 
+function applyLayerMove(state, payload, operation) {
+  if (state.gesture) return;
+  const page = currentPageOf(state), plain = current(page);
+  const ids = payload.ids || state.selectedIds;
+  if (!isEditable(state, ids)) return;
+  const mode = payload.mode || state.selectionMode;
+  let next;
+  if (operation === "step") next = { ...plain, elements: stepLayers(plain, ids, payload.direction, mode) };
+  if (operation === "reorder") next = { ...plain, elements: reorderLayers(plain.elements, ids, payload.targetId, payload.placement, mode) };
+  if (operation === "into") next = moveIntoGroup(plain, ids, payload.groupId, payload.targetId, payload.placement);
+  if (operation === "out") next = removeFromGroup(plain, ids, payload.targetId, payload.placement);
+  if (next.elements === plain.elements) return;
+  remember(state); page.elements = next.elements; page.groups = next.groups;
+  tidyGroups(page); setSelection(state, ids, mode);
+}
+
 const reducers = {
     documentLoaded(state, { payload }) {
-      Object.assign(state, initialEditorState, payload); state.currentPage = 0; setSelection(state, []);
+      Object.assign(state, initialEditorState, payload);
+      state.pages = state.pages.map((page) => normalizeGroups({ ...page, groups: page.groups || [] }));
+      state.currentPage = 0; setSelection(state, []);
     },
     documentRenamed(state, { payload }) {
       const title = String(payload || "").trim(); if (!title || title === state.title) return;
@@ -100,16 +164,25 @@ const reducers = {
       cancelGesture(state); state.currentPage = clamp(payload, 0, state.pages.length - 1); setSelection(state, []);
     },
     pageAdded: {
-      prepare: () => ({ payload: { id: nanoid(), background: { type: "COLOR", value: "#FFFFFF" }, elements: [] } }),
+      prepare: () => ({ payload: { id: nanoid(), background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] } }),
       reducer(state, { payload }) {
-        cancelGesture(state); remember(state); state.pages.push(payload); state.currentPage = state.pages.length - 1; setSelection(state, []);
+        cancelGesture(state); remember(state); state.pages.push({ ...payload, name: nextPageName(current(state).pages) }); state.currentPage = state.pages.length - 1; setSelection(state, []);
       },
     },
-    pageCopied(state, { payload }) { state.copiedPage = current(state.pages[payload]); },
+    // The copy remembers the label it had, so pasting it elsewhere still reads "Agenda copy", not the new position's number.
+    pageCopied(state, { payload }) {
+      const page = state.pages[payload]; if (!page) return;
+      state.copiedPage = { ...current(page), name: pageLabel(page, payload) };
+    },
+    /* Duplicate and paste page. cloneLayers gives every element and every group
+       a new id, with groupIds remapped, so the copy never shares a group id. */
     pageCloned: {
-      prepare: (page, index) => ({ payload: { index, page: { ...page, id: nanoid(), elements: page.elements.map((element) => ({ ...element, id: nanoid() })) } } }),
+      prepare: (page, index) => {
+        const layers = cloneLayers(page.elements, page.groups || [], nanoid);
+        return { payload: { index, page: { ...page, id: nanoid(), name: cleanName(`${pageLabel(page, index)} copy`), ...layers } } };
+      },
       reducer(state, { payload }) {
-        cancelGesture(state); remember(state); state.pages.splice(payload.index + 1, 0, payload.page);
+        cancelGesture(state); remember(state); state.pages.splice(payload.index + 1, 0, normalizeGroups(payload.page));
         state.currentPage = payload.index + 1; setSelection(state, []);
       },
     },
@@ -137,13 +210,84 @@ const reducers = {
     },
     elementSelected(state, { payload }) {
       if (state.gesture) return;
-      const id = typeof payload === "object" ? payload.id : payload;
-      const additive = typeof payload === "object" && payload.additive;
+      const id = payload && typeof payload === "object" ? payload.id : payload;
+      const additive = payload && typeof payload === "object" && payload.additive;
       if (!id) return setSelection(state, []);
       if (additive) setSelection(state, state.selectedIds.includes(id) ? state.selectedIds.filter((item) => item !== id) : [...state.selectedIds, id]);
       else setSelection(state, [id]);
     },
     elementsSelected(state, { payload }) { if (!state.gesture) setSelection(state, payload || []); },
+    canvasLayersSelected(state, { payload }) {
+      if (state.gesture) return;
+      const ids = expandCanvasSelection(currentPageOf(state), payload || []);
+      setSelection(state, ids, "group");
+      if (!selectedGroup(state)) state.selectionMode = "direct";
+    },
+    // Select all from the canvas: hidden and locked layers are left out, as in Figma.
+    canvasAllSelected(state) {
+      if (state.gesture) return;
+      const page = currentPageOf(state);
+      setSelection(state, expandCanvasSelection(page, page.elements.filter((element) => canvasSelectable(page, element)).map((element) => element.id)), "group");
+      if (!selectedGroup(state)) state.selectionMode = "direct";
+    },
+    // Selecting a group (from the Layers panel) selects its members as one object.
+    groupSelected(state, { payload }) {
+      if (state.gesture) return;
+      const page = currentPageOf(state);
+      if (!(page.groups || []).some((group) => group.id === payload)) return;
+      setSelection(state, page.elements.filter((element) => element.groupId === payload).map((element) => element.id), "group");
+    },
+    layersStepped(state, { payload }) { applyLayerMove(state, payload, "step"); },
+    layersReordered(state, { payload }) { applyLayerMove(state, payload, "reorder"); },
+    layersMovedIntoGroup(state, { payload }) { applyLayerMove(state, payload, "into"); },
+    layersRemovedFromGroup(state, { payload }) { applyLayerMove(state, payload, "out"); },
+    selectionGrouped: {
+      prepare: () => ({ payload: { id: nanoid() } }),
+      reducer(state, { payload }) {
+        if (state.gesture) return;
+        const page = currentPageOf(state), plain = current(page);
+        const next = groupSelection(plain, state.selectedIds, () => payload.id, nextGroupName(state.pages));
+        if (next === plain) return;
+        remember(state); page.elements = next.elements; page.groups = next.groups;
+        setSelection(state, state.selectedIds, "group");
+      },
+    },
+    /* Move the selection to another page: one undo step covering both pages,
+       the current page and the selection. The layers land at the front of the
+       destination, and the editor follows them there. */
+    layersMovedToPage(state, { payload }) {
+      if (state.gesture) return;
+      const index = payload?.pageIndex, to = state.pages[index], from = currentPageOf(state);
+      if (!to || to === from || !state.selectedIds.length || !isEditable(state, state.selectedIds)) return;
+      const moved = detachLayers(current(from), state.selectedIds);
+      if (!moved) return;
+      remember(state);
+      from.elements = moved.source.elements; from.groups = moved.source.groups;
+      to.elements.push(...moved.moved.elements);
+      to.groups = [...(to.groups || []), ...moved.moved.groups];
+      state.currentPage = index;
+      setSelection(state, moved.moved.elements.map((item) => item.id), moved.moved.groups.length === 1 ? "group" : "direct");
+      if (!selectedGroup(state)) state.selectionMode = "direct";
+    },
+    groupUngrouped(state, { payload }) {
+      if (state.gesture) return;
+      const page = currentPageOf(state), plain = current(page);
+      const next = ungroupSelection(plain, payload || selectedGroup(state)?.id);
+      if (next === plain) return;
+      remember(state); page.elements = next.elements; page.groups = next.groups;
+      setSelection(state, next.memberIds);
+    },
+    /* One undo step that unlocks the selection and any group locking it, so the
+       sidebar's Unlock button always works in a single press. */
+    selectionUnlocked(state) {
+      const page = currentPageOf(state);
+      const chosen = page.elements.filter((element) => state.selectedIds.includes(element.id));
+      const groupIds = new Set(chosen.map((element) => element.groupId).filter(Boolean));
+      if (!chosen.some((element) => effectiveLocked(page, element)) || state.gesture) return;
+      remember(state);
+      chosen.forEach((element) => { element.locked = false; });
+      (page.groups || []).forEach((group) => { if (groupIds.has(group.id)) group.locked = false; });
+    },
     elementInserted: {
       prepare: (shape, position) => ({ payload: { shape, position, id: nanoid() } }),
       reducer(state, { payload }) {
@@ -195,43 +339,38 @@ const reducers = {
        whole document every tick and bury undo under countdown frames. */
     timerChanged(state, { payload }) {
       const element = selected(state);
-      if (!element || element.type !== "timer" || state.gesture) return;
+      if (!element || element.type !== "timer" || state.gesture || !isEditable(state, [element.id])) return;
       const next = mergeTimer(element.timer, payload);
       if (JSON.stringify(element.timer) === JSON.stringify(next)) return;
       remember(state);
       element.timer = next;
     },
     elementDeleted(state) {
-      if (!state.selectedIds.length || state.gesture) return;
+      if (!state.selectedIds.length || state.gesture || !selectionEditable(state)) return;
       remember(state); const ids = new Set(state.selectedIds);
-      state.pages[state.currentPage].elements = state.pages[state.currentPage].elements.filter((element) => !ids.has(element.id)); setSelection(state, []);
+      const page = currentPageOf(state);
+      page.elements = page.elements.filter((element) => !ids.has(element.id)); tidyGroups(page); setSelection(state, []);
     },
     elementChanged(state, { payload }) {
-      if (!selected(state) || state.gesture) return;
+      if (!selected(state) || state.gesture || !selectionEditable(state)) return;
       const elements = selectedElements(state); const changes = elements.map((element) => fitElement({ ...element, ...payload }));
       if (elements.every((element, index) => JSON.stringify(element) === JSON.stringify(changes[index]))) return;
       remember(state); elements.forEach((element, index) => Object.assign(element, changes[index]));
     },
     elementsChanged(state, { payload }) {
-      if (state.gesture?.token !== payload.token) return;
+      if (state.gesture?.token !== payload.token || !isEditable(state, payload.elements.map((element) => element.id))) return;
       const changes = new Map(payload.elements.map((element) => [element.id, element]));
       state.pages[state.currentPage].elements.forEach((element) => { if (changes.has(element.id)) Object.assign(element, changes.get(element.id)); });
       state.snapGuides = payload.guides || [];
     },
     elementNudged(state, { payload }) {
-      const elements = selectedElements(state); if (!elements.length || state.gesture) return;
+      const elements = selectedElements(state); if (!elements.length || state.gesture || !selectionEditable(state)) return;
       const delta = clampSelectionDelta(elements, payload.x, payload.y); if (!delta.x && !delta.y) return;
       remember(state); elements.forEach((element) => { element.x += delta.x; element.y += delta.y; });
     },
-    elementReordered(state, { payload }) {
-      if (state.gesture || state.selectedIds.length !== 1) return;
-      const elements = state.pages[state.currentPage].elements; const from = elements.findIndex((element) => element.id === state.selectedId);
-      if (from < 0) return; const to = clamp(from + payload, 0, elements.length - 1); if (from === to) return;
-      remember(state); const [element] = elements.splice(from, 1); elements.splice(to, 0, element);
-    },
     selectionAligned(state, { payload }) {
       // One element aligns to the page, several align to their shared bounds, as in Figma.
-      const elements = selectedElements(state); if (!elements.length) return;
+      const elements = selectedElements(state); if (!elements.length || state.gesture || !selectionEditable(state)) return;
       const box = elements.length === 1 ? { left: 0, top: 0, right: CANVAS_WIDTH, bottom: CANVAS_HEIGHT } : selectionBounds(elements);
       if (!box) return;
       remember(state); elements.forEach((element) => {
@@ -245,7 +384,7 @@ const reducers = {
       });
     },
     selectionDistributed(state, { payload }) {
-      const elements = selectedElements(state); if (elements.length < 3) return;
+      const elements = selectedElements(state); if (elements.length < 3 || state.gesture || !selectionEditable(state)) return;
       const horizontal = payload === "horizontal";
       /* Even *gaps*, not evenly spaced top-left corners. Spacing the corners
          leaves visibly unequal gaps the moment the elements differ in size,
@@ -269,13 +408,35 @@ const reducers = {
       remember(state);
       moves.forEach(({ element, delta }) => { if (horizontal) element.x += delta; else element.y += delta; });
     },
-    selectionCopied(state) { state.copiedElements = selectedElements(state).map((element) => ({ ...current(element) })); },
-    selectionPasted(state) {
-      if (!state.copiedElements.length || state.gesture) return;
-      remember(state); const pasted = state.copiedElements.map((element) => fitElement({ ...element, id: nanoid(), x: element.x + 32, y: element.y + 32 }));
-      state.pages[state.currentPage].elements.push(...pasted); state.copiedElements = pasted.map((element) => ({ ...element })); setSelection(state, pasted.map((element) => element.id));
+    /* A group travels with a copy only when all of its members were copied; a
+       layer copied out of a group pastes ungrouped, as in Figma. */
+    selectionCopied(state) {
+      const page = currentPageOf(state);
+      const chosen = selectedElements(state).map((element) => ({ ...current(element) }));
+      const whole = new Set((page.groups || []).filter((group) => {
+        const members = page.elements.filter((element) => element.groupId === group.id);
+        return members.length && members.every((element) => state.selectedIds.includes(element.id));
+      }).map((group) => group.id));
+      state.copiedElements = chosen.map(({ groupId, ...element }) => (whole.has(groupId) ? { ...element, groupId } : element));
+      state.copiedGroups = (page.groups || []).filter((group) => whole.has(group.id)).map((group) => ({ ...current(group) }));
     },
-    gestureStarted(state, { payload }) { if (!state.gesture && state.selectedIds.length) state.gesture = { token: payload, before: snapshot(state) }; },
+    selectionPasted: {
+      prepare: () => ({ payload: { seed: nanoid() } }),
+      reducer(state, { payload }) {
+        if (!state.copiedElements.length || state.gesture) return;
+        let count = 0; const makeId = () => `${payload.seed}-${count++}`;
+        const layers = cloneLayers(current(state).copiedElements, current(state).copiedGroups || [], makeId);
+        remember(state);
+        const pasted = layers.elements.map((element) => fitElement({ ...element, x: element.x + 32, y: element.y + 32 }));
+        const page = currentPageOf(state);
+        page.groups = [...(page.groups || []), ...layers.groups];
+        page.elements.push(...pasted);
+        state.copiedElements = pasted.map((element) => ({ ...element })); state.copiedGroups = layers.groups;
+        setSelection(state, pasted.map((element) => element.id), layers.groups.length === 1 && pasted.every((element) => element.groupId === layers.groups[0].id) ? "group" : "direct");
+      },
+    },
+    // A canvas gesture never starts on a selection holding a locked layer.
+    gestureStarted(state, { payload }) { if (!state.gesture && state.selectedIds.length && selectionEditable(state)) state.gesture = { token: payload, before: snapshot(state) }; },
     elementTransformed(state, { payload }) {
       const element = selected(state); if (!element || state.gesture?.token !== payload.token) return;
       Object.assign(element, fitElement({ ...element, ...payload.changes }));
@@ -317,7 +478,7 @@ const reducers = {
        selection changed between focusing the field and committing it. */
     targetChanged(state, { payload }) {
       if (state.gesture) return;
-      const target = validTarget(state, payload?.target);
+      const target = validTarget(state, payload?.target, payload?.changes);
       if (!target) return;
       const before = snapshot(state);
       applyToTarget(state, target, payload.changes);
@@ -341,8 +502,9 @@ for (const [name, definition] of Object.entries(reducers)) {
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
 export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageAnimationChanged,
-  elementSelected, elementsSelected, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
-  elementNudged, elementReordered, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
+  elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
+  elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
+export const { layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
 export default editorSlice.reducer;

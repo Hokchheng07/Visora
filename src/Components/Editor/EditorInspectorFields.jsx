@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, RotateCw } from "lucide-react";
+import { Check, RotateCcw, RotateCw } from "lucide-react";
 import { useAppDispatch } from "../redux/hook.js";
 import { targetChanged } from "../redux/editorSlice.js";
 import { ToolPopover } from "./EditorControls.jsx";
@@ -106,7 +106,7 @@ const parseNumber = (clamp, round) => (raw) => {
    by ten steps. */
 export function NumberField({
   label, name, value, min = -Infinity, max = Infinity, step = 1, decimals = 0, suffix, target, property,
-  toChanges, disabled, normalize, className = "",
+  toChanges, disabled, normalize, placeholder, className = "",
 }) {
   const dispatch = useAppDispatch();
   const session = useEditSession();
@@ -144,7 +144,7 @@ export function NumberField({
           {name}
         </span>
       )}
-      <DraftInput inputRef={inputRef} inputMode="decimal" aria-label={label} disabled={disabled} value={shown} parse={parse}
+      <DraftInput inputRef={inputRef} inputMode="decimal" aria-label={label} disabled={disabled} value={shown} parse={parse} placeholder={placeholder}
         context={target}
         onCommit={(next, captured) => dispatch(targetChanged({ target: captured, changes: toChanges(next) }))}
         onStep={(current, direction) => settle(current + direction * step)} />
@@ -245,7 +245,37 @@ export function ToggleRow({ label, checked, disabled, locked, onChange }) {
 }
 
 export function ResetStyle({ disabled, onReset, children = "Reset style" }) {
-  return <button type="button" className="editor-inspector-reset" disabled={disabled} onClick={onReset}>{children}</button>;
+  return (
+    <button type="button" className="editor-inspector-reset" disabled={disabled} onClick={onReset}>
+      <RotateCcw size={14} aria-hidden="true" />
+      <span>{children}</span>
+    </button>
+  );
+}
+
+/* Font size: type any size, or pick a common one from the list, as in Canva.
+   The list is the usual type scale; typed values outside it still work. */
+const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 120, 128];
+
+export function FontSizeField({ value, target, disabled, min = 8, max = 400 }) {
+  const dispatch = useAppDispatch();
+  const current = Math.round(value);
+  return (
+    <div className={`editor-inspector-frame editor-inspector-fontsize${disabled ? " is-disabled" : ""}`}>
+      <NumberField label="Font size" suffix="px" min={min} max={max} value={value} target={target} property="fontSize"
+        disabled={disabled} className="is-flush" toChanges={(fontSize) => ({ fontSize })} />
+      <ToolPopover label="Font sizes" disabled={disabled} anchor="bottom end" className="editor-inspector-fontsize-toggle"
+        panelClassName="editor-popover-list editor-fontsize-list" trigger={null}>
+        {({ close }) => FONT_SIZES.map((size) => (
+          <button key={size} type="button" className={`editor-menu-row${size === current ? " is-on" : ""}`} aria-pressed={size === current}
+            onClick={() => { dispatch(targetChanged({ target, changes: { fontSize: size } })); close(); }}>
+            {size === current ? <Check size={14} aria-hidden="true" /> : <span className="editor-menu-gap" aria-hidden="true" />}
+            <span>{size}</span>
+          </button>
+        ))}
+      </ToolPopover>
+    </div>
+  );
 }
 
 /* A labelled native select that commits on change. Native, not a custom menu:

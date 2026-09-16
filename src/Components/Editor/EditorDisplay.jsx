@@ -8,6 +8,7 @@ import { StaticElement } from "./EditorElement.jsx";
 import DisplayTimer from "./DisplayTimer.jsx";
 import EditorExitPrompt from "./EditorExitPrompt.jsx";
 import { compileAnimation } from "./animationPresets.js";
+import { visibleElements } from "./layerModel.js";
 
 const NEXT_KEYS = ["ArrowRight", "ArrowDown", "PageDown", " "];
 const PREVIOUS_KEYS = ["ArrowLeft", "ArrowUp", "PageUp"];
@@ -129,7 +130,7 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
     >
       <div className="editor-display-frame">
         <div className="editor-display-page" data-page-id={pages[slide]?.id}>
-          {pages[slide]?.elements.map((element) => (element.type === "timer"
+          {pages[slide] && visibleElements(pages[slide]).map((element) => (element.type === "timer"
             ? <DisplayTimer key={element.id} element={element} onRequestStop={requestStop} onRunningChange={noteTimer} />
             : <StaticElement key={element.id} element={element} layered />))}
         </div>
