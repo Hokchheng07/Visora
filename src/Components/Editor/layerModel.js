@@ -298,11 +298,14 @@ export function normalizeGroups(page) {
 export function cloneLayers(elements, groups = [], makeId) {
   const used = new Set(elements.map((element) => element.groupId).filter(Boolean));
   const ids = new Map(groups.filter((group) => used.has(group.id)).map((group) => [group.id, makeId()]));
+  const idMap = new Map(elements.map((element) => [element.id, makeId()]));
   return {
+    idMap,
     groups: groups.filter((group) => ids.has(group.id)).map((group) => ({ ...group, id: ids.get(group.id) })),
     elements: elements.map((element) => {
       const { groupId, ...rest } = element;
-      return ids.has(groupId) ? { ...rest, id: makeId(), groupId: ids.get(groupId) } : { ...rest, id: makeId() };
+      const clone = { ...rest, id: idMap.get(element.id), morphId: element.morphId || element.id };
+      return ids.has(groupId) ? { ...clone, groupId: ids.get(groupId) } : clone;
     }),
   };
 }

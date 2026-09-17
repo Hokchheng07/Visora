@@ -3,8 +3,9 @@ import { cleanName, normalizeGroups } from "./layerModel.js";
 import { cornerRadiiFor } from "./vectorPath.js";
 import { normalizeVector } from "./vectorEdit.js";
 import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./shapePaint.js";
+import { migrateAnimations, normalizeTransition, repairTimeline } from "./animationTimeline.js";
 
-export const EDITOR_SCHEMA_VERSION = 3;
+export const EDITOR_SCHEMA_VERSION = 4;
 export const STROKE_ALIGNS = ["inside", "center", "outside"];
 const unit = (value, fallback = 1) => (Number.isFinite(Number(value)) ? Math.min(1, Math.max(0, Number(value))) : fallback);
 
@@ -154,10 +155,12 @@ export function serializeDocument(editor) {
       // v3 layer fields. Written only when set, so an unnamed, ungrouped page saves as before.
       ...(cleanName(page.name) ? { name: cleanName(page.name) } : {}),
       background: page.background || { type: "COLOR", value: "#FFFFFF" },
-      ...(page.animation ? { animation: page.animation } : {}),
+      ...(normalizeTransition(page.transition) ? { transition: normalizeTransition(page.transition) } : {}),
+      animations: repairTimeline(page),
       ...(page.groups?.length ? { groups: page.groups.map((group) => ({ uuid: group.id, name: group.name, visible: group.visible !== false, locked: !!group.locked })) } : {}),
       components: page.elements.map((element, layerIndex) => ({
         uuid: element.id,
+        ...(element.morphId ? { morphId: element.morphId } : {}),
         type: element.type === "text" ? "TEXT" : element.type === "timer" ? "COUNTDOWN_TIMER" : "SHAPE",
         ...(cleanName(element.name) ? { name: cleanName(element.name) } : {}),
         ...(element.groupId ? { groupUuid: element.groupId } : {}),
@@ -193,7 +196,6 @@ export function serializeDocument(editor) {
           // would have inherited the same hole.
           opacity: element.opacity,
         } : shapeStyles(element),
-        ...(element.animation ? { animation: element.animation } : {}),
       })),
     })),
   };
@@ -217,14 +219,19 @@ export function migrateDocument(value) {
   return {
     ...value,
     clientSchemaVersion: EDITOR_SCHEMA_VERSION,
-    pages: value.pages.map((page) => ({
-      ...page,
+    pages: value.pages.map((page) => {
+      const migrated = migrateAnimations({ ...page, id: page.uuid, elements: (page.components || []).map((component) => ({ ...component, id: component.uuid })) });
+      const { animation: _old, ...rest } = page;
+      return ({
+      ...rest,
+      transition: migrated.transition,
+      animations: migrated.animations,
       components: (page.components || []).map((component) => (
         component?.type === "COUNTDOWN_TIMER"
-          ? { ...component, timer: normalizeTimer(component.timer) }
-          : component
+          ? (({ animation: _animation, ...item }) => ({ ...item, timer: normalizeTimer(item.timer) }))(component)
+          : (({ animation: _animation, ...item }) => item)(component)
       )),
-    })),
+    }); }),
   };
 }
 
@@ -259,14 +266,16 @@ export function hydrateDocument(document) {
     pages: value.pages.map((page) => {
       const groups = hydrateGroups(page.groups, seenGroups);
       const groupIds = new Map(groups.map((group) => [group.source, group.id]));
-      return normalizeGroups({
+      const hydrated = normalizeGroups({
         id: page.uuid,
         ...(cleanName(page.name) ? { name: cleanName(page.name) } : {}),
         background: page.background || { type: "COLOR", value: "#FFFFFF" },
-        ...(page.animation ? { animation: page.animation } : {}),
+        ...(normalizeTransition(page.transition) ? { transition: normalizeTransition(page.transition) } : {}),
+        animations: page.animations || [],
         groups: groups.map(({ source: _source, ...group }) => group),
         elements: page.components.map((component) => ({
           id: component.uuid,
+          ...(typeof component.morphId === "string" && component.morphId ? { morphId: component.morphId } : {}),
           type: component.type === "TEXT" ? "text" : component.type === "COUNTDOWN_TIMER" ? "timer" : "shape",
           ...(cleanName(component.name) ? { name: cleanName(component.name) } : {}),
           ...(groupIds.has(component.groupUuid) ? { groupId: groupIds.get(component.groupUuid) } : {}),
@@ -299,9 +308,10 @@ export function hydrateDocument(document) {
             textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
             effects: normalizeEffects(component.styles?.effects),
           } : {}),
-          ...(component.animation ? { animation: component.animation } : {}),
         })),
       });
+      hydrated.animations = repairTimeline(hydrated);
+      return hydrated;
     }),
   };
 }
