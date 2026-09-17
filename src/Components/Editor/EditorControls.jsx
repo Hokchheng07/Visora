@@ -53,7 +53,7 @@ export function Stepper({ value, min = 1, max = 999, step = 1, onChange, label, 
 
 /* 3. Popover. One wrapper so every panel in the editor opens, closes, flips and
       returns focus the same way. */
-export function ToolPopover({ label, disabled, children, trigger, className = "", panelClassName = "" }) {
+export function ToolPopover({ label, disabled, children, trigger, className = "", panelClassName = "", anchor = "bottom start" }) {
   return (
     <Popover className="editor-ctl-popover-root">
       <PopoverButton as="button" type="button" disabled={disabled}
@@ -61,7 +61,7 @@ export function ToolPopover({ label, disabled, children, trigger, className = ""
         {trigger}
         <ChevronDown size={12} className="editor-ctl-caret" aria-hidden="true" />
       </PopoverButton>
-      <PopoverPanel anchor={{ to: "bottom start", gap: 8, padding: 12 }}
+      <PopoverPanel anchor={{ to: anchor, gap: 8, padding: 12 }}
         className={`editor-popover ${panelClassName}`}>
         {children}
       </PopoverPanel>

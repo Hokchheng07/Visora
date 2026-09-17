@@ -7,7 +7,7 @@ import { CANVAS_WIDTH, resizeElement } from "./elementGeometry.js";
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
 const LABELS = { nw: "top left", n: "top", ne: "top right", e: "right", se: "bottom right", s: "bottom", sw: "bottom left", w: "left" };
 
-export default function EditorSelectionFrame({ element, sheetRef }) {
+export default function EditorSelectionFrame({ element, sheetRef, locked = false }) {
   const gestureRef = useRef(null);
   const dispatch = useAppDispatch(), store = useAppStore();
   const token = `handle:${element.id}`;
@@ -57,7 +57,7 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
       let rotation = g.start.rotation + (Math.atan2(event.clientY - g.cy, event.clientX - g.cx) - g.angle) * 180 / Math.PI;
       if (event.shiftKey) rotation = Math.round(rotation / 15) * 15;
       changes = { rotation: ((rotation % 360) + 360) % 360 };
-    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey);
+    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey !== !!g.start.lockAspect);
     dispatch(elementTransformed({ token, changes }));
   }
   function end(event, cancelled = false) {
@@ -77,7 +77,8 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
     } else {
       const dx = event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
       const dy = event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
-      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey)));
+      // A locked shape keeps its proportions; Shift does the opposite, as in Figma.
+      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey !== !!element.lockAspect)));
     }
   }
   function events(handle) {
@@ -85,6 +86,8 @@ export default function EditorSelectionFrame({ element, sheetRef }) {
       onPointerUp: (event) => end(event), onPointerCancel: (event) => end(event, true),
       onLostPointerCapture: (event) => end(event, true), onKeyDown: (event) => keyboard(event, handle) };
   }
+  // A locked layer picked from the Layers panel shows where it is, with nothing to grab.
+  if (locked) return <div className="editor-selection-frame is-locked" aria-hidden="true" />;
   return <div className="editor-selection-frame" role="group" aria-label="Transform selected shape">
     {HANDLES.map((handle) => <button key={handle} type="button" className={`editor-resize-handle is-${handle}`}
       aria-label={`Resize ${LABELS[handle]}`} title={`Resize ${LABELS[handle]}`} {...events(handle)} />)}

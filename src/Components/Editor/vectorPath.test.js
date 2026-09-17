@@ -75,3 +75,78 @@ test("a pill keeps semicircle ends at any size, wide or tall", () => {
   }
   assert.equal(presetVector("pill", 300, 300).subpaths[0].nodes.length, 4, "a square pill is a circle");
 });
+
+test("all seventeen catalog shapes have point data", async () => {
+  const { shapeCatalog } = await import("./shapeCatalog.js");
+  for (const shape of shapeCatalog) assert.ok(presetVector(shape.id, shape.w, shape.h), `${shape.id} has no point data`);
+});
+
+test("corner radius rounds straight corners with a real circular arc and leaves curves alone", async () => {
+  const { roundCorners } = await import("./vectorPath.js");
+  const square = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }].map((n) => ({ ...n, in: null, out: null }));
+  const rounded = roundCorners(square, 10);
+  assert.equal(rounded.length, 8);
+  const near = (node, x, y) => assert.ok(Math.abs(node.x - x) < 1e-9 && Math.abs(node.y - y) < 1e-9, `${node.x},${node.y} is not ${x},${y}`);
+  near(rounded[0], 0, 10);
+  near(rounded[1], 10, 0);
+  // For a right angle the handle is 4/3·tan(π/8)·r ≈ 0.5523·r.
+  assert.ok(Math.abs(Math.hypot(rounded[0].out.dx, rounded[0].out.dy) - 5.523) < 0.01);
+  const circle = presetVectors.circle.subpaths[0].nodes;
+  assert.equal(roundCorners(circle, 20).length, circle.length);
+});
+
+test("a radius too big for the shape shrinks to fit instead of overlapping", async () => {
+  const { roundCorners } = await import("./vectorPath.js");
+  const thin = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 10 }, { x: 0, y: 10 }].map((n) => ({ ...n, in: null, out: null }));
+  const rounded = roundCorners(thin, 500);
+  assert.ok(rounded.every((node) => node.y >= -1e-9 && node.y <= 10 + 1e-9 && node.x >= -1e-9 && node.x <= 100 + 1e-9));
+  assert.ok(Math.abs(rounded[0].x) < 1e-9 && Math.abs(rounded[0].y - 5) < 1e-9);
+});
+
+test("shape paths are drawn in the element's pixels, so corners stay circular when stretched", async () => {
+  const { shapePath } = await import("./vectorPath.js");
+  assert.equal(shapePath({ shape: "rectangle", w: 400, h: 100 }), "M0 0L400 0L400 100L0 100Z");
+  const d = shapePath({ shape: "rectangle", w: 400, h: 100, cornerRadius: 20 });
+  assert.match(d, /^M0 20C/);
+  assert.match(d, /L380 0C/);
+});
+
+test("flipping mirrors the outline inside the same box", async () => {
+  const { shapePath } = await import("./vectorPath.js");
+  assert.equal(shapePath({ shape: "triangle", w: 100, h: 100, flipY: true }), "M50 100L100 0L0 0Z");
+  assert.equal(shapePath({ shape: "arrow-right", w: 100, h: 100, flipX: true }).startsWith("M40 8L2 50"), true);
+});
+
+test("each corner of a rectangle can take its own radius, following the corner you see after a flip", async () => {
+  const { shapePath: path } = await import("./vectorPath.js");
+  // Top left 0, top right 30, bottom right 0, bottom left 10.
+  const d = path({ shape: "rectangle", w: 200, h: 100, cornerRadii: [0, 30, 0, 10] });
+  assert.ok(d.startsWith("M0 0L170 0C"), d);
+  assert.match(d, /L200 100L10 100C/);
+  const flipped = path({ shape: "rectangle", w: 200, h: 100, cornerRadii: [0, 30, 0, 10], flipX: true });
+  // Still sharp at the top left and round at the top right after mirroring.
+  // A flip reverses the drawing direction: the arc now runs from the right edge into the top edge.
+  assert.match(flipped, /^M200 30C200 13\.431 186\.569 0 170 0L0 0L0 90C/);
+});
+
+test("per-corner radii apply only to rectangles; other shapes keep the single radius", async () => {
+  const { cornerRadiiFor, shapePath: path } = await import("./vectorPath.js");
+  assert.deepEqual(cornerRadiiFor("square", undefined, [1, 2, 3, 4]), [1, 2, 3, 4]);
+  assert.equal(cornerRadiiFor("star", undefined, [1, 2, 3, 4]), null);
+  assert.equal(cornerRadiiFor("square", undefined, [1, 2, -3, 4]), null);
+  assert.equal(cornerRadiiFor("square", { subpaths: [] }, [1, 2, 3, 4]), null);
+  assert.equal(path({ shape: "star", w: 100, h: 100, cornerRadius: 5, cornerRadii: [0, 0, 0, 0] }), path({ shape: "star", w: 100, h: 100, cornerRadius: 5 }));
+});
+
+test("corner radii save only when the corners differ, and load back", async () => {
+  const { hydrateDocument, serializeDocument } = await import("./editorDocument.js");
+  const editor = (element) => ({ title: "T", pages: [{ id: "p", elements: [{ id: "s", type: "shape", shape: "square", x: 0, y: 0, w: 100, h: 100, rotation: 0, fill: "#000000", ...element }] }] });
+  const styles = (element) => serializeDocument(editor(element)).pages[0].components[0].styles;
+  assert.deepEqual(styles({ cornerRadius: 0, cornerRadii: [4, 0, 12, 0] }).cornerRadii, [4, 0, 12, 0]);
+  const equal = styles({ cornerRadius: 0, cornerRadii: [8, 8, 8, 8] });
+  assert.equal(equal.cornerRadii, undefined);
+  assert.equal(equal.cornerRadius, 8);
+  assert.equal("cornerRadii" in styles({ cornerRadius: 6 }), false);
+  const loaded = hydrateDocument(serializeDocument(editor({ cornerRadii: [4, 0, 12, 0] })));
+  assert.deepEqual(loaded.pages[0].elements[0].cornerRadii, [4, 0, 12, 0]);
+});

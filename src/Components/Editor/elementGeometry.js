@@ -1,6 +1,18 @@
 export const CANVAS_WIDTH = 1920;
 export const CANVAS_HEIGHT = 1080;
 export const MIN_SIZE = 24;
+/* The work area: the page plus one page of room on every side, the way Figma's
+   canvas and Canva's workspace let an element wait just off-stage. Elements
+   may live out here — a morph can then slide one onto the page — but nothing
+   out here is shown in display mode, page thumbnails or an image export, which
+   clip to the page. These are the ranges the API documents. */
+export const WORK_MARGIN_X = CANVAS_WIDTH;
+export const WORK_MARGIN_Y = CANVAS_HEIGHT;
+export const WORK_AREA = { left: -WORK_MARGIN_X, top: -WORK_MARGIN_Y, right: CANVAS_WIDTH + WORK_MARGIN_X, bottom: CANVAS_HEIGHT + WORK_MARGIN_Y };
+export const MAX_WIDTH = CANVAS_WIDTH * 3;
+export const MAX_HEIGHT = CANVAS_HEIGHT * 3;
+// Whether any of the element shows on the page, which is all display mode draws.
+export const onPage = (element) => intersectsRect(element, { left: 0, top: 0, right: CANVAS_WIDTH, bottom: CANVAS_HEIGHT });
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export const radians = (degrees) => degrees * Math.PI / 180;
 
@@ -27,8 +39,8 @@ export function clampSelectionDelta(elements, dx, dy) {
   const box = selectionBounds(elements);
   if (!box) return { x: 0, y: 0 };
   return {
-    x: clamp(dx, -box.left, CANVAS_WIDTH - box.right),
-    y: clamp(dy, -box.top, CANVAS_HEIGHT - box.bottom),
+    x: clamp(dx, WORK_AREA.left - box.left, WORK_AREA.right - box.right),
+    y: clamp(dy, WORK_AREA.top - box.top, WORK_AREA.bottom - box.bottom),
   };
 }
 
@@ -75,22 +87,32 @@ export function snapSelectionDelta(selectedElements, otherElements, dx, dy, thre
   };
 }
 
+/* How much a locked corner drag scales a box. The pointer's offset is
+   projected onto the box's diagonal (anchor to dragged corner), as Figma does,
+   so the size changes smoothly wherever the pointer goes. Picking whichever of
+   width or height changed more instead flips between growing and shrinking
+   when the pointer moves across the other diagonal, and the box jumps. */
+export function diagonalScale(w, h, sx, sy, dx, dy) {
+  const cornerX = sx * w, cornerY = sy * h;
+  const length = cornerX * cornerX + cornerY * cornerY;
+  return length > 0 ? ((cornerX + dx) * cornerX + (cornerY + dy) * cornerY) / length : 1;
+}
+
 export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = false) {
   if (!startBox || !elements.length) return elements;
   const sx = handle.includes("e") ? 1 : handle.includes("w") ? -1 : 0;
   const sy = handle.includes("s") ? 1 : handle.includes("n") ? -1 : 0;
   /* The anchored edge never moves, so it sets how far the opposite edge can
-     travel before the group leaves the sheet. Capping here rather than
+     travel before the group leaves the work area. Capping here rather than
      nudging afterwards: a shift can only rescue one side, so a group grown
-     wider than the sheet used to be pushed off the far edge instead. */
-  const maxW = sx > 0 ? CANVAS_WIDTH - startBox.left : sx < 0 ? startBox.right : startBox.w;
-  const maxH = sy > 0 ? CANVAS_HEIGHT - startBox.top : sy < 0 ? startBox.bottom : startBox.h;
+     wider than the area used to be pushed off the far edge instead. */
+  const maxW = sx > 0 ? WORK_AREA.right - startBox.left : sx < 0 ? startBox.right - WORK_AREA.left : startBox.w;
+  const maxH = sy > 0 ? WORK_AREA.bottom - startBox.top : sy < 0 ? startBox.bottom - WORK_AREA.top : startBox.h;
   let nextW = clamp(startBox.w + sx * dx, MIN_SIZE, Math.max(MIN_SIZE, maxW));
   let nextH = clamp(startBox.h + sy * dy, MIN_SIZE, Math.max(MIN_SIZE, maxH));
   if (lockAspect && sx && sy) {
-    const ratio = startBox.w / startBox.h;
-    if (Math.abs(dx) > Math.abs(dy)) nextH = nextW / ratio;
-    else nextW = nextH * ratio;
+    const scale = diagonalScale(startBox.w, startBox.h, sx, sy, dx, dy);
+    nextW = startBox.w * scale; nextH = startBox.h * scale;
     // Re-fit the locked pair as a pair, so holding Shift can't defeat the caps.
     const shrink = Math.min(1, maxW / nextW, maxH / nextH);
     nextW *= shrink; nextH *= shrink;
@@ -119,20 +141,22 @@ export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = 
     return next;
   });
   const box = selectionBounds(candidates);
-  const shiftX = box.left < 0 ? -box.left : box.right > CANVAS_WIDTH ? CANVAS_WIDTH - box.right : 0;
-  const shiftY = box.top < 0 ? -box.top : box.bottom > CANVAS_HEIGHT ? CANVAS_HEIGHT - box.bottom : 0;
+  const shiftX = box.left < WORK_AREA.left ? WORK_AREA.left - box.left : box.right > WORK_AREA.right ? WORK_AREA.right - box.right : 0;
+  const shiftY = box.top < WORK_AREA.top ? WORK_AREA.top - box.top : box.bottom > WORK_AREA.bottom ? WORK_AREA.bottom - box.bottom : 0;
   return candidates.map((element) => ({ ...element, x: element.x + shiftX, y: element.y + shiftY }));
 }
 
+/* Keeps an element inside the work area, which is where it may be, not inside
+   the page, which is only what the audience sees. */
 export function fitElement(element) {
-  let result = { ...element, w: Math.max(MIN_SIZE, element.w), h: Math.max(MIN_SIZE, element.h) };
+  let result = { ...element, w: clamp(element.w, MIN_SIZE, MAX_WIDTH), h: clamp(element.h, MIN_SIZE, MAX_HEIGHT) };
   let box = bounds(result);
-  const ratio = Math.min(1, CANVAS_WIDTH / (box.halfW * 2), CANVAS_HEIGHT / (box.halfH * 2));
+  const ratio = Math.min(1, MAX_WIDTH / (box.halfW * 2), MAX_HEIGHT / (box.halfH * 2));
   result.w *= ratio;
   result.h *= ratio;
   box = bounds(result);
-  result.x = clamp(result.x + result.w / 2, box.halfW, CANVAS_WIDTH - box.halfW) - result.w / 2;
-  result.y = clamp(result.y + result.h / 2, box.halfH, CANVAS_HEIGHT - box.halfH) - result.h / 2;
+  result.x = clamp(result.x + result.w / 2, WORK_AREA.left + box.halfW, WORK_AREA.right - box.halfW) - result.w / 2;
+  result.y = clamp(result.y + result.h / 2, WORK_AREA.top + box.halfH, WORK_AREA.bottom - box.halfH) - result.h / 2;
   return result;
 }
 
@@ -146,8 +170,7 @@ export function resizeElement(start, handle, dx, dy, lockAspect = false) {
   let w = Math.max(MIN_SIZE, start.w + sx * localX);
   let h = Math.max(MIN_SIZE, start.h + sy * localY);
   if (lockAspect && sx && sy) {
-    const rx = (w - start.w) / start.w, ry = (h - start.h) / start.h;
-    const ratio = Math.max(MIN_SIZE / start.w, MIN_SIZE / start.h, 1 + (Math.abs(rx) > Math.abs(ry) ? rx : ry));
+    const ratio = Math.max(MIN_SIZE / start.w, MIN_SIZE / start.h, diagonalScale(start.w, start.h, sx, sy, localX, localY));
     w = start.w * ratio;
     h = start.h * ratio;
   }
@@ -159,7 +182,8 @@ export function resizeElement(start, handle, dx, dy, lockAspect = false) {
   }
   function fits(candidate) {
     const b = bounds(candidate);
-    return b.left >= -0.001 && b.top >= -0.001 && b.right <= CANVAS_WIDTH + 0.001 && b.bottom <= CANVAS_HEIGHT + 0.001;
+    return b.left >= WORK_AREA.left - 0.001 && b.top >= WORK_AREA.top - 0.001
+      && b.right <= WORK_AREA.right + 0.001 && b.bottom <= WORK_AREA.bottom + 0.001;
   }
   const candidate = at(1);
   if (fits(candidate)) return candidate;
