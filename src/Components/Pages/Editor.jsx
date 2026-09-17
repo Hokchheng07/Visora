@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import EditorCanvas from "../Editor/EditorCanvas";
 import EditorInspector from "../Editor/EditorInspector.jsx";
+import EditorAnimationPane from "../Editor/EditorAnimationPane.jsx";
 import EditorEffectDefs from "../Editor/EditorEffectDefs.jsx";
 import { hasVisibleEffects, strokeOverflow } from "../Editor/effectsFilter.js";
 import EditorDisplay from "../Editor/EditorDisplay";
@@ -38,12 +39,18 @@ export default function Editor() {
   const [dismissedFor, setDismissedFor] = useState(null);
   const showInspector = shownFor !== "" && dismissedFor !== shownFor;
   const [activeTool, setActiveTool] = useState("templates");
+  const [previewPage, setPreviewPage] = useState(null);
+  const [animationDismissed, setAnimationDismissed] = useState(false);
   // The canvas is the point of the page, so it starts unobstructed.
   const [isPanelOpen, setPanelOpen] = useState(false);
   const [showRulers, setShowRulers] = useState(true);
   const [isDisplayOpen, setDisplayOpen] = useState(false);
   const [inspectorWidth, setInspectorWidth] = useState(readInspectorWidth);
   const [isResizing, setResizing] = useState(false);
+  const showAnimations = activeTool === "animations" && !animationDismissed;
+  const showRightPane = showAnimations || (activeTool !== "animations" && showInspector);
+  const previewing = showAnimations && isPanelOpen && previewPage === pages[currentPage];
+  const stopPreview = () => setPreviewPage(null);
 
   const railRef = useRef(null);
   const panelRef = useRef(null);
@@ -57,7 +64,7 @@ export default function Editor() {
 
     function handlePointerDown(event) {
       // Page and context menus float outside the bar, but using them should not close the panel either.
-      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar, .editor-page-menu, .editor-context-menu, .editor-panel-toggle, .editor-inspector-resizer")) return;
+      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar, .editor-page-menu, .editor-context-menu, .editor-panel-toggle, .editor-inspector-resizer, .editor-inspector")) return;
       if (railRef.current?.contains(event.target) || panelRef.current?.contains(event.target)) return;
       setPanelOpen(false);
     }
@@ -86,6 +93,7 @@ export default function Editor() {
   }, [isDisplayOpen]);
 
   function handleToolChange(id) {
+    stopPreview(); setAnimationDismissed(false);
     if (id === activeTool) {
       setPanelOpen((open) => !open);
       return;
@@ -135,9 +143,11 @@ export default function Editor() {
         .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) })))} />
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
       <div
-        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showInspector && inspectorDocked ? " has-inspector" : ""}${isResizing ? " is-resizing" : ""}`}
+        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showRightPane && inspectorDocked ? " has-inspector" : ""}${isResizing ? " is-resizing" : ""}`}
         style={{ "--inspector-w": `${inspectorWidth}px` }}
         inert={isDisplayOpen}
+        onPointerDownCapture={(event) => { if (previewing && !event.target.closest(".editor-animation-preview-toggle")) stopPreview(); }}
+        onKeyDownCapture={() => { if (previewing) stopPreview(); }}
       >
         <EditorSidebar
           ref={railRef}
@@ -153,9 +163,13 @@ export default function Editor() {
           onPageAction={handlePageAction}
           showRulers={showRulers}
           onToggleRulers={() => setShowRulers((visible) => !visible)}
+          onAnimate={() => { setActiveTool("animations"); setAnimationDismissed(false); setPanelOpen(true); }}
+          previewing={previewing && !isDisplayOpen}
+          onPreviewDone={stopPreview}
         />
-        {showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
-        {showInspector && <InspectorResizer width={inspectorWidth} onResize={setInspectorWidth} onResizing={setResizing} />}
+        {showAnimations ? <EditorAnimationPane docked={inspectorDocked} previewing={previewing} onPreview={() => setPreviewPage(pages[currentPage])} onStopPreview={stopPreview}
+          onClose={() => { setAnimationDismissed(true); stopPreview(); }} /> : activeTool !== "animations" && showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
+        {showRightPane && <InspectorResizer width={inspectorWidth} onResize={setInspectorWidth} onResizing={setResizing} />}
       </div>
       {/* Rendered inside the shell, not through a portal, so it keeps the
           --editor-* tokens and focus ring scoped to .editor-shell. */}

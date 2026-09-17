@@ -9,8 +9,10 @@ import { usePanelDragInsert } from "./usePanelDragInsert.js";
 import EditorLayersPanel from "./EditorLayersPanel.jsx";
 import { ShapeArtwork } from "./EditorElement.jsx";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { elementChanged, pageAnimationChanged, textInserted, timerInserted } from "../redux/editorSlice.js";
-import { animationPresets, compileAnimation } from "./animationPresets.js";
+import { animationAdded, pageTransitionChanged, textInserted, timerInserted } from "../redux/editorSlice.js";
+import { compileAnimation, presetLabel, transitionPresets } from "./animationPresets.js";
+import { insertionRows, PRESETS, validateTimeline } from "./animationTimeline.js";
+import { effectiveLocked } from "./layerModel.js";
 
 // Templates stay placeholders until the template API is connected.
 function TemplatesPanel() {
@@ -137,17 +139,20 @@ function TimerPanel() {
   );
 }
 
-function AnimationPreview({ preset, active, disabled, onChoose }) {
+function AnimationPreview({ preset, active, disabled, reason, kind, onChoose }) {
   const demoRef = useRef(null), runningRef = useRef(null); const reduceMotion = useReducedMotion();
   function stop() { runningRef.current?.revert(); runningRef.current = null; }
   function play() {
     stop(); if (!demoRef.current || preset.id === "none") return;
-    const params = compileAnimation({ preset: preset.id, duration: 620 }, reduceMotion);
+    const params = compileAnimation({ preset: preset.id === "morph" ? "slide-left" : preset.id, durationMs: 520 }, reduceMotion);
+    if (preset.id === "pulse") { params.loop = 1; params.duration = 350; }
+    if (kind === "exit") { params.opacity = [1, 0]; if (!reduceMotion) { if (params.translateY) params.translateY = [0, 32]; if (params.translateX) params.translateX = [0, -48]; if (params.scale) params.scale = [1, .95]; } }
+    if (preset.id === "morph" && !reduceMotion) { params.translateX = [-24, 24]; params.backgroundColor = ["#705AE0", "#D7AC57"]; params.opacity = 1; }
     runningRef.current = animate(demoRef.current, params);
   }
   useEffect(() => stop, []);
-  return <button type="button" className={`editor-animation-preview${active ? " is-active" : ""}`} disabled={disabled}
-    aria-pressed={active} onPointerEnter={(event) => { if (event.pointerType !== "touch") play(); }} onPointerLeave={stop}
+  return <button type="button" className={`editor-animation-preview${active ? " is-active" : ""}`} disabled={disabled} title={reason}
+    aria-pressed={active} onPointerEnter={(event) => { if (event.pointerType === "mouse" && window.matchMedia?.("(hover: hover)").matches) play(); }} onPointerLeave={stop}
     onFocus={play} onBlur={stop} onClick={() => { play(); onChoose(preset.id); }}>
     <span className="editor-animation-stage" aria-hidden="true"><span ref={demoRef} className="editor-animation-demo"><i /><i /><i /></span></span>
     <span>{preset.label}</span>
@@ -155,25 +160,26 @@ function AnimationPreview({ preset, active, disabled, onChoose }) {
 }
 
 function AnimationsPanel() {
-  const dispatch = useAppDispatch(); const [mode, setMode] = useState("page");
-  const { pages, currentPage, selectedId, selectedIds } = useAppSelector((state) => state.editor);
-  const page = pages[currentPage]; const element = page.elements.find((item) => item.id === selectedId);
-  const currentPreset = mode === "page" ? page.animation?.preset || "none" : element?.animation?.preset || "none";
-  const presets = mode === "page" ? animationPresets.filter((preset) => preset.id !== "pulse") : animationPresets;
-  function choose(preset) {
-    if (mode === "page") dispatch(pageAnimationChanged(preset));
-    else if (selectedIds.length) dispatch(elementChanged({ animation: preset === "none" ? undefined : { preset } }));
-  }
+  const dispatch = useAppDispatch(); const [trigger, setTrigger] = useState("with");
+  const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
+  const page = pages[currentPage];
+  const locked = page.elements.some((element) => selectedIds.includes(element.id) && effectiveLocked(page, element));
   return <>
-    <div className="editor-animation-modes" role="tablist" aria-label="Animation target">
-      <button type="button" role="tab" aria-selected={mode === "page"} onClick={() => setMode("page")}>Page</button>
-      <button type="button" role="tab" aria-selected={mode === "element"} onClick={() => setMode("element")}>Element</button>
-    </div>
-    <p className="editor-panel-description">{mode === "page" ? `Animate page ${currentPage + 1} when it appears.` : selectedIds.length ? `Animate ${selectedIds.length === 1 ? "the selected element" : `${selectedIds.length} selected elements`}.` : "Select an element on the canvas first."}</p>
-    <div className="editor-animation-grid" aria-label={`${mode} animation presets`}>
-      {presets.map((preset) => <AnimationPreview key={preset.id} preset={preset} active={preset.id === currentPreset}
-        disabled={mode === "element" && !selectedIds.length} onChoose={choose} />)}
-    </div>
+    <h3 className="editor-panel-subtitle">Page transition</h3>
+    <div className="editor-animation-grid" aria-label="Page transition presets">{transitionPresets.map((preset) => <AnimationPreview key={preset.id} preset={preset}
+      active={preset.id === (page.transition?.preset || "none")} disabled={!!gesture} onChoose={(id) => dispatch(pageTransitionChanged({ ...page.transition, preset: id }))} />)}</div>
+    <p className="editor-panel-description">{selectedIds.length ? `Add an animation to ${selectedIds.length === 1 ? "the selected element" : `each of ${selectedIds.length} selected elements`}.` : "Select an element on the canvas to animate it."}</p>
+    <label className="editor-animation-trigger">New animation starts<select aria-label="New animation trigger" value={trigger} onChange={(event) => setTrigger(event.target.value)}>
+      <option value="with">With previous (automatic on entry)</option><option value="after">After previous</option><option value="click">On click</option>
+    </select></label>
+    {Object.entries(PRESETS).map(([kind, presets]) => <section key={kind}><h3 className="editor-panel-subtitle">{kind[0].toUpperCase() + kind.slice(1)}</h3>
+      <div className="editor-animation-grid" aria-label={`${kind} presets`}>{presets.map((preset) => {
+        const candidate = insertionRows(page, selectedIds, kind, preset, trigger);
+        const errors = validateTimeline({ ...page, animations: [...(page.animations || []), ...candidate] });
+        const reason = !selectedIds.length ? "Select an element first" : locked ? "Unlock the selection to animate it" : errors.length ? "Already added, overlapping, or out of order. Try On click or After previous." : undefined;
+        return <AnimationPreview key={preset} kind={kind} preset={{ id: preset, label: presetLabel({ kind, preset }) }} disabled={!!reason || !!gesture} reason={reason}
+          onChoose={() => dispatch(animationAdded({ kind, preset, trigger }))} />;
+      })}</div></section>)}
   </>;
 }
 

@@ -263,7 +263,7 @@ test("underline survives save and load, and plain text stays byte-identical", as
   const target = { kind: "elements", pageId: state.pages[0].id, ids: [state.pages[0].elements[0].id] };
   state = reducer(state, targetChanged({ target, changes: { textDecoration: "underline" } }));
   const saved = serializeDocument(state);
-  assert.equal(saved.clientSchemaVersion, 3);
+  assert.equal(saved.clientSchemaVersion, EDITOR_SCHEMA_VERSION);
   assert.equal(saved.pages[0].components[0].styles.textDecoration, "underline");
   assert.equal(hydrateDocument(saved).pages[0].elements[0].textDecoration, "underline");
 });

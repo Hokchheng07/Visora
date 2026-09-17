@@ -14,6 +14,7 @@ import EditorContextMenu from "./EditorContextMenu.jsx";
 import { elementMenuItems, canvasMenuItems } from "./editorMenus.js";
 import { canvasSelectable, effectiveLocked, effectiveVisible, stepLayers, canGroup, selectedGroup, pageLabel } from "./layerModel.js";
 import { pageTarget } from "./inspectorEdit.js";
+import AnimationSurface from "./AnimationSurface.jsx";
 
 export default function EditorCanvas({
   canPaste,
@@ -21,6 +22,9 @@ export default function EditorCanvas({
   onPageAction,
   showRulers,
   onToggleRulers,
+  onAnimate,
+  previewing = false,
+  onPreviewDone,
 }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
@@ -140,7 +144,7 @@ export default function EditorCanvas({
             page strip and zoom sit below it so the (3x page) work area can
             never push them out of sight. */}
         <div className="editor-canvas-view">
-        <EditorPageBar />
+        <EditorPageBar onAnimate={onAnimate} />
         {showRulers && (
           <>
             <span className="editor-ruler-corner" aria-hidden="true" />
@@ -193,6 +197,7 @@ export default function EditorCanvas({
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
                   {snapGuides.map((guide) => <span key={`${guide.axis}:${guide.value}`} className={`editor-snap-guide is-${guide.axis}`}
                     style={guide.axis === "x" ? { left: `${guide.value / 19.2}%` } : { top: `${guide.value / 10.8}%` }} />)}
+                  {previewing && <div className="editor-animation-canvas-preview"><AnimationSurface page={page} preview onDone={onPreviewDone} /></div>}
                 </div>
                 </div>
                 </div>

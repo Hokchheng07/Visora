@@ -7,13 +7,15 @@ export const animationPresets = [
   { id: "pulse", label: "Gentle pulse" },
 ];
 
-const EASE_OUT = "cubicBezier(0.23, 1, 0.32, 1)";
-const EASE_IN_OUT = "cubicBezier(0.77, 0, 0.175, 1)";
+export const EASE_OUT = "cubicBezier(0.23, 1, 0.32, 1)";
+export const EASE_IN_OUT = "cubicBezier(0.77, 0, 0.175, 1)";
+export const transitionPresets = [...animationPresets.filter((item) => item.id !== "pulse"), { id: "morph", label: "Morph" }];
+export const presetLabel = (row) => row.kind === "emphasis" ? "Pulse" : `${({ fade: "Fade", rise: row.kind === "exit" ? "Sink" : "Rise", "slide-left": "Slide", pop: "Pop" })[row.preset]} ${row.kind === "exit" ? "out" : "in"}`;
 
 export function compileAnimation(animation, reducedMotion = false) {
   const preset = animation?.preset || "none";
-  const duration = animation?.duration || 520;
-  const delay = animation?.delay || 0;
+  const duration = animation?.durationMs ?? animation?.duration ?? 520;
+  const delay = animation?.delayMs ?? animation?.delay ?? 0;
   if (preset === "none") return null;
   if (reducedMotion) return { opacity: [0, 1], duration: 200, delay, ease: EASE_OUT };
   if (preset === "fade") return { opacity: [0, 1], duration, delay, ease: EASE_OUT };

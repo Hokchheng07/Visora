@@ -2,6 +2,7 @@ import { createSlice, current, nanoid } from "@reduxjs/toolkit";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/elementGeometry.js";
 import { shapeCatalog } from "../Editor/shapeCatalog.js";
 import { defaultTimer, normalizeTimer } from "../Editor/editorDocument.js";
+import { appendAnimations, extractAnimations, insertionRows, migrateAnimations, normalizeTransition, removeAnimationRows, remapAnimations, repairTimeline, validateTimeline } from "../Editor/animationTimeline.js";
 import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
   stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/layerModel.js";
 
@@ -9,7 +10,7 @@ export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
-  past: [], future: [], gesture: null, edit: null, pointEdit: null, copiedPage: null, copiedElements: [], copiedGroups: [], zoom: null, snapGuides: [],
+  past: [], future: [], gesture: null, edit: null, pointEdit: null, copiedPage: null, copiedElements: [], copiedGroups: [], copiedAnimations: [], zoom: null, snapGuides: [],
 };
 
 /* Every selection change comes through here. `mode` is "group" only when a
@@ -82,7 +83,7 @@ const mergeTimer = (timer, changes) => normalizeTimer({
   onComplete: { ...timer?.onComplete, ...(changes.onComplete || {}) },
   controls: { ...timer?.controls, ...(changes.controls || {}) },
 });
-const PAGE_FIELDS = ["background", "animation", "name"];
+const PAGE_FIELDS = ["background", "transition", "name"];
 const GROUP_FIELDS = ["name", "visible", "locked"];
 // The only changes a locked layer accepts: it can still be renamed, hidden, shown or unlocked.
 const LOCK_SAFE = new Set(["name", "visible", "locked"]);
@@ -92,6 +93,10 @@ function validTarget(state, target, changes) {
   const page = state.pages.find((item) => item.id === target?.pageId);
   if (!page) return null;
   if (target.kind === "page") return { kind: "page", pageId: page.id };
+  if (target.kind === "animation") {
+    const row = (page.animations || []).find((item) => item.id === target.rowId);
+    return row && isEditable(state, [row.elementId], page) ? { kind: "animation", pageId: page.id, rowId: row.id } : null;
+  }
   if (target.kind === "group") return (page.groups || []).some((group) => group.id === target.groupId) ? { kind: "group", pageId: page.id, groupId: target.groupId } : null;
   if (target.kind !== "elements" && target.kind !== "timer") return null;
   const ids = (target.ids || []).filter((id) => page.elements.some((element) => element.id === id));
@@ -109,7 +114,13 @@ function applyToTarget(state, target, changes) {
   const page = state.pages.find((item) => item.id === target.pageId);
   if (!page || !changes || typeof changes !== "object") return;
   if (target.kind === "page") {
-    for (const key of PAGE_FIELDS) if (key in changes) { if (key === "name") assignName(page, changes.name); else page[key] = changes[key]; }
+    for (const key of PAGE_FIELDS) if (key in changes) { if (key === "name") assignName(page, changes.name); else page[key] = key === "transition" ? normalizeTransition(changes[key]) : changes[key]; }
+    return;
+  }
+  if (target.kind === "animation") {
+    const allowed = Object.fromEntries(Object.entries(changes).filter(([key]) => ["trigger", "preset", "kind", "delayMs", "durationMs"].includes(key)));
+    const rows = page.animations.map((row) => row.id === target.rowId ? { ...row, ...allowed } : row);
+    if (!validateTimeline({ ...page, animations: rows }).length) page.animations = rows;
     return;
   }
   if (target.kind === "group") {
@@ -155,7 +166,7 @@ function applyLayerMove(state, payload, operation) {
 const reducers = {
     documentLoaded(state, { payload }) {
       Object.assign(state, initialEditorState, payload);
-      state.pages = state.pages.map((page) => normalizeGroups({ ...page, groups: page.groups || [] }));
+      state.pages = state.pages.map((page) => migrateAnimations(normalizeGroups({ ...page, groups: page.groups || [] })));
       state.currentPage = 0; setSelection(state, []);
     },
     documentRenamed(state, { payload }) {
@@ -180,8 +191,9 @@ const reducers = {
        a new id, with groupIds remapped, so the copy never shares a group id. */
     pageCloned: {
       prepare: (page, index) => {
-        const layers = cloneLayers(page.elements, page.groups || [], nanoid);
-        return { payload: { index, page: { ...page, id: nanoid(), name: cleanName(`${pageLabel(page, index)} copy`), ...layers } } };
+        const { idMap, ...layers } = cloneLayers(page.elements, page.groups || [], nanoid);
+        return { payload: { index, page: { ...page, id: nanoid(), name: cleanName(`${pageLabel(page, index)} copy`), ...layers,
+          animations: remapAnimations(page.animations || [], idMap, nanoid) } } };
       },
       reducer(state, { payload }) {
         cancelGesture(state); remember(state); state.pages.splice(payload.index + 1, 0, normalizeGroups(payload.page));
@@ -205,10 +217,45 @@ const reducers = {
       if (state.gesture || JSON.stringify(page.background) === JSON.stringify(payload)) return;
       remember(state); page.background = payload;
     },
-    pageAnimationChanged(state, { payload }) {
-      const page = state.pages[state.currentPage]; const animation = payload === "none" ? undefined : { preset: payload };
-      if (JSON.stringify(page.animation) === JSON.stringify(animation)) return;
-      remember(state); page.animation = animation;
+    pageTransitionChanged(state, { payload }) {
+      if (state.gesture) return;
+      const page = currentPageOf(state), next = normalizeTransition(payload);
+      if (JSON.stringify(page.transition) === JSON.stringify(next)) return;
+      remember(state); page.transition = next;
+    },
+    animationAdded: {
+      prepare: (options) => ({ payload: { ...options, seed: nanoid() } }),
+      reducer(state, { payload }) {
+        if (state.gesture || !selectionEditable(state)) return;
+        const page = currentPageOf(state);
+        const added = insertionRows(page, state.selectedIds, payload.kind, payload.preset, payload.trigger || "with")
+          .map((row, index) => ({ ...row, id: `${payload.seed}-${index}` }));
+        const rows = [...(page.animations || []), ...added];
+        if (!added.length || validateTimeline({ ...page, animations: rows }).length) return;
+        remember(state); page.animations = rows;
+      },
+    },
+    animationChanged(state, { payload }) {
+      if (state.gesture) return;
+      const target = validTarget(state, { kind: "animation", pageId: payload.pageId || currentPageOf(state).id, rowId: payload.id });
+      if (!target) return;
+      const before = snapshot(state); applyToTarget(state, target, payload.changes);
+      if (JSON.stringify(before.pages) !== JSON.stringify(current(state).pages)) remember(state, before);
+    },
+    animationRemoved(state, { payload }) {
+      const page = currentPageOf(state), row = page.animations?.find((item) => item.id === payload);
+      if (!row || state.gesture || !isEditable(state, [row.elementId])) return;
+      remember(state);
+      page.animations = repairTimeline({ ...page, animations: removeAnimationRows(page, new Set([payload])) });
+    },
+    animationMoved(state, { payload }) {
+      const page = currentPageOf(state), rows = [...(page.animations || [])], from = rows.findIndex((row) => row.id === payload.id);
+      if (from < 0 || state.gesture || !isEditable(state, rows.map((row) => row.elementId))) return;
+      const to = clamp(payload.to, 0, rows.length - 1);
+      if (from === to) return;
+      const [row] = rows.splice(from, 1); rows.splice(to, 0, row);
+      if (validateTimeline({ ...page, animations: rows }).length) return;
+      remember(state); page.animations = rows;
     },
     elementSelected(state, { payload }) {
       if (state.gesture) return;
@@ -281,20 +328,27 @@ const reducers = {
     /* Move the selection to another page: one undo step covering both pages,
        the current page and the selection. The layers land at the front of the
        destination, and the editor follows them there. */
-    layersMovedToPage(state, { payload }) {
+    layersMovedToPage: {
+      prepare: (payload) => ({ payload: { ...payload, seed: nanoid() } }),
+      reducer(state, { payload }) {
       if (state.gesture) return;
       const index = payload?.pageIndex, to = state.pages[index], from = currentPageOf(state);
       if (!to || to === from || !state.selectedIds.length || !isEditable(state, state.selectedIds)) return;
       const moved = detachLayers(current(from), state.selectedIds);
       if (!moved) return;
       remember(state);
+      const movingIds = new Set(state.selectedIds), movingRows = extractAnimations(from, movingIds);
+      from.animations = repairTimeline({ ...from, animations: removeAnimationRows(from, new Set(movingRows.map((row) => row.id))) });
+      const keys = new Set(to.elements.map((item) => item.morphId || item.id));
+      moved.moved.elements.forEach((item, index) => { const key = item.morphId || item.id; if (keys.has(key)) item.morphId = `${payload.seed}-${index}`; keys.add(item.morphId || item.id); });
       from.elements = moved.source.elements; from.groups = moved.source.groups;
       to.elements.push(...moved.moved.elements);
       to.groups = [...(to.groups || []), ...moved.moved.groups];
+      to.animations = appendAnimations(to, movingRows);
       state.currentPage = index;
       setSelection(state, moved.moved.elements.map((item) => item.id), moved.moved.groups.length === 1 ? "group" : "direct");
       if (!selectedGroup(state)) state.selectionMode = "direct";
-    },
+    } },
     groupUngrouped(state, { payload }) {
       if (state.gesture) return;
       const page = currentPageOf(state), plain = current(page);
@@ -375,7 +429,9 @@ const reducers = {
       if (!state.selectedIds.length || state.gesture || !selectionEditable(state)) return;
       remember(state); const ids = new Set(state.selectedIds);
       const page = currentPageOf(state);
+      page.animations = removeAnimationRows(page, new Set((page.animations || []).filter((row) => ids.has(row.elementId)).map((row) => row.id)));
       page.elements = page.elements.filter((element) => !ids.has(element.id)); tidyGroups(page); setSelection(state, []);
+      page.animations = repairTimeline(page);
     },
     elementChanged(state, { payload }) {
       if (!selected(state) || state.gesture || !selectionEditable(state)) return;
@@ -445,6 +501,7 @@ const reducers = {
       }).map((group) => group.id));
       state.copiedElements = chosen.map(({ groupId, ...element }) => (whole.has(groupId) ? { ...element, groupId } : element));
       state.copiedGroups = (page.groups || []).filter((group) => whole.has(group.id)).map((group) => ({ ...current(group) }));
+      state.copiedAnimations = extractAnimations(page, new Set(state.selectedIds));
     },
     selectionPasted: {
       prepare: () => ({ payload: { seed: nanoid() } }),
@@ -455,8 +512,13 @@ const reducers = {
         remember(state);
         const pasted = layers.elements.map((element) => fitElement({ ...element, x: element.x + 32, y: element.y + 32 }));
         const page = currentPageOf(state);
+        const keys = new Set(page.elements.map((item) => item.morphId || item.id));
+        pasted.forEach((item) => { if (keys.has(item.morphId || item.id)) item.morphId = makeId(); keys.add(item.morphId || item.id); });
         page.groups = [...(page.groups || []), ...layers.groups];
         page.elements.push(...pasted);
+        const copiedRows = remapAnimations(state.copiedAnimations || [], layers.idMap, makeId);
+        page.animations = appendAnimations(page, copiedRows);
+        state.copiedAnimations = copiedRows;
         state.copiedElements = pasted.map((element) => ({ ...element })); state.copiedGroups = layers.groups;
         setSelection(state, pasted.map((element) => element.id), layers.groups.length === 1 && pasted.every((element) => element.groupId === layers.groups[0].id) ? "group" : "direct");
       },
@@ -527,10 +589,11 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageAnimationChanged,
+export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged,
   elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
 export const { pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
+export const { pageTransitionChanged, animationAdded, animationChanged, animationRemoved, animationMoved } = editorSlice.actions;
 export default editorSlice.reducer;
