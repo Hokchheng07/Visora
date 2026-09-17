@@ -194,6 +194,17 @@
   z-index: 40;
 }
 
+.nf-floating-toggle .theme-toggle {
+  color: var(--nf-text-heading);
+  background: var(--nf-surface-card);
+  border: 1px solid var(--nf-cloud-stroke-left, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.dark .nf-floating-toggle .theme-toggle {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
 /* --------------------------------------------------------------------------
    Scattered Twinkling Sparkles & Stars Field
    -------------------------------------------------------------------------- */
