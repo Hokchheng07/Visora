@@ -38,6 +38,11 @@ const router = createBrowserRouter([
         path: "editor",
         element: <Editor />,
       },
+      // Phase 0 proof page for effects and vector shapes. Development only: the
+      // condition is false in production builds, so the import is dropped.
+      ...(import.meta.env.DEV
+        ? [{ path: "editor-lab", lazy: async () => ({ Component: (await import("./Components/Editor/lab/EffectsLab.jsx")).default }) }]
+        : []),
       {
         // Standalone like the editor: the page carries its own "Back to Visora" bar.
         path: "profile",
@@ -63,11 +68,11 @@ const router = createBrowserRouter([
             path: "templates",
             element: <Templates />,
           },
-          {
-            path: "*",
-            element: <NotFound />,
-          },
         ],
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
       {
         path: "auth",

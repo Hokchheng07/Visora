@@ -1,0 +1,32 @@
+/* Phase 0 proof page. Development only; not part of the editor's styles. */
+.lab { min-height: 100vh; padding: 32px clamp(16px, 4vw, 48px) 80px; background: #f6f6f8; color: #211d29; font-family: Poppins, system-ui, sans-serif; }
+.lab-header { display: grid; gap: 6px; max-width: 70ch; margin-bottom: 12px; }
+.lab-header h1 { margin: 0; font-size: 30px; }
+.lab-header p:first-child { margin: 0; color: #787280; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.lab-section { display: grid; gap: 12px; padding: 28px 0; border-top: 1px solid #e3e0ec; }
+.lab-section h2 { margin: 0; font-size: 20px; }
+.lab-section p { margin: 0; max-width: 90ch; color: #4a4460; font-size: 14px; }
+.lab-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lab-controls button { height: 36px; padding: 0 14px; border: 1px solid #cfcadd; border-radius: 9px; background: white; font: inherit; font-size: 13px; cursor: pointer; }
+.lab-controls button[aria-checked="true"], .lab-controls button[aria-pressed="true"] { border-color: #705ae0; background: #efecfb; color: #705ae0; }
+.lab-fps { font-family: ui-monospace, monospace; font-size: 13px; }
+
+.lab-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
+.lab-figure { display: grid; gap: 6px; margin: 0; width: min(100%, 880px); }
+.lab-figure.is-thumb { width: 200px; }
+.lab-figure.is-display { width: 100%; }
+.lab-figure figcaption { color: #787280; font-size: 12px; }
+
+.lab-surface { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; container-type: size; background: white; box-shadow: 0 1px 3px rgb(29 23 43 / .08), 0 10px 30px rgb(29 23 43 / .08); }
+.lab-surface:fullscreen { width: 100vw; height: auto; max-height: 100vh; margin: auto; aspect-ratio: 16 / 9; }
+
+.lab-element { position: absolute; }
+.lab-effects { width: 100%; height: 100%; }
+.lab-text { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.lab-shape { display: block; width: 100%; height: 100%; overflow: visible; }
+
+.lab-stress { display: grid; gap: 14px; }
+.lab-thumbs { display: flex; flex-wrap: wrap; gap: 14px; }
+.bench-table { width: 100%; max-width: 900px; border-collapse: collapse; font-size: 13px; }
+.bench-table th, .bench-table td { padding: 6px 10px; border-bottom: 1px solid #e3e0ec; text-align: left; }
+.bench-table td:nth-child(3), .bench-table td:nth-child(4) { font-family: ui-monospace, monospace; }

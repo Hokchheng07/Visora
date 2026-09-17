@@ -6,10 +6,12 @@ import { EASE } from "./lib/animations/animations";
 
 export default function Layout() {
   const location = useLocation();
+  const standardPages = ["/", "/cv", "/about", "/templates"];
+  const isNotFound = !standardPages.includes(location.pathname);
 
   return (
     <div className="site-shell flex min-h-dvh flex-col">
-      <Navbar />
+      {!isNotFound && <Navbar />}
       <main className={`flex-1 ${location.pathname === '/cv' ? 'theme-light-boundary' : ''}`}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -23,7 +25,7 @@ export default function Layout() {
           </motion.div>
         </AnimatePresence>
       </main>
-      <Footer />
+      {!isNotFound && <Footer />}
     </div>
   );
 }
