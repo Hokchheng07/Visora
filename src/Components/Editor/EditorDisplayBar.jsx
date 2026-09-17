@@ -19,13 +19,13 @@ const PENDING = [
   { id: "more", icon: MoreHorizontal, label: "More options", note: "More options coming soon" },
 ];
 
-export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose }) {
+export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose, onNext, onPrevious }) {
   return (
     <div className="editor-display-bar" aria-label="Display controls">
       <div className="editor-display-nav">
         <button
           type="button"
-          onClick={() => onSlideChange(slide - 1)}
+          onClick={onPrevious || (() => onSlideChange(slide - 1))}
           disabled={slide === 0}
           aria-label="Previous page"
           title="Previous page"
@@ -35,8 +35,8 @@ export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose 
         <span className="editor-display-count">{slide + 1} / {pages.length}</span>
         <button
           type="button"
-          onClick={() => onSlideChange(slide + 1)}
-          disabled={slide === pages.length - 1}
+          onClick={onNext || (() => onSlideChange(slide + 1))}
+          disabled={!onNext && slide === pages.length - 1}
           aria-label="Next page"
           title="Next page"
         >
