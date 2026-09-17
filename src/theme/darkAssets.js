@@ -75,6 +75,12 @@ import light30 from '../assets/pages/home/explore-by-events/LightPurpleBackgroun
 import dark30 from '../assets/pages/home/explore-by-events/dark/LightPurpleBackground.svg';
 import light31 from '../assets/pages/home/explore-by-events/ForegroundPurple.svg';
 import dark31 from '../assets/pages/home/explore-by-events/dark/ForegroundPurple.svg';
+import light32 from '../assets/pages/home/explore-by-events/LeftLayerBlur(ExploreByEvents).svg';
+import dark32 from '../assets/pages/home/explore-by-events/dark/LeftLayerBlur(ExploreByEvents).svg';
+import light33 from '../assets/pages/home/explore-by-events/CenterLayerBlur(ExploreByEvents).svg';
+import dark33 from '../assets/pages/home/explore-by-events/dark/CenterLayerBlur(ExploreByEvents).svg';
+import light34 from '../assets/pages/home/explore-by-events/RightLayerBlur.svg';
+import dark34 from '../assets/pages/home/explore-by-events/dark/RightLayerBlur.svg';
 import light35 from '../assets/pages/home/why-choose-visora/why-choose-blob.png';
 import dark35 from '../assets/pages/home/why-choose-visora/WhyChooseVisoraRightBlob(DarkMode).svg';
 import khmerApsaraLight from '../assets/pages/home/khmer-design-showcase/apsara.png';
@@ -196,6 +202,9 @@ export const darkAssets = {
   [light29]: dark29,
   [light30]: dark30,
   [light31]: dark31,
+  [light32]: dark32,
+  [light33]: dark33,
+  [light34]: dark34,
   [light35]: dark35,
   [exploreTopLeftLight]: exploreTopLeftDark,
   [khmerApsaraLight]: khmerApsaraDark,
