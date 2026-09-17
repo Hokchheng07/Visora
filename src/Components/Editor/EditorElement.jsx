@@ -57,18 +57,18 @@ export function ShapeArtwork({ element }) {
               ))}
             </linearGradient>
           )}
-          {align === "inside" && <clipPath id={`clip-${id}`}><path d={d} /></clipPath>}
+          {align === "inside" && <clipPath id={`clip-${id}`}><path data-morph-path="" d={d} /></clipPath>}
           {align === "outside" && (
             <mask id={`mask-${id}`} maskUnits="userSpaceOnUse" x={-margin} y={-margin} width={w + margin * 2} height={h + margin * 2}>
               <rect x={-margin} y={-margin} width={w + margin * 2} height={h + margin * 2} fill="white" />
-              <path d={d} fill="black" />
+              <path data-morph-path="" d={d} fill="black" />
             </mask>
           )}
         </defs>
       )}
-      {fillOn && <path d={d} fill={gradient ? `url(#fill-${id})` : element.fill} fillOpacity={element.fillOpacity ?? 1} />}
+      {fillOn && <path data-morph-path="" data-morph-fill="" d={d} fill={gradient ? `url(#fill-${id})` : element.fill} fillOpacity={element.fillOpacity ?? 1} />}
       {strokeOn && (
-        <path d={d} fill="none" stroke={element.stroke} strokeOpacity={element.strokeOpacity ?? 1}
+        <path data-morph-path="" d={d} fill="none" stroke={element.stroke} strokeOpacity={element.strokeOpacity ?? 1}
           strokeWidth={align === "center" ? strokeWidth : strokeWidth * 2} {...strokePaint(element)}
           clipPath={align === "inside" ? `url(#clip-${id})` : undefined} mask={align === "outside" ? `url(#mask-${id})` : undefined} />
       )}

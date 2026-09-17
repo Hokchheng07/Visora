@@ -73,7 +73,7 @@ export function createPlaybackController({ page, transition, morph = false, redu
     const transitionDuration = entry && transition ? (reducedMotion ? 200 : transition.durationMs) + (transition.delayMs || 0) : 0;
     const offset = entry && morph ? transitionDuration : 0;
     const duration = entry ? Math.max(transitionDuration, offset + step.durationMs) : step.durationMs;
-    const active = { step, duration, paint(time) {
+    const active = { step, duration, entry, paint(time) {
       if (entry) renderTransition(transition ? progress(time, transition.delayMs || 0, reducedMotion ? 200 : transition.durationMs) : 1);
       paint(step, time < offset ? -1 : time - offset);
     } };
@@ -88,7 +88,15 @@ export function createPlaybackController({ page, transition, morph = false, redu
   }
   function next() {
     if (disposed) return;
-    if (phase) { finish(); return; }
+    if (phase) {
+      // Entry is automatic, not an extra click step. When nothing interactive
+      // remains, honor Next as navigation after settling the entire entry.
+      // Authored click steps still finish in place so their content isn't skipped.
+      const advance = !preview && phase.entry && !steps.slice(nextStep).some((step) => step.playable);
+      finish();
+      if (advance && !disposed) onNextPage();
+      return;
+    }
     while (nextStep < steps.length && !steps[nextStep].playable) nextStep++;
     if (nextStep < steps.length) run(steps[nextStep++]); else if (!preview) onNextPage(); else onIdle();
   }

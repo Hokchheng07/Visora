@@ -28,5 +28,28 @@ it("Previous resets automatic entry without replaying the page transition", () =
   expect(container.querySelector('.editor-animation-surface').style.opacity).toBe("1");
   expect(container.querySelector('[data-element-id="a"]').style.opacity).toBe("0");
   fireEvent.keyDown(document, { key: "ArrowRight" });
-  expect(container.querySelector('[data-element-id="a"]').style.opacity).toBe("1");
+  expect(screen.getByRole("dialog").getAttribute("aria-label")).toContain("page 2");
+});
+it("one Next advances from each unfinished morph-only entry, by button, page click or key", () => {
+  const slides = ['a', 'b', 'c', 'd'].map((id) => ({ id, elements: [{ ...shape(id), morphId: 'shared' }],
+    transition: { preset: 'morph', durationMs: 1000, delayMs: 0 }, animations: [] }));
+  const { container } = render(<EditorDisplay pages={slides} onClose={() => {}} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+  expect(screen.getByRole('dialog').getAttribute('aria-label')).toContain('page 2');
+  expect(container.querySelector('.editor-morph-overlay')).not.toBeNull();
+  fireEvent.click(container.querySelector('.editor-display-frame'));
+  expect(screen.getByRole('dialog').getAttribute('aria-label')).toContain('page 3');
+  fireEvent.keyDown(document, { key: 'ArrowRight' });
+  expect(screen.getByRole('dialog').getAttribute('aria-label')).toContain('page 4');
+  fireEvent.keyDown(document, { key: 'ArrowRight' });
+  expect(screen.getByRole('dialog').getAttribute('aria-label')).toContain('page 4');
+  expect(container.querySelector('.editor-morph-overlay').style.visibility).toBe('hidden');
+});
+it("first-slide Morph falls back to Fade and finishes normally", () => {
+  const first = { ...pages[0], transition: { preset: "morph", durationMs: 700, delayMs: 0 }, animations: [] };
+  const { container } = render(<EditorDisplay pages={[first]} onClose={() => {}} />);
+  expect(container.querySelector('.editor-morph-overlay')).toBeNull();
+  expect(container.querySelector('.editor-animation-surface').style.opacity).toBe('0');
+  fireEvent.keyDown(document, { key: "ArrowRight" });
+  expect(container.querySelector('.editor-animation-surface').style.opacity).toBe('1');
 });

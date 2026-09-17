@@ -1,3 +1,5 @@
+import { easeOut, easeInOut } from "./animationPlayback.js";
+
 export const animationPresets = [
   { id: "none", label: "No animation" },
   { id: "fade", label: "Fade in" },
@@ -7,8 +9,8 @@ export const animationPresets = [
   { id: "pulse", label: "Gentle pulse" },
 ];
 
-export const EASE_OUT = "cubicBezier(0.23, 1, 0.32, 1)";
-export const EASE_IN_OUT = "cubicBezier(0.77, 0, 0.175, 1)";
+export const EASE_OUT = easeOut;
+export const EASE_IN_OUT = easeInOut;
 export const transitionPresets = [...animationPresets.filter((item) => item.id !== "pulse"), { id: "morph", label: "Morph" }];
 export const presetLabel = (row) => row.kind === "emphasis" ? "Pulse" : `${({ fade: "Fade", rise: row.kind === "exit" ? "Sink" : "Rise", "slide-left": "Slide", pop: "Pop" })[row.preset]} ${row.kind === "exit" ? "out" : "in"}`;
 

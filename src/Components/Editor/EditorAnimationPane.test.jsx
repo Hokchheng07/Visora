@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import reducer, { animationAdded, elementInserted } from "../redux/editorSlice.js";
+import reducer, { animationAdded, animationChanged, elementInserted } from "../redux/editorSlice.js";
 import EditorAnimationPane from "./EditorAnimationPane.jsx";
 import EditorToolPanel from "./EditorToolPanel.jsx";
 
@@ -15,6 +15,25 @@ function setup() {
   return { store, stop, preview };
 }
 describe("animation authoring", () => {
+  it("keeps trigger editing on the right and defaults new effects by the existing steps", () => {
+    const { store } = setup();
+    expect(screen.queryByRole("combobox", { name: "New animation trigger" })).toBeNull();
+    fireEvent.click(screen.getAllByRole("button", { name: "Fade in" })[1]);
+    const row = store.getState().editor.pages[0].animations[0];
+    expect(row.trigger).toBe("with");
+    act(() => {
+      store.dispatch(elementInserted("circle"));
+    });
+    fireEvent.click(screen.getAllByRole("button", { name: "Fade in" })[1]);
+    expect(store.getState().editor.pages[0].animations[1].trigger).toBe("with");
+    act(() => {
+      store.dispatch(animationChanged({ id: row.id, changes: { trigger: "click" } }));
+      store.dispatch(elementInserted("square"));
+    });
+    fireEvent.click(screen.getAllByRole("button", { name: "Fade in" })[1]);
+    expect(store.getState().editor.pages[0].animations[2].trigger).toBe("click");
+    expect(screen.getByRole("combobox", { name: "Animation trigger" })).toBeTruthy();
+  });
   it("adds an entry, disables duplicate entrances, and edits row timing", () => {
     const { store } = setup();
     // Fade appears once for transitions and once for entrances.

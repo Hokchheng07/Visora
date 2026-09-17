@@ -18,6 +18,9 @@ anchor (not its start); `after` anchors to its end. The first row anchors to zer
 Start = anchor + delayMs; end = start + durationMs. Step duration is the latest
 end of any row. Rows before the first click play on page entry. They run alongside
 normal transitions, but after Morph. Next during entry completes both as one unit.
+If no playable click steps remain, that same Next also advances to the next page;
+automatic entry does not consume a separate navigation click. If click steps remain,
+Next finishes entry in place. Natural animation completion never changes pages.
 
 An element supports at most one entrance, any number of emphasis rows, and at
 most one exit, in that chronological order without overlapping windows. Hidden

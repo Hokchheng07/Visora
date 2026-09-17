@@ -160,23 +160,21 @@ function AnimationPreview({ preset, active, disabled, reason, kind, onChoose }) 
 }
 
 function AnimationsPanel() {
-  const dispatch = useAppDispatch(); const [trigger, setTrigger] = useState("with");
+  const dispatch = useAppDispatch();
   const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
   const page = pages[currentPage];
+  const trigger = page.animations?.some((row) => row.trigger === "click") ? "click" : "with";
   const locked = page.elements.some((element) => selectedIds.includes(element.id) && effectiveLocked(page, element));
   return <>
     <h3 className="editor-panel-subtitle">Page transition</h3>
     <div className="editor-animation-grid" aria-label="Page transition presets">{transitionPresets.map((preset) => <AnimationPreview key={preset.id} preset={preset}
       active={preset.id === (page.transition?.preset || "none")} disabled={!!gesture} onChoose={(id) => dispatch(pageTransitionChanged({ ...page.transition, preset: id }))} />)}</div>
     <p className="editor-panel-description">{selectedIds.length ? `Add an animation to ${selectedIds.length === 1 ? "the selected element" : `each of ${selectedIds.length} selected elements`}.` : "Select an element on the canvas to animate it."}</p>
-    <label className="editor-animation-trigger">New animation starts<select aria-label="New animation trigger" value={trigger} onChange={(event) => setTrigger(event.target.value)}>
-      <option value="with">With previous (automatic on entry)</option><option value="after">After previous</option><option value="click">On click</option>
-    </select></label>
     {Object.entries(PRESETS).map(([kind, presets]) => <section key={kind}><h3 className="editor-panel-subtitle">{kind[0].toUpperCase() + kind.slice(1)}</h3>
       <div className="editor-animation-grid" aria-label={`${kind} presets`}>{presets.map((preset) => {
         const candidate = insertionRows(page, selectedIds, kind, preset, trigger);
         const errors = validateTimeline({ ...page, animations: [...(page.animations || []), ...candidate] });
-        const reason = !selectedIds.length ? "Select an element first" : locked ? "Unlock the selection to animate it" : errors.length ? "Already added, overlapping, or out of order. Try On click or After previous." : undefined;
+        const reason = !selectedIds.length ? "Select an element first" : locked ? "Unlock the selection to animate it" : errors.length ? "Already added, overlapping, or out of order. Adjust the existing animation timing in the Animation settings." : undefined;
         return <AnimationPreview key={preset} kind={kind} preset={{ id: preset, label: presetLabel({ kind, preset }) }} disabled={!!reason || !!gesture} reason={reason}
           onChoose={() => dispatch(animationAdded({ kind, preset, trigger }))} />;
       })}</div></section>)}
