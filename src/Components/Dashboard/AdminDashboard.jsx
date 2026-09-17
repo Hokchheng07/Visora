@@ -31,40 +31,7 @@ import "./admin-dashboard.css";
 // Seed templates have no preview images yet; these Figma exports stand in.
 const sampleThumbs = [creativePortfolio, frontendExam, backendExam];
 
-const activityData = {
-  "Last 7 days": {
-    usersMax: 200,
-    templatesMax: 80,
-    points: [
-      ["May 18", 32, 35],
-      ["May 19", 66, 50],
-      ["May 20", 72, 59],
-      ["May 21", 124, 37],
-      ["May 22", 167, 52],
-      ["May 23", 176, 33],
-      ["May 24", 150, 27],
-    ],
-  },
-  "Last 30 days": {
-    usersMax: 800,
-    templatesMax: 320,
-    points: [
-      ["Apr 25", 210, 120],
-      ["Apr 30", 340, 165],
-      ["May 5", 310, 210],
-      ["May 10", 460, 180],
-      ["May 15", 520, 260],
-      ["May 20", 690, 230],
-      ["May 24", 740, 280],
-    ],
-  },
-};
-
-const reportRows = [
-  { name: "Creative Portfolio", creator: "Channa", time: "2 hours ago", date: "May 24, 2026", status: "Under Review", image: creativePortfolio },
-  { name: "Frontend examination", creator: "Channan", time: "3 hours ago", date: "May 24, 2026", status: "Resolved", image: frontendExam },
-  { name: "Creative Portfolio", creator: "Channa", time: "2 hours ago", date: "May 23, 2026", status: "Under Review", image: creativePortfolio },
-];
+const reportImages = { creativePortfolio, frontendExam, backendExam };
 
 const categoryIcons = {
   Examination: GraduationCap,
@@ -78,19 +45,23 @@ const categoryIcons = {
 };
 
 export default function AdminDashboard() {
-  const { templates, users, categories, updateTemplate } = useDashboardData();
+  const { templates, users, categories, reports, activity: activityData, stats: apiStats, loading, error, updateTemplate } = useDashboardData();
   const [period, setPeriod] = useState("Last 7 days");
+  if (loading) return <div className="ad-page"><p className="ad-empty">Loading dashboard data…</p></div>;
+  if (error) return <div className="ad-page"><p className="ad-empty">Failed to load dashboard data.</p></div>;
   const pendingTemplates = templates.filter((t) => t.status === "pending");
   const pending = pendingTemplates.slice(0, 3);
-  const activity = activityData[period];
-  const chartData = activity.points.map(([label, usersCount, templatesCount]) => ({ label, users: usersCount, templates: templatesCount }));
+  const periods = Object.keys(activityData);
+  const selectedPeriod = activityData[period] ? period : periods[0];
+  const activity = activityData[selectedPeriod];
+  const chartData = activity.points;
 
   const stats = [
-    { label: "Total User", value: users.length, icon: Users, tone: "purple" },
-    { label: "Total Template", value: templates.length, icon: Layers, tone: "yellow" },
-    { label: "Public Template", value: templates.filter((t) => t.visibility === "public").length, icon: Globe, tone: "purple", knockout: true },
-    { label: "Pending Review", value: pendingTemplates.length, icon: Clock, tone: "yellow", knockout: true },
-    { label: "Report Template", value: templates.filter((t) => t.status === "rejected").length, icon: Flag, tone: "red" },
+    { label: "Total User", value: apiStats?.totalUsers ?? users.length, icon: Users, tone: "purple" },
+    { label: "Total Template", value: apiStats?.totalTemplates ?? templates.length, icon: Layers, tone: "yellow" },
+    { label: "Public Template", value: apiStats?.publicTemplates ?? templates.filter((t) => t.visibility === "public").length, icon: Globe, tone: "purple", knockout: true },
+    { label: "Pending Review", value: apiStats?.pendingReview ?? pendingTemplates.length, icon: Clock, tone: "yellow", knockout: true },
+    { label: "Report Template", value: apiStats?.reportedTemplates ?? 0, icon: Flag, tone: "red" },
   ];
 
   return (
@@ -170,9 +141,9 @@ export default function AdminDashboard() {
           <article className="ad-card ad-reports">
             <CardHeader icon={Clock} title="Reports Overview" linkLabel="View all" to="/dashboard/report" filled={false} />
             <ul className="ad-list">
-              {reportRows.map((row, index) => (
-                <li className="ad-report" key={index}>
-                  <img className="ad-thumb small" src={row.image} alt="" />
+              {reports.map((row) => (
+                <li className="ad-report" key={row.id}>
+                  <img className="ad-thumb small" src={reportImages[row.imageKey] || creativePortfolio} alt="" />
                   <div className="ad-report-copy">
                     <h3>{row.name}</h3>
                     <p>by {row.creator}</p>
@@ -197,7 +168,7 @@ export default function AdminDashboard() {
             <label className="ad-period">
               <span className="sr-only">Time range</span>
               <select value={period} onChange={(event) => setPeriod(event.target.value)}>
-                {Object.keys(activityData).map((value) => (
+                {periods.map((value) => (
                   <option key={value}>{value}</option>
                 ))}
               </select>

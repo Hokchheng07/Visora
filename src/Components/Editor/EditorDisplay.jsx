@@ -1,23 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { animate } from "animejs";
-import { useReducedMotion } from "motion/react";
 import EditorDisplayBar from "./EditorDisplayBar";
 import { exitFullscreen, requestFullscreen, useFullscreen } from "./useFullscreen";
 import { useIdlePointer } from "./useIdlePointer";
 import { StaticElement } from "./EditorElement.jsx";
 import DisplayTimer from "./DisplayTimer.jsx";
 import EditorExitPrompt from "./EditorExitPrompt.jsx";
-import { compileAnimation } from "./animationPresets.js";
-
-const NEXT_KEYS = ["ArrowRight", "ArrowDown", "PageDown", " "];
-const PREVIOUS_KEYS = ["ArrowLeft", "ArrowUp", "PageUp"];
+import AnimationSurface from "./AnimationSurface.jsx";
+import { playbackInput } from "./animationPlayback.js";
 
 export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
-  const [slide, setSlide] = useState(initialPage);
+  const [visit, setVisit] = useState({ slide: initialPage, serial: 0, transition: true });
+  const slide = visit.slide;
   const rootRef = useRef(null);
   const isIdle = useIdlePointer();
-  const reduceMotion = useReducedMotion();
-  const [liveAnimations, setLiveAnimations] = useState(0);
+  const controllerRef = useRef(null);
   const [exitPrompt, setExitPrompt] = useState(null);
   /* Which timers have been started, paused or finished. Only a touched timer
      earns a confirmation — leaving an untouched presentation should just leave. */
@@ -28,11 +24,15 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
     else touchedTimers.current.delete(id);
   }, []);
 
-  const goTo = useCallback((index) => {
+  const goTo = useCallback((index, forward = false) => {
     // Leaving a page resets its timers, so nothing is left running unseen.
+    if (index < 0 || index >= pages.length) return;
+    const previousVisibility = controllerRef.current?.visibility();
+    controllerRef.current?.dispose();
     touchedTimers.current.clear();
-    setSlide(Math.max(0, Math.min(pages.length - 1, index)));
-  }, [pages.length]);
+    setVisit((old) => ({ slide: index, serial: old.serial + 1, transition: forward && index === old.slide + 1,
+      previousPage: forward ? pages[old.slide] : null, previousVisibility }));
+  }, [pages]);
 
   const leave = useCallback(() => {
     touchedTimers.current.clear();
@@ -58,23 +58,17 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
 
   useEffect(() => {
     function handleKeyDown(event) {
+      if (event.repeat || exitPrompt) return;
       if (event.key === "Escape") return requestStop();
-
-      let next = null;
-      if (NEXT_KEYS.includes(event.key)) next = slide + 1;
-      else if (PREVIOUS_KEYS.includes(event.key)) next = slide - 1;
-      else if (event.key === "Home") next = 0;
-      else if (event.key === "End") next = pages.length - 1;
-      if (next === null) return;
-
-      // Space and the arrows would otherwise scroll whatever is behind us.
+      const action = playbackInput(event); if (!action) return;
       event.preventDefault();
-      goTo(next);
+      if (action === "next") controllerRef.current?.next();
+      else goTo(action === "previous" ? slide - 1 : action === "home" ? 0 : pages.length - 1);
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [requestStop, goTo, pages.length, slide]);
+  }, [requestStop, goTo, pages.length, slide, exitPrompt]);
 
   // Take focus so keys land here and assistive tech enters the dialog.
   // Handing focus back is deliberately the opener's job (Editor.jsx): the
@@ -83,19 +77,6 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
   useEffect(() => {
     rootRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    const page = pages[slide]; const root = rootRef.current; if (!page || !root) return;
-    const running = [];
-    const pageParams = compileAnimation(page.animation, reduceMotion);
-    if (pageParams) running.push(animate(root.querySelector(".editor-display-page"), pageParams));
-    for (const element of page.elements) {
-      const params = compileAnimation(element.animation, reduceMotion); if (!params) continue;
-      const target = root.querySelector(`[data-element-id="${CSS.escape(element.id)}"]`); if (target) running.push(animate(target, params));
-    }
-    setLiveAnimations(running.length);
-    return () => { running.forEach((animation) => animation.revert()); };
-  }, [pages, slide, reduceMotion]);
 
   // Backdrops are shown on projectors and TVs, where the screen dimming
   // part-way through an event is the failure people remember. Unsupported in
@@ -127,17 +108,21 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
       aria-modal="true"
       aria-label={`Display mode, page ${slide + 1} of ${pages.length}`}
     >
-      <div className="editor-display-frame">
+      <div className="editor-display-frame" onClick={(event) => { if (!exitPrompt && playbackInput(event) === "next") controllerRef.current?.next(); }}>
         <div className="editor-display-page" data-page-id={pages[slide]?.id}>
-          {pages[slide]?.elements.map((element) => (element.type === "timer"
+          {pages[slide] && <AnimationSurface key={visit.serial} page={pages[slide]} transition={visit.transition ? pages[slide].transition : null}
+            controllerRef={controllerRef} previousPage={visit.previousPage} previousVisibility={visit.previousVisibility} onNextPage={() => goTo(slide + 1, true)}
+            renderElement={(element) => (element.type === "timer"
             ? <DisplayTimer key={element.id} element={element} onRequestStop={requestStop} onRunningChange={noteTimer} />
-            : <StaticElement key={element.id} element={element} />))}
+            : <StaticElement key={element.id} element={element} layered />)} />}
         </div>
       </div>
       <EditorDisplayBar
         pages={pages}
         slide={slide}
         onSlideChange={goTo}
+        onNext={() => { if (!exitPrompt) controllerRef.current?.next(); }}
+        onPrevious={() => { if (!exitPrompt) goTo(slide - 1); }}
         onClose={requestStop}
       />
       {exitPrompt && (
@@ -155,7 +140,6 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
           onStop={() => { setExitPrompt(null); leave(); }}
         />
       )}
-      {import.meta.env.DEV && <span className="editor-animation-counter" aria-live="polite">Animations: {liveAnimations}</span>}
     </div>
   );
 }

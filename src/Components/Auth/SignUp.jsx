@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useUserRegisterMutation } from "../API/authApi";
+import { useNavigate } from "react-router";
+import z from "zod";
+// add zodResolver
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast, ToastContainer } from "react-toastify";
 import {
+  AtSymbolIcon,
   EnvelopeIcon,
   EyeIcon,
   EyeSlashIcon,
@@ -20,48 +25,93 @@ import googleIcon from "../../assets/shared/social/google.svg";
 import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
 import { EASE } from "../../lib/animations/animations";
 
-const signUpSchema = z
-  .object({
-    firstName: z.string().trim().min(1, "First name is required"),
-    lastName: z.string().trim().min(1, "Last name is required"),
-    phone: z.string().trim().regex(/^\+?[0-9\s()-]{8,}$/, "Enter a valid phone number"),
-    email: z.string().trim().email("Enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-    termsAccepted: z.literal(true, { error: "Please accept the Terms & Conditions" }),
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
 const fields = [
   { name: "firstName", label: "First name", placeholder: "Enter your first name", icon: UserIcon },
   { name: "lastName", label: "Last name", placeholder: "Enter your last name", icon: UserIcon },
-  { name: "phone", label: "Phone number", placeholder: "+85512345678", icon: PhoneIcon, full: true },
+  { name: "username", label: "Username", placeholder: "Enter your username", icon: AtSymbolIcon, full: true },
+  { name: "phoneNumber", label: "Phone number", placeholder: "+85512345678", icon: PhoneIcon, full: true },
   { name: "email", label: "Email Address", placeholder: "example@gmail.com", icon: EnvelopeIcon, full: true, type: "email" },
   { name: "password", label: "Password", placeholder: "Enter your password", icon: LockClosedIcon, type: "password" },
   { name: "confirmPassword", label: "Confirm Password", placeholder: "Confirm Password", icon: LockClosedIcon, type: "password" },
 ];
 
 export default function SignUp() {
-  const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerRequest] = useUserRegisterMutation();
+  const navigate = useNavigate();
+
+  const formSchema = z
+    .object({
+      firstName: z.string("Please input first name").trim().min(1, "First name is required"),
+      lastName: z.string("Please input last name").trim().min(1, "Last name is required"),
+      username: z
+        .string("Please input username")
+        .trim()
+        .min(3, "Username must be at least 3 characters")
+        .max(30, "Username must be at most 30 characters")
+        .regex(/^[A-Za-z0-9_.]+$/, "Username can only use letters, numbers, _ and ."),
+      phoneNumber: z
+        .string("Please input phone number")
+        .trim()
+        .regex(/^\+?[0-9\s()-]{8,}$/, "Enter a valid phone number"),
+      email: z
+        .string("Please input email")
+        .trim()
+        .email("Enter a valid email address"),
+      password: z
+        .string("Please input password")
+        .min(8, "Password must be at least 8 characters"),
+      confirmPassword: z.string().min(1, "Please confirm your password"),
+      termsAccepted: z.literal(true, { error: "Please accept the Terms & Conditions" }),
+    })
+    .refine((values) => values.password === values.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
+
+  // define useForm
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(formSchema),
     mode: "onBlur",
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      phoneNumber: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      termsAccepted: false,
+    },
   });
 
-  const onSubmit = () => setSubmitted(true);
+  // custom register logic
+  const handleRegisterSubmit = async (data) => {
+    // termsAccepted is only for the form, the server doesn't need it
+    const { termsAccepted, ...userRegisterRequest } = data;
 
-  useEffect(() => {
-    if (!submitted) return;
-    const timer = setTimeout(() => setSubmitted(false), 3000);
-    return () => clearTimeout(timer);
-  }, [submitted]);
+    try {
+      const result = await registerRequest({
+        userRegisterRequest,
+      });
+
+      if (result?.data) {
+        toast.success("Your account has been created! Please log in.");
+        setTimeout(() => {
+          navigate("/auth/login", { replace: true });
+        }, 2000);
+      } else {
+        toast.error(result?.error?.data?.message || "Could not create your account!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
+    <>
+    <ToastContainer />
     <main className="min-h-dvh overflow-y-auto bg-white font-sans lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
       <section className="relative hidden h-full min-h-0 overflow-hidden lg:block">
         <img src={signupPicture} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -88,7 +138,7 @@ export default function SignUp() {
             <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-8 lg:text-xl lg:leading-7">Join Visora and start designing stunning event backdrops in minutes</p>
           </header>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(handleRegisterSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-x-8 gap-y-4 lg:grid-cols-2">
               {fields.map(({ name, label, placeholder, icon: Icon, full, type = "text" }) => (
                 <label key={name} className={`block ${full ? "lg:col-span-2" : ""}`}>
@@ -163,20 +213,6 @@ export default function SignUp() {
             <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
               Sign Up <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
-            <AnimatePresence>
-              {submitted && (
-                <motion.p
-                  key="success"
-                  className="mt-3 text-center text-sm text-green-700"
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 0.22, ease: EASE }}
-                >
-                  Your details are valid and ready to submit.
-                </motion.p>
-              )}
-            </AnimatePresence>
 
             <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or Sign up with<span className="h-px flex-1 bg-gray-300" /></div>
             <div className="grid gap-3">
@@ -188,5 +224,6 @@ export default function SignUp() {
         </div>
       </section>
     </main>
+    </>
   );
 }

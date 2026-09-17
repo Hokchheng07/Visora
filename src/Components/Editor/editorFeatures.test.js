@@ -3,21 +3,34 @@ import assert from "node:assert/strict";
 import reducer, { elementChanged, elementInserted, elementNudged, elementsSelected, pageAdded, pageMoved,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, textInserted, timerChanged,
   timerInserted, undo } from "../redux/editorSlice.js";
-import { bounds, elementsInRect, scaleSelection, selectionBounds, snapSelectionDelta } from "./elementGeometry.js";
+import { bounds, elementsInRect, onPage, scaleSelection, selectionBounds, snapSelectionDelta, WORK_AREA } from "./elementGeometry.js";
 import { compileAnimation } from "./animationPresets.js";
 import { EDITOR_SCHEMA_VERSION, TIMER_MAX_MS, TIMER_MIN_MS, defaultTimer, hydrateDocument, loadLocalDocument,
   migrateDocument, normalizeTimer, saveLocalDocument, serializeDocument, validateDocument } from "./editorDocument.js";
 import { controlState, formatDuration, startStopRole } from "./timerFormat.js";
 
-function send(actions) { return actions.reduce((state, action) => reducer(state, action), undefined); }
+import { checkInvariants } from "./layerModel.js";
 
-test("multi-selection moves as one clamped group and undo is atomic", () => {
+// The layer rules are checked after every action (see layerModel.checkInvariants).
+function send(actions) {
+  return actions.reduce((state, action) => {
+    const after = reducer(state, action);
+    assert.deepEqual(checkInvariants(after), [], `after ${action.type}`);
+    return after;
+  }, undefined);
+}
+
+test("multi-selection moves as one group, off the page but inside the work area, and undo is atomic", () => {
   let state = send([elementInserted("square"), elementInserted("circle")]);
   const ids = state.pages[0].elements.map((element) => element.id);
   state = reducer(state, elementsSelected(ids));
   state = reducer(state, elementNudged({ x: -5000, y: -5000 }));
   const box = selectionBounds(state.pages[0].elements);
-  assert.ok(box.left >= 0 && box.top >= 0); assert.equal(state.selectedIds.length, 2);
+  // Stopped by the edge of the work area, a page out from the sheet — not by the sheet.
+  assert.ok(box.left >= WORK_AREA.left - 0.01 && box.top >= WORK_AREA.top - 0.01, JSON.stringify(box));
+  assert.ok(box.left < 0 && box.top < 0, "the selection should now sit off the page");
+  assert.ok(state.pages[0].elements.every((element) => !onPage(element)));
+  assert.equal(state.selectedIds.length, 2);
   state = reducer(state, undo());
   assert.notEqual(selectionBounds(state.pages[0].elements).left, box.left);
 });
@@ -86,13 +99,14 @@ test("distribute equalises the gaps between differently sized elements", () => {
   assert.equal(settled.past.length, state.past.length);
 });
 
-test("group resize stays on the sheet and scales text with the box", () => {
+test("group resize stays in the work area and scales text with the box", () => {
   const group = [{ id: "a", type: "shape", x: 100, y: 100, w: 400, h: 300, rotation: 0 },
     { id: "b", type: "shape", x: 900, y: 500, w: 400, h: 300, rotation: 0 }];
   const start = selectionBounds(group);
   for (const [handle, dx, dy, lock] of [["se", 9000, 9000, false], ["nw", -9000, -9000, false], ["se", 9000, 9000, true]]) {
     const box = selectionBounds(scaleSelection(group, start, handle, dx, dy, lock));
-    assert.ok(box.left >= -0.01 && box.top >= -0.01 && box.right <= 1920.01 && box.bottom <= 1080.01,
+    assert.ok(box.left >= WORK_AREA.left - 0.01 && box.top >= WORK_AREA.top - 0.01
+      && box.right <= WORK_AREA.right + 0.01 && box.bottom <= WORK_AREA.bottom + 0.01,
       `${handle}${lock ? " locked" : ""} escaped: ${JSON.stringify(box)}`);
   }
   const text = [{ id: "t", type: "text", x: 100, y: 100, w: 800, h: 200, rotation: 0, fontSize: 100, letterSpacing: 10 }];
@@ -239,4 +253,74 @@ test("timer control availability follows the ready, running, paused and complete
   assert.equal(startStopRole("running"), "stop");
   assert.equal(startStopRole("paused"), "stop");
   assert.equal(startStopRole("completed"), "stop");
+});
+
+test("underline survives save and load, and plain text stays byte-identical", async () => {
+  const { default: reducer, textInserted, targetChanged } = await import("../redux/editorSlice.js");
+  let state = reducer(undefined, textInserted("body"));
+  const plain = serializeDocument(state).pages[0].components[0].styles;
+  assert.equal("textDecoration" in plain, false);
+  const target = { kind: "elements", pageId: state.pages[0].id, ids: [state.pages[0].elements[0].id] };
+  state = reducer(state, targetChanged({ target, changes: { textDecoration: "underline" } }));
+  const saved = serializeDocument(state);
+  assert.equal(saved.clientSchemaVersion, EDITOR_SCHEMA_VERSION);
+  assert.equal(saved.pages[0].components[0].styles.textDecoration, "underline");
+  assert.equal(hydrateDocument(saved).pages[0].elements[0].textDecoration, "underline");
+});
+
+test("a version 2 document opens unchanged under version 3", () => {
+  const v2 = { clientSchemaVersion: 2, uuid: "b", name: "Old", version: 1, orientation: "LANDSCAPE", canvas: { width: 1920, height: 1080 },
+    pages: [{ uuid: "p", pageNumber: 1, background: { type: "COLOR", value: "#FFFFFF" }, components: [
+      { uuid: "t", type: "TEXT", content: "Hi", position: { x: 1, y: 2 }, size: { width: 300, height: 100 }, rotation: 0, layerIndex: 0, locked: false, visible: true,
+        styles: { fontFamily: "Poppins", fontSize: 72, fontWeight: 700, fontStyle: "normal", textAlign: "center", color: "#705AE0", lineHeight: 1.2, letterSpacing: 0, opacity: 1 } }] }] };
+  const text = hydrateDocument(v2).pages[0].elements[0];
+  assert.equal(text.content, "Hi");
+  assert.equal(text.textDecoration, "none");
+});
+
+test("shape v3 styles survive save and load, and an untouched shape saves as before", async () => {
+  const { default: reducer, elementInserted, targetChanged } = await import("../redux/editorSlice.js");
+  let state = reducer(undefined, elementInserted("star"));
+  const plain = serializeDocument(state).pages[0].components[0];
+  assert.deepEqual(plain.styles, { fill: "#ad8dea", opacity: 1, stroke: "transparent", strokeWidth: 0 });
+  const target = { kind: "elements", pageId: state.pages[0].id, ids: [state.pages[0].elements[0].id] };
+  const effect = { type: "INNER_SHADOW", visible: false, x: 0, y: 10, blur: 20, spread: 0, color: "#2A1F55", opacity: 0.35 };
+  state = reducer(state, targetChanged({ target, changes: { fillOpacity: 0.5, stroke: "#211D29", strokeWidth: 6, strokeAlign: "outside",
+    cornerRadius: 12, flipX: true, lockAspect: true, effects: [effect] } }));
+  const saved = serializeDocument(state).pages[0].components[0];
+  assert.equal(saved.flipX, true);
+  assert.equal(saved.styles.strokeAlign, "outside");
+  assert.equal(saved.styles.cornerRadius, 12);
+  assert.deepEqual(saved.styles.effects, [effect]);
+  const back = hydrateDocument(serializeDocument(state)).pages[0].elements[0];
+  assert.equal(back.fillOpacity, 0.5);
+  assert.equal(back.stroke, "#211D29");
+  assert.equal(back.effects[0].visible, false);
+  assert.equal(back.lockAspect, true);
+});
+
+test("no fill saves as null, and a v2 rounded rectangle keeps its roundness", () => {
+  const v2 = { clientSchemaVersion: 2, uuid: "b", name: "Old", version: 1, orientation: "LANDSCAPE", canvas: { width: 1920, height: 1080 },
+    pages: [{ uuid: "p", pageNumber: 1, background: { type: "COLOR", value: "#FFFFFF" }, components: [
+      { uuid: "s", type: "SHAPE", shape: "rounded-rectangle", position: { x: 1, y: 2 }, size: { width: 480, height: 280 }, rotation: 0, layerIndex: 0,
+        locked: false, visible: true, styles: { fill: "#ad8dea", opacity: 1, stroke: "transparent", strokeWidth: 0 } },
+      { uuid: "o", type: "SHAPE", shape: "circle", position: { x: 1, y: 2 }, size: { width: 100, height: 100 }, rotation: 0, layerIndex: 1,
+        locked: false, visible: true, styles: { fill: null, opacity: 1, stroke: "#000000", strokeWidth: 3 } }] }] };
+  const [rounded, outline] = hydrateDocument(v2).pages[0].elements;
+  assert.equal(rounded.cornerRadius, 50);
+  assert.equal(rounded.stroke, null);
+  assert.equal(outline.fill, null);
+  assert.equal(outline.strokeAlign, "inside");
+  assert.equal(serializeDocument({ pages: [{ id: "p", elements: [outline] }] }).pages[0].components[0].styles.fill, null);
+});
+
+test("text shadows survive save and load", async () => {
+  const { default: reducer, textInserted, targetChanged } = await import("../redux/editorSlice.js");
+  let state = reducer(undefined, textInserted("heading"));
+  const target = { kind: "elements", pageId: state.pages[0].id, ids: [state.pages[0].elements[0].id] };
+  const effect = { type: "DROP_SHADOW", visible: true, x: 0, y: 12, blur: 24, spread: 0, color: "#1B1530", opacity: 0.3 };
+  state = reducer(state, targetChanged({ target, changes: { effects: [effect] } }));
+  const saved = serializeDocument(state);
+  assert.deepEqual(saved.pages[0].components[0].styles.effects, [effect]);
+  assert.deepEqual(hydrateDocument(saved).pages[0].elements[0].effects, [effect]);
 });

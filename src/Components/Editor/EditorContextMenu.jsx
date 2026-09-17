@@ -61,6 +61,10 @@ export default function EditorContextMenu({ x, y, items, label, onAction, onClos
         : { left: `${position.left}px`, top: `${position.top}px` }}>
       {items.map((item, index) => (item.divider ? (
         <hr key={`divider-${index}`} />
+      ) : item.heading ? (
+        <p key={`heading-${index}`} className="editor-menu-heading">
+          {item.icon ? <item.icon size={15} strokeWidth={1.7} aria-hidden="true" /> : null}{item.heading}
+        </p>
       ) : (
         <button key={item.id} type="button" role="menuitem" disabled={item.disabled}
           className={item.danger ? "is-danger" : undefined}
