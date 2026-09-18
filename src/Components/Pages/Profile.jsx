@@ -6,11 +6,19 @@ import { DEFAULT_PROFILE, RECENT_DESIGNS } from "../ProfilePageComponents/profil
 import { StatCard } from "../ProfilePageComponents/StatCard";
 import { DesignCard } from "../ProfilePageComponents/DesignCard";
 import { ProfileEditModal } from "../ProfilePageComponents/ProfileEditModal";
+import { useCurrentUser } from "../Account/useCurrentUser";
+import UserAvatar from "../Account/UserAvatar";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("recent");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
+  const account = useCurrentUser();
+  // Signed in: the header shows the real account from /users/me. The bio,
+  // location and designs below are still placeholders until those APIs exist.
+  const name = account.user ? account.displayName : profile.name;
+  const handle = account.user ? account.user.username : profile.handle;
+  const role = account.user ? account.role.toLowerCase() || "member" : profile.role;
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-10">
@@ -43,18 +51,29 @@ export default function Profile() {
           </button>
 
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 ring-2 ring-white">
-              <img
-                src={profile.avatarUrl}
-                alt={`${profile.name} avatar`}
-                className="h-full w-full object-cover"
+            {account.isSignedIn ? (
+              <UserAvatar
+                size={64}
+                loading={account.isLoading}
+                pictureUrl={account.pictureUrl}
+                initials={account.initials}
+                name={name}
+                className="ring-2 ring-white"
               />
-            </div>
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 ring-2 ring-white">
+                <img
+                  src={profile.avatarUrl}
+                  alt={`${profile.name} avatar`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
 
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-slate-900">{profile.name}</h2>
+              <h2 className="text-lg font-semibold text-slate-900">{name}</h2>
               <p className="text-sm text-violet-600">
-                @{profile.handle} · {profile.role}
+                @{handle} · {role}
               </p>
               <p className="mt-1.5 max-w-xl text-sm text-slate-600">{profile.bio}</p>
               <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-slate-500">
