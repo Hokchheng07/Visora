@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import EditorCanvas from "../Editor/EditorCanvas";
-import EditorInspector from "../Editor/EditorInspector.jsx";
-import EditorAnimationPane from "../Editor/EditorAnimationPane.jsx";
-import EditorEffectDefs from "../Editor/EditorEffectDefs.jsx";
-import { hasVisibleEffects, strokeOverflow } from "../Editor/effectsFilter.js";
-import EditorDisplay from "../Editor/EditorDisplay";
-import EditorSidebar from "../Editor/EditorSidebar";
-import EditorToolPanel from "../Editor/EditorToolPanel";
-import EditorTopBar from "../Editor/EditorTopBar";
-import { requestFullscreen } from "../Editor/useFullscreen";
+import EditorCanvas from "../Editor/canvas/EditorCanvas";
+import EditorInspector from "../Editor/inspector/EditorInspector.jsx";
+import EditorAnimationPane from "../Editor/panels/EditorAnimationPane.jsx";
+import EditorEffectDefs from "../Editor/canvas/EditorEffectDefs.jsx";
+import { hasVisibleEffects, strokeOverflow } from "../Editor/model/effectsFilter.js";
+import EditorDisplay from "../Editor/display/EditorDisplay";
+import EditorSidebar from "../Editor/shell/EditorSidebar";
+import EditorToolPanel from "../Editor/panels/EditorToolPanel";
+import EditorTopBar from "../Editor/shell/EditorTopBar";
+import { requestFullscreen } from "../Editor/display/useFullscreen";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAdded, pageCopied, pageCloned, pageDeleted } from "../redux/editorSlice.js";
-import { useEditorKeyboard } from "../Editor/useEditorKeyboard.js";
-import { useMediaQuery } from "../Editor/useMediaQuery.js";
-import { usePointerHeld } from "../Editor/usePointerHeld.js";
-import { InspectorResizer, PanelToggle } from "../Editor/EditorLayoutHandles.jsx";
-import { readInspectorWidth } from "../Editor/inspectorWidth.js";
+import { useEditorKeyboard } from "../Editor/hooks/useEditorKeyboard.js";
+import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
+import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
+import { InspectorResizer, PanelToggle } from "../Editor/shell/EditorLayoutHandles.jsx";
+import { readInspectorWidth } from "../Editor/shell/inspectorWidth.js";
 import "../Editor/editor.css";
 
 export default function Editor() {

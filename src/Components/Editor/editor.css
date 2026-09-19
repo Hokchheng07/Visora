@@ -104,12 +104,35 @@
 .editor-document-name input:hover, .editor-document-name input:focus { border-color: var(--editor-border); background: var(--editor-raised); }
 .editor-document-name button { display: grid; place-items: center; width: 32px; height: 32px; color: var(--editor-muted); }
 .editor-topbar-actions { display: flex; flex: none; align-items: center; gap: 12px; }
+/* Document actions, then the account avatar, divided by a hairline. */
+.editor-topbar-end { display: flex; flex: none; align-items: center; gap: 18px; }
+.editor-topbar-end > .user-menu { padding-left: 18px; border-left: 1px solid var(--editor-border); }
 /* Enabled is the default here: a working action has to look different from the
    "coming soon" stubs beside it, or the whole bar reads as dead. */
 .editor-topbar-actions button { display: flex; justify-content: center; align-items: center; gap: 10px; min-width: 112px; height: 44px; padding-inline: 17px; border: 1px solid color-mix(in srgb, var(--color-primary) 28%, var(--editor-mix)); border-radius: 7px; color: var(--editor-ink); background: var(--editor-raised); font-size: 14px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
 .editor-topbar-actions button:disabled { border-color: var(--editor-border); color: var(--editor-muted); background: color-mix(in srgb, var(--editor-raised) 40%, transparent); opacity: .55; }
 .editor-topbar-actions .editor-export { background: var(--color-primary); border-color: var(--color-primary); color: white; }
 .editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
+/* Export As dropdown (Figma 1672:92601): 257px card, 15px padding, 57px rows,
+   the hovered or focused row takes the soft purple fill. */
+.editor-export-menu { z-index: 60; display: flex; flex-direction: column; width: 257px; padding: 15px; border-radius: 8px; background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25); outline: none; transform-origin: top right; transition: opacity 150ms ease, scale 150ms cubic-bezier(.23, 1, .32, 1); }
+.editor-export-menu[data-closed] { opacity: 0; scale: .96; }
+.editor-export-head { display: flex; align-items: center; justify-content: space-between; }
+.editor-export-head p { color: var(--editor-ink); font-size: 16px; font-weight: 500; line-height: 26px; }
+.editor-export-close { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: #9a9a9a; cursor: pointer; }
+.editor-export-options { display: flex; flex-direction: column; gap: 15px; padding: 15px 1px 0; }
+.editor-export-option { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 57px; padding: 0 10px; border-radius: 8px; text-align: left; cursor: pointer; transition: background-color 120ms ease; }
+.editor-export-option[data-focus] { background: color-mix(in srgb, var(--editor-accent) 10%, var(--editor-float)); }
+.editor-export-option[data-disabled] { cursor: not-allowed; opacity: .55; }
+.editor-export-icon { display: grid; flex: none; place-items: center; width: 44px; height: 44px; }
+.editor-export-icon img { width: 100%; height: 100%; object-fit: contain; }
+.editor-export-icon.is-json img { width: 32px; height: 41px; }
+.editor-export-icon.is-ai img { width: 35px; height: 44px; }
+.editor-export-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.editor-export-copy strong { color: var(--editor-ink); font-size: 14px; font-weight: 500; line-height: 16px; }
+.editor-export-copy > span { color: color-mix(in srgb, var(--editor-muted) 80%, transparent); font-size: 12px; line-height: 18px; }
+@media (hover: hover) and (pointer: fine) { .editor-export-close:hover { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); color: var(--editor-ink); } }
+@media (prefers-reduced-motion: reduce) { .editor-export-menu { transition: opacity 150ms ease; } .editor-export-menu[data-closed] { scale: 1; } }
 /* Track sizes are variables so the handles on the columns (the panel toggle and
    the Customize resizer, both positioned over the grid) can line up with them.
    --inspector-w is set inline from the width the person dragged to. */
@@ -193,18 +216,97 @@
 .editor-panel-primary:disabled { opacity: .55; }
 .editor-text-options { display: grid; gap: 10px; }
 .editor-text-options .editor-panel-subtitle { margin-bottom: 0; }
-.editor-text-options > button:not(.editor-panel-primary) { padding: 17px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; color: #696273; font-size: 14px; }
+.editor-text-options > button:not(.editor-panel-primary) { padding: 17px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; color: var(--editor-ink); font-size: 14px; }
+.editor-text-options > button { cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms cubic-bezier(.23, 1, .32, 1); }
+.editor-text-options > button:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 3px; transition: none; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-text-options > button:hover { transform: translateY(-1px); }
+  .editor-text-options > button:not(.editor-panel-primary):hover { border-color: var(--editor-accent); color: var(--editor-accent); background: color-mix(in srgb, var(--editor-accent) 10%, var(--editor-raised)); }
+  .editor-text-options > .editor-panel-primary:hover { background: color-mix(in srgb, var(--editor-accent) 85%, var(--editor-ink)); }
+  .editor-text-options > button:active { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-text-options > button { transition: none; }
+  .editor-text-options > button:hover { transform: none; }
+}
 .editor-text-options > .editor-text-heading { font-size: 22px !important; font-weight: 600; }
 .editor-text-options > .editor-text-subheading { font-size: 15px !important; font-weight: 500; }
 .editor-empty-state { padding: 44px 10px; text-align: center; }
+.editor-upload-error { margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: color-mix(in srgb, #e0394a 10%, transparent); color: #d0293a; font-size: 13px; line-height: 1.45; }
+.editor-upload-signin { margin-top: 18px; text-decoration: none; }
+/* A text box set to a list: one item per line. Left-aligned lists hang their
+   markers in the margin; centred or right-aligned ones keep them inline. */
+.editor-list-art { align-items: center; }
+.editor-text-list { width: 100%; margin: 0; padding-inline-start: 1.4em; text-align: inherit; }
+ol.editor-text-list { padding-inline-start: 2em; }
+.editor-text-list.is-inside { padding-inline-start: 0; list-style-position: inside; }
+.editor-text-list li { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Page numbers popover: an on/off switch, then the options it unlocks. */
+.editor-switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 0; border: 0; background: none; color: var(--editor-ink); font: inherit; font-size: 14px; cursor: pointer; }
+.editor-switch { position: relative; flex: none; width: 36px; height: 20px; border-radius: 999px; background: color-mix(in srgb, var(--editor-muted) 40%, transparent); transition: background-color 160ms ease; }
+.editor-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 2px rgb(0 0 0 / .25); transition: translate 180ms cubic-bezier(.23, 1, .32, 1); }
+.editor-switch-row[aria-checked="true"] .editor-switch { background: var(--color-primary); }
+.editor-switch-row[aria-checked="true"] .editor-switch::after { translate: 16px 0; }
+.editor-switch-row:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: 6px; }
+.editor-check-row { display: flex; align-items: center; gap: 9px; color: var(--editor-ink); font-size: 13.5px; cursor: pointer; }
+.editor-check-row input { width: 16px; height: 16px; accent-color: var(--color-primary); }
+.editor-check-row:has(input:disabled) { opacity: .5; cursor: default; }
+/* Lists popover: each option is a tiny three-line preview of the list. */
+.editor-popover-lists { width: 252px; gap: 10px; }
+.editor-list-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.editor-list-option { display: grid; place-items: center; height: 58px; padding: 6px 8px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-ink); cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+.editor-list-option.is-on { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, var(--editor-raised)); }
+.editor-list-sample { display: grid; gap: 4px; width: 100%; }
+.editor-list-sample > span { display: flex; align-items: center; gap: 5px; }
+.editor-list-sample b { flex: none; min-width: 14px; font-size: 10px; font-weight: 600; line-height: 1; text-align: right; }
+.editor-list-sample i { flex: 1; height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--editor-muted) 45%, transparent); }
+.editor-list-none { height: 34px; border: 1px solid var(--editor-border); border-radius: 8px; background: none; color: var(--editor-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.editor-list-none:disabled { opacity: .45; cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-list-option:not(:disabled):hover { border-color: var(--color-primary); }
+  .editor-list-none:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); }
+}
+/* "Your uploads": square thumbnails, two per row. Tapping one adds it again;
+   the × only removes it from this list, never from the server. */
+.editor-upload-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.editor-upload-tile { position: relative; aspect-ratio: 1; }
+.editor-upload-use { display: block; width: 100%; height: 100%; padding: 0; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: repeating-conic-gradient(color-mix(in srgb, var(--editor-muted) 12%, transparent) 0 25%, transparent 0 50%) 50% / 14px 14px; cursor: pointer; transition: border-color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
+.editor-upload-use:active { transform: scale(.97); }
+.editor-upload-use img { width: 100%; height: 100%; object-fit: contain; }
+.editor-upload-use:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.editor-upload-missing { display: grid; width: 100%; height: 100%; place-items: center; color: var(--editor-muted); }
+.editor-upload-forget { position: absolute; top: 5px; right: 5px; display: grid; width: 22px; height: 22px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgb(20 16 32 / .72); color: white; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
+.editor-upload-tile:focus-within .editor-upload-forget { opacity: 1; }
+@media (hover: none) { .editor-upload-forget { opacity: 1; } }
+@media (hover: hover) and (pointer: fine) {
+  .editor-upload-tile:hover .editor-upload-forget { opacity: 1; }
+  .editor-upload-use:hover { border-color: var(--color-primary); }
+}
+.editor-spin { animation: editor-spin 800ms linear infinite; }
+@keyframes editor-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .editor-spin { animation-duration: 2400ms; } }
 .editor-empty-icon { display: grid; width: 60px; height: 60px; margin: 0 auto 18px; place-items: center; border: 1px dashed color-mix(in srgb, var(--color-primary) 30%, var(--editor-mix)); border-radius: 16px; color: var(--color-primary); background: color-mix(in srgb, var(--editor-raised) 45%, transparent); }
 .editor-empty-state h3 { font-size: 15px; font-weight: 600; }
 .editor-empty-state p { margin-top: 8px; color: var(--editor-muted); font-size: 13px; line-height: 1.6; }
 .editor-panel-description { color: var(--editor-muted); font-size: 13px; line-height: 1.55; }
-.editor-timer-preview { margin-block: 18px; padding: 22px 10px; border-radius: 10px; background: var(--color-primary); color: white; text-align: center; }
-.editor-timer-preview > span { font-size: 25px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.editor-timer-preview small { display: flex; margin-top: 7px; justify-content: space-evenly; font-size: 6px; letter-spacing: .08em; }
-.editor-timer-preview.light { background: white; color: var(--color-primary); }
+/* Timer previews render the real TimerArtwork on a white slice of sheet. The
+   sheet is 1920/900 of the card wide, centred, so its cqw matches the canvas. */
+.editor-timer-preview { margin-block: 14px; padding: 0; overflow: hidden; border-radius: 10px; background: white; }
+.editor-timer-sample { position: relative; display: block; width: 100%; aspect-ratio: 900 / 460; overflow: hidden; }
+.editor-timer-sample-sheet { position: absolute; top: 0; left: 50%; width: calc(100% * 1920 / 900); height: 100%; translate: -50% 0; container-type: inline-size; }
+.editor-timer-sample-sheet .editor-timer-art { position: absolute; top: 0; left: 50%; width: calc(100% * 900 / 1920); height: 100%; translate: -50% 0; }
+/* Timer tiles: the live preview on white, then the kind's name and what it does. */
+.editor-timer-kinds { display: grid; gap: 12px; margin-top: 14px; }
+.editor-timer-kinds .editor-timer-preview { margin: 0; display: grid; text-align: left; }
+.editor-timer-kind { display: grid; gap: 2px; padding: 10px 12px 12px; border-top: 1px solid var(--editor-border, rgb(0 0 0 / .08)); background: var(--editor-raised); }
+.editor-timer-kind b { color: var(--editor-ink); font-size: 14px; font-weight: 600; }
+.editor-timer-kind span { color: var(--editor-muted); font-size: 12px; line-height: 1.4; }
+.editor-timer-kinds .editor-timer-preview:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .editor-timer-kinds .editor-timer-preview:hover { border-color: color-mix(in srgb, var(--color-primary) 55%, var(--editor-border)); } }
+.editor-timer-kinds .editor-timer-preview:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+/* Text for screen readers only (the stopwatch's Start / Stop / Reset announcements). */
+.editor-inspector-labelled-row { display: grid; gap: 5px; }
+.editor-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .editor-animation-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 14px; padding: 3px; border-radius: 9px; background: color-mix(in srgb, var(--color-primary) 8%, var(--editor-mix)); }
 .editor-animation-modes button { height: 40px; border-radius: 7px; color: var(--editor-muted); font-size: 13px; cursor: pointer; }
 .editor-animation-modes button[aria-selected="true"] { background: var(--editor-raised); color: var(--color-primary); box-shadow: 0 1px 4px rgb(var(--editor-shadow) / .1); }
@@ -214,11 +316,12 @@
 .editor-animation-preview:disabled { opacity: .45; }
 .editor-animation-preview > span:last-child { display: block; margin: 8px 3px 3px; overflow: hidden; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .editor-animation-stage { display: grid; aspect-ratio: 16 / 10; overflow: hidden; place-items: center; border-radius: 7px; background: linear-gradient(145deg, color-mix(in srgb, var(--color-primary) 12%, var(--editor-mix)), var(--editor-raised)); }
-.editor-animation-demo { display: flex; width: 70%; height: 50%; align-items: flex-end; justify-content: center; gap: 4px; padding: 7px; border: 1px solid color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); border-radius: 6px; background: var(--editor-raised); box-shadow: 0 4px 10px rgb(var(--editor-shadow) / .09); }
-.editor-animation-demo i { display: block; width: 18%; border-radius: 2px; background: var(--color-primary); }
-.editor-animation-demo i:nth-child(1) { height: 48%; opacity: .45; }
-.editor-animation-demo i:nth-child(2) { height: 82%; opacity: .75; }
-.editor-animation-demo i:nth-child(3) { height: 64%; }
+/* Hover preview: a ball acts the preset out (animationBallDemo.js). It rests on
+   a soft floor shadow; transforms scale from the ball's base so squash and
+   stretch stay planted on the floor. */
+.editor-animation-stage { position: relative; }
+.editor-ball { position: absolute; left: calc(50% - 11px); bottom: 26%; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, white 55%, var(--color-primary)) 0 12%, var(--color-primary) 55%, color-mix(in srgb, black 25%, var(--color-primary))); box-shadow: inset -2px -3px 5px rgb(0 0 0 / .18); transform-origin: 50% 100%; will-change: transform, opacity; }
+.editor-ball-shadow { position: absolute; left: calc(50% - 12px); bottom: calc(26% - 4px); width: 24px; height: 6px; border-radius: 50%; background: rgb(var(--editor-shadow) / .22); filter: blur(1px); transform-origin: 50% 50%; }
 .editor-workspace { display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-radius: 18px; background: var(--editor-workspace); }
 .editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
 .editor-canvas-area { display: flex; flex-direction: column; min-height: 0; }
@@ -262,6 +365,11 @@
 .editor-element-art { display: block; width: 100%; height: 100%; pointer-events: none; }
 .editor-vector-art { background: transparent !important; overflow: visible; }
 .editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; }
+/* Uploaded pictures fill their box; unlocking proportions crops, never stretches.
+   The placeholder stands in when the file will not load. */
+.editor-image-art { object-fit: cover; user-select: none; -webkit-user-drag: none; }
+.editor-image-missing { display: grid; place-items: center; background: repeating-linear-gradient(135deg, #ecebf1 0 12px, #e3e1ea 12px 24px); color: #9a93aa; }
+.editor-image-missing svg { width: 18%; height: auto; max-width: 64px; min-width: 14px; }
 .editor-text-art[contenteditable="plaintext-only"], .editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }
 /* Shapes are SVG and draw their own outline; the effects wrapper only carries the filter. */
 .editor-element-effects { position: relative; }
@@ -432,6 +540,7 @@
 .editor-ctl:disabled { opacity: .35; cursor: not-allowed; }
 .editor-ctl-icon { width: 42px; padding: 0; }
 .editor-ctl-icon.is-on { background: color-mix(in srgb, var(--editor-accent) 14%, transparent); color: var(--editor-accent); }
+.editor-ctl-trigger.is-on { color: var(--editor-accent); }
 .editor-ctl-trigger { padding-inline: 11px; }
 .editor-ctl-trigger[data-open] { background: color-mix(in srgb, var(--editor-accent) 12%, transparent); color: var(--editor-accent); }
 .editor-ctl-caret { flex: none; opacity: .5; }
@@ -517,7 +626,7 @@
 .editor-timer-art.is-live .editor-timer-button { cursor: pointer; pointer-events: auto; }
 .editor-timer-art.is-live .editor-timer-button:disabled { opacity: .4; cursor: not-allowed; }
 /* The format previews in the Timer panel are now the format choice. */
-.editor-timer-preview { display: block; width: 100%; border: 1px solid transparent; cursor: pointer; text-align: center; }
+.editor-timer-preview { display: block; width: 100%; border: 1px solid var(--editor-border, rgb(0 0 0 / .08)); cursor: pointer; text-align: center; }
 .editor-timer-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 
 /* ---------------------------------------------------------------------------
@@ -555,6 +664,7 @@
 .editor-inspector-group-head { display: flex; align-items: center; justify-content: space-between; min-height: 18px; }
 .editor-inspector-group h3 { margin: 0; font-size: 12px; font-weight: 600; color: var(--editor-ink); }
 .editor-inspector-note { padding: 7px 9px; border-radius: var(--field-r); background: color-mix(in srgb, #FFC21C 16%, var(--editor-mix)); color: var(--editor-ink); font-size: 11.5px; line-height: 1.4; }
+.editor-inspector-hint { color: var(--editor-muted); font-size: 12.5px; line-height: 1.5; }
 .editor-inspector-hint { color: var(--editor-muted); font-size: 11.5px; line-height: 1.4; }
 
 .editor-inspector-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; }
@@ -749,7 +859,10 @@
 .editor-animation-preview-toggle, .editor-animation-remove { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
 .editor-animation-remove, .editor-animation-message { color: var(--editor-danger); }
 .editor-animation-message { font-size: 12px; margin-top: 8px; }
-.editor-animation-preview .editor-animation-stage { aspect-ratio: 16 / 9; height: auto; min-height: 66px; }
+/* Width drives the height. The stage used to size from its content; with the
+   ball absolutely positioned it has none, so a min-height plus 16:9 forced it
+   117px wide and out of narrow cards. */
+.editor-animation-preview .editor-animation-stage { width: 100%; aspect-ratio: 16 / 9; height: auto; min-height: 0; }
 .editor-thumb-art { container-type: size; }
 .editor-display-bar { position: absolute; z-index: 1; bottom: 22px; display: flex; align-items: center; gap: 22px; max-width: calc(100vw - 32px); padding: 9px 14px; border-radius: 13px; background: rgb(20 18 26 / .92); box-shadow: 0 8px 30px rgb(0 0 0 / .45); color: white; transition: opacity 200ms ease, translate 200ms ease; }
 /* Hover needs no handler: a pointer that is hovering has just moved, so it is
@@ -789,6 +902,8 @@
   .editor-tool-panel { padding: 22px 16px; }
   .editor-document { gap: 20px; }
   .editor-topbar-actions { gap: 8px; }
+  .editor-topbar-end { gap: 12px; }
+  .editor-topbar-end > .user-menu { padding-left: 12px; }
   .editor-topbar-actions button { min-width: 90px; padding-inline: 12px; }
 }
 @media (max-width: 760px) {

@@ -2,7 +2,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { baseApi } from "../API/baseApi.js";
 import editorReducer from "./editorSlice.js";
-import { hydrateDocument, loadLocalDocument, saveLocalDocument } from "../Editor/editorDocument.js";
+import { hydrateDocument, loadLocalDocument, saveLocalDocument } from "../Editor/model/editorDocument.js";
 import { authSlice } from "./authslice.js";
 
 const savedDocument = loadLocalDocument();

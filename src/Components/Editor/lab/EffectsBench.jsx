@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
-import EditorEffectDefs from "../EditorEffectDefs.jsx";
-import { filterId } from "../effectsFilter.js";
-import { elementStyle } from "../elementGeometry.js";
-import { nodesToD, presetVector } from "../vectorPath.js";
+import EditorEffectDefs from "../canvas/EditorEffectDefs.jsx";
+import { filterId } from "../model/effectsFilter.js";
+import { elementStyle } from "../model/elementGeometry.js";
+import { nodesToD, presetVector } from "../model/vectorPath.js";
 
 /*
  * Phase 0 frame-rate benchmark (/editor-lab?bench=1). Development only.

@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from '../../theme/ThemeToggle';
+import UserMenu from "../Account/UserMenu";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
@@ -106,12 +107,17 @@ export default function Navbar() {
           {/* Right-side actions */}
           <div className="hidden items-center gap-6 md:flex">
             <ThemeToggle />
-            <NavLink
-              to="/auth/login"
-              className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
-            >
-              Sign In
-            </NavLink>
+            <UserMenu
+              size={48}
+              signedOut={
+                <NavLink
+                  to="/auth/login"
+                  className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
+                >
+                  Sign In
+                </NavLink>
+              }
+            />
           </div>
 
           {/* Mobile menu toggle */}
@@ -165,13 +171,20 @@ export default function Navbar() {
               ))}
             </ul>
             <ThemeToggle mobile />
-            <NavLink
-              to="/auth/login"
-              onClick={() => setMobileOpen(false)}
-              className="navbar-sign-in mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
-            >
-              Sign In
-            </NavLink>
+            <UserMenu
+              size={44}
+              align="start"
+              className="mt-5"
+              signedOut={
+                <NavLink
+                  to="/auth/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="navbar-sign-in mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
+                >
+                  Sign In
+                </NavLink>
+              }
+            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,15 +1,17 @@
 import { createSlice, current, nanoid } from "@reduxjs/toolkit";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/elementGeometry.js";
-import { shapeCatalog } from "../Editor/shapeCatalog.js";
-import { defaultTimer, normalizeTimer } from "../Editor/editorDocument.js";
-import { appendAnimations, extractAnimations, insertionRows, migrateAnimations, normalizeTransition, removeAnimationRows, remapAnimations, repairTimeline, validateTimeline } from "../Editor/animationTimeline.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/model/elementGeometry.js";
+import { shapeCatalog } from "../Editor/model/shapeCatalog.js";
+import { isPageNumber, normalizePageNumbers, pageNumberPlacement, syncPageNumbers } from "../Editor/model/pageNumbers.js";
+import { defaultTimer, normalizeTimer } from "../Editor/model/editorDocument.js";
+import { appendAnimations, extractAnimations, insertionRows, migrateAnimations, normalizeTransition, removeAnimationRows, remapAnimations, repairTimeline, validateTimeline } from "../Editor/animation/animationTimeline.js";
 import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
-  stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/layerModel.js";
+  stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/model/layerModel.js";
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
+  pageNumbers: { enabled: false, position: "bottom-right", skipFirst: false },
   past: [], future: [], gesture: null, edit: null, pointEdit: null, copiedPage: null, copiedElements: [], copiedGroups: [], copiedAnimations: [], zoom: null, snapGuides: [],
 };
 
@@ -39,13 +41,14 @@ function tidyGroups(page) {
 }
 function snapshot(state) {
   const plain = current(state);
-  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, selectionMode: plain.selectionMode, title: plain.title };
+  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, selectionMode: plain.selectionMode, title: plain.title, pageNumbers: plain.pageNumbers };
 }
 function remember(state, before = snapshot(state)) {
   state.past.push(before); if (state.past.length > 50) state.past.shift(); state.future = [];
 }
 function restore(state, saved) {
   state.pages = saved.pages; state.title = saved.title || state.title;
+  if (saved.pageNumbers) state.pageNumbers = saved.pageNumbers;
   state.currentPage = clamp(saved.currentPage, 0, state.pages.length - 1);
   setSelection(state, saved.selectedIds || (saved.selectedId ? [saved.selectedId] : []), saved.selectionMode);
 }
@@ -82,6 +85,7 @@ const mergeTimer = (timer, changes) => normalizeTimer({
   ...timer, ...changes,
   onComplete: { ...timer?.onComplete, ...(changes.onComplete || {}) },
   controls: { ...timer?.controls, ...(changes.controls || {}) },
+  buttonColors: { ...timer?.buttonColors, ...(changes.buttonColors || {}) },
 });
 const PAGE_FIELDS = ["background", "transition", "name"];
 const GROUP_FIELDS = ["name", "visible", "locked"];
@@ -166,6 +170,7 @@ function applyLayerMove(state, payload, operation) {
 const reducers = {
     documentLoaded(state, { payload }) {
       Object.assign(state, initialEditorState, payload);
+      state.pageNumbers = normalizePageNumbers(payload?.pageNumbers);
       state.pages = state.pages.map((page) => migrateAnimations(normalizeGroups({ ...page, groups: page.groups || [] })));
       state.currentPage = 0; setSelection(state, []);
     },
@@ -211,6 +216,17 @@ const reducers = {
       if (state.pages.length === 1 || !state.pages[payload]) return;
       cancelGesture(state); remember(state); state.pages.splice(payload, 1);
       state.currentPage = clamp(state.currentPage - (payload <= state.currentPage ? 1 : 0), 0, state.pages.length - 1); setSelection(state, []);
+    },
+    /* One switch for the whole design; see model/pageNumbers.js. */
+    /* The switch and its options. The layers themselves are added, removed and
+       kept alike by syncPageNumbers, which runs after every action. A position
+       preset moves the layers to that corner; after that they can go anywhere. */
+    pageNumbersChanged(state, { payload }) {
+      const next = normalizePageNumbers({ ...state.pageNumbers, ...payload });
+      if (state.gesture || JSON.stringify(normalizePageNumbers(state.pageNumbers)) === JSON.stringify(next)) return;
+      remember(state); state.pageNumbers = next;
+      if (payload?.position) state.pages.forEach((page) => page.elements.filter(isPageNumber)
+        .forEach((element) => Object.assign(element, pageNumberPlacement(next.position, element.w, element.h))));
     },
     pageBackgroundChanged(state, { payload }) {
       const page = state.pages[state.currentPage];
@@ -387,7 +403,8 @@ const reducers = {
       reducer(state, { payload }) {
         if (state.gesture) return;
         const presets = {
-          heading: { content: "Add a heading", fontSize: 120, fontWeight: 700, w: 900, h: 180 },
+          // Poppins Bold needs ~900px for the heading itself, plus text padding.
+          heading: { content: "Add a heading", fontSize: 120, fontWeight: 700, w: 960, h: 180 },
           subheading: { content: "Add a subheading", fontSize: 72, fontWeight: 600, w: 760, h: 130 },
           body: { content: "Add body text", fontSize: 48, fontWeight: 400, w: 620, h: 110 },
         };
@@ -398,8 +415,37 @@ const reducers = {
         state.pages[state.currentPage].elements.push(element); setSelection(state, [payload.id]);
       },
     },
+    /* An uploaded picture. `src` is the storage fileName the upload returned,
+       never the full link or the image data: the document stays small, and it
+       still works if the server address changes (see getStorageUrl). The box
+       keeps the photo's own proportions and fits inside 60% of the page. */
+    imageInserted: {
+      prepare: (src, size = {}, name = "") => ({ payload: { src, width: size.width, height: size.height, name, id: nanoid() } }),
+      reducer(state, { payload }) {
+        if (!payload.src || state.gesture) return;
+        const width = payload.width > 0 ? payload.width : 800, height = payload.height > 0 ? payload.height : 600;
+        const scale = Math.min(1, (CANVAS_WIDTH * 0.6) / width, (CANVAS_HEIGHT * 0.6) / height);
+        const w = Math.max(24, Math.round(width * scale)), h = Math.max(24, Math.round(height * scale));
+        remember(state);
+        const elements = state.pages[state.currentPage].elements; const offset = (elements.length % 8) * 24;
+        elements.push({
+          id: payload.id, type: "image", src: payload.src,
+          ...(cleanName(payload.name) ? { name: cleanName(payload.name) } : {}),
+          x: (CANVAS_WIDTH - w) / 2 + offset, y: (CANVAS_HEIGHT - h) / 2 + offset, w, h, rotation: 0,
+          opacity: 1, cornerRadius: 0, flipX: false, flipY: false, lockAspect: true,
+          locked: false, visible: true, effects: [],
+        });
+        setSelection(state, [payload.id]);
+      },
+    },
     timerInserted: {
-      prepare: (format = "HH:MM:SS") => ({ payload: { format, id: nanoid() } }),
+      /* timerInserted("STOPWATCH") adds a stopwatch; anything else adds a
+         countdown, and a format string ("MM:SS") is still accepted for it. */
+      prepare: (option = "COUNTDOWN", buttonColors) => ({ payload: {
+        mode: option === "STOPWATCH" ? "STOPWATCH" : "COUNTDOWN",
+        format: option === "STOPWATCH" || option === "COUNTDOWN" ? "HH:MM:SS" : option,
+        buttonColors, id: nanoid(),
+      } }),
       reducer(state, { payload }) {
         if (state.gesture) return;
         remember(state);
@@ -409,7 +455,7 @@ const reducers = {
           x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h, rotation: 0,
           fill: "#705AE0", opacity: 1, fontFamily: "Poppins", fontSize: 120,
           locked: false, visible: true,
-          timer: defaultTimer(payload.format),
+          timer: defaultTimer(payload.format, payload.buttonColors, payload.mode),
         });
         setSelection(state, [payload.id]);
       },
@@ -589,11 +635,14 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged,
-  elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
+export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
+  elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, imageInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
 export const { pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
 export const { pageTransitionChanged, animationAdded, animationChanged, animationRemoved, animationMoved } = editorSlice.actions;
-export default editorSlice.reducer;
+// The slice, then the page-number pass (see model/pageNumbers.js).
+export default function editorReducer(state, action) {
+  return syncPageNumbers(state, editorSlice.reducer(state, action), action, editorSlice.actions.elementDeleted.type);
+}

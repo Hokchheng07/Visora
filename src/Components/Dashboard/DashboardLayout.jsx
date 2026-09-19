@@ -1,8 +1,9 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router";
-import { Bell, ChevronDown, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
+import { Bell, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import ThemeToggle from "../../theme/ThemeToggle";
+import UserMenu from "../Account/UserMenu";
 import "./dashboard.css";
 
 const navigation = [
@@ -54,11 +55,17 @@ export default function DashboardLayout() {
             <button className="notification" aria-label="Notifications, 5 unread">
               <Bell size={24} fill="currentColor" /><b>5</b>
             </button>
-            <button className="account-button" aria-label="Account menu">
-              <CircleUserRound className="admin-avatar" size={48} strokeWidth={1.6} />
-              <span className="admin-meta"><strong>Admin User</strong><span>Super Admin</span></span>
-              <ChevronDown size={22} strokeWidth={2.5} className="account-chevron" />
-            </button>
+            <UserMenu
+              size={48}
+              showMeta
+              className="dashboard-user-menu"
+              signedOut={
+                <Link to="/auth/login" className="account-button" aria-label="Sign in">
+                  <CircleUserRound className="admin-avatar" size={48} strokeWidth={1.6} />
+                  <span className="admin-meta"><strong>Sign in</strong></span>
+                </Link>
+              }
+            />
           </div>
         </header>
         <Outlet />

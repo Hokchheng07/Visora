@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
-import EditorEffectDefs from "../EditorEffectDefs.jsx";
-import { filterId, normalizeEffects } from "../effectsFilter.js";
-import { elementStyle } from "../elementGeometry.js";
-import { nodesToD, presetVector } from "../vectorPath.js";
+import EditorEffectDefs from "../canvas/EditorEffectDefs.jsx";
+import { filterId, normalizeEffects } from "../model/effectsFilter.js";
+import { elementStyle } from "../model/elementGeometry.js";
+import { nodesToD, presetVector } from "../model/vectorPath.js";
 import EffectsBench from "./EffectsBench.jsx";
 import "./effectsLab.css";
 
