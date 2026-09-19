@@ -40,7 +40,7 @@ test("a stopwatch is inserted with its mode, and a countdown still accepts a for
 test("a stopwatch saves only what it uses", () => {
   const saved = serializeTimer(defaultTimer("HH:MM:SS", { start: "#112233" }, "STOPWATCH"));
   assert.deepEqual(Object.keys(saved).sort(), ["buttonColors", "controls", "format", "mode"]);
-  assert.equal(saved.format, "MM:SS.CC");
+  assert.equal(saved.format, "HH:MM:SS", "the saved format matches the face");
   assert.deepEqual(saved.controls, { startStop: true, reset: true });
   assert.equal(saved.buttonColors.start, "#112233");
   assert.deepEqual(Object.keys(saved.buttonColors).sort(), ["reset", "start", "stop"]);

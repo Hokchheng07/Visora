@@ -116,8 +116,9 @@ export const TIMER_FORMATS = ["HH:MM:SS", "MM:SS"];
    only Start/Stop and Reset. Keeping one type means the backend's hasTimer and
    export rules keep working unchanged. */
 export const TIMER_MODES = ["COUNTDOWN", "STOPWATCH"];
-// The Mac Clock stopwatch face: 00:05.23, growing to 1:02:03.45 after an hour.
-export const STOPWATCH_FORMAT = "MM:SS.CC";
+// A stopwatch always reads hours, minutes and whole seconds (00:01:30); whole
+// seconds keep the digits still on a projector instead of flickering hundredths.
+export const STOPWATCH_FORMAT = "HH:MM:SS";
 
 /* Button fills by role. Stop shares the first position with Start, so it has
    its own colour even though both never show at once. */
