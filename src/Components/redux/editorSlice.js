@@ -251,10 +251,29 @@ const reducers = {
           ? page.elements.filter((element) => element.visible !== false && !effectiveLocked(page, element)).map((element) => element.id)
           : state.selectedIds;
         if (!ids.length || !isEditable(state, ids)) return;
-        const added = insertionRows(page, ids, payload.kind, payload.preset, payload.trigger || "with")
+        if (payload.preset === "none") {
+          const removed = new Set((page.animations || []).filter((row) => row.kind === payload.kind && ids.includes(row.elementId)).map((row) => row.id));
+          if (!removed.size) return;
+          remember(state);
+          page.animations = repairTimeline({ ...page, animations: removeAnimationRows(page, removed) });
+          return;
+        }
+        /* Picking a preset for an element that already has one of that kind
+           swaps it, rather than refusing until the old one is removed: an
+           element has one entrance and one exit, so choosing is the edit. */
+        const chosen = new Set(ids);
+        const swapped = new Set();
+        const kept = (page.animations || []).map((row) => {
+          if (row.kind !== payload.kind || !chosen.has(row.elementId) || payload.kind === "emphasis") return row;
+          swapped.add(row.elementId);
+          return { ...row, preset: payload.preset };
+        });
+        const fresh = ids.filter((id) => !swapped.has(id));
+        const added = insertionRows(page, fresh, payload.kind, payload.preset, payload.trigger || "with")
           .map((row, index) => ({ ...row, id: `${payload.seed}-${index}` }));
-        const rows = [...(page.animations || []), ...added];
-        if (!added.length || validateTimeline({ ...page, animations: rows }).length) return;
+        const rows = [...kept, ...added];
+        if (!rows.length || validateTimeline({ ...page, animations: rows }).length) return;
+        if (JSON.stringify(rows) === JSON.stringify(page.animations || [])) return;
         remember(state); page.animations = rows;
       },
     },

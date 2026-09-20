@@ -1,6 +1,6 @@
 // Serializable authoring data and pure timing math. Runtime playback never edits it.
 export const MAX_ANIMATION_MS = 60000;
-export const PRESETS = { entrance: ["fade", "rise", "slide-left", "pop"], emphasis: ["pulse"], exit: ["fade", "rise", "slide-left", "pop"] };
+export const PRESETS = { entrance: ["fade", "rise", "slide-left", "pop", "morph"], emphasis: ["pulse"], exit: ["fade", "rise", "slide-left", "pop", "morph"] };
 export const TRANSITIONS = ["fade", "rise", "slide-left", "pop", "morph"];
 export const ms = (value, fallback = 520) => Number.isFinite(Number(value)) ? Math.round(Math.max(0, Math.min(MAX_ANIMATION_MS, Number(value)))) : fallback;
 export function normalizeTransition(value) {
@@ -25,6 +25,30 @@ export function buildSteps(page) {
 export function initialVisibility(page) {
   return Object.fromEntries(page.elements.map((element) => [element.id,
     rowVisible(page, { elementId: element.id }) && !(page.animations || []).some((row) => row.elementId === element.id && row.kind === "entrance")]));
+}
+
+/* A page transition is an element fallback, not a second animation layered on
+   top of authored element motion. These rows exist only for playback: they are
+   never written into the document or sent to the API. Morph is rendered by the
+   cross-page overlay instead of an ordinary element frame. */
+export function transitionFallbackRows(page, transition = page.transition) {
+  const normalized = normalizeTransition(transition);
+  if (!normalized || normalized.preset === "morph") return [];
+  const authored = new Set((page.animations || []).map((row) => row.elementId));
+  return page.elements.filter((element) => !authored.has(element.id)).map((element) => ({
+    id: `runtime-transition:${element.id}`,
+    elementId: element.id,
+    kind: "entrance",
+    preset: normalized.preset,
+    trigger: "with",
+    delayMs: normalized.delayMs,
+    durationMs: normalized.durationMs,
+  }));
+}
+
+export function withTransitionFallback(page, transition = page.transition) {
+  const fallback = transitionFallbackRows(page, transition);
+  return fallback.length ? { ...page, animations: [...fallback, ...(page.animations || [])] } : page;
 }
 export function validateTimeline(page) {
   const errors = [], ids = new Set(), byElement = new Map();
