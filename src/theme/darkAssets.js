@@ -75,15 +75,6 @@ import light30 from '../assets/pages/home/explore-by-events/LightPurpleBackgroun
 import dark30 from '../assets/pages/home/explore-by-events/dark/LightPurpleBackground.svg';
 import light31 from '../assets/pages/home/explore-by-events/ForegroundPurple.svg';
 import dark31 from '../assets/pages/home/explore-by-events/dark/ForegroundPurple.svg';
-<<<<<<< HEAD
-import light32 from '../assets/pages/home/explore-by-events/LeftLayerBlur(ExploreByEvents).svg';
-import dark32 from '../assets/pages/home/explore-by-events/dark/LeftLayerBlur(ExploreByEvents).svg';
-import light33 from '../assets/pages/home/explore-by-events/CenterLayerBlur(ExploreByEvents).svg';
-import dark33 from '../assets/pages/home/explore-by-events/dark/CenterLayerBlur(ExploreByEvents).svg';
-import light34 from '../assets/pages/home/explore-by-events/RightLayerBlur.svg';
-import dark34 from '../assets/pages/home/explore-by-events/dark/RightLayerBlur.svg';
-=======
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import light35 from '../assets/pages/home/why-choose-visora/why-choose-blob.png';
 import dark35 from '../assets/pages/home/why-choose-visora/WhyChooseVisoraRightBlob(DarkMode).svg';
 import khmerApsaraLight from '../assets/pages/home/khmer-design-showcase/apsara.png';
@@ -139,11 +130,8 @@ import featurePinEtchLight from '../assets/pages/about/design-present-inspire/Pi
 import featurePinEtchDark from '../assets/pages/about/DarkMode/HangingCardBackground.svg';
 import visionFrameLight from '../assets/pages/about/vision-mission/OurVisionFrame+OurMission.svg';
 import visionFrameDark from '../assets/pages/about/DarkMode/OurMissionFrame.svg';
-<<<<<<< HEAD
-=======
 import visionLottieLight from '../assets/pages/about/vision-mission/LottieAboveOurVision.svg';
 import visionLottieDark from '../assets/pages/about/vision-mission/LottieDarkMode.svg';
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import cardPurpleFrameLight from '../assets/pages/about/people/cards/purple/PurpleFram.svg';
 import cardPurpleFrameDark from '../assets/pages/about/DarkMode/PinkFrame.svg';
 import cardPurpleBgLight from '../assets/pages/about/people/cards/purple/prupleBg.svg';
@@ -208,12 +196,6 @@ export const darkAssets = {
   [light29]: dark29,
   [light30]: dark30,
   [light31]: dark31,
-<<<<<<< HEAD
-  [light32]: dark32,
-  [light33]: dark33,
-  [light34]: dark34,
-=======
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   [light35]: dark35,
   [exploreTopLeftLight]: exploreTopLeftDark,
   [khmerApsaraLight]: khmerApsaraDark,
@@ -243,10 +225,7 @@ export const darkAssets = {
   [featureBackdropLight]: featureBackdropDark,
   [featurePinEtchLight]: featurePinEtchDark,
   [visionFrameLight]: visionFrameDark,
-<<<<<<< HEAD
-=======
   [visionLottieLight]: visionLottieDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   [cardPurpleFrameLight]: cardPurpleFrameDark,
   [cardPurpleBgLight]: cardPurpleBgDark,
   [cardPurpleBlobLight]: cardPurpleBlobDark,

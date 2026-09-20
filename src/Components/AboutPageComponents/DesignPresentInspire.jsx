@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import { useEffect, useState } from "react";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import { ThemeImage } from "../../theme/ThemeImage";
 import { featureCards } from "./aboutData";
 import { useCardSwing } from "./useCardSwing";
@@ -31,8 +28,6 @@ function FeatureCard({ feature }) {
   );
 }
 
-<<<<<<< HEAD
-=======
 // Where the needle head sits inside each pin export (56 x 63), as fractions.
 const PIN_HEAD = { x: 0.55, y: 0.32 };
 const round = (value) => Math.round(value * 10) / 10;
@@ -100,7 +95,6 @@ function PinConnector({ stageRef }) {
   );
 }
 
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 export default function DesignPresentInspire() {
   const stageRef = useCardSwing();
 
@@ -110,10 +104,7 @@ export default function DesignPresentInspire() {
   return (
     <section className="about-design" aria-label="Design. Present. Inspire.">
       <div className="about-feature-stage" ref={stageRef}>
-<<<<<<< HEAD
-=======
         <PinConnector stageRef={stageRef} />
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         <div className="about-feature-grid">
           {featureCards.map((feature) => (
             <FeatureCard key={feature.title} feature={feature} />

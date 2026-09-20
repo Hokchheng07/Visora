@@ -160,11 +160,7 @@ export default function SignUp() {
               )}
             </AnimatePresence>
 
-<<<<<<< HEAD
-            <button type="submit" className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-secondary via-[#e9b56b] to-primary text-base font-semibold text-white transition hover:brightness-105 lg:mt-6 lg:h-14 lg:text-xl">
-=======
             <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
               Sign Up <span aria-hidden="true" className="text-2xl">⟶</span>
             </button>
             <AnimatePresence>

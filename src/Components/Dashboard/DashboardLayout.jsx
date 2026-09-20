@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { NavLink, Outlet, useLocation } from "react-router";
-=======
 import { Link, NavLink, Outlet, useLocation } from "react-router";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import { Bell, ChevronDown, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
@@ -36,15 +32,9 @@ export default function DashboardLayout() {
       </button>
       {isMenuOpen && <div className="dashboard-scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
       <aside className={`dashboard-sidebar ${isMenuOpen ? "is-open" : ""}`}>
-<<<<<<< HEAD
-        <NavLink to="/dashboard" className="dashboard-brand" onClick={() => setMenuOpen(false)}>
-          <img src={visoraLogo} alt="Visora" />
-        </NavLink>
-=======
         <Link to="/" className="dashboard-brand" aria-label="Visora home" onClick={() => setMenuOpen(false)}>
           <img src={visoraLogo} alt="Visora" />
         </Link>
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         <nav aria-label="Dashboard navigation">
           {navigation.map(([label, to, Icon]) => (
             <NavLink key={to} to={to} end={to === "/dashboard"} onClick={() => setMenuOpen(false)} className={({ isActive }) => `dashboard-nav-item ${isActive ? "active" : ""}`}>

@@ -11,18 +11,20 @@ import About from "./Components/Pages/About.jsx";
 import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
-<<<<<<< HEAD
-=======
 import ForgotPassword from "./Components/Auth/ForgotPassword.jsx";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
-<<<<<<< HEAD
-=======
-import Profile from "./Components/Pages/Profile.jsx";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+import UserDashboardLayout from "./Components/UserDashboard/UserDashboardLayout.jsx";
+import Profile from "./Components/UserDashboard/Profile/Profile.jsx";
+import Recent from "./Components/UserDashboard/Recent/Recent.jsx";
+import Favorites from "./Components/UserDashboard/Favorites/Favorites.jsx";
+import MyDesigns from "./Components/UserDashboard/MyDesigns/MyDesigns.jsx";
+import Drafts from "./Components/UserDashboard/MyDesigns/Drafts.jsx";
+import PostedTemplates from "./Components/UserDashboard/MyDesigns/PostedTemplates.jsx";
+import Shared from "./Components/UserDashboard/Shared/Shared.jsx";
+import Trash from "./Components/UserDashboard/Trash/Trash.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
 import Templates from "./Components/Pages/Templates.jsx";
@@ -46,14 +48,30 @@ const router = createBrowserRouter([
         element: <Editor />,
       },
       {
-<<<<<<< HEAD
-=======
-        // Standalone like the editor: the page carries its own "Back to Visora" bar.
         path: "profile",
-        element: <Profile />,
+        element: <Navigate to="/user-dashboard/profile" replace />,
       },
       {
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+        path: "user-dashboard",
+        element: <UserDashboardLayout />,
+        children: [
+          { index: true, element: <Navigate to="profile" replace /> },
+          { path: "profile", element: <Profile /> },
+          { path: "recent", element: <Recent /> },
+          { path: "favorites", element: <Favorites /> },
+          {
+            path: "my-designs",
+            element: <MyDesigns />,
+            children: [
+              { path: "drafts", element: <Drafts /> },
+              { path: "posted-templates", element: <PostedTemplates /> },
+            ],
+          },
+          { path: "shared", element: <Shared /> },
+          { path: "trash", element: <Trash /> },
+        ],
+      },
+      {
         path: "/",
         element: <Layout />,
         children: [
@@ -95,20 +113,14 @@ const router = createBrowserRouter([
             path: "register",
             element: <SignUp />,
           },
-<<<<<<< HEAD
-=======
           { path: "forgot-password", element: <ForgotPassword /> },
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         ],
       },
       {
         path: "login",
         element: <Navigate to="/auth/login" replace />,
       },
-<<<<<<< HEAD
-=======
       { path: "forgot-password", element: <Navigate to="/auth/forgot-password" replace /> },
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
       {
         path: "dashboard",
         element: <DashboardLayout />,

@@ -21,13 +21,8 @@
   --color-primary: #72bff1;
   --color-secondary: #da4ec9;
   --color-accent: #e35dcb;
-<<<<<<< HEAD
-  --surface-base: #0f0f14;
-  --surface-warm: #151520;
-=======
   --surface-base: #000000;
   --surface-warm: #000000;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   --surface-card: #1a1a28;
   --surface-overlay: rgb(26 26 40 / .92);
   /* Dark landing-page typography follows the approved Figma frame. */
@@ -82,10 +77,6 @@
 .dark .site-shell .features-section > .bg-gradient-to-br { background: linear-gradient(135deg, rgb(114 191 241 / .06), rgb(218 78 201 / .08)); }
 .dark .site-shell .features-plane-tile { background: transparent; }
 .dark .site-shell :is(.templates-arrow-scissors, .templates-spiral-arrow, .features-spiral, .create-limits-underline, .explore-events-heading > img, .about-journey-scissors) { filter: invert(.85) hue-rotate(180deg); }
-<<<<<<< HEAD
-.dark .site-shell .hero-backdrop-word,
-.dark .site-shell .hero-backdrop-word [data-word] { filter: drop-shadow(0 2px 6px rgb(114 191 241 / .16)); }
-=======
 /* Dark hero CTAs: Figma nodes 1781:193411 (#E35DCB) and 1781:193417 (#72BFF1). */
 .dark .site-shell .hero-cta-primary { background: #e35dcb; box-shadow: 0 10px 24px rgb(227 93 203 / .28); }
 .dark .site-shell .hero-cta-secondary { background: #72bff1; color: #fff; }
@@ -94,7 +85,6 @@
 .dark .site-shell .navbar-sign-in { background: var(--color-primary); }
 .dark .site-shell .hero-backdrop-word,
 .dark .site-shell .hero-backdrop-word [data-word] { color: #f5a5ec; text-shadow: .35cqw .35cqw 0 #e35dcb; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .dark .site-shell .khmer-showcase-button { color: #fff; }
 .dark .site-shell .event-card { border-color: var(--border-card); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
 .dark .site-shell .event-card:not(.event-card-tone-1):not(.event-card-tone-2) { --event-color: #4b3988; }
