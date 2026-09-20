@@ -105,6 +105,20 @@ test("images save only their storage fileName and load back unchanged", () => {
   assert.equal(loaded.flipX, true); assert.equal(loaded.lockAspect, false);
 });
 
+test("a Khmer library element saves its library id and colour, and loads them back", () => {
+  let state = send([imageInserted("library:corners/top-left", { width: 1254, height: 1254 }, "Khmer corner, top left")]);
+  const id = state.pages[0].elements[0].id;
+  state = reducer(state, targetChanged({ target: { kind: "elements", pageId: state.pages[0].id, ids: [id] }, changes: { fill: "#c4443e" } }));
+  const [component] = serializeDocument(state).pages[0].components;
+  assert.deepEqual(component.image, { fileName: "library:corners/top-left" });
+  assert.equal(component.styles.fill, "#C4443E");
+  const [loaded] = hydrateDocument(serializeDocument(state)).pages[0].elements;
+  assert.equal(loaded.src, "library:corners/top-left"); assert.equal(loaded.fill, "#C4443E");
+  // an uploaded photo never gains a colour
+  const photo = serializeDocument(send([imageInserted("b88b4aa6.png", { width: 800, height: 600 })])).pages[0].components[0];
+  assert.equal("fill" in photo.styles, false);
+});
+
 test("marquee and snapping use rotated bounds without mutating elements", () => {
   const selected = [{ id: "a", x: 920, y: 490, w: 80, h: 80, rotation: 45 }];
   assert.deepEqual(elementsInRect(selected, { left: 900, top: 470, right: 1050, bottom: 620 }), ["a"]);

@@ -1,4 +1,4 @@
-import { Image, ImageOff, Loader2, Search, Sparkles, Upload, X } from "lucide-react";
+import { ChevronLeft, Image, ImageOff, Loader2, Search, Sparkles, Upload, X } from "lucide-react";
 import { Link } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -15,6 +15,7 @@ import { useCurrentUser } from "../../Account/useCurrentUser";
 import { ShapeArtwork } from "../canvas/EditorElement.jsx";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
 import { defaultTimer } from "../model/editorDocument.js";
+import { KHMER_ELEMENTS, khmerGroups, khmerSections, librarySrc } from "../model/khmerElements.js";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { animationAdded, imageInserted, pageTransitionChanged, textInserted, timerInserted } from "../../redux/editorSlice.js";
 import { presetLabel, transitionPresets } from "../animation/animationPresets.js";
@@ -77,22 +78,78 @@ function ShapePreviews({ query: controlledQuery, onQueryChange, showSearch = tru
   );
 }
 
+/* One element tile. The tile's own picture reports the element's proportions,
+   so a new element needs no size written down beside its file. */
+function LibraryTile({ item, onAdd }) {
+  return (
+    <button type="button" className={`editor-khmer-tile${item.wide ? " is-wide" : ""}`}
+      title={item.name} aria-label={`Add ${item.label}`}
+      onClick={(event) => onAdd(item, event.currentTarget.querySelector("img"))}>
+      <img src={item.src} alt="" loading="lazy" draggable={false} />
+    </button>
+  );
+}
+
+/* The Elements panel opens on its groups — Khmer elements, Graphics — and a
+   click enters one. Searching looks across every group at once, so nothing is
+   hidden behind a card. */
 function ElementsPanel() {
+  const dispatch = useAppDispatch();
   const [query, setQuery] = useState("");
-  const graphics = [
-    { name: "Sparkle", glyph: "✦" },
-    { name: "Flourish", glyph: "↝" },
-    { name: "Flower", glyph: "❀" },
-    { name: "Heart", glyph: "♡" },
-  ].filter((graphic) => graphic.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const [openGroup, setOpenGroup] = useState(null);
+  const term = query.trim().toLowerCase();
+  const matches = KHMER_ELEMENTS.filter((item) => item.label.toLowerCase().includes(term));
+  const groups = khmerGroups(matches);
+  const group = groups.find((entry) => entry.id === openGroup);
+  const sections = khmerSections(matches, term ? null : group?.id);
+
+  /* The tile's picture reports the element's proportions, so a new element
+     needs no size written down beside its file. Tiles load lazily, so a click
+     on one that has not finished loading measures the file itself first. */
+  const add = (item, picture) => {
+    const place = (width, height) => dispatch(imageInserted(librarySrc(item.id), { width, height }, item.name));
+    if (picture?.naturalWidth) return place(picture.naturalWidth, picture.naturalHeight);
+    const probe = new window.Image();
+    probe.onload = () => place(probe.naturalWidth, probe.naturalHeight);
+    probe.onerror = () => place(undefined, undefined);
+    probe.src = item.src;
+    return undefined;
+  };
+
   return (
     <>
       <div className="editor-panel-search"><Search size={16} aria-hidden="true" /><input aria-label="Search elements" placeholder="Search elements…" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
-      <h3 className="editor-panel-subtitle">Graphics</h3>
-      <div className="editor-graphic-grid" aria-label="Graphic previews">
-        {graphics.map(({ name, glyph }) => <span key={name} role="img" aria-label={name} title={name}>{glyph}</span>)}
-      </div>
-      {!graphics.length && <p className="editor-panel-empty">No elements match “{query}”.</p>}
+
+      {!term && !group && (
+        <div className="editor-group-grid">
+          {groups.map((entry) => (
+            <button key={entry.id} type="button" className="editor-group-card" onClick={() => setOpenGroup(entry.id)}>
+              <span className={`editor-group-thumb${entry.preview.length === 1 ? " is-single" : ""}`} aria-hidden="true">
+                {entry.preview.map((item) => <img key={item.id} src={item.src} alt="" loading="lazy" />)}
+              </span>
+              <strong>{entry.label}</strong>
+              <small>{entry.blurb} · {entry.count}</small>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!term && group && (
+        <button type="button" className="editor-group-back" onClick={() => setOpenGroup(null)}>
+          <ChevronLeft size={16} aria-hidden="true" /><span>{group.label}</span>
+        </button>
+      )}
+
+      {(term || group) && sections.map((section) => (
+        <section key={section.id}>
+          <h3 className="editor-panel-subtitle">{section.label}</h3>
+          <div className="editor-khmer-grid">
+            {section.items.map((item) => <LibraryTile key={item.id} item={item} onAdd={add} />)}
+          </div>
+        </section>
+      ))}
+
+      {term && !sections.length && <p className="editor-panel-empty">No elements match “{query}”.</p>}
     </>
   );
 }

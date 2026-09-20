@@ -19,6 +19,8 @@ function imageStyles(element) {
   const effects = normalizeEffects(element.effects);
   return {
     opacity: element.opacity,
+    // Only library vectors take a colour; a photo has none.
+    ...(/^#[0-9A-F]{6}$/i.test(element.fill || "") ? { fill: element.fill.toUpperCase() } : {}),
     ...(element.cornerRadius > 0 ? { cornerRadius: element.cornerRadius } : {}),
     ...(effects.length ? { effects } : {}),
   };
@@ -29,6 +31,7 @@ function hydrateImage(component) {
   const fileName = component.image?.fileName;
   return {
     src: typeof fileName === "string" ? fileName : "",
+    ...(/^#[0-9A-F]{6}$/i.test(styles.fill || "") ? { fill: styles.fill.toUpperCase() } : {}),
     cornerRadius: Math.max(0, Number(styles.cornerRadius) || 0),
     effects: normalizeEffects(styles.effects),
     flipX: !!component.flipX, flipY: !!component.flipY,

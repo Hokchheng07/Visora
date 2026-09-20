@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="200" viewBox="-10 -10 120 120" preserveAspectRatio="none" fill="none"><title>Purple sparkle</title><defs>
+<linearGradient id="p" x1="18" y1="12" x2="82" y2="90"><stop stop-color="#C478FF"/><stop offset="1" stop-color="#8D42E8"/></linearGradient>
+<linearGradient id="l" x1="18" y1="12" x2="82" y2="90"><stop stop-color="#E2C6FF"/><stop offset="1" stop-color="#BB87EE"/></linearGradient>
+<linearGradient id="y" x1="18" y1="8" x2="82" y2="92"><stop stop-color="#FFE879"/><stop offset="1" stop-color="#FFC431"/></linearGradient>
+<filter id="s" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#6936B0" flood-opacity=".17"/></filter>
+</defs><g filter="url(#s)" stroke-linecap="round" stroke-linejoin="round"><path d="M50 10C55 31 63 42 86 50C63 58 55 69 50 90C45 69 37 58 14 50C37 42 45 31 50 10Z" fill="none" stroke="#FFFDFE" stroke-width="13"/><path d="M50 10C55 31 63 42 86 50C63 58 55 69 50 90C45 69 37 58 14 50C37 42 45 31 50 10Z" fill="url(#p)" stroke="#A45DE5" stroke-width="5"/><path d="M50 27C53 39 58 46 70 50C58 54 53 61 50 73C47 61 42 54 30 50C42 46 47 39 50 27Z" fill="#FFF" opacity=".24"/></g></svg>

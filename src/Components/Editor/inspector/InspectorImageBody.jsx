@@ -4,9 +4,10 @@ import {
 } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
 import { selectionAligned, targetChanged } from "../../redux/editorSlice.js";
-import { ButtonRow, FieldLabel, IconAction, InspectorSection, NumberField, ResetStyle } from "./EditorInspectorFields.jsx";
+import { ButtonRow, ColourRow, FieldLabel, IconAction, InspectorSection, NumberField, ResetStyle } from "./EditorInspectorFields.jsx";
 import { normalizeRotation } from "./inspectorEdit.js";
 import EffectsSection from "./InspectorEffects.jsx";
+import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
 
 /*
  * Image settings, in the same order as a shape's: Position → Layout →
@@ -14,7 +15,8 @@ import EffectsSection from "./InspectorEffects.jsx";
  * is its paint. The proportion lock starts on, as photos usually want.
  */
 
-const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [] };
+const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [], fill: null };
+const KHMER_SWATCHES = [KHMER_GOLD, "#FFFFFF", "#C4443E", "#705AE0", "#111111"];
 
 export default function InspectorImageBody({ element, target, busy }) {
   const dispatch = useAppDispatch();
@@ -22,6 +24,9 @@ export default function InspectorImageBody({ element, target, busy }) {
   const align = (edge) => () => dispatch(selectionAligned(edge));
   const ratio = element.h / element.w;
   const maxRadius = Math.round(Math.min(element.w, element.h) / 2);
+  // Built-in Khmer vectors take a colour; uploaded photos do not.
+  const library = libraryElement(element.src);
+  const recolourable = !!library?.recolour;
 
   return (
     <>
@@ -81,6 +86,13 @@ export default function InspectorImageBody({ element, target, busy }) {
               target={target} property="cornerRadius" disabled={busy} toChanges={(cornerRadius) => ({ cornerRadius })} /></div>
         </div>
       </InspectorSection>
+
+      {recolourable && (
+        <InspectorSection title="Colour">
+          <ColourRow label="Colour" value={element.fill || library?.color || KHMER_GOLD} target={target} disabled={busy}
+            toChanges={(fill) => ({ fill })} quickSwatches={KHMER_SWATCHES} />
+        </InspectorSection>
+      )}
 
       <EffectsSection element={element} target={target} busy={busy} />
 

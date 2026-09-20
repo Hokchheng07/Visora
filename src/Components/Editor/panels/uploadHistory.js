@@ -52,7 +52,8 @@ export function removeUpload(list, fileName) {
 export function withDocumentImages(list, pages) {
   const used = new Map();
   (pages || []).forEach((page) => page.elements.forEach((element) => {
-    if (element.type === "image" && element.src && !used.has(element.src)) used.set(element.src, element);
+    // Built-in library elements ("library:…") are not uploads.
+    if (element.type === "image" && element.src && !element.src.startsWith("library:") && !used.has(element.src)) used.set(element.src, element);
   }));
   const known = new Set(list.map((entry) => entry.fileName));
   const extra = [...used.values()].filter((element) => !known.has(element.src))
