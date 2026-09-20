@@ -137,7 +137,7 @@ const Hero = () => {
           Each wrapper flies in from its nearest side while the nested image
           owns the existing transform-based floating loop. */}
       <div
-        className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
+        className="hero-decorations pointer-events-none absolute left-1/2 top-0 z-0 block w-full max-w-[1920px] -translate-x-1/2"
         style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
         aria-hidden="true"
       >

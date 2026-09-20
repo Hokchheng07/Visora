@@ -336,6 +336,8 @@ ol.editor-text-list { padding-inline-start: 2em; }
 /* Text for screen readers only (the stopwatch's Start / Stop / Reset announcements). */
 .editor-inspector-labelled-row { display: grid; gap: 5px; }
 .editor-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.editor-animation-selected strong { display: block; color: var(--editor-ink); font-size: 13px; font-weight: 600; }
+.editor-animation-selected small { color: var(--editor-muted); font-size: 12px; }
 .editor-animation-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 14px; padding: 3px; border-radius: 9px; background: color-mix(in srgb, var(--color-primary) 8%, var(--editor-mix)); }
 .editor-animation-modes button { height: 40px; border-radius: 7px; color: var(--editor-muted); font-size: 13px; cursor: pointer; }
 .editor-animation-modes button[aria-selected="true"] { background: var(--editor-raised); color: var(--color-primary); box-shadow: 0 1px 4px rgb(var(--editor-shadow) / .1); }

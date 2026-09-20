@@ -59,7 +59,7 @@ export default function PopularTemplates() {
         </motion.p>
 
         <motion.div
-          className="relative mt-14 grid min-w-0 gap-8 md:grid-cols-3"
+          className="relative mt-14 grid min-w-0 gap-8 sm:grid-cols-2 lg:grid-cols-3"
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -111,7 +111,7 @@ export default function PopularTemplates() {
         src={spiralArrow}
         alt=""
         aria-hidden="true"
-        className="templates-spiral-arrow pointer-events-none absolute z-0 hidden lg:block"
+        className="templates-spiral-arrow pointer-events-none absolute z-0"
         initial="hidden"
         whileInView="show"
         viewport={viewportOnce}
@@ -122,7 +122,7 @@ export default function PopularTemplates() {
         src={scissors}
         alt=""
         aria-hidden="true"
-        className="templates-scissors pointer-events-none absolute hidden lg:block"
+        className="templates-scissors pointer-events-none absolute"
         initial="hidden"
         whileInView="show"
         viewport={viewportOnce}
