@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="230" height="242" viewBox="-10 -10 120 120" preserveAspectRatio="none" fill="none"><title>Yellow heart</title><defs>
+<linearGradient id="p" x1="18" y1="12" x2="82" y2="90"><stop stop-color="#C478FF"/><stop offset="1" stop-color="#8D42E8"/></linearGradient>
+<linearGradient id="l" x1="18" y1="12" x2="82" y2="90"><stop stop-color="#E2C6FF"/><stop offset="1" stop-color="#BB87EE"/></linearGradient>
+<linearGradient id="y" x1="18" y1="8" x2="82" y2="92"><stop stop-color="#FFE879"/><stop offset="1" stop-color="#FFC431"/></linearGradient>
+<filter id="s" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#6936B0" flood-opacity=".17"/></filter>
+</defs><g filter="url(#s)" stroke-linecap="round" stroke-linejoin="round"><path d="M50 84C37 71 17 57 17 36C17 17 40 11 50 29C60 11 83 17 83 36C83 57 63 71 50 84Z" fill="none" stroke="#FFFDFE" stroke-width="13"/><path d="M50 84C37 71 17 57 17 36C17 17 40 11 50 29C60 11 83 17 83 36C83 57 63 71 50 84Z" fill="url(#y)" stroke="#F4BE29" stroke-width="4"/><path d="M28 34C30 25 39 22 44 29" stroke="#FFF" stroke-width="3" opacity=".58"/></g></svg>

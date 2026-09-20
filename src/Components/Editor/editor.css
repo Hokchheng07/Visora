@@ -209,8 +209,37 @@
 .editor-shape-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 9px; margin-top: 12px; }
 .editor-shape-tile { display: grid; min-width: 0; min-height: 106px; grid-template-rows: 52px minmax(28px, auto); align-content: center; place-items: center; gap: 7px; padding: 10px 4px 8px; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); }
 .editor-shape { display: block; width: 28px; height: 28px; background: var(--color-accent); }
-.editor-graphic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.editor-graphic-grid > span { display: grid; height: 92px; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); color: var(--color-primary); font-size: 42px; }
+.editor-library-art { display: block; }
+/* Panel previews show the vector in its gold, the same way the canvas draws it. */
+/* Group cards: the Elements panel's front page. The thumbnail is a 2x2 of the
+   group's own elements, so a new group needs no artwork of its own. */
+.editor-group-grid { display: grid; gap: 10px; }
+.editor-group-card { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--editor-border); border-radius: 14px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; cursor: pointer; transition: border-color 150ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1); }
+.editor-group-card strong { color: var(--editor-ink); font-size: 14px; font-weight: 600; }
+.editor-group-card small { color: var(--editor-muted); font-size: 12px; }
+.editor-group-thumb { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; padding: 8px; border-radius: 10px; background: color-mix(in srgb, var(--editor-accent) 8%, transparent); }
+.editor-group-thumb.is-single { grid-template-columns: 1fr; justify-items: center; }
+.editor-group-thumb img { width: 100%; height: 46px; object-fit: contain; }
+.editor-group-card:active { transform: scale(.98); }
+.editor-group-card:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 2px; }
+.editor-group-back { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; padding: 6px 4px; border-radius: 8px; color: var(--editor-ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+.editor-group-back svg { color: var(--editor-muted); }
+@media (hover: hover) and (pointer: fine) {
+  .editor-group-card:hover { border-color: var(--editor-accent); }
+  .editor-group-back:hover { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .editor-group-card:active { transform: none; } }
+.editor-khmer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+.editor-khmer-grid:last-child { margin-bottom: 0; }
+.editor-khmer-tile { display: flex; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box; height: 92px; padding: 10px; border: 1px solid transparent; border-radius: 11px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); cursor: pointer; transition: border-color 150ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1); }
+.editor-khmer-tile.is-wide { grid-column: 1 / -1; height: 64px; }
+/* max-* against the flex box's fixed height: a percentage height inside a
+   grid cell with an auto row resolved to the picture's own size and spilled out. */
+.editor-khmer-tile img { display: block; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
+.editor-khmer-tile:active { transform: scale(.97); }
+.editor-khmer-tile:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .editor-khmer-tile:hover { border-color: var(--editor-accent); } }
+@media (prefers-reduced-motion: reduce) { .editor-khmer-tile:active { transform: none; } }
 .editor-panel-empty { margin-top: 20px; color: var(--editor-muted); font-size: 13px; line-height: 1.55; }
 .editor-panel-primary { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 8px; padding: 11px; border-radius: 9px; background: var(--color-primary); color: white; font-size: 14px !important; cursor: pointer; }
 .editor-panel-primary:disabled { opacity: .55; }
