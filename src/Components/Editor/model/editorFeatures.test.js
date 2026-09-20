@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import reducer, { elementChanged, elementInserted, elementNudged, elementsSelected, pageAdded, pageMoved,
+import reducer, { animationAdded, elementChanged, elementInserted, elementNudged, elementsSelected, pageAdded, pageMoved,
   imageInserted, selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, timerChanged,
   timerInserted, undo } from "../../redux/editorSlice.js";
 import { bounds, elementsInRect, onPage, scaleSelection, selectionBounds, snapSelectionDelta, WORK_AREA } from "./elementGeometry.js";
@@ -103,6 +103,24 @@ test("images save only their storage fileName and load back unchanged", () => {
   assert.equal(loaded.type, "image"); assert.equal(loaded.src, "b88b4aa6.png");
   assert.equal(loaded.cornerRadius, 24); assert.equal(loaded.opacity, 0.5);
   assert.equal(loaded.flipX, true); assert.equal(loaded.lockAspect, false);
+});
+
+test("Whole page scope animates every unlocked, visible element without a selection", () => {
+  let state = send([elementInserted("square"), elementInserted("circle"), elementInserted("triangle")]);
+  const page = state.pages[0];
+  const [first, second, third] = page.elements.map((element) => element.id);
+  // one hidden, one locked: neither should be animated
+  state = reducer(state, elementsSelected([second]));
+  state = reducer(state, elementChanged({ visible: false }));
+  state = reducer(state, elementsSelected([third]));
+  state = reducer(state, elementChanged({ locked: true }));
+  state = reducer(state, elementsSelected([]));
+  state = reducer(state, animationAdded({ kind: "entrance", preset: "fade", scope: "page" }));
+  const rows = state.pages[0].animations;
+  assert.deepEqual(rows.map((row) => row.elementId), [first]);
+  // the selection scope still needs a selection
+  const untouched = reducer(state, animationAdded({ kind: "exit", preset: "fade", scope: "selection" }));
+  assert.equal(untouched.pages[0].animations.length, rows.length);
 });
 
 test("a Khmer library element saves its library id and colour, and loads them back", () => {

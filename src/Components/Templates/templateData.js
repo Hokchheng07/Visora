@@ -1,10 +1,12 @@
-export const templateCategories = [
+export const templateCategories=[
   "All",
+  "Portfolio",
+  "CV / Resume",
   "Graduation",
   "Examination",
   "Seminar",
-  "Competition",
   "Workshop",
+  "Competition",
   "School Event",
   "Khmer Event",
   "Celebration",

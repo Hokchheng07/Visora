@@ -26,6 +26,8 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
   const [chosen, setChosen] = useState(null), [message, setMessage] = useState("");
   const selected = rows.find((row) => row.id === chosen && selectedIds.includes(row.elementId)) || rows.find((row) => selectedIds.includes(row.elementId));
   const element = selected && page.elements.find((item) => item.id === selected.elementId);
+  const chosenElements = page.elements.filter((item) => selectedIds.includes(item.id));
+  const selectionRows = rows.filter((row) => selectedIds.includes(row.elementId));
   const busy = !!gesture || (element && effectiveLocked(page, element));
   const bounds = useMemo(() => selected ? { delayMs: timingBounds(page, selected.id, "delayMs"), durationMs: timingBounds(page, selected.id, "durationMs") } : null, [page, selected]);
   const target = selected && { kind: "animation", pageId: page.id, rowId: selected.id };
@@ -54,9 +56,29 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
         disabled={!!gesture} onBeforeEdit={onStopPreview} toChanges={(value) => ({ transition: { ...page.transition, [property]: value } })} />)}
       <p className="editor-panel-description">Slides advance when you click Next.</p>
     </section>
+    {/* What the panel is talking about. Without it, "Pick an element" reads as
+        "nothing is selected" even when something is. */}
+    <section className="editor-animation-section editor-animation-selection" aria-label="Selection">
+      <h3>Selected</h3>
+      {chosenElements.length === 0 && <p className="editor-panel-empty">Nothing selected. Click an element on the canvas.</p>}
+      {chosenElements.length === 1 && <div className="editor-animation-selected">
+        <strong>{layerLabel(chosenElements[0])}</strong>
+        <small>{selectionRows.length ? `${selectionRows.length} animation${selectionRows.length === 1 ? "" : "s"}` : "No animation yet"}</small>
+      </div>}
+      {chosenElements.length > 1 && <div className="editor-animation-selected">
+        <strong>{chosenElements.length} elements selected</strong>
+        <small>{selectionRows.length ? `${selectionRows.length} animation${selectionRows.length === 1 ? "" : "s"} between them` : "No animations yet"}</small>
+      </div>}
+    </section>
     <section className="editor-animation-section"><div className="editor-animation-section-title"><h3>Animation order</h3>
       <button type="button" className="editor-animation-preview-toggle" disabled={!!gesture} onClick={previewing ? onStopPreview : onPreview}>{previewing ? <Square size={14} /> : <Play size={14} />}{previewing ? "Stop" : "Preview"}</button></div>
-      {!rows.length && <p className="editor-panel-empty">Pick an element, then choose an animation.</p>}
+      {/* This list is per element, so the empty line talks about the selection,
+          never about the page. */}
+      {!rows.length && <p className="editor-panel-empty">{chosenElements.length > 1
+        ? "These elements have no entrance or exit animation yet. Choose one in the Animate panel on the left."
+        : chosenElements.length
+          ? "This element has no entrance or exit animation yet. Choose one in the Animate panel on the left."
+          : "Pick an element, then choose an animation."}</p>}
       {steps.filter((step) => step.rows.length).map((step) => <div key={step.index} className="editor-animation-step"><h4>{step.index ? `Click ${step.index}` : "On entry"}</h4>
         <ol>{step.rows.map((row) => {
           const item = page.elements.find((e) => e.id === row.elementId), index = rows.findIndex((r) => r.id === row.id), locked = item && effectiveLocked(page, item);

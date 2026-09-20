@@ -614,6 +614,76 @@
   .about-cta-doodle-lower { display: none; }
 }
 
+/* Mid-size phones have enough side and lower-edge space for a few existing
+   decorations. Keep them restrained so they frame the content instead of
+   competing with it. */
+@media (min-width: 480px) and (max-width: 767px) {
+  .about-hero-angkor { display: block; width: 58%; opacity: .72; }
+  .about-hero-plane { display: block; right: 3%; bottom: 24%; width: 64px; }
+  .about-hero-exclamation { display: block; top: 13%; left: 5%; width: 38px; }
+  .about-hero-yellow-swoosh { display: block; top: 54%; left: 3%; width: 76px; opacity: .7; }
+  .about-hero-left-line-dashed,
+  .about-hero-left-line-solid { display: block; left: -8%; top: 35%; width: 42%; opacity: .32; }
+  .about-hero-right-line-dashed,
+  .about-hero-right-line-solid { display: block; right: -12%; top: 40%; width: 38%; opacity: .28; }
+  .about-hero-snail-left { display: block; left: 3%; bottom: 18%; width: 58px; opacity: .72; }
+  .about-hero-frame-yellow { display: block; left: 6%; bottom: 5%; width: 72px; opacity: .72; }
+  .about-story-line { display: block; top: 18px; right: -32%; width: 92%; opacity: .18; }
+  .about-story-snail-one { display: block; right: 3%; bottom: 3%; top: auto; width: 70px; opacity: .72; }
+}
+
+@media (max-width: 479px) {
+  .about-section { width: calc(100% - 24px); padding-block: 48px; }
+  .about-section-heading h2,
+  .about-story h2,
+  .about-what h2,
+  .about-design-heading h2 { font-size: clamp(1.9rem, 9vw, 2.55rem); line-height: 1.05; }
+  .about-section-subtitle { font-size: .78rem; }
+  .about-hero { min-height: 620px; }
+  .about-hero-copy { top: 12%; right: 5%; width: 90%; }
+  .about-hero-copy h1 { font-size: clamp(1.85rem, 8vw, 2.35rem); line-height: .98; }
+  .about-hero-copy h1 span { font-size: clamp(3rem, 14vw, 4.4rem); line-height: .98; }
+  .about-hero-copy > p { max-width: 18rem; font-size: .78rem; line-height: 1.5; }
+  .about-story { min-height: 0; padding-top: 52px; }
+  .about-story-copy { padding: 22px 18px; border-radius: 24px; }
+  .about-story-copy > p:not(.about-eyebrow),
+  .about-what-copy > p:not(.about-eyebrow) { margin-top: 16px; font-size: .9rem; line-height: 1.65; }
+  .about-values-grid { margin-top: 30px; }
+  .about-value-card { min-height: 220px; }
+  .about-value-card img { max-height: 270px; }
+  .about-what { min-height: 0; }
+  .about-what-copy { padding: 24px 18px; border-radius: 24px; }
+  .about-design { width: calc(100% - 16px); }
+  .about-design-heading { padding: 30px 14px; border-radius: 30px; }
+  .about-feature-stage { margin-top: 36px; }
+  .about-feature-grid { width: 100%; gap: 22px; }
+  .about-feature-copy h3 { font-size: .98rem; }
+  .about-feature-copy p { font-size: .72rem; }
+  .about-vision-grid { margin-top: 32px; }
+  .about-vision-card, .about-vision-copy { min-height: 270px; }
+  .about-vision-copy { padding: 34px 24px; }
+  .about-vision-copy h3 { font-size: 1.35rem; }
+  .about-vision-copy p { font-size: .82rem; line-height: 1.55; }
+  .about-mentor-grid, .about-member-grid { grid-template-columns: minmax(0, 270px); margin-top: 32px; }
+  .about-person-card { min-height: 340px; }
+  .about-cta { min-height: 460px; margin-top: 48px; }
+  .about-cta-copy { width: calc(100% - 36px); padding-top: 150px; }
+  .about-cta-copy h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .about-cta-copy > p:not(.about-eyebrow) { font-size: .9rem; line-height: 1.5; }
+  .about-cta-copy > a { margin-top: 22px; min-height: 48px; padding-inline: 22px; font-size: .85rem; }
+  /* There is no reliable decorative gutter at the smallest widths. */
+  .about-hero-angkor,
+  .about-hero-plane,
+  .about-hero-exclamation,
+  .about-hero-yellow-swoosh,
+  .about-hero-left-line,
+  .about-hero-right-line,
+  .about-hero-snail,
+  .about-hero-frame,
+  .about-story-line,
+  .about-story-snail { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .about-cta-copy > a { transition: none; }
 }

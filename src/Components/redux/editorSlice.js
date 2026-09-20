@@ -242,9 +242,16 @@ const reducers = {
     animationAdded: {
       prepare: (options) => ({ payload: { ...options, seed: nanoid() } }),
       reducer(state, { payload }) {
-        if (state.gesture || !selectionEditable(state)) return;
+        if (state.gesture) return;
         const page = currentPageOf(state);
-        const added = insertionRows(page, state.selectedIds, payload.kind, payload.preset, payload.trigger || "with")
+        /* scope "page" animates every element on the page, so a whole design can
+           be animated without selecting anything; locked and hidden layers stay
+           out of it either way. */
+        const ids = payload.scope === "page"
+          ? page.elements.filter((element) => element.visible !== false && !effectiveLocked(page, element)).map((element) => element.id)
+          : state.selectedIds;
+        if (!ids.length || !isEditable(state, ids)) return;
+        const added = insertionRows(page, ids, payload.kind, payload.preset, payload.trigger || "with")
           .map((row, index) => ({ ...row, id: `${payload.seed}-${index}` }));
         const rows = [...(page.animations || []), ...added];
         if (!added.length || validateTimeline({ ...page, animations: rows }).length) return;

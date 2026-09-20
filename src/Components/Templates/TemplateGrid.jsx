@@ -18,9 +18,9 @@ export default function TemplateGrid({
 }) {
   if (loading) {
     return (
-      <section className="flex min-h-[420px] min-w-0 flex-1 items-center justify-center">
+      <section className="flex min-h-[320px] min-w-0 flex-1 items-center justify-center md:min-h-[380px] lg:min-h-[420px]">
         <div className="text-center">
-          <LoaderCircle size={38} className="mx-auto animate-spin text-primary" />
+          <LoaderCircle className="mx-auto h-9 w-9 animate-spin text-primary lg:h-10 lg:w-10" />
 
           <p className="mt-3 text-sm text-[var(--text-body)]">
             Loading templates...
@@ -32,15 +32,17 @@ export default function TemplateGrid({
 
   if (error) {
     return (
-      <section className="flex min-h-[420px] min-w-0 flex-1 items-center justify-center">
-        <div className="text-center">
-          <TriangleAlert size={38} className="mx-auto text-primary" />
+      <section className="flex min-h-[320px] min-w-0 flex-1 items-center justify-center md:min-h-[380px] lg:min-h-[420px]">
+        <div className="px-4 text-center">
+          <TriangleAlert className="mx-auto h-9 w-9 text-primary lg:h-10 lg:w-10" />
 
           <h3 className="mt-3 font-semibold text-[var(--text-heading)]">
             Unable to load templates
           </h3>
 
-          <p className="mt-1 text-sm text-[var(--text-muted)]">{error}</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            {error}
+          </p>
         </div>
       </section>
     );
@@ -49,7 +51,7 @@ export default function TemplateGrid({
   return (
     <section className="min-w-0 flex-1">
       {activeCategory !== "All" && (
-        <div className="mb-4 flex justify-end px-1">
+        <div className="mb-4 flex justify-end">
           <span className="rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
             {activeCategory}
           </span>
@@ -58,7 +60,7 @@ export default function TemplateGrid({
 
       {templates.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6 xl:grid-cols-3 xl:gap-7 2xl:grid-cols-3 2xl:gap-8">
             {templates.map((template) => (
               <TemplateCard
                 key={template.id}
@@ -77,10 +79,10 @@ export default function TemplateGrid({
           />
         </>
       ) : (
-        <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-[var(--border-card)] bg-[var(--surface-card)] p-8 text-center">
-          <Search size={40} className="text-primary" />
+        <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-[var(--border-card)] bg-[var(--surface-card)] p-6 text-center sm:min-h-[360px] sm:p-8 lg:min-h-[420px]">
+          <Search className="h-9 w-9 text-primary lg:h-10 lg:w-10" />
 
-          <h3 className="mt-4 text-xl font-semibold text-[var(--text-heading)]">
+          <h3 className="mt-4 text-lg font-semibold text-[var(--text-heading)] sm:text-xl">
             No templates found
           </h3>
 

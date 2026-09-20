@@ -64,7 +64,7 @@ export default function TemplatePage() {
 
       <TemplateDecorations />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 pb-8 pt-7 sm:px-6 sm:pt-9 md:px-8 lg:px-10 xl:px-12">
+      <div className="relative z-10 mx-auto w-full max-w-[1700px] px-4 pb-8 pt-7 sm:px-6 sm:pt-9 md:px-8 lg:px-10 xl:px-12">
         <TemplateHeader
           search={search}
           setSearch={setSearch}
@@ -87,7 +87,7 @@ export default function TemplatePage() {
           />
         )}
 
-        <div className="mt-4 flex flex-col gap-5 min-[900px]:mt-5 min-[900px]:flex-row min-[900px]:items-start">
+        <div className="mt-4 flex flex-col gap-5 min-[1000px]:mt-5 min-[1000px]:flex-row min-[1000px]:items-start">
           <FilterSidebar
             showFilters={showFilters}
             onClose={() => setShowFilters(false)}

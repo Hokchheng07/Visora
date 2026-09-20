@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router";
-import { Bell, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
+import { Bell, ChevronDown, CircleUserRound, Clock3, Flag, Folder, House, Layers, Menu, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import ThemeToggle from "../../theme/ThemeToggle";

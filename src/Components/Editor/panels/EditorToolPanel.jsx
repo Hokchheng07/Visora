@@ -2,7 +2,7 @@ import { ChevronLeft, Image, ImageOff, Loader2, Search, Sparkles, Upload, X } fr
 import { Link } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { animate, utils } from "animejs";
+import { animate } from "animejs";
 import { useReducedMotion } from "motion/react";
 import { editorSidebarItems } from "../shell/editorSidebarConfig";
 import { shapeCatalog } from "../model/shapeCatalog.js";
@@ -287,18 +287,37 @@ function TimerPanel() {
 
 function AnimationPreview({ preset, active, disabled, reason, kind, onChoose }) {
   const ballRef = useRef(null), shadowRef = useRef(null), runningRef = useRef([]); const reduceMotion = useReducedMotion();
-  function stop() { runningRef.current.forEach((animation) => animation.revert()); runningRef.current = []; }
+
+  /* The start pose is written as plain inline styles rather than through the
+     animation library: a zero-length animation there stays alive and keeps
+     overriding the real one, which left the ball stuck invisible. The pose
+     goes into `transform`, the same property the library animates — CSS
+     `scale`/`translate` would sit on top of it and pin the ball in place. */
+  function pose(node, frame) {
+    const { duration: _duration, ease: _ease, opacity, scaleX = 1, scaleY = 1, translateX = 0, translateY = 0, ...rest } = frame;
+    node.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+    if (opacity !== undefined) node.style.opacity = opacity;
+    Object.entries(rest).forEach(([key, value]) => { node.style[key] = value; });
+  }
+
+  function clear(node) {
+    if (!node) return;
+    node.style.cssText = "";
+  }
+  function stop() {
+    runningRef.current.forEach((animation) => animation.revert?.());
+    runningRef.current = [];
+    clear(ballRef.current); clear(shadowRef.current);
+  }
   function play() {
     stop(); if (!ballRef.current) return;
     const demo = ballDemo(preset.id, kind, reduceMotion); if (!demo) return;
-    // A zero-length first keyframe is the start pose. Apply it before the first
-    // frame so the ball never flashes at rest, then play the rest. The shadow
-    // follows the ball so height reads at a glance.
     const run = (target, frames) => {
+      if (!target) return [];
       const [first, ...rest] = frames;
       if (first?.duration !== 0) return [animate(target, { keyframes: frames })];
-      const { duration: _duration, ...pose } = first;
-      return [utils.set(target, pose), ...(rest.length ? [animate(target, { keyframes: rest })] : [])];
+      pose(target, first);
+      return rest.length ? [animate(target, { keyframes: rest })] : [];
     };
     runningRef.current = [...run(ballRef.current, demo.ball), ...run(shadowRef.current, demo.shadow)];
   }
@@ -320,18 +339,38 @@ function AnimationsPanel() {
   const page = pages[currentPage];
   const trigger = page.animations?.some((row) => row.trigger === "click") ? "click" : "with";
   const locked = page.elements.some((element) => selectedIds.includes(element.id) && effectiveLocked(page, element));
+  /* Animating a whole page at once is the common case for a backdrop, so the
+     panel offers it instead of making every element be selected first. */
+  const [scope, setScope] = useState("selection");
+  const pageIds = page.elements.filter((element) => element.visible !== false && !effectiveLocked(page, element)).map((element) => element.id);
+  const wholePage = scope === "page";
+  const targets = wholePage ? pageIds : selectedIds;
+
   return <>
     <h3 className="editor-panel-subtitle">Page transition</h3>
     <div className="editor-animation-grid" aria-label="Page transition presets">{transitionPresets.map((preset) => <AnimationPreview key={preset.id} preset={preset}
       active={preset.id === (page.transition?.preset || "none")} disabled={!!gesture} onChoose={(id) => dispatch(pageTransitionChanged({ ...page.transition, preset: id }))} />)}</div>
-    <p className="editor-panel-description">{selectedIds.length ? `Add an animation to ${selectedIds.length === 1 ? "the selected element" : `each of ${selectedIds.length} selected elements`}.` : "Select an element on the canvas to animate it."}</p>
+
+    <h3 className="editor-panel-subtitle">Apply to</h3>
+    <div className="editor-animation-modes" role="group" aria-label="What the animation applies to">
+      {[["selection", "Selection"], ["page", "Whole page"]].map(([id, label]) => (
+        <button key={id} type="button" className={scope === id ? "is-active" : ""} aria-pressed={scope === id}
+          onClick={() => setScope(id)}>{label}</button>
+      ))}
+    </div>
+    <p className="editor-panel-description">{wholePage
+      ? (pageIds.length ? `Animates all ${pageIds.length} element${pageIds.length === 1 ? "" : "s"} on this page, one after another.` : "This page has nothing to animate yet.")
+      : (selectedIds.length ? `Adds an animation to ${selectedIds.length === 1 ? "the selected element" : `each of ${selectedIds.length} selected elements`}.` : "Select an element on the canvas, or switch to Whole page.")}</p>
+
     {Object.entries(PRESETS).map(([kind, presets]) => <section key={kind}><h3 className="editor-panel-subtitle">{kind[0].toUpperCase() + kind.slice(1)}</h3>
       <div className="editor-animation-grid" aria-label={`${kind} presets`}>{presets.map((preset) => {
-        const candidate = insertionRows(page, selectedIds, kind, preset, trigger);
+        const candidate = insertionRows(page, targets, kind, preset, trigger);
         const errors = validateTimeline({ ...page, animations: [...(page.animations || []), ...candidate] });
-        const reason = !selectedIds.length ? "Select an element first" : locked ? "Unlock the selection to animate it" : errors.length ? "Already added, overlapping, or out of order. Adjust the existing animation timing in the Animation settings." : undefined;
+        const reason = !targets.length ? (wholePage ? "This page has no elements yet" : "Select an element first")
+          : (!wholePage && locked) ? "Unlock the selection to animate it"
+          : errors.length ? "Already added, overlapping, or out of order. Adjust the existing animation timing in the Animation settings." : undefined;
         return <AnimationPreview key={preset} kind={kind} preset={{ id: preset, label: presetLabel({ kind, preset }) }} disabled={!!reason || !!gesture} reason={reason}
-          onChoose={() => dispatch(animationAdded({ kind, preset, trigger }))} />;
+          onChoose={() => dispatch(animationAdded({ kind, preset, trigger, scope }))} />;
       })}</div></section>)}
   </>;
 }

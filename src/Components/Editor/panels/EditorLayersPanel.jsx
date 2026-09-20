@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowDown, ArrowUp, ChevronRight, Eye, EyeOff, FileOutput, Group, Hash, Image, Layers, Lock, LockOpen, TimerIcon, Trash2, Type, Ungroup } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, Eye, EyeOff, FileOutput, Group, Layers, Lock, LockOpen, Trash2, Ungroup } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { elementDeleted, elementsSelected, elementSelected, groupSelected, groupUngrouped, layersMovedToPage, layersStepped, selectionGrouped, targetChanged } from "../../redux/editorSlice.js";
-import { ShapeArtwork } from "../canvas/EditorElement.jsx";
 import { canGroup, effectiveLocked, effectiveVisible, layerLabel, layerRows, pageLabel, selectedGroup, stepLayers } from "../model/layerModel.js";
 import { elementsTarget, groupTarget, pageTarget } from "../inspector/inspectorEdit.js";
 import { MenuRow, ToolPopover } from "../ui/EditorControls.jsx";
 import RenameField from "./RenameField.jsx";
 import useLayerDrag from "./useLayerDrag.js";
+import LayerThumb from "./LayerThumb.jsx";
 
 /*
  * The page's layers, front to back. Every row can be selected, renamed
@@ -26,16 +26,6 @@ import useLayerDrag from "./useLayerDrag.js";
  * a row that is hidden or locked keeps its icon showing, so its state reads at
  * a glance.
  */
-
-function LayerThumb({ row }) {
-  if (row.kind === "group") return <Group size={16} aria-hidden="true" />;
-  const { element } = row;
-  if (element.type === "text" && element.pageNumber) return <Hash size={16} aria-hidden="true" />;
-  if (element.type === "text") return <Type size={16} aria-hidden="true" />;
-  if (element.type === "timer") return <TimerIcon size={16} aria-hidden="true" />;
-  if (element.type === "image") return <Image size={16} aria-hidden="true" />;
-  return <ShapeArtwork element={{ ...element, w: 100, h: 100 * element.h / element.w, effects: [], stroke: null, opacity: 1, fillVisible: true }} fit />;
-}
 
 export default function EditorLayersPanel() {
   const dispatch = useAppDispatch();
