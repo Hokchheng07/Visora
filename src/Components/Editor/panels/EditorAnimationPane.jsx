@@ -19,7 +19,7 @@ function TimingField({ label, value, property, target, toChanges, min = 0, max =
   </label>;
 }
 
-export default function EditorAnimationPane({ docked, onClose, previewing, onPreview, onStopPreview }) {
+export default function EditorAnimationPane({ docked, onClose, previewing, onPreview, onStopPreview, mode = "page" }) {
   const dispatch = useAppDispatch();
   const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
   const page = pages[currentPage], rows = page.animations || [], steps = buildSteps(page);
@@ -47,15 +47,18 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
     setMessage(""); dispatch(animationChanged({ id: selected.id, changes }));
   }
   return <aside className={`editor-inspector editor-animation-pane ${docked ? "is-docked" : "is-drawer"}`} aria-label="Animation settings">
-    <header className="editor-inspector-head"><h2>Animate</h2>{!docked && <button type="button" aria-label="Close animation settings" onClick={onClose}><X size={18} /></button>}</header>
-    <section className="editor-animation-section"><h3>Page transition</h3>
+    <header className="editor-inspector-head"><h2>{mode === "page" ? "Page animation" : "Element animation"}</h2>{!docked && <button type="button" aria-label="Close animation settings" onClick={onClose}><X size={18} /></button>}</header>
+    {mode === "page" ? <>
+    <section className="editor-animation-section"><div className="editor-animation-section-title"><h3>Page transition</h3>
+      <button type="button" className="editor-animation-preview-toggle" disabled={!!gesture} onClick={previewing ? onStopPreview : onPreview}>{previewing ? <Square size={14} /> : <Play size={14} />}{previewing ? "Stop" : "Preview"}</button></div>
       <select aria-label="Page transition" disabled={!!gesture} value={page.transition?.preset || "none"} onChange={(event) => { onStopPreview(); dispatch(pageTransitionChanged({ ...page.transition, preset: event.target.value })); }}>
         {transitionPresets.map((preset) => <option key={preset.id} value={preset.id}>{preset.id === "none" ? "None" : preset.label}</option>)}
       </select>
       {page.transition && ["durationMs", "delayMs"].map((property) => <TimingField key={property} label={`Transition ${property === "delayMs" ? "delay" : "duration"}`} value={page.transition[property]} property={property} target={pageTarget}
         disabled={!!gesture} onBeforeEdit={onStopPreview} toChanges={(value) => ({ transition: { ...page.transition, [property]: value } })} />)}
-      <p className="editor-panel-description">Slides advance when you click Next.</p>
+      <p className="editor-panel-description">This becomes the fallback for elements without their own animation. Authored element motion is left untouched.</p>
     </section>
+    </> : <>
     {/* What the panel is talking about. Without it, "Pick an element" reads as
         "nothing is selected" even when something is. */}
     <section className="editor-animation-section editor-animation-selection" aria-label="Selection">
@@ -102,5 +105,6 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
         target={target} {...bounds[property]} disabled={busy} onBeforeEdit={onStopPreview} toChanges={(value) => ({ [property]: value })} />)}
       <button type="button" className="editor-animation-remove" disabled={busy} onClick={() => { onStopPreview(); dispatch(animationRemoved(selected.id)); }}><Trash2 size={14} />Remove animation</button>
     </section>}
+    </>}
   </aside>;
 }

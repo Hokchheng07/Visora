@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildSteps, initialVisibility, migrateAnimations, repairTimeline, validateTimeline, removeAnimationRows, remapAnimations } from "./animationTimeline.js";
+import { buildSteps, initialVisibility, migrateAnimations, repairTimeline, validateTimeline, removeAnimationRows, remapAnimations, transitionFallbackRows, withTransitionFallback } from "./animationTimeline.js";
 import { serializeDocument, hydrateDocument } from "../model/editorDocument.js";
 const row = (id, elementId, changes = {}) => ({ id, elementId, kind: "entrance", preset: "fade", trigger: "with", durationMs: 520, delayMs: 0, ...changes });
 const page = (animations) => ({ id: "p", elements: [{ id: "a", type: "shape", shape: "square", w: 100, h: 100, x: 0, y: 0, opacity: 1 }, { id: "b" }, { id: "c" }], animations });
@@ -35,6 +35,16 @@ test("hidden elements retain slots; all-hidden steps are not playable", () => {
   const p = page([row("1", "a", { trigger: "click" }), row("2", "b", { trigger: "after" })]);
   p.elements[0].visible = false; p.elements[1].visible = false;
   assert.equal(buildSteps(p)[1].durationMs, 1040); assert.equal(buildSteps(p)[1].playable, false);
+});
+test("page transitions add runtime-only rows only where element motion is absent", () => {
+  const p = page([row("1", "a")]);
+  const transition = { preset: "rise", durationMs: 700, delayMs: 90 };
+  const fallback = transitionFallbackRows(p, transition);
+  assert.deepEqual(fallback.map((item) => item.elementId), ["b", "c"]);
+  assert.ok(fallback.every((item) => item.preset === "rise" && item.durationMs === 700 && item.delayMs === 90));
+  assert.equal(p.animations.length, 1);
+  assert.equal(withTransitionFallback(p, transition).animations.length, 3);
+  assert.deepEqual(transitionFallbackRows(p, { ...transition, preset: "morph" }), []);
 });
 test("remapping gives copied rows independent identities", () => {
   assert.deepEqual(remapAnimations([row("1", "a"), row("2", "b")], new Map([["a", "copy"]]), () => "new"), [row("new", "copy")]);

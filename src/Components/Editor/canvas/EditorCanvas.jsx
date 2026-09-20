@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import EditorCanvasBar from "./EditorCanvasBar";
 import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
@@ -24,12 +24,20 @@ export default function EditorCanvas({
   onToggleRulers,
   onAnimate,
   previewing = false,
+  animationPreview,
   onPreviewDone,
 }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
   const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides, pointEdit } = editor;
   const page = pages[currentPage];
+  const previewPage = useMemo(() => {
+    if (!previewing || animationPreview?.type !== "element") return page;
+    const wanted = new Set(animationPreview.elementIds || []);
+    const rows = (page.animations || []).filter((row) => wanted.has(row.elementId) && row.kind === animationPreview.kind && row.preset === animationPreview.preset)
+      .map((row, index) => ({ ...row, trigger: index ? "with" : "after", delayMs: 0 }));
+    return { ...page, transition: undefined, animations: rows };
+  }, [page, previewing, animationPreview]);
   const { scrollRef, pageRef, metrics, pageStyle } = useCanvasMetrics(zoom);
   // Kept out of the bar so the menu doesn't inherit the bar's button styling.
   const [pageMenu, setPageMenu] = useState(null);
@@ -197,7 +205,8 @@ export default function EditorCanvas({
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
                   {snapGuides.map((guide) => <span key={`${guide.axis}:${guide.value}`} className={`editor-snap-guide is-${guide.axis}`}
                     style={guide.axis === "x" ? { left: `${guide.value / 19.2}%` } : { top: `${guide.value / 10.8}%` }} />)}
-                  {previewing && <div className="editor-animation-canvas-preview"><AnimationSurface page={page} preview onDone={onPreviewDone} /></div>}
+                  {previewing && <div className="editor-animation-canvas-preview"><AnimationSurface key={animationPreview?.serial} page={previewPage}
+                    transition={animationPreview?.type === "element" ? null : previewPage.transition} preview onDone={onPreviewDone} /></div>}
                 </div>
                 </div>
                 </div>

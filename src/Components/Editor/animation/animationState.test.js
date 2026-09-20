@@ -45,8 +45,13 @@ test("pasting on an empty page preserves morph key and automatic entry", () => {
 });
 test("invalid edits are refused and a timing slider is one undo step", () => {
   let s = setup(); const row = s.pages[0].animations[0], before = s.past.length;
+  // picking another entrance swaps the preset instead of being refused
   s = reducer(s, animationAdded({ kind: "entrance", preset: "rise" }));
-  assert.equal(s.past.length, before);
+  assert.equal(s.pages[0].animations.length, 1);
+  assert.equal(s.pages[0].animations[0].preset, "rise");
+  assert.equal(s.past.length, before + 1);
+  s = reducer(s, undo());
+  assert.equal(s.pages[0].animations[0].preset, "fade");
   s = reducer(s, animationChanged({ id: row.id, changes: { durationMs: -1 } }));
   assert.equal(s.pages[0].animations[0].durationMs, 520);
   s = reducer(s, editStarted({ token: "drag", target: { kind: "animation", pageId: s.pages[0].id, rowId: row.id } }));
@@ -54,4 +59,14 @@ test("invalid edits are refused and a timing slider is one undo step", () => {
   s = reducer(s, editFinished("drag")); assert.equal(s.past.length, before + 1);
   s = reducer(s, undo()); assert.equal(s.pages[0].animations[0].durationMs, 520);
   s = reducer(s, animationRemoved(row.id)); assert.equal(s.pages[0].animations.length, 0);
+});
+test("None removes the selected animation phase in one undoable edit", () => {
+  let s = setup();
+  s = reducer(s, animationAdded({ kind: "exit", preset: "fade", trigger: "after" }));
+  const before = s.past.length;
+  s = reducer(s, animationAdded({ kind: "entrance", preset: "none" }));
+  assert.deepEqual(s.pages[0].animations.map((item) => item.kind), ["exit"]);
+  assert.equal(s.past.length, before + 1);
+  s = reducer(s, undo());
+  assert.deepEqual(s.pages[0].animations.map((item) => item.kind), ["entrance", "exit"]);
 });

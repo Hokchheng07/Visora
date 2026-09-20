@@ -39,7 +39,8 @@ export default function Editor() {
   const [dismissedFor, setDismissedFor] = useState(null);
   const showInspector = shownFor !== "" && dismissedFor !== shownFor;
   const [activeTool, setActiveTool] = useState("templates");
-  const [previewPage, setPreviewPage] = useState(null);
+  const [animationPreview, setAnimationPreview] = useState(null);
+  const [animationMode, setAnimationMode] = useState("page");
   const [animationDismissed, setAnimationDismissed] = useState(false);
   // The canvas is the point of the page, so it starts unobstructed.
   const [isPanelOpen, setPanelOpen] = useState(false);
@@ -49,8 +50,9 @@ export default function Editor() {
   const [isResizing, setResizing] = useState(false);
   const showAnimations = activeTool === "animations" && !animationDismissed;
   const showRightPane = showAnimations || (activeTool !== "animations" && showInspector);
-  const previewing = showAnimations && isPanelOpen && previewPage === pages[currentPage];
-  const stopPreview = () => setPreviewPage(null);
+  const previewing = showAnimations && isPanelOpen && animationPreview?.pageId === pages[currentPage].id;
+  const stopPreview = () => setAnimationPreview(null);
+  const startPreview = (request = { type: "page" }) => setAnimationPreview({ ...request, pageId: pages[currentPage].id, serial: Date.now() });
 
   const railRef = useRef(null);
   const panelRef = useRef(null);
@@ -155,7 +157,8 @@ export default function Editor() {
           onToolChange={handleToolChange}
           isPanelOpen={isPanelOpen}
         />
-        <EditorToolPanel ref={panelRef} activeTool={activeTool} isOpen={isPanelOpen} />
+        <EditorToolPanel ref={panelRef} activeTool={activeTool} isOpen={isPanelOpen} animationMode={animationMode}
+          onAnimationModeChange={(mode) => { stopPreview(); setAnimationMode(mode); }} onAnimationPreview={startPreview} />
         <PanelToggle open={isPanelOpen} controls={`editor-panel-${activeTool}`} onToggle={() => setPanelOpen((open) => !open)} />
         <EditorCanvas
           canPaste={copiedPage !== null}
@@ -165,9 +168,10 @@ export default function Editor() {
           onToggleRulers={() => setShowRulers((visible) => !visible)}
           onAnimate={() => { setActiveTool("animations"); setAnimationDismissed(false); setPanelOpen(true); }}
           previewing={previewing && !isDisplayOpen}
+          animationPreview={animationPreview}
           onPreviewDone={stopPreview}
         />
-        {showAnimations ? <EditorAnimationPane docked={inspectorDocked} previewing={previewing} onPreview={() => setPreviewPage(pages[currentPage])} onStopPreview={stopPreview}
+        {showAnimations ? <EditorAnimationPane docked={inspectorDocked} mode={animationMode} previewing={previewing} onPreview={() => startPreview({ type: "page" })} onStopPreview={stopPreview}
           onClose={() => { setAnimationDismissed(true); stopPreview(); }} /> : activeTool !== "animations" && showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
         {showRightPane && <InspectorResizer width={inspectorWidth} onResize={setInspectorWidth} onResizing={setResizing} />}
       </div>

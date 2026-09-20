@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { animationAdded, imageInserted, pageTransitionChanged, textInserted, timerInserted } from "../../redux/editorSlice.js";
 import { presetLabel, transitionPresets } from "../animation/animationPresets.js";
 import { ballDemo } from "../animation/animationBallDemo.js";
-import { insertionRows, PRESETS, validateTimeline } from "../animation/animationTimeline.js";
+import { insertionRows, PRESETS, removeAnimationRows, validateTimeline } from "../animation/animationTimeline.js";
 import { effectiveLocked } from "../model/layerModel.js";
 
 // Templates stay placeholders until the template API is connected.
@@ -333,49 +333,64 @@ function AnimationPreview({ preset, active, disabled, reason, kind, onChoose }) 
   </button>;
 }
 
-function AnimationsPanel() {
+function AnimationsPanel({ mode: controlledMode, onModeChange, onPreview }) {
   const dispatch = useAppDispatch();
   const { pages, currentPage, selectedIds, gesture } = useAppSelector((state) => state.editor);
   const page = pages[currentPage];
   const trigger = page.animations?.some((row) => row.trigger === "click") ? "click" : "with";
   const locked = page.elements.some((element) => selectedIds.includes(element.id) && effectiveLocked(page, element));
-  /* Animating a whole page at once is the common case for a backdrop, so the
-     panel offers it instead of making every element be selected first. */
-  const [scope, setScope] = useState("selection");
-  const pageIds = page.elements.filter((element) => element.visible !== false && !effectiveLocked(page, element)).map((element) => element.id);
-  const wholePage = scope === "page";
-  const targets = wholePage ? pageIds : selectedIds;
+  const [localMode, setLocalMode] = useState("page");
+  const mode = controlledMode || localMode;
+  const setMode = onModeChange || setLocalMode;
+  const targets = selectedIds;
 
   return <>
-    <h3 className="editor-panel-subtitle">Page transition</h3>
-    <div className="editor-animation-grid" aria-label="Page transition presets">{transitionPresets.map((preset) => <AnimationPreview key={preset.id} preset={preset}
-      active={preset.id === (page.transition?.preset || "none")} disabled={!!gesture} onChoose={(id) => dispatch(pageTransitionChanged({ ...page.transition, preset: id }))} />)}</div>
-
-    <h3 className="editor-panel-subtitle">Apply to</h3>
-    <div className="editor-animation-modes" role="group" aria-label="What the animation applies to">
-      {[["selection", "Selection"], ["page", "Whole page"]].map(([id, label]) => (
-        <button key={id} type="button" className={scope === id ? "is-active" : ""} aria-pressed={scope === id}
-          onClick={() => setScope(id)}>{label}</button>
-      ))}
+    <div className="editor-animation-tabs" role="tablist" aria-label="Animation type">
+      <button type="button" role="tab" aria-selected={mode === "page"} onClick={() => setMode("page")}>Page</button>
+      <button type="button" role="tab" aria-selected={mode === "element"} onClick={() => setMode("element")}>Element</button>
     </div>
-    <p className="editor-panel-description">{wholePage
-      ? (pageIds.length ? `Animates all ${pageIds.length} element${pageIds.length === 1 ? "" : "s"} on this page, one after another.` : "This page has nothing to animate yet.")
-      : (selectedIds.length ? `Adds an animation to ${selectedIds.length === 1 ? "the selected element" : `each of ${selectedIds.length} selected elements`}.` : "Select an element on the canvas, or switch to Whole page.")}</p>
+
+    {mode === "page" ? <section role="tabpanel" aria-label="Page animations">
+      <p className="editor-panel-description">Choose how this page arrives. Elements with their own animations keep them.</p>
+      <div className="editor-animation-grid" aria-label="Page transition presets">{transitionPresets.map((preset) => <AnimationPreview key={preset.id} preset={preset}
+        active={preset.id === (page.transition?.preset || "none")} disabled={!!gesture} onChoose={(id) => {
+          dispatch(pageTransitionChanged({ ...page.transition, preset: id }));
+          onPreview?.({ type: "page" });
+        }} />)}</div>
+    </section> : <section role="tabpanel" aria-label="Element animations">
+    <p className="editor-panel-description">{selectedIds.length
+      ? `Choose an animation for ${selectedIds.length === 1 ? "the selected element" : `the ${selectedIds.length} selected elements`}.`
+      : "Select an element on the canvas to animate it."}</p>
 
     {Object.entries(PRESETS).map(([kind, presets]) => <section key={kind}><h3 className="editor-panel-subtitle">{kind[0].toUpperCase() + kind.slice(1)}</h3>
-      <div className="editor-animation-grid" aria-label={`${kind} presets`}>{presets.map((preset) => {
-        const candidate = insertionRows(page, targets, kind, preset, trigger);
-        const errors = validateTimeline({ ...page, animations: [...(page.animations || []), ...candidate] });
-        const reason = !targets.length ? (wholePage ? "This page has no elements yet" : "Select an element first")
-          : (!wholePage && locked) ? "Unlock the selection to animate it"
+      <div className="editor-animation-grid" aria-label={`${kind} presets`}>{["none", ...presets].map((preset) => {
+        const chosen = new Set(targets), existing = new Set();
+        const rank = { entrance: 0, emphasis: 1, exit: 2 };
+        const applyTrigger = kind !== "entrance" && (page.animations || []).some((row) => chosen.has(row.elementId) && rank[row.kind] < rank[kind]) ? "after" : trigger;
+        const replaced = preset === "none" ? removeAnimationRows(page, new Set((page.animations || []).filter((row) => row.kind === kind && chosen.has(row.elementId)).map((row) => row.id))) : (page.animations || []).map((row) => {
+          if (kind === "emphasis" || row.kind !== kind || !chosen.has(row.elementId)) return row;
+          existing.add(row.elementId); return { ...row, preset };
+        });
+        const candidate = preset === "none" ? [] : insertionRows(page, targets.filter((id) => !existing.has(id)), kind, preset, applyTrigger);
+        const proposed = [...replaced, ...candidate];
+        const errors = validateTimeline({ ...page, animations: proposed });
+        const active = targets.length > 0 && targets.every((id) => preset === "none"
+          ? !(page.animations || []).some((row) => row.elementId === id && row.kind === kind)
+          : (page.animations || []).some((row) => row.elementId === id && row.kind === kind && row.preset === preset));
+        const reason = !targets.length ? "Select an element first"
+          : locked ? "Unlock the selection to animate it"
           : errors.length ? "Already added, overlapping, or out of order. Adjust the existing animation timing in the Animation settings." : undefined;
-        return <AnimationPreview key={preset} kind={kind} preset={{ id: preset, label: presetLabel({ kind, preset }) }} disabled={!!reason || !!gesture} reason={reason}
-          onChoose={() => dispatch(animationAdded({ kind, preset, trigger, scope }))} />;
+        return <AnimationPreview key={preset} kind={kind} preset={{ id: preset, label: preset === "none" ? "None" : presetLabel({ kind, preset }) }} active={active} disabled={!!reason || !!gesture} reason={reason}
+          onChoose={() => {
+            dispatch(animationAdded({ kind, preset, trigger: applyTrigger }));
+            if (preset !== "none") onPreview?.({ type: "element", elementIds: targets, kind, preset });
+          }} />;
       })}</div></section>)}
+    </section>}
   </>;
 }
 
-export default function EditorToolPanel({ activeTool, isOpen = true, ref }) {
+export default function EditorToolPanel({ activeTool, isOpen = true, ref, animationMode, onAnimationModeChange, onAnimationPreview }) {
   const activeItem = editorSidebarItems.find((item) => item.id === activeTool);
   return (
     <aside
@@ -393,7 +408,7 @@ export default function EditorToolPanel({ activeTool, isOpen = true, ref }) {
       {activeTool === "text" && <TextPanel />}
       {activeTool === "images" && <UploadPanel />}
       {activeTool === "shapes" && <><p className="editor-panel-description editor-shapes-hint">Click to add, or drag onto your page.</p><ShapePreviews /></>}
-      {activeTool === "animations" && <AnimationsPanel />}
+      {activeTool === "animations" && <AnimationsPanel mode={animationMode} onModeChange={onAnimationModeChange} onPreview={onAnimationPreview} />}
       {activeTool === "timer" && <TimerPanel />}
       {activeTool === "layers" && <EditorLayersPanel />}
     </aside>

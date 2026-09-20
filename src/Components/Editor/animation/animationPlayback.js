@@ -1,4 +1,4 @@
-import { buildSteps, initialVisibility, rowVisible } from "./animationTimeline.js";
+import { buildSteps, initialVisibility, rowVisible, withTransitionFallback } from "./animationTimeline.js";
 
 // Exact shared cubic-bezier curves, evaluated without DOM or animation-library state.
 function bezier(x, x1, y1, x2, y2) {
@@ -28,6 +28,9 @@ export function animationFrame(row, time, reducedMotion = false) {
     if (row.preset === "rise") frame.transform = `translateY(${amount * 32}px)`;
     if (row.preset === "slide-left") frame.transform = `translateX(${amount * -48}px)`;
     if (row.preset === "pop") frame.transform = `scale(${1 - amount * .05})`;
+    // In the editor, or when there is no matching element on the adjacent
+    // page, Morph degrades to a restrained dissolve rather than doing nothing.
+    if (row.preset === "morph") frame.transform = `scale(${1 - amount * .025})`;
   }
   return frame;
 }
@@ -42,9 +45,10 @@ export function playbackInput(event) {
 
 // A driver owns exactly one phase. finish() applies its terminal state synchronously,
 // including a pending step 0 after Morph; callbacks from disposed drivers are ignored.
-export function createPlaybackController({ page, transition, morph = false, reducedMotion = false, drive, renderElement, renderTransition = () => {}, onIdle = () => {}, onNextPage = () => {}, preview = false }) {
-  const base = initialVisibility(page), visible = { ...base };
-  const steps = buildSteps(page).map((step) => {
+export function createPlaybackController({ page, transition, fallbackTransition = transition, morph = false, reducedMotion = false, drive, renderElement, renderTransition = () => {}, onIdle = () => {}, onNextPage = () => {}, preview = false }) {
+  const playbackPage = withTransitionFallback(page, fallbackTransition);
+  const base = initialVisibility(playbackPage), visible = { ...base };
+  const steps = buildSteps(playbackPage).map((step) => {
     if (!reducedMotion) return step;
     const rows = step.rows.map((row) => ({ ...row, durationMs: row.kind === "emphasis" ? 0 : Math.min(200, row.durationMs), end: row.start + (row.kind === "emphasis" ? 0 : Math.min(200, row.durationMs)) }));
     return { ...step, rows, durationMs: Math.max(0, ...rows.map((row) => row.end)) };
@@ -52,10 +56,10 @@ export function createPlaybackController({ page, transition, morph = false, redu
   let phase = null, driver = null, disposed = false, nextStep = 1;
   const completed = [];
   function paint(step, time) {
-    const frames = Object.fromEntries(page.elements.map((element) => [element.id, { opacity: 1, transform: "none", hidden: !base[element.id] }]));
+    const frames = Object.fromEntries(playbackPage.elements.map((element) => [element.id, { opacity: 1, transform: "none", hidden: !base[element.id] }]));
     const apply = (rows, at) => {
       for (const row of [...rows].sort((a, b) => a.start - b.start)) {
-        if (!rowVisible(page, row) || at < row.start) continue;
+        if (!rowVisible(playbackPage, row) || at < row.start) continue;
         frames[row.elementId] = animationFrame(row, at, reducedMotion);
       }
     };

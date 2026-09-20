@@ -95,7 +95,7 @@ export function bindMorph(root, pairs, reducedMotion = false) {
   });
   const backgrounds = root.querySelectorAll(".editor-morph-background");
   return (t) => {
-    backgrounds[0].style.opacity = 1 - t; backgrounds[1].style.opacity = t;
+    if (backgrounds.length === 2) { backgrounds[0].style.opacity = 1 - t; backgrounds[1].style.opacity = t; }
     for (const binding of bindings) {
       const frame = morphFrame(binding.pair, t);
       if (reducedMotion) {

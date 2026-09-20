@@ -12,7 +12,7 @@ export const animationPresets = [
 export const EASE_OUT = easeOut;
 export const EASE_IN_OUT = easeInOut;
 export const transitionPresets = [...animationPresets.filter((item) => item.id !== "pulse"), { id: "morph", label: "Morph" }];
-export const presetLabel = (row) => row.kind === "emphasis" ? "Pulse" : `${({ fade: "Fade", rise: row.kind === "exit" ? "Sink" : "Rise", "slide-left": "Slide", pop: "Pop" })[row.preset]} ${row.kind === "exit" ? "out" : "in"}`;
+export const presetLabel = (row) => row.kind === "emphasis" ? "Pulse" : row.preset === "morph" ? "Morph" : `${({ fade: "Fade", rise: row.kind === "exit" ? "Sink" : "Rise", "slide-left": "Slide", pop: "Pop" })[row.preset]} ${row.kind === "exit" ? "out" : "in"}`;
 
 export function compileAnimation(animation, reducedMotion = false) {
   const preset = animation?.preset || "none";
