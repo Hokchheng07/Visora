@@ -50,9 +50,15 @@ test("alignment, clipboard cloning and page reorder preserve stable identities",
 test("text presets create editable API-compatible text components", () => {
   const state = send([textInserted("heading")]); const element = state.pages[0].elements[0];
   assert.equal(element.type, "text"); assert.equal(element.fontFamily, "Poppins");
+  assert.equal(element.fill, "#E0B43A");
   const document = serializeDocument(state); const component = document.pages[0].components[0];
   assert.equal(component.type, "TEXT"); assert.deepEqual(component.position, { x: element.x, y: element.y });
   assert.equal(hydrateDocument(document).pages[0].elements[0].content, "Add a heading");
+});
+
+test("new timers use the Naga gold as their default text colour", () => {
+  const element = send([timerInserted()]).pages[0].elements[0];
+  assert.equal(element.fill, "#E0B43A");
 });
 
 test("new text presets leave room for their Poppins label, padding and line height", () => {

@@ -14,6 +14,10 @@ import InspectorShapeBody from "./InspectorShapeBody.jsx";
 import InspectorImageBody from "./InspectorImageBody.jsx";
 import EffectsSection from "./InspectorEffects.jsx";
 import {
+  EDITOR_FONT_OPTIONS, fontSupportsKhmer, fontWeightOptions, normalizeFontWeight,
+} from "../model/fontCatalog.js";
+import { DEFAULT_EDITOR_TEXT_COLOR } from "../model/editorDefaults.js";
+import {
   ButtonRow, ColourRow, FontSizeField, InspectorSection, LayoutFields, LiveTextArea, NumberField, ResetStyle, SelectField,
 } from "./EditorInspectorFields.jsx";
 import { elementsTarget } from "./inspectorEdit.js";
@@ -39,14 +43,9 @@ import { elementsTarget } from "./inspectorEdit.js";
  * whose close button hides it until the selection changes.
  */
 
-const FONTS = [{ value: "Poppins", label: "Poppins" }, { value: "Freehand", label: "Freehand" }];
-const WEIGHTS = [
-  { value: "400", label: "Regular" }, { value: "500", label: "Medium" },
-  { value: "600", label: "Semi bold" }, { value: "700", label: "Bold" },
-];
 const KHMER = /[ក-៿᧠-᧿]/;
 // Size and weight stay: they come from the heading / subheading / body choice.
-const TEXT_STYLE = { fontFamily: "Poppins", fill: "#29243A", fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1 };
+const TEXT_STYLE = { fontFamily: "Poppins", fill: DEFAULT_EDITOR_TEXT_COLOR, fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1 };
 
 function Header({ icon: Icon, title, onClose, children }) {
   return (
@@ -105,7 +104,11 @@ function DeleteAction({ busy, label = "Delete" }) {
 function TextBody({ element, target, busy }) {
   const dispatch = useAppDispatch();
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
-  const bold = (element.fontWeight || 400) >= 600;
+  const family = element.fontFamily || "Poppins";
+  const weight = normalizeFontWeight(family, element.fontWeight);
+  const weights = fontWeightOptions(family);
+  const canBold = weights.some((option) => option.value === "700");
+  const bold = weight >= 600;
   const align = element.textAlign || "center";
   return (
     <>
@@ -122,19 +125,19 @@ function TextBody({ element, target, busy }) {
       )}
 
       <InspectorSection title="Typography">
-        <SelectField label="Font" value={element.fontFamily || "Poppins"} disabled={busy} style={{ fontFamily: element.fontFamily }}
-          options={FONTS.map((font) => ({ ...font, style: { fontFamily: font.value } }))} onChange={(fontFamily) => commit({ fontFamily })} />
-        {KHMER.test(element.content || "") && (
-          <p className="editor-inspector-note" role="status">This text is Khmer, but no Khmer font is installed yet, so it may show as boxes.</p>
+        <SelectField label="Font" value={family} disabled={busy} style={{ fontFamily: family }} options={EDITOR_FONT_OPTIONS}
+          onChange={(fontFamily) => commit({ fontFamily, fontWeight: normalizeFontWeight(fontFamily, element.fontWeight) })} />
+        {KHMER.test(element.content || "") && !fontSupportsKhmer(family) && (
+          <p className="editor-inspector-note" role="status">Choose a Khmer font to render every character correctly.</p>
         )}
         <div className="editor-inspector-grid">
-          <SelectField label="Font weight" value={String(element.fontWeight || 400)} options={WEIGHTS} disabled={busy}
+          <SelectField label="Font weight" value={String(weight)} options={weights} disabled={busy || weights.length === 1}
             onChange={(weight) => commit({ fontWeight: Number(weight) })} />
           <FontSizeField value={element.fontSize} target={target} disabled={busy} />
         </div>
         <div className="editor-inspector-row">
           <ButtonRow label="Text style" disabled={busy} items={[
-            { id: "bold", label: "Bold", icon: Bold, pressed: bold, onClick: () => commit({ fontWeight: bold ? 400 : 700 }) },
+            { id: "bold", label: "Bold", icon: Bold, pressed: bold, disabled: !canBold, onClick: () => commit({ fontWeight: bold ? 400 : 700 }) },
             { id: "italic", label: "Italic", icon: Italic, pressed: element.fontStyle === "italic", onClick: () => commit({ fontStyle: element.fontStyle === "italic" ? "normal" : "italic" }) },
             { id: "underline", label: "Underline", icon: Underline, pressed: element.textDecoration === "underline", onClick: () => commit({ textDecoration: element.textDecoration === "underline" ? "none" : "underline" }) },
           ]} />

@@ -102,8 +102,8 @@ describe("EditorInspector", () => {
     fireEvent.focus(hex);
     fireEvent.change(hex, { target: { value: "zz" } });
     fireEvent.blur(hex);
-    expect(element().fill).toBe("#29243a");
-    expect(hex.value).toBe("29243A");
+    expect(element().fill).toBe("#E0B43A");
+    expect(hex.value).toBe("E0B43A");
   });
 
   it("shape fill: colour and fill opacity sit in one row; each typed value commits once", () => {
