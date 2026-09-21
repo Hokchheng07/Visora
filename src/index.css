@@ -4,6 +4,7 @@
  * CSS entrypoint only. Keep rules next to the page or component that owns
  * them so cascade order and responsive overrides stay easy to trace.
  */
+@import "./styles/editor-fonts.css";
 @import "./styles/foundation.css";
 @import "./styles/components/navbar.css";
 @import "./styles/pages/home.css";

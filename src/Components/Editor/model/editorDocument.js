@@ -7,6 +7,7 @@ import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./
 import { migrateAnimations, normalizeTransition, repairTimeline } from "../animation/animationTimeline.js";
 import { normalizePageNumbers } from "./pageNumbers.js";
 import { normalizeListStyle } from "./textLists.js";
+import { DEFAULT_EDITOR_TEXT_COLOR } from "./editorDefaults.js";
 
 export const EDITOR_SCHEMA_VERSION = 4;
 export const STROKE_ALIGNS = ["inside", "center", "outside"];
@@ -367,7 +368,7 @@ export function hydrateDocument(document) {
           w: component.size?.width || 320, h: component.size?.height || 180,
           rotation: component.rotation || 0,
           locked: !!component.locked, visible: component.visible !== false,
-          fill: component.styles?.color || component.styles?.fill || "#705AE0",
+          fill: component.styles?.color || component.styles?.fill || DEFAULT_EDITOR_TEXT_COLOR,
           opacity: component.styles?.opacity ?? 1,
           stroke: component.styles?.stroke || "transparent",
           strokeWidth: component.styles?.strokeWidth || 0,

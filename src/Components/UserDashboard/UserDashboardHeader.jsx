@@ -4,13 +4,11 @@ import {
   LogOut,
   Menu,
   Moon,
-  Search,
   Sun,
 } from "lucide-react";
-import { useLocation,useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 export default function UserDashboardHeader({onMenuOpen,profile}){
-  const location=useLocation();
   const navigate=useNavigate();
 
   const profileRef=useRef(null);
@@ -22,9 +20,6 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
   const [dark,setDark]=useState(
     ()=>document.documentElement.classList.contains("dark")
   );
-
-  const isProfilePage=
-    location.pathname==="/user-dashboard/profile";
 
   /* PROFILE DROPDOWN */
   useEffect(()=>{
@@ -118,23 +113,8 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
         <Menu size={23}/>
       </button>
 
-      {/* SEARCH */}
-      <div className="min-w-0 flex-1">
-        {!isProfilePage&&(
-          <div className="relative w-full max-w-[500px] lg:max-w-[580px] xl:max-w-[650px] 2xl:max-w-[720px]">
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-            />
-
-            <input
-              type="text"
-              placeholder="Search templates, designs, or anything..."
-              className="h-11 w-full rounded-full bg-[var(--surface-card)]/90 pl-11 pr-4 text-sm text-[var(--text-heading)] shadow-[0_3px_12px_rgba(0,0,0,0.04)] outline-none backdrop-blur-md transition placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-primary/15"
-            />
-          </div>
-        )}
-      </div>
+      {/* SPACER */}
+      <div className="min-w-0 flex-1"/>
 
       {/* RIGHT ICONS */}
       <div className="ml-auto flex shrink-0 items-center gap-5">

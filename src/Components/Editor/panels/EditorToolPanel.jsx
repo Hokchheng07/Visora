@@ -15,6 +15,7 @@ import { useCurrentUser } from "../../Account/useCurrentUser";
 import { ShapeArtwork } from "../canvas/EditorElement.jsx";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
 import { defaultTimer } from "../model/editorDocument.js";
+import { DEFAULT_EDITOR_TEXT_COLOR } from "../model/editorDefaults.js";
 import { KHMER_ELEMENTS, khmerGroups, khmerSections, librarySrc } from "../model/khmerElements.js";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { animationAdded, imageInserted, pageTransitionChanged, textInserted, timerInserted } from "../../redux/editorSlice.js";
@@ -257,7 +258,7 @@ const TIMER_KINDS = [
 ];
 
 function TimerPreview({ mode }) {
-  const element = { id: `preview-${mode}`, type: "timer", w: 900, h: 460, fill: "#705AE0", opacity: 1, fontFamily: "Poppins", fontSize: 120,
+  const element = { id: `preview-${mode}`, type: "timer", w: 900, h: 460, fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", fontSize: 120,
     timer: defaultTimer("HH:MM:SS", {}, mode) };
   // A slice of a 1920px-wide sheet around a 900px timer, so cqw sizes match the canvas.
   return (

@@ -6,6 +6,8 @@ import {
 } from "./EditorInspectorFields.jsx";
 import { Segmented } from "../ui/EditorControls.jsx";
 import { elementsTarget, timerTarget } from "./inspectorEdit.js";
+import { EDITOR_FONT_OPTIONS } from "../model/fontCatalog.js";
+import { DEFAULT_EDITOR_TEXT_COLOR } from "../model/editorDefaults.js";
 
 /*
  * The timer's settings: mode, duration, what happens at zero, style, which
@@ -16,9 +18,9 @@ import { elementsTarget, timerTarget } from "./inspectorEdit.js";
  */
 
 const SOUND_LABELS = { chime: "Chime", bell: "Bell", "soft-ding": "Soft ding", none: "None" };
-const STYLE_SWATCHES = ["#705AE0", "#FFC21C", "#DA4EC9", "#2F7A55", "#C4443E"];
+const STYLE_SWATCHES = [DEFAULT_EDITOR_TEXT_COLOR, "#705AE0", "#FFC21C", "#DA4EC9", "#2F7A55", "#C4443E"];
 const FONT_SIZES = [72, 96, 120, 144, 180, 240];
-const DEFAULT_STYLE = { fill: "#705AE0", fontFamily: "Poppins", fontSize: 120, opacity: 1 };
+const DEFAULT_STYLE = { fill: DEFAULT_EDITOR_TEXT_COLOR, fontFamily: "Poppins", fontSize: 120, opacity: 1 };
 const BUTTON_ROLES = [["start", "Start"], ["pause", "Pause / Resume"], ["stop", "Stop"], ["reset", "Reset"]];
 // A stopwatch has no Pause: its Stop freezes the count and Start carries on.
 const STOPWATCH_ROLES = [["start", "Start"], ["stop", "Stop"], ["reset", "Reset"]];
@@ -100,7 +102,7 @@ export default function InspectorTimerBody({ element, pageId, busy }) {
       <InspectorSection title="Style">
         <div className="editor-inspector-grid">
           <SelectField label="Font" value={element.fontFamily} disabled={busy}
-            options={[{ value: "Poppins", label: "Poppins" }, { value: "Freehand", label: "Freehand" }]}
+            options={EDITOR_FONT_OPTIONS}
             onChange={(fontFamily) => setStyle({ fontFamily })} />
           <SelectField label="Font size" value={String(FONT_SIZES.includes(element.fontSize) ? element.fontSize : 120)} disabled={busy}
             options={FONT_SIZES.map((size) => ({ value: String(size), label: `${size} px` }))}

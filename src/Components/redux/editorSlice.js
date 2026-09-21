@@ -3,6 +3,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, se
 import { shapeCatalog } from "../Editor/model/shapeCatalog.js";
 import { isPageNumber, normalizePageNumbers, pageNumberPlacement, syncPageNumbers } from "../Editor/model/pageNumbers.js";
 import { defaultTimer, normalizeTimer } from "../Editor/model/editorDocument.js";
+import { DEFAULT_EDITOR_TEXT_COLOR } from "../Editor/model/editorDefaults.js";
 import { appendAnimations, extractAnimations, insertionRows, migrateAnimations, normalizeTransition, removeAnimationRows, remapAnimations, repairTimeline, validateTimeline } from "../Editor/animation/animationTimeline.js";
 import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
   stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/model/layerModel.js";
@@ -453,7 +454,7 @@ const reducers = {
         };
         const preset = presets[payload.preset] || presets.body; remember(state);
         const element = { id: payload.id, type: "text", x: (CANVAS_WIDTH - preset.w) / 2, y: (CANVAS_HEIGHT - preset.h) / 2,
-          w: preset.w, h: preset.h, rotation: 0, fill: "#29243a", opacity: 1, fontFamily: "Poppins", textAlign: "center",
+          w: preset.w, h: preset.h, rotation: 0, fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", textAlign: "center",
           lineHeight: 1.2, letterSpacing: 0, fontStyle: "normal", locked: false, visible: true, ...preset };
         state.pages[state.currentPage].elements.push(element); setSelection(state, [payload.id]);
       },
@@ -496,7 +497,7 @@ const reducers = {
         state.pages[state.currentPage].elements.push({
           id: payload.id, type: "timer",
           x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h, rotation: 0,
-          fill: "#705AE0", opacity: 1, fontFamily: "Poppins", fontSize: 120,
+          fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", fontSize: 120,
           locked: false, visible: true,
           timer: defaultTimer(payload.format, payload.buttonColors, payload.mode),
         });
