@@ -12,7 +12,7 @@ export const initialEditorState = {
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
   pageNumbers: { enabled: false, position: "bottom-right", skipFirst: false },
-  past: [], future: [], gesture: null, edit: null, pointEdit: null, copiedPage: null, copiedElements: [], copiedGroups: [], copiedAnimations: [], zoom: null, snapGuides: [],
+  past: [], future: [], gesture: null, edit: null, pointEdit: null, cropping: null, copiedPage: null, copiedElements: [], copiedGroups: [], copiedAnimations: [], zoom: null, snapGuides: [],
 };
 
 /* Every selection change comes through here. `mode` is "group" only when a
@@ -24,6 +24,8 @@ function setSelection(state, ids, mode = "direct") {
   state.selectionMode = mode === "group" && state.selectedIds.length ? "group" : "direct";
   // Point editing belongs to one selected shape; selecting anything else ends it.
   if (state.pointEdit && !(state.selectedIds.length === 1 && state.selectedIds[0] === state.pointEdit.elementId)) state.pointEdit = null;
+  // Cropping belongs to one selected photo, for the same reason.
+  if (state.cropping && !(state.selectedIds.length === 1 && state.selectedIds[0] === state.cropping.elementId)) state.cropping = null;
 }
 const currentPageOf = (state) => state.pages[state.currentPage];
 /* Locking is enforced here, not only by greyed-out buttons: every reducer that
@@ -357,6 +359,21 @@ const reducers = {
       state.pointEdit = { elementId: id, keys: [] };
     },
     pointEditFinished(state) { state.pointEdit = null; },
+    /* Cropping, the image counterpart of point editing. The mode lives here and
+       never in history; the crop itself is an ordinary element property changed
+       through targetChanged, so undo walks back through the crop rather than
+       throwing the photo out of the cropper. */
+    cropStarted(state, { payload }) {
+      if (state.gesture) return;
+      const page = currentPageOf(state);
+      const id = payload || (state.selectedIds.length === 1 ? state.selectedIds[0] : null);
+      const element = page.elements.find((item) => item.id === id);
+      if (!element || element.type !== "image" || effectiveLocked(page, element) || !effectiveVisible(page, element)) return;
+      if (state.selectedIds.length !== 1 || state.selectedIds[0] !== id) setSelection(state, [id]);
+      state.cropping = { elementId: id };
+      state.pointEdit = null;
+    },
+    cropFinished(state) { state.cropping = null; },
     // payload: { keys, additive }. Additive toggles the given points in or out.
     pointsSelected(state, { payload }) {
       if (!state.pointEdit) return;
@@ -666,7 +683,7 @@ export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCop
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
-export const { pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
+export const { cropStarted, cropFinished, pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
 export const { pageTransitionChanged, animationAdded, animationChanged, animationRemoved, animationMoved } = editorSlice.actions;
 // The slice, then the page-number pass (see model/pageNumbers.js).
 export default function editorReducer(state, action) {

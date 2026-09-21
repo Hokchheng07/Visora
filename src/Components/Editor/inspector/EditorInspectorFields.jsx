@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, RotateCcw, RotateCw } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
 import { targetChanged } from "../../redux/editorSlice.js";
-import { ToolPopover } from "../ui/EditorControls.jsx";
+import { RecentColours, ToolPopover } from "../ui/EditorControls.jsx";
+import { useRecentColours } from "../ui/recentColours.js";
 import { normalizeRotation, parseHex, useEditSession } from "./inspectorEdit.js";
 
 /*
@@ -189,11 +190,17 @@ export function ColourRow({ label, value, opacity, target, property = "fill", to
   const safe = parseHex(value) || "#000000";
   // The picker lives in a popover panel that mounts later, so its native
   // `change` listener is attached from a callback ref rather than an effect.
+  const [recent, remember] = useRecentColours();
+  /* `change` is the end of a drag in the picker, so that is where the colour
+     is both committed and remembered — every colour crossed on the way there
+     fires `input`, and remembering those would fill the row with near misses. */
+  const finish = session.finish;
   const pickerRef = useCallback((picker) => {
     if (!picker) return undefined;
-    picker.addEventListener("change", session.finish);
-    return () => picker.removeEventListener("change", session.finish);
-  }, [session.finish]);
+    const onChanged = (event) => { remember(event.target.value); finish(); };
+    picker.addEventListener("change", onChanged);
+    return () => picker.removeEventListener("change", onChanged);
+  }, [finish, remember]);
   const commit = (colour) => dispatch(targetChanged({ target, changes: toChanges(colour) }));
 
   return (
@@ -210,6 +217,7 @@ export function ColourRow({ label, value, opacity, target, property = "fill", to
               </button>
             ))}
           </div>
+          <RecentColours colours={recent} value={safe} onPick={(colour) => { remember(colour); commit(colour); }} />
           <label className="editor-popover-custom">
             <span>Custom</span>
             <input ref={pickerRef} type="color" value={safe.toLowerCase()} aria-label={`Custom ${label.toLowerCase()}`}

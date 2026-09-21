@@ -4,7 +4,7 @@ import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, useCanvasMetrics } from "./useCanvasMetrics";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
-import { canvasAllSelected, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
+import { canvasAllSelected, cropFinished, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
 import EditorPageBar from "./EditorPageBar.jsx";
@@ -29,7 +29,7 @@ export default function EditorCanvas({
 }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
-  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides, pointEdit } = editor;
+  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides, pointEdit, cropping } = editor;
   const page = pages[currentPage];
   const previewPage = useMemo(() => {
     if (!previewing || animationPreview?.type !== "element") return page;
@@ -113,6 +113,8 @@ export default function EditorCanvas({
     if (event.button !== 0 || event.target.closest("[data-element-id], .editor-resize-handle, .editor-rotate-handle")) return;
     // A press away from the shape being edited leaves point editing first.
     if (pointEdit) dispatch(pointEditFinished());
+    // The same for a photo being cropped.
+    if (cropping) dispatch(cropFinished());
     if (spacePressed.current) return;
     const rect = pageRef.current.getBoundingClientRect();
     const x = (event.clientX - rect.left) / metrics.scale, y = (event.clientY - rect.top) / metrics.scale;
@@ -199,7 +201,8 @@ export default function EditorCanvas({
                 >
                   {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
                     sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={framedElements.length}
-                    locked={effectiveLocked(page, element)} pointKeys={pointEdit?.elementId === element.id ? pointEdit.keys : null} />)}
+                    locked={effectiveLocked(page, element)} pointKeys={pointEdit?.elementId === element.id ? pointEdit.keys : null}
+                    cropping={cropping?.elementId === element.id} />)}
                   {framedElements.length > 1 && <EditorGroupSelectionFrame elements={framedElements} sheetRef={pageRef} locked={selectionLocked} />}
                   {marquee && <span className="editor-marquee" style={{ left: `${Math.min(marquee.left, marquee.right) / 19.2}%`, top: `${Math.min(marquee.top, marquee.bottom) / 10.8}%`,
                     width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}

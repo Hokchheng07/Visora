@@ -43,7 +43,10 @@ export default function EditorCanvasBar({
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => { event.preventDefault(); const from = Number(event.dataTransfer.getData("text/x-visora-page")); if (Number.isInteger(from)) onPageMove(from, index); }}
             >
-              <span className="editor-thumb-art" aria-hidden="true">{visibleElements(page).map((element) => <StaticElement key={element.id} element={element} />)}</span>
+              {/* The page's own colour, so the strip shows the page and not a
+                  white card with the page's elements floating on it. */}
+              <span className="editor-thumb-art" aria-hidden="true" style={{ background: page.background?.type === "COLOR" ? page.background.value : "#FFFFFF" }}>
+                {visibleElements(page).map((element) => <StaticElement key={element.id} element={element} />)}</span>
               <span className="editor-page-thumb-number">{index + 1}</span>
             </button>
           ))}
