@@ -10,8 +10,9 @@ import { isOrderedList, listLines, normalizeListStyle } from "../model/textLists
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
 import EditorVectorEditor from "./EditorVectorEditor.jsx";
+import EditorImageCropper from "./EditorImageCropper.jsx";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
-import { elementSelected, pointEditStarted, targetChanged } from "../../redux/editorSlice.js";
+import { cropStarted, elementSelected, pointEditStarted, targetChanged } from "../../redux/editorSlice.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
 
 /*
@@ -84,7 +85,27 @@ export function ShapeArtwork({ element, fit = false }) {
   );
 }
 
-export function ElementArtwork({ element, editable = false, onCommit, onCancel, editRef }) {
+/* One tab character, and taking one back off the start of the caret's line.
+   The text is stored with real tabs, so what is typed is what is saved. */
+const TAB = "\t";
+
+function outdent(node) {
+  const selection = window.getSelection();
+  if (!selection?.rangeCount) return;
+  const range = selection.getRangeAt(0).cloneRange();
+  range.setStart(node, 0);
+  const before = range.toString();
+  // Only a tab immediately behind the caret comes off; nothing else moves.
+  if (!before.endsWith(TAB)) return;
+  selection.collapseToEnd();
+  const back = selection.getRangeAt(0);
+  back.setStart(back.startContainer, Math.max(0, back.startOffset - 1));
+  selection.removeAllRanges();
+  selection.addRange(back);
+  document.execCommand("insertText", false, "");
+}
+
+export function ElementArtwork({ element, editable = false, onCommit, onCancel, onDraft, draft, editRef }) {
   if (element.type === "timer") return <TimerArtwork element={element} />;
   if (element.type === "image") return <ImageArtwork element={element} />;
   if (element.type !== "text") return <ShapeArtwork element={element} />;
@@ -98,30 +119,60 @@ export function ElementArtwork({ element, editable = false, onCommit, onCancel, 
      textContent drops them, which lost every line break typed on the canvas.
      The key remounts the span after a commit, so React never has to reconcile
      text nodes the browser rearranged while editing. */
-  /* A list shows each line as a list item. While the words are being typed it
-     is plain text again: a contentEditable list would let the browser rebuild
-     the items as it likes, which is the trap plaintext-only avoids. */
+  /* A list shows each line as a list item. The words are still typed as plain
+     text — a contentEditable list would let the browser rebuild the items as
+     it likes, which is the trap plaintext-only avoids — so while the box is
+     being edited the markers come from a copy of the list underneath it,
+     whose own text is invisible. Both layers share this typography and the
+     same indent, so every marker stays level with its line as the text wraps
+     and rewraps under the cursor. */
   const listStyle = normalizeListStyle(element.listStyle);
+  const inside = listStyle && !editable && !(element.textAlign === "left" || !element.textAlign);
   if (listStyle && !editable) {
     const List = isOrderedList(listStyle) ? "ol" : "ul";
     const list = (
       <span className="editor-element-art editor-text-art editor-list-art" style={style}>
-        <List className={`editor-text-list${element.textAlign === "left" || !element.textAlign ? "" : " is-inside"}`} style={{ listStyleType: listStyle }}>
-          {listLines(element.content).map((line, index) => <li key={index}>{line || "\u00A0"}</li>)}
+        <List className={`editor-text-list${inside ? " is-inside" : ""}`} style={{ listStyleType: listStyle }}>
+          {listLines(element.content).map((line, index) => <li key={index}><span>{line || "\u00A0"}</span></li>)}
         </List>
       </span>
     );
     if (!hasVisibleEffects(element)) return list;
     return <span className="editor-element-art editor-element-effects" style={{ filter: `url(#${filterId(element.id)})` }} aria-hidden="true">{list}</span>;
   }
-  const text = <span key={element.content} ref={editRef} className="editor-element-art editor-text-art" style={style}
+  const text = <span key={element.content} ref={editRef} className={`editor-element-art editor-text-art${listStyle ? ` editor-text-listing${isOrderedList(listStyle) ? " is-ordered" : ""}` : ""}`} style={style}
     contentEditable={editable ? "plaintext-only" : "false"} suppressContentEditableWarning
     // Pasted text can carry non-breaking spaces; they become plain spaces so saved text matches what was typed.
     onBlur={(event) => onCommit?.(event.currentTarget.innerText.replace(/\u00A0/g, " ").replace(/\n$/, ""))}
+    onInput={(event) => onDraft?.(event.currentTarget.innerText.replace(/\u00A0/g, " ").replace(/\n$/, ""))}
     onKeyDown={(event) => {
       if (event.key === "Escape") { event.preventDefault(); event.currentTarget.textContent = element.content; onCancel?.(); event.currentTarget.blur(); }
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") event.currentTarget.blur();
+      /* Tab indents the text instead of leaving the box. In a text box being
+         typed into, leaving on Tab is the surprise — every other editor
+         indents — and the box can still be left with Escape or a click. */
+      if (event.key === "Tab" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        if (event.shiftKey) outdent(event.currentTarget);
+        else document.execCommand("insertText", false, TAB);
+        onDraft?.(event.currentTarget.innerText.replace(/\u00A0/g, " ").replace(/\n$/, ""));
+      }
     }}>{element.content}</span>;
+  /* The markers, under the text being typed. `aria-hidden` and no pointer:
+     it is the same words twice, and only the editable copy may be reached. */
+  const markers = editable && listStyle ? (
+    <span className="editor-element-art editor-text-art editor-list-art editor-list-markers" style={style} aria-hidden="true">
+      {(() => {
+        const List = isOrderedList(listStyle) ? "ol" : "ul";
+        return (
+          <List className="editor-text-list" style={{ listStyleType: listStyle }}>
+            {listLines(draft ?? element.content).map((line, index) => <li key={index}><span>{line || "\u00A0"}</span></li>)}
+          </List>
+        );
+      })()}
+    </span>
+  ) : null;
+  if (markers) return <>{markers}{text}</>;
   // Shadows are a filter on a wrapper, never on the editable span itself.
   if (!hasVisibleEffects(element)) return text;
   return <span className="editor-element-art editor-element-effects" style={{ filter: `url(#${filterId(element.id)})` }} aria-hidden={editable ? undefined : "true"}>{text}</span>;
@@ -138,11 +189,15 @@ export function StaticElement({ element, layered = false }) {
 
 /* `locked` (the element's own lock or its group's) makes the element ignore the
    pointer: a press passes through to whatever is behind it, as in Figma. */
-export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1, locked = false, pointKeys = null }) {
+export default function EditorElement({ element, pageId, sheetRef, scale, selected, selectedCount = 1, locked = false, pointKeys = null, cropping = false }) {
   const { targetRef, triggerRef } = useElementDrag(element, pageId, sheetRef, scale);
   const dispatch = useAppDispatch();
   const store = useAppStore();
   const [editing, setEditing] = useState(false);
+  /* The words as they are being typed. Only a list needs them — its markers
+     are drawn from a second copy of the text and have to rewrap with it — so
+     a text box without one never sets this and never re-renders per key. */
+  const [draft, setDraft] = useState(null);
   const editRef = useRef(null);
   useEffect(() => {
     if (!editing || !editRef.current) return;
@@ -168,9 +223,11 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
             event.stopPropagation();
             if (element.groupId && store.getState().editor.selectionMode === "group") dispatch(elementSelected(element.id));
             // A page number's digits come from its page, so there is nothing to type.
-            else if (element.type === "text" && !element.pageNumber) setEditing(true);
+            else if (element.type === "text" && !element.pageNumber) { setDraft(element.content); setEditing(true); }
             // Double-clicking a shape opens its points, as in Figma.
             else if (element.type === "shape") dispatch(pointEditStarted(element.id));
+            // Double-clicking a photo crops it, as in Canva.
+            else if (element.type === "image") dispatch(cropStarted(element.id));
           }}
           onKeyDown={(event) => {
             /* Only when the wrapper itself has focus. Keys typed in the editable text
@@ -179,10 +236,14 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
             if (editing || event.target !== event.currentTarget || event.nativeEvent.isComposing) return;
             if (event.key === "Enter" || event.key === " ") { event.preventDefault(); dispatch(elementSelected(element.id)); }
           }}>
-          <ElementArtwork element={element} editable={editing} editRef={editRef}
-            onCommit={(content) => { setEditing(false); if (content !== element.content) dispatch(targetChanged({ target: elementsTarget(pageId, [element.id]), changes: { content } })); }}
-            onCancel={() => { setEditing(false); }} />
+          <ElementArtwork element={element} editable={editing} editRef={editRef} draft={draft}
+            onDraft={element.listStyle ? setDraft : undefined}
+            onCommit={(content) => { setEditing(false); setDraft(null); if (content !== element.content) dispatch(targetChanged({ target: elementsTarget(pageId, [element.id]), changes: { content } })); }}
+            onCancel={() => { setEditing(false); setDraft(null); }} />
         </div>
+        {/* The cropper sits beside the selection frame, not instead of it: the
+            frame is what resizes the crop, and the cropper moves the photo in it. */}
+        {selected && selectedCount === 1 && cropping && <EditorImageCropper element={element} pageId={pageId} scale={scale} />}
         {selected && selectedCount === 1 && (pointKeys
           ? <EditorVectorEditor element={element} pageId={pageId} sheetRef={sheetRef} scale={scale} keys={pointKeys} />
           : <EditorSelectionFrame element={element} sheetRef={sheetRef} locked={locked} />)}

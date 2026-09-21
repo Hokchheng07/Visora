@@ -1,13 +1,14 @@
 import {
   AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical, AlignStartHorizontal, AlignStartVertical,
-  Eye, EyeOff, FlipHorizontal2, FlipVertical2, Link2, Link2Off, RotateCw, SquareRoundCorner, Sun,
+  Crop, Eye, EyeOff, FlipHorizontal2, FlipVertical2, Link2, Link2Off, RotateCcw, RotateCw, SquareRoundCorner, Sun,
 } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
-import { selectionAligned, targetChanged } from "../../redux/editorSlice.js";
+import { cropStarted, selectionAligned, targetChanged } from "../../redux/editorSlice.js";
 import { ButtonRow, ColourRow, FieldLabel, IconAction, InspectorSection, NumberField, ResetStyle } from "./EditorInspectorFields.jsx";
 import { normalizeRotation } from "./inspectorEdit.js";
 import EffectsSection from "./InspectorEffects.jsx";
 import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
+import { DEFAULT_CROP, isDefaultCrop } from "../model/imageCrop.js";
 
 /*
  * Image settings, in the same order as a shape's: Position → Layout →
@@ -15,7 +16,7 @@ import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
  * is its paint. The proportion lock starts on, as photos usually want.
  */
 
-const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [], fill: null };
+const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [], fill: null, crop: DEFAULT_CROP };
 const KHMER_SWATCHES = [KHMER_GOLD, "#FFFFFF", "#C4443E", "#705AE0", "#111111"];
 
 export default function InspectorImageBody({ element, target, busy }) {
@@ -73,6 +74,22 @@ export default function InspectorImageBody({ element, target, busy }) {
             onClick={() => commit({ lockAspect: !element.lockAspect })} />
         </div>
       </InspectorSection>
+
+      {/* Cropping is on the canvas, where the photo is; this opens it. The box
+          itself is the crop, so its size is set by the Dimensions above.
+          A traced ornament is drawn as its colour through its own outline
+          rather than as a picture, so there is nothing to crop. */}
+      {!recolourable && (
+      <InspectorSection title="Crop">
+        <div className="editor-inspector-row">
+          <ButtonRow label="Crop" disabled={busy} items={[
+            { id: "crop", label: "Crop image", icon: Crop, onClick: () => dispatch(cropStarted(element.id)) },
+          ]} />
+          <IconAction icon={RotateCcw} label="Reset crop" disabled={busy || isDefaultCrop(element.crop)}
+            onClick={() => commit({ crop: DEFAULT_CROP })} />
+        </div>
+      </InspectorSection>
+      )}
 
       <InspectorSection title="Appearance"
         action={<IconAction icon={element.visible === false ? EyeOff : Eye} disabled={busy}

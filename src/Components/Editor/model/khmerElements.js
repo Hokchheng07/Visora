@@ -23,7 +23,8 @@
  * Vite renames bundled files on every build, so a saved or exported design
  * keeps that stable name and the file is looked up here when it is drawn.
  */
-export const LIBRARY_PREFIX = "library:";
+export { LIBRARY_PREFIX } from "./libraryRef.js";
+import { LIBRARY_PREFIX } from "./libraryRef.js";
 
 // The gold an element starts in when its section does not say otherwise.
 export const KHMER_GOLD = "#AF7A23";

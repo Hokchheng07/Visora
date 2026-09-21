@@ -103,7 +103,7 @@
 .editor-document-name input { width: 190px; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--editor-ink); font: inherit; }
 .editor-document-name input:hover, .editor-document-name input:focus { border-color: var(--editor-border); background: var(--editor-raised); }
 .editor-document-name button { display: grid; place-items: center; width: 32px; height: 32px; color: var(--editor-muted); }
-.editor-topbar-actions { display: flex; flex: none; align-items: center; gap: 12px; }
+.editor-topbar-actions { position: relative; display: flex; flex: none; align-items: center; gap: 12px; }
 /* Document actions, then the account avatar, divided by a hairline. */
 .editor-topbar-end { display: flex; flex: none; align-items: center; gap: 18px; }
 .editor-topbar-end > .user-menu { padding-left: 18px; border-left: 1px solid var(--editor-border); }
@@ -115,6 +115,9 @@
 .editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
 /* Export As dropdown (Figma 1672:92601): 257px card, 15px padding, 57px rows,
    the hovered or focused row takes the soft purple fill. */
+/* Export failures are shown beside the button, not inside the menu: clicking a
+   format closes the menu, so a message placed in there would never be read. */
+.editor-export-error { position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; max-width: 257px; padding: 8px 10px; border-radius: 8px; background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25); color: var(--editor-ink); font-size: 12px; line-height: 18px; }
 .editor-export-menu { z-index: 60; display: flex; flex-direction: column; width: 257px; padding: 15px; border-radius: 8px; background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25); outline: none; transform-origin: top right; transition: opacity 150ms ease, scale 150ms cubic-bezier(.23, 1, .32, 1); }
 .editor-export-menu[data-closed] { opacity: 0; scale: .96; }
 .editor-export-head { display: flex; align-items: center; justify-content: space-between; }
@@ -266,6 +269,11 @@
 /* A text box set to a list: one item per line. Left-aligned lists hang their
    markers in the margin; centred or right-aligned ones keep them inline. */
 .editor-list-art { align-items: center; }
+/* The marker layer sits under the text being typed: same box, same type, same
+   indent, so a marker never drifts from its line. Its own words are invisible
+   — they are there to make the line boxes, the marker is what shows. */
+.editor-list-markers { position: absolute; inset: 0; pointer-events: none; }
+.editor-list-markers li > span { visibility: hidden; }
 .editor-text-list { width: 100%; margin: 0; padding-inline-start: 1.4em; text-align: inherit; }
 ol.editor-text-list { padding-inline-start: 2em; }
 .editor-text-list.is-inside { padding-inline-start: 0; list-style-position: inside; }
@@ -396,10 +404,46 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-element-hit:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 .editor-element-art { display: block; width: 100%; height: 100%; pointer-events: none; }
 .editor-vector-art { background: transparent !important; overflow: visible; }
-.editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; }
+.editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; tab-size: 4; }
+/* While a list is being typed the text is indented to leave the markers their
+   gutter, in the same step the outside list uses. */
+.editor-text-listing { padding-inline-start: 1.4em; }
+.editor-text-listing.is-ordered { padding-inline-start: 2em; }
 /* Uploaded pictures fill their box; unlocking proportions crops, never stretches.
    The placeholder stands in when the file will not load. */
+.editor-image-frame { overflow: hidden; }
+.editor-image-frame > .editor-image-art { display: block; width: 100%; height: 100%; }
 .editor-image-art { object-fit: cover; user-select: none; -webkit-user-drag: none; }
+
+/* Cropping. The overlay covers the element's own box — the box is the crop —
+   and takes the pointer so a drag moves the photo inside it instead of moving
+   the element. */
+/* Elements pass the pointer through to their hit layer; the cropper takes it
+   back, so a drag inside the frame moves the photo and not the element. */
+.editor-crop { position: absolute; inset: 0; z-index: 3; pointer-events: auto; cursor: move; touch-action: none; }
+.editor-crop-grid { position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(33.333% - .5px), rgb(255 255 255 / .55) calc(33.333% - .5px) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to right, transparent calc(66.666% - .5px), rgb(255 255 255 / .55) calc(66.666% - .5px) calc(66.666% + .5px), transparent calc(66.666% + .5px)),
+    linear-gradient(to bottom, transparent calc(33.333% - .5px), rgb(255 255 255 / .55) calc(33.333% - .5px) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to bottom, transparent calc(66.666% - .5px), rgb(255 255 255 / .55) calc(66.666% - .5px) calc(66.666% + .5px), transparent calc(66.666% + .5px));
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+}
+/* Under the photo, not on it: the bar is a control, and sitting on the picture
+   it covers the part being cropped. The work area keeps a whole page of room
+   below the sheet, so there is somewhere for it to go. */
+.editor-crop-bar { position: absolute; top: 100%; left: 50%; z-index: 4; display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; padding: 6px 8px; border-radius: 8px; translate: -50% 0;
+  background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25);
+  color: var(--editor-ink); font-size: 12px; white-space: nowrap; cursor: default; }
+.editor-crop-bar input[type="range"] { width: 110px; accent-color: var(--color-primary); }
+.editor-crop-bar button { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; color: inherit; font-size: 12px; cursor: pointer; }
+.editor-crop-bar .editor-crop-reset:disabled { opacity: .4; cursor: default; }
+.editor-crop-bar .editor-crop-done { background: var(--color-primary); color: #fff; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-crop-bar .editor-crop-reset:not(:disabled):hover { background: color-mix(in srgb, var(--editor-accent) 12%, transparent); }
+  .editor-crop-bar .editor-crop-done:hover { background: color-mix(in srgb, var(--color-primary) 88%, black); }
+}
 .editor-image-missing { display: grid; place-items: center; background: repeating-linear-gradient(135deg, #ecebf1 0 12px, #e3e1ea 12px 24px); color: #9a93aa; }
 .editor-image-missing svg { width: 18%; height: auto; max-width: 64px; min-width: 14px; }
 .editor-text-art[contenteditable="plaintext-only"], .editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }

@@ -1,5 +1,7 @@
+import { useCallback } from "react";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
+import { useRecentColours } from "./recentColours.js";
 
 /*
  * The toolbar vocabulary. Everything in the property bar, the context menu and
@@ -77,6 +79,18 @@ const DEFAULT_SWATCHES = [
 ];
 
 export function SwatchButton({ value, onChange, label = "Colour", disabled, named = false, swatches = DEFAULT_SWATCHES }) {
+  const [recent, remember] = useRecentColours();
+  /* The picker is remembered on the native `change` — the last colour of a
+     drag, not every colour passed through on the way to it. React's onChange
+     fires on each one, which would fill the row with a gradient of near
+     misses. The panel mounts late, so the listener is attached by ref. */
+  const pickerRef = useCallback((picker) => {
+    if (!picker) return undefined;
+    const onChanged = (event) => remember(event.target.value);
+    picker.addEventListener("change", onChanged);
+    return () => picker.removeEventListener("change", onChanged);
+  }, [remember]);
+
   return (
     <ToolPopover label={label} disabled={disabled} panelClassName="editor-popover-swatches"
       trigger={<>
@@ -93,11 +107,32 @@ export function SwatchButton({ value, onChange, label = "Colour", disabled, name
           </button>
         ))}
       </div>
+      <RecentColours colours={recent} value={value} onPick={(colour) => { remember(colour); onChange(colour); }} />
       <label className="editor-popover-custom">
         <span>Custom</span>
-        <input type="color" value={value} onChange={(event) => onChange(event.target.value)} aria-label={`Custom ${label.toLowerCase()}`} />
+        <input ref={pickerRef} type="color" value={value} onChange={(event) => onChange(event.target.value)} aria-label={`Custom ${label.toLowerCase()}`} />
       </label>
     </ToolPopover>
+  );
+}
+
+/* The colours someone mixed, under the fixed palette. Nothing is shown until
+   there is one, so the panel does not open on an empty heading. */
+export function RecentColours({ colours, value, onPick }) {
+  if (!colours.length) return null;
+  return (
+    <>
+      <p className="editor-popover-title">Custom colours</p>
+      <div className="editor-swatch-grid">
+        {colours.map((colour) => (
+          <button type="button" key={colour} className="editor-swatch" style={{ background: colour }}
+            aria-label={colour} aria-pressed={value?.toUpperCase() === colour}
+            onClick={() => onPick(colour)}>
+            {value?.toUpperCase() === colour && <Check size={13} aria-hidden="true" />}
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
 

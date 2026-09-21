@@ -2,6 +2,7 @@ import { normalizeEffects } from "./effectsFilter.js";
 import { cleanName, normalizeGroups } from "./layerModel.js";
 import { cornerRadiiFor } from "./vectorPath.js";
 import { normalizeVector } from "./vectorEdit.js";
+import { normalizeCrop, serializeCrop } from "./imageCrop.js";
 import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./shapePaint.js";
 import { migrateAnimations, normalizeTransition, repairTimeline } from "../animation/animationTimeline.js";
 import { normalizePageNumbers } from "./pageNumbers.js";
@@ -17,8 +18,11 @@ const unit = (value, fallback = 1) => (Number.isFinite(Number(value)) ? Math.min
    means no stroke. */
 function imageStyles(element) {
   const effects = normalizeEffects(element.effects);
+  const crop = serializeCrop(element.crop);
   return {
     opacity: element.opacity,
+    // An uncropped photo writes nothing, so old documents save as they did.
+    ...(crop ? { crop } : {}),
     // Only library vectors take a colour; a photo has none.
     ...(/^#[0-9A-F]{6}$/i.test(element.fill || "") ? { fill: element.fill.toUpperCase() } : {}),
     ...(element.cornerRadius > 0 ? { cornerRadius: element.cornerRadius } : {}),
@@ -34,6 +38,7 @@ function hydrateImage(component) {
     ...(/^#[0-9A-F]{6}$/i.test(styles.fill || "") ? { fill: styles.fill.toUpperCase() } : {}),
     cornerRadius: Math.max(0, Number(styles.cornerRadius) || 0),
     effects: normalizeEffects(styles.effects),
+    crop: normalizeCrop(styles.crop),
     flipX: !!component.flipX, flipY: !!component.flipY,
     // photos resize in proportion unless someone turned the lock off
     lockAspect: component.lockAspect !== false,
@@ -427,14 +432,4 @@ export async function readDocumentFile(file) {
   const checked = validateDocument(json);
   if (!checked) throw new Error("This file isn't a Visora design, or it was made by a newer version.");
   return hydrateDocument(checked);
-}
-
-export function downloadDocument(editor) {
-  const blob = new Blob([JSON.stringify(serializeDocument(editor), null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${(editor.title || "visora-design").replace(/[^a-z0-9-_]+/gi, "-")}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
 }
