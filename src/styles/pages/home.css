@@ -193,6 +193,9 @@
 }
 
 .hero-stats-group { position: relative; }
+/* Sized and placed to the marked band above the stats row: about three
+   quarters of the window wide, sitting just clear of the stats bar. The
+   asset keeps its 550:118 ratio, so the width is what sets its height. */
 .hero-arrow-lane { position: relative; height: auto; aspect-ratio: 550 / 118; width: min(560px, 60vw); margin: 0 auto 1rem; }
 .hero-arrow-lane img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
@@ -201,6 +204,20 @@
    depended on the blob's rendered height and could collapse to an overlap. */
 @media (min-width: 1024px) {
   .hero-stats-group { margin-top: clamp(3rem, 5vw, 5rem); }
+  /* The path spans about three quarters of the window, which is wider than the
+     1156px stats block holding it. `margin: auto` cannot centre a child that
+     overflows its container, so it is centred on the parent's midpoint
+     instead; the stats block is itself centred, so the two agree. The asset
+     keeps its 550:118 ratio, so the width is what sets the height. */
+  .hero-arrow-lane {
+    left: 50%;
+    translate: -50% 0;
+    width: min(1460px, 73vw);
+    /* Zero, not auto: an auto margin still centres the box inside the stats
+       block whenever the path is narrower than it, and the offset below then
+       moves it off centre by half the leftover. */
+    margin: 1rem 0 .5rem;
+  }
 }
 
 /*
