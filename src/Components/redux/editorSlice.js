@@ -12,6 +12,9 @@ export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
+  /* Which pages the strip has picked out, by id so a reorder cannot rename the
+     selection. It is view state: not in a snapshot, not undone. */
+  selectedPages: ["page-initial"],
   pageNumbers: { enabled: false, position: "bottom-right", skipFirst: false },
   past: [], future: [], gesture: null, edit: null, pointEdit: null, cropping: null, copiedPage: null, copiedElements: [], copiedGroups: [], copiedAnimations: [], zoom: null, snapGuides: [],
 };
@@ -183,6 +186,49 @@ const reducers = {
     },
     pageSelected(state, { payload }) {
       cancelGesture(state); state.currentPage = clamp(payload, 0, state.pages.length - 1); setSelection(state, []);
+      state.selectedPages = [state.pages[state.currentPage].id];
+    },
+    /* Several pages at once: Ctrl-click, Shift-click, Select all. `current` is
+       the page the strip should show — the one last clicked, not the first of
+       the run, so the canvas follows the pointer rather than jumping back. */
+    pagesSelected(state, { payload }) {
+      const ids = new Set(state.pages.map((page) => page.id));
+      const chosen = [...new Set(payload?.ids || [])].filter((id) => ids.has(id));
+      if (!chosen.length) return;
+      cancelGesture(state);
+      const index = state.pages.findIndex((page) => page.id === (payload?.current ?? chosen.at(-1)));
+      if (index >= 0 && index !== state.currentPage) { state.currentPage = index; setSelection(state, []); }
+      state.selectedPages = chosen;
+    },
+    /* Delete and duplicate work on the strip's selection, so they take a list
+       of indexes and land as one undo step however many pages are in it. */
+    pagesDeleted(state, { payload }) {
+      const doomed = [...new Set(payload || [])].filter((index) => state.pages[index]).sort((a, b) => b - a);
+      if (!doomed.length || doomed.length >= state.pages.length) return;
+      cancelGesture(state); remember(state);
+      const activeId = state.pages[state.currentPage].id;
+      doomed.forEach((index) => state.pages.splice(index, 1));
+      const stillThere = state.pages.findIndex((page) => page.id === activeId);
+      state.currentPage = clamp(stillThere >= 0 ? stillThere : Math.min(doomed.at(-1), state.pages.length - 1), 0, state.pages.length - 1);
+      setSelection(state, []); state.selectedPages = [state.pages[state.currentPage].id];
+    },
+    pagesCloned: {
+      prepare: (pages, indexes) => ({ payload: {
+        after: Math.max(...indexes),
+        copies: indexes.map((index) => {
+          const page = pages[index];
+          const { idMap, ...layers } = cloneLayers(page.elements, page.groups || [], nanoid);
+          return { ...page, id: nanoid(), name: cleanName(`${pageLabel(page, index)} copy`), ...layers,
+            animations: remapAnimations(page.animations || [], idMap, nanoid) };
+        }),
+      } }),
+      reducer(state, { payload }) {
+        if (!payload.copies.length) return;
+        cancelGesture(state); remember(state);
+        state.pages.splice(payload.after + 1, 0, ...payload.copies.map(normalizeGroups));
+        state.currentPage = payload.after + 1; setSelection(state, []);
+        state.selectedPages = payload.copies.map((page) => page.id);
+      },
     },
     pageAdded: {
       prepare: () => ({ payload: { id: nanoid(), background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] } }),
@@ -679,14 +725,26 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, documentRenamed, pageSelected, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
+export const { documentLoaded, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
   elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, imageInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,
   editStarted, editUpdated, editFinished, editCancelled, targetChanged } = editorSlice.actions;
 export const { cropStarted, cropFinished, pointEditStarted, pointEditFinished, pointsSelected, layersMovedToPage, layersStepped, layersReordered, layersMovedIntoGroup, layersRemovedFromGroup, selectionGrouped, groupUngrouped, canvasLayersSelected } = editorSlice.actions;
 export const { pageTransitionChanged, animationAdded, animationChanged, animationRemoved, animationMoved } = editorSlice.actions;
+/* The strip's selection is not in the history, so undo, a load or a delete can
+   leave it naming pages that are gone. Rather than repeat the repair in every
+   reducer, it is checked once after each action. */
+function keepPageSelection(state) {
+  if (!state?.pages?.length) return state;
+  const alive = new Set(state.pages.map((page) => page.id));
+  const kept = (state.selectedPages || []).filter((id) => alive.has(id));
+  const wanted = kept.length ? kept : [state.pages[clamp(state.currentPage, 0, state.pages.length - 1)].id];
+  if (wanted.length === (state.selectedPages || []).length && wanted.every((id, index) => id === state.selectedPages[index])) return state;
+  return { ...state, selectedPages: wanted };
+}
+
 // The slice, then the page-number pass (see model/pageNumbers.js).
 export default function editorReducer(state, action) {
-  return syncPageNumbers(state, editorSlice.reducer(state, action), action, editorSlice.actions.elementDeleted.type);
+  return keepPageSelection(syncPageNumbers(state, editorSlice.reducer(state, action), action, editorSlice.actions.elementDeleted.type));
 }

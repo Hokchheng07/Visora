@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserUploadMutation } from "../../API/storageApi";
+import { uploadErrorMessage } from "../../API/apiError.js";
 import { useAppDispatch } from "../../redux/hook.js";
 import { imageInserted } from "../../redux/editorSlice.js";
 
@@ -91,7 +92,7 @@ export function useImageUpload({ onUploaded } = {}) {
         dispatch(imageInserted(fileName, size, file.name));
         onUploaded?.({ fileName, name: file.name, width: size.width, height: size.height, uploadedAt: Date.now() });
       } else {
-        setError(result?.error?.data?.detail || result?.error?.data?.message || "Upload failed. Please try again.");
+        setError(uploadErrorMessage(result?.error, "image"));
       }
     } catch (err) {
       console.log(err);

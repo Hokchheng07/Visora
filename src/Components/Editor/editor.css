@@ -592,7 +592,12 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-page-thumbs { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; padding: 3px; overflow-x: auto; scrollbar-width: none; }
 .editor-page-thumbs::-webkit-scrollbar { display: none; }
 .editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: 88px; height: 50px; padding: 0; border-radius: 8px; }
+/* Two different things: is-selected is what the menu will act on, is-active is
+   the one page the canvas is showing. The current page is always selected, so
+   its ring is the stronger of the two. */
+.editor-canvas-bar .editor-page-thumb.is-selected { border-color: color-mix(in srgb, var(--color-primary) 55%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 28%, transparent); }
 .editor-canvas-bar .editor-page-thumb.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1.5px var(--color-primary); }
+.editor-canvas-bar .editor-page-thumb.is-active.is-selected { box-shadow: 0 0 0 1.5px var(--color-primary), 0 0 0 4px color-mix(in srgb, var(--color-primary) 24%, transparent); }
 .editor-page-thumb-number { position: absolute; bottom: 3px; left: 6px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 .editor-page-add, .editor-zoom { display: flex; flex: none; align-items: center; gap: 3px; padding: 3px; border: 1px solid var(--editor-border); border-radius: 11px; background: var(--editor-raised); }
 .editor-canvas-bar .editor-page-add { background: var(--editor-tint); border-color: transparent; }
@@ -774,6 +779,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
 }
 .editor-inspector-select, .editor-inspector-input { padding: 0 9px; }
 .editor-inspector-select { cursor: pointer; }
+.editor-inspector-select:disabled { opacity: .5; cursor: default; }
 .editor-inspector-input::placeholder, .editor-inspector-textarea::placeholder { color: var(--editor-muted); }
 /* Focus shows as the field's own border turning primary, never as the editor's
    outline ring drawn around the input inside it. */
@@ -908,14 +914,14 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-animation-section { padding: 16px; border-bottom: 1px solid var(--editor-border); }
 .editor-animation-section h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
 .editor-animation-section-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.editor-animation-section select, .editor-animation-trigger select { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--editor-border); border-radius: 6px; background: var(--editor-raised); color: var(--editor-ink); font-size: 12px; }
+.editor-select.editor-animation-select { height: 36px; padding: 0 10px; border-radius: 6px; font-size: 12px; }
 .editor-animation-trigger { display: grid; gap: 6px; margin-block: 12px; font-size: 12px; color: var(--editor-muted); }
-.editor-animation-timing { display: grid; gap: 8px; margin-block: 14px; font-size: 12px; }
-.editor-animation-timing > span { display: flex; justify-content: space-between; }
+/* Two halves, never narrower than the arrows plus three digits. */
+.editor-animation-timing-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-block: 14px; }
+.editor-animation-timing { display: grid; align-content: start; gap: 6px; min-width: 0; font-size: 12px; }
+.editor-animation-timing > span { color: var(--editor-muted); }
 .editor-animation-timing small { color: var(--editor-muted); }
-.editor-animation-timing > div { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 10px; }
-.editor-animation-timing input[type='range'] { width: 100%; accent-color: var(--editor-accent); }
-.editor-animation-timing input[type='number'] { width: 72px; border: 1px solid var(--editor-border); border-radius: 5px; padding: 5px; color: var(--editor-ink); background: var(--editor-raised); }
+.editor-animation-timing .editor-time-stepper input { padding-left: 8px; }
 .editor-animation-step h4 { margin: 12px 0 6px; color: var(--editor-muted); font-size: 11px; font-weight: 600; }
 .editor-animation-step ol { list-style: none; margin: 0; padding: 0; }
 .editor-animation-step li { display: flex; align-items: center; margin-block: 5px; border: 1px solid var(--editor-border); border-radius: 7px; background: var(--editor-raised); }
@@ -984,19 +990,12 @@ ol.editor-text-list { padding-inline-start: 2em; }
 }
 @media (max-width: 760px) {
   .editor-selected-name, .editor-canvas-size { display: none; }
-  /* Below this width the bar docks to the bottom of the canvas region, the way
-     a mobile app puts its contextual controls in thumb reach. It is the bottom
-     of the screen too whenever the tool panel is collapsed, which is how the
-     editor opens. Order is deliberate: sheet, then bar. */
-  .editor-shape-tools { top: auto; bottom: max(8px, env(safe-area-inset-bottom)); gap: 2px; padding: 4px; border-radius: 12px; max-width: calc(100% - 16px); }
-  .editor-canvas-scroll { padding-top: 16px; padding-bottom: 16px; }
+  /* The bottom edge belongs to the tool rail here, so the property bar stays
+     where it is on a desktop: floating over the top of the sheet. */
+  .editor-shape-tools { gap: 2px; padding: 4px; border-radius: 12px; max-width: calc(100% - 16px); }
   .editor-ctl { height: 36px; }
   .editor-ctl-icon { width: 36px; }
   .editor-toolbar-group { padding-inline: 5px; gap: 2px; }
-  /* Only one bar may own the bottom edge, so the page strip gives up its
-     thumbnails here and keeps just the count and the add button. */
-  .editor-page-thumbs { display: none; }
-  .editor-page-count { display: inline-flex; }
   .editor-property-number { font-size: 0; }
   .editor-property-number input { width: 26px; }
   .editor-topbar { min-height: 72px; gap: 10px; padding: 6px 16px; }
@@ -1007,27 +1006,35 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-topbar-actions button { width: 34px; height: 34px; min-width: 0; padding: 0; }
   .editor-topbar-actions button span { display: none; }
   .editor-topbar-actions button::after { content: none; }
-  .editor-body { grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(200px, .8fr); gap: 10px; padding: 10px; }
-  /* The panel is the first row here, so collapsing hands its height to the canvas.
-     Track structure has to mirror the rule above or the transition can't interpolate. */
-  .editor-body.is-panel-collapsed { grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: minmax(0, 0fr) minmax(200px, 1fr); }
-  .editor-tool-rail { grid-row: 1 / -1; padding: 5px; border-radius: 16px; }
-  .editor-tool-button { min-height: 68px; gap: 7px; border-radius: 11px; }
-  .editor-tool-button svg { width: 23px; height: 23px; }
+  /* Phone layout, the way Canva does it: the sheet on top, the panel the tool
+     opened under it, and the tools themselves along the bottom edge where a
+     thumb reaches. One column, three rows, in that order.
+     Collapsing the panel hands its row height to the canvas; the track list
+     has to mirror the rule above or the transition cannot interpolate. */
+  .editor-body { --mobile-rail-h: 62px; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(200px, 1fr) minmax(0, .8fr) auto; gap: 10px; padding: 10px 10px 0; }
+  .editor-body.is-panel-collapsed { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(200px, 1fr) minmax(0, 0fr) auto; }
+  .editor-workspace { grid-column: 1; grid-row: 1; }
+  .editor-tool-panel { grid-column: 1; grid-row: 2; border-radius: 16px; padding: 18px; }
+  /* The rail turns into a tab bar: one row of tools, scrolled sideways when
+     they do not fit, and clear of the phone's home indicator. */
+  .editor-tool-rail { grid-column: 1; grid-row: 3; min-height: var(--mobile-rail-h); padding: 4px 4px max(4px, env(safe-area-inset-bottom)); border-radius: 16px 16px 0 0; overflow-x: auto; overflow-y: hidden; }
+  .editor-tool-rail [role="tablist"] { flex-direction: row; width: max-content; min-width: 100%; gap: 2px; }
+  .editor-tool-button { flex: 1 0 auto; width: auto; min-width: 66px; min-height: 52px; gap: 4px; padding-inline: 6px; border-radius: 11px; }
+  .editor-tool-button svg { width: 21px; height: 21px; }
   .editor-tool-button span { font-size: 10px; }
-  .editor-tool-panel { border-radius: 16px; padding: 18px; }
   .editor-tool-panel > h2 { margin-bottom: 14px; font-size: 17px; }
   .editor-template-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .editor-template-placeholder { aspect-ratio: 1.2; border-width: 5px; }
   .editor-template-paper .editor-template-spark { width: 13px; height: 13px; top: 6px; right: 6px; }
   /* Rulers are unusable at this width, so reclaim the space for the sheet. */
-  .editor-workspace { grid-column: 2; border-radius: 16px; --editor-ruler: 0px; --editor-canvas-bar: 98px; }
-  .editor-canvas-scroll { padding: 16px 16px 0; }
+  .editor-workspace { border-radius: 16px; --editor-ruler: 0px; --editor-canvas-bar: 84px; }
+  /* Top padding clears the property bar floating over the sheet. */
+  .editor-canvas-scroll { padding: 56px 12px 0; }
   .editor-canvas-meta { font-size: 8px; }
-  .editor-canvas-bar { gap: 4px; margin-inline: 0; padding: 7px 10px; }
+  .editor-canvas-bar { gap: 4px; margin-inline: 0; padding: 5px 8px 6px; }
   .editor-canvas-bar .editor-ruler-toggle, .editor-page-count { display: none; }
   .editor-canvas-bar button { height: 32px; padding-inline: 9px; font-size: 11px; }
-  .editor-canvas-bar .editor-page-thumb { width: 72px; height: 40px; }
+  .editor-canvas-bar .editor-page-thumb { width: 64px; height: 36px; }
   .editor-canvas-bar .editor-page-add button { width: 32px; height: 32px; }
   .editor-canvas-bar .editor-zoom button { width: 26px; height: 26px; }
   .editor-zoom > span { padding-inline: 5px; font-size: 11px; }
@@ -1046,7 +1053,9 @@ ol.editor-text-list { padding-inline-start: 2em; }
 }
 /* Narrowest layout: a bottom sheet, like a phone app's settings. */
 @media (max-width: 760px) {
-  .editor-inspector.is-drawer { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+  /* The sheet stops above the tool rail, so the tabs stay reachable while
+     Customize is open — closing it should never be the only way back. */
+  .editor-inspector.is-drawer { top: auto; left: 0; bottom: calc(var(--mobile-rail-h, 62px) + max(0px, env(safe-area-inset-bottom))); width: auto; max-height: 56vh; border-radius: 18px 18px 0 0; padding-bottom: 20px; box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
   .editor-inspector.is-drawer { animation-name: editor-sheet-in; }
   /* The panel is a row and Customize a bottom sheet here: neither handle applies. */
   .editor-panel-toggle, .editor-inspector-resizer { display: none; }
@@ -1085,4 +1094,42 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .cv-editor-header > div:last-child button { font-size: 0; }
   .cv-editor-header > div:last-child button svg { margin: 0; }
   .cv-editor-workspace { padding-inline: .5rem; }
+}
+
+
+/* Select trigger and its list. The browser's own <select> drops an
+   operating-system menu on top of the editor: no tokens, no radius, no dark
+   mode. This is the same control drawn in the editor's own vocabulary. */
+.editor-select { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; height: var(--field-h, 32px); padding: 0 9px; border: 1px solid var(--field-line, var(--editor-border)); border-radius: var(--field-r, 8px); background: var(--field-bg, var(--editor-raised)); color: var(--editor-ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; transition: border-color 120ms ease; }
+.editor-select:disabled { opacity: .5; cursor: default; }
+.editor-select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-select-caret { flex: none; color: var(--editor-muted); transition: transform 140ms ease; }
+.editor-select[data-open] { border-color: var(--color-primary); }
+.editor-select[data-open] .editor-select-caret { transform: rotate(180deg); }
+.editor-select:focus-visible { border-color: var(--color-primary); outline: none; }
+
+/* The list is anchored to the trigger and never narrower than it, so a long
+   font name does not reflow the panel it opens over. */
+.editor-popover.editor-select-panel { gap: 2px; width: max-content; min-width: var(--button-width); max-width: min(320px, 92vw); max-height: min(320px, 60vh); padding: 6px; overflow-y: auto; }
+.editor-select-option { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 8px 9px; border-radius: 7px; color: var(--editor-ink); font-size: 12.5px; text-align: left; cursor: pointer; }
+.editor-select-option > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-select-option[data-focus] { background: var(--editor-raised); }
+.editor-select-option[data-selected] { color: var(--color-primary); font-weight: 600; }
+.editor-select-option[data-disabled] { opacity: .5; cursor: default; }
+
+/* Timing stepper. Arrows for a nudge, the field for a number: PowerPoint's
+   spinner, which is what people already know timings by. */
+.editor-time-stepper { display: flex; align-items: stretch; overflow: hidden; width: 100%; height: var(--field-h, 32px); border: 1px solid var(--field-line, var(--editor-border)); border-radius: var(--field-r, 8px); background: var(--field-bg, var(--editor-raised)); transition: border-color 120ms ease; }
+.editor-time-stepper.is-disabled { opacity: .5; }
+.editor-time-stepper:focus-within { border-color: var(--color-primary); }
+.editor-time-stepper input { flex: 1; min-width: 0; padding: 0 8px 0 10px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 12.5px; font-variant-numeric: tabular-nums; outline: none; }
+.editor-time-stepper-arrows { display: grid; flex: none; grid-template-rows: 1fr 1fr; width: 24px; border-left: 1px solid var(--field-line, var(--editor-border)); }
+.editor-time-stepper-arrows button { display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--editor-muted); cursor: pointer; }
+.editor-time-stepper-arrows button + button { border-top: 1px solid var(--field-line, var(--editor-border)); }
+.editor-time-stepper-arrows button:disabled { opacity: .35; cursor: default; }
+
+@media (hover: hover) {
+  .editor-select:not(:disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
+  .editor-time-stepper:hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
+  .editor-time-stepper-arrows button:not(:disabled):hover { background: var(--editor-raised); color: var(--color-primary); }
 }

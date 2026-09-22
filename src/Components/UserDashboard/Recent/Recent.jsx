@@ -13,7 +13,6 @@ import { PROFILE_TEMPLATES } from "../Profile/profileData";
 import { TemplateCard } from "../Profile/TemplateCard";
 
 import CreateNewShelf from "./CreateNewShelf";
-import TeamSpacesPromo from "./TeamSpacesPromo";
 import TrendingTemplates from "./TrendingTemplates";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
 
@@ -252,8 +251,6 @@ export default function Recent(){
                 onDelete={deleteDesign}
               />
             ))}
-
-            <TeamSpacesPromo/>
           </div>
         ):(
           <div className="mt-7 flex min-h-[220px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">

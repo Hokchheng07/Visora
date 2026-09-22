@@ -114,13 +114,15 @@ const router = createBrowserRouter([
             element: <SignUp />,
           },
           { path: "forgot-password", element: <ForgotPassword /> },
+          { path: "reset-password", element: <ForgotPassword /> },
         ],
       },
       {
         path: "login",
         element: <Navigate to="/auth/login" replace />,
       },
-      { path: "forgot-password", element: <Navigate to="/auth/forgot-password" replace /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password", element: <ForgotPassword /> },
       {
         path: "dashboard",
         element: <DashboardLayout />,

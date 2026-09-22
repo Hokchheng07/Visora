@@ -6,17 +6,26 @@ import { buildSteps, rowVisible, timingBounds, validateTimeline } from "../anima
 import { presetLabel, transitionPresets } from "../animation/animationPresets.js";
 import { effectiveLocked, layerLabel } from "../model/layerModel.js";
 import { useEditSession } from "../inspector/inspectorEdit.js";
+import { SelectMenu, TimeStepper } from "../ui/EditorControls.jsx";
 
-function TimingField({ label, value, property, target, toChanges, min = 0, max = 60000, disabled, onBeforeEdit }) {
+/* Timing, PowerPoint-style: arrows step a whole second, the field itself takes
+   any number. The slider went because nobody sets 1.25s with it, and a 0-60s
+   track makes the useful end of the range a few pixels wide.
+   A step adds a second to whatever is there — 1.25s goes to 2.25s, not 2s. The
+   fraction is something the author typed on purpose, so stepping carries it
+   rather than rounding it away. */
+const STEP_MS = 1000;
+
+function TimingField({ label, short, value, property, target, toChanges, min = 0, max = 60000, disabled, onBeforeEdit }) {
   const dispatch = useAppDispatch(), session = useEditSession();
-  return <label className="editor-animation-timing"><span>{label}<small>seconds</small></span>
-    <div><input type="range" aria-label={`${label} slider`} min={min} max={max} step={10} value={value} disabled={disabled}
-      onPointerDown={() => { onBeforeEdit?.(); session.begin(target, property); }}
-      onChange={(event) => { onBeforeEdit?.(); session.update(target, property, toChanges(Number(event.target.value))); }}
-      onKeyUp={session.finish} onBlur={session.finish} onKeyDown={(event) => { if (event.key === "Escape") session.cancel(); }} />
-      <input type="number" aria-label={label} min={min / 1000} max={max / 1000} step="0.01" value={Number((value / 1000).toFixed(3))} disabled={disabled}
-        onChange={(event) => { onBeforeEdit?.(); const n = Number(event.target.value) * 1000; if (Number.isFinite(n) && n >= min && n <= max) dispatch(targetChanged({ target, changes: toChanges(Math.round(n)) })); }} /></div>
-  </label>;
+  const clamp = (next) => Math.max(min, Math.min(max, Math.round(next / 10) * 10));
+  return <div className="editor-animation-timing"><span>{short || label}</span>
+    <TimeStepper label={label} value={value} min={min} max={max} disabled={disabled}
+      onHoldStart={() => { onBeforeEdit?.(); session.begin(target, property); }}
+      onHoldEnd={session.finish}
+      onStep={(direction) => { onBeforeEdit?.(); session.update(target, property, toChanges(clamp(value + direction * STEP_MS))); }}
+      onCommit={(next) => { onBeforeEdit?.(); dispatch(targetChanged({ target, changes: toChanges(clamp(next)) })); }} />
+  </div>;
 }
 
 export default function EditorAnimationPane({ docked, onClose, previewing, onPreview, onStopPreview, mode = "page" }) {
@@ -51,12 +60,18 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
     {mode === "page" ? <>
     <section className="editor-animation-section"><div className="editor-animation-section-title"><h3>Page transition</h3>
       <button type="button" className="editor-animation-preview-toggle" disabled={!!gesture} onClick={previewing ? onStopPreview : onPreview}>{previewing ? <Square size={14} /> : <Play size={14} />}{previewing ? "Stop" : "Preview"}</button></div>
-      <select aria-label="Page transition" disabled={!!gesture} value={page.transition?.preset || "none"} onChange={(event) => { onStopPreview(); dispatch(pageTransitionChanged({ ...page.transition, preset: event.target.value })); }}>
-        {transitionPresets.map((preset) => <option key={preset.id} value={preset.id}>{preset.id === "none" ? "None" : preset.label}</option>)}
-      </select>
-      {page.transition && ["durationMs", "delayMs"].map((property) => <TimingField key={property} label={`Transition ${property === "delayMs" ? "delay" : "duration"}`} value={page.transition[property]} property={property} target={pageTarget}
-        disabled={!!gesture} onBeforeEdit={onStopPreview} toChanges={(value) => ({ transition: { ...page.transition, [property]: value } })} />)}
-      <p className="editor-panel-description">This becomes the fallback for elements without their own animation. Authored element motion is left untouched.</p>
+      <SelectMenu label="Page transition" disabled={!!gesture} className="editor-animation-select"
+        value={page.transition?.preset || "none"}
+        options={transitionPresets.map((preset) => ({ value: preset.id, label: preset.id === "none" ? "None" : preset.label }))}
+        onChange={(preset) => { onStopPreview(); dispatch(pageTransitionChanged({ ...page.transition, preset })); }} />
+      {/* Duration and delay share one row: two short numbers, and stacking them
+          pushed everything below off the first screenful of the panel. */}
+      {page.transition && <div className="editor-animation-timing-row">
+        {["durationMs", "delayMs"].map((property) => <TimingField key={property} label={`Transition ${property === "delayMs" ? "delay" : "duration"}`}
+          short={property === "delayMs" ? "Delay" : "Duration"} value={page.transition[property]} property={property} target={pageTarget}
+          disabled={!!gesture} onBeforeEdit={onStopPreview} toChanges={(value) => ({ transition: { ...page.transition, [property]: value } })} />)}
+      </div>}
+      <p className="editor-panel-description">Elements with their own animations won&rsquo;t be affected by page transitions.</p>
     </section>
     </> : <>
     {/* What the panel is talking about. Without it, "Pick an element" reads as
@@ -98,11 +113,15 @@ export default function EditorAnimationPane({ docked, onClose, previewing, onPre
       {message && <p role="status" className="editor-animation-message">{message}</p>}
     </section>
     {selected && <section className="editor-animation-section"><h3>{presetLabel(selected)}</h3>
-      <label className="editor-animation-trigger">Start<select aria-label="Animation trigger" disabled={busy} value={selected.trigger} onChange={(event) => change({ trigger: event.target.value })}>
-        <option value="click">On click</option><option value="with">With previous</option><option value="after">After previous</option>
-      </select></label>
-      {["delayMs", "durationMs"].map((property) => <TimingField key={property} label={`Animation ${property === "delayMs" ? "delay" : "duration"}`} value={selected[property]} property={property}
-        target={target} {...bounds[property]} disabled={busy} onBeforeEdit={onStopPreview} toChanges={(value) => ({ [property]: value })} />)}
+      <div className="editor-animation-trigger"><span>Start</span>
+        <SelectMenu label="Animation trigger" disabled={busy} className="editor-animation-select" value={selected.trigger}
+          options={[{ value: "click", label: "On click" }, { value: "with", label: "With previous" }, { value: "after", label: "After previous" }]}
+          onChange={(trigger) => change({ trigger })} /></div>
+      <div className="editor-animation-timing-row">
+        {["durationMs", "delayMs"].map((property) => <TimingField key={property} label={`Animation ${property === "delayMs" ? "delay" : "duration"}`}
+          short={property === "delayMs" ? "Delay" : "Duration"} value={selected[property]} property={property}
+          target={target} {...bounds[property]} disabled={busy} onBeforeEdit={onStopPreview} toChanges={(value) => ({ [property]: value })} />)}
+      </div>
       <button type="button" className="editor-animation-remove" disabled={busy} onClick={() => { onStopPreview(); dispatch(animationRemoved(selected.id)); }}><Trash2 size={14} />Remove animation</button>
     </section>}
     </>}

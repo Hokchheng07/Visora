@@ -4,7 +4,7 @@ import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, useCanvasMetrics } from "./useCanvasMetrics";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
-import { canvasAllSelected, cropFinished, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected,
+import { canvasAllSelected, cropFinished, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected, pagesSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
 import EditorPageBar from "./EditorPageBar.jsx";
@@ -29,7 +29,7 @@ export default function EditorCanvas({
 }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
-  const { pages, currentPage, selectedIds, selectionMode, zoom, snapGuides, pointEdit, cropping } = editor;
+  const { pages, currentPage, selectedPages, selectedIds, selectionMode, zoom, snapGuides, pointEdit, cropping } = editor;
   const page = pages[currentPage];
   const previewPage = useMemo(() => {
     if (!previewing || animationPreview?.type !== "element") return page;
@@ -220,8 +220,10 @@ export default function EditorCanvas({
         <EditorCanvasBar
           pages={pages}
           currentPage={currentPage}
+          selectedPages={selectedPages}
           onAddPage={onAddPage}
           onPageChange={(index) => dispatch(pageSelected(index))}
+          onPageSelect={(ids, current) => dispatch(pagesSelected({ ids, current }))}
           onPageMove={(from, to) => dispatch(pageMoved({ from, to }))}
           onPageMenu={(event, index) => {
             event.preventDefault();
@@ -269,18 +271,24 @@ export default function EditorCanvas({
         />
       )}
 
-      {pageMenu && (
-        <EditorPageMenu
+      {pageMenu && (() => {
+        /* The menu acts on the strip's selection when it was opened inside it,
+           and on the one page when it was not. */
+        const chosen = pages.map((page, index) => [page, index]).filter(([page]) => selectedPages.includes(page.id)).map(([, index]) => index);
+        const indexes = chosen.includes(pageMenu.index) ? chosen : [pageMenu.index];
+        return <EditorPageMenu
           page={pageMenu.index + 1}
+          count={indexes.length}
           name={pageLabel(pages[pageMenu.index], pageMenu.index)}
           onRename={(name) => dispatch(targetChanged({ target: pageTarget(pages[pageMenu.index].id), changes: { name } }))}
           x={pageMenu.x}
           y={pageMenu.y}
-          disabled={{ paste: !canPaste, delete: pages.length === 1 }}
-          onAction={(action) => onPageAction(action, pageMenu.index)}
+          disabled={{ paste: !canPaste, delete: indexes.length >= pages.length,
+            rename: indexes.length > 1, copy: indexes.length > 1 }}
+          onAction={(action) => onPageAction(action, indexes)}
           onClose={() => setPageMenu(null)}
-        />
-      )}
+        />;
+      })()}
     </main>
   );
 }

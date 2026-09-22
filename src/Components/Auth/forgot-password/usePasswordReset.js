@@ -1,111 +1,79 @@
 import { useEffect, useRef, useState } from "react";
-import { passwordResetApi, PASSWORD_RESET_DEMO } from "../../API/passwordResetApi.js";
+import { useResetPasswordMutation, useUserForgotPasswordMutation } from "../../API/authApi.js";
 import { emailSchema, rules } from "./passwordResetValidation.js";
 
-// Owns the recovery flow, transient token, resend timer and focus behavior.
-// Keep network details in the API adapter and presentation in the page.
-export default function usePasswordReset() {
-  const [step, setStep] = useState(0);
+function resetErrorMessage(error) {
+  if (error?.status === "FETCH_ERROR") return "Couldn’t reach the server. Please try again.";
+  if (typeof error?.data === "string" && error.data.trim()) return error.data.trim();
+  return error?.data?.message || error?.data?.detail || error?.message || "Something went wrong. Please try again.";
+}
+
+// Owns the email-link recovery flow and keeps its network state out of the page.
+export default function usePasswordReset(resetToken) {
+  const [sendForgotPassword] = useUserForgotPasswordMutation();
+  const [submitResetPassword] = useResetPasswordMutation();
+  const [step, setStep] = useState(() => resetToken ? 1 : 0);
   const [email, setEmail] = useState("");
-  const [digits, setDigits] = useState(Array(6).fill(""));
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [challengeId, setChallengeId] = useState(null);
-  const [resetToken, setResetToken] = useState(null);
-  const [deadline, setDeadline] = useState(0);
-  const [remaining, setRemaining] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
   const [complete, setComplete] = useState(false);
   const pending = useRef(false);
-  const inputs = useRef([]);
   const heading = useRef(null);
 
   useEffect(() => {
-    if (!deadline) return;
-    const tick = () => setRemaining(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
-    tick();
-    const timer = window.setInterval(tick, 250);
-    return () => window.clearInterval(timer);
-  }, [deadline]);
+    if (resetToken) {
+      setStep(1);
+      setEmailSent(false);
+    }
+  }, [resetToken]);
 
   useEffect(() => {
-    if (step === 1) inputs.current[0]?.focus({ preventScroll: true });
-    if (step === 2 || complete) heading.current?.focus({ preventScroll: true });
-  }, [step, complete]);
+    if (step === 1 || emailSent || complete) heading.current?.focus({ preventScroll: true });
+  }, [step, emailSent, complete]);
 
   async function request(action) {
     if (pending.current) return;
     pending.current = true;
     setBusy(true);
     setError("");
-    setNotice("");
     try { await action(); }
-    catch (failure) { setError(failure.message || "Something went wrong. Please try again."); }
+    catch (failure) { setError(resetErrorMessage(failure)); }
     finally { pending.current = false; setBusy(false); }
   }
 
   function sendCode(event) {
     event?.preventDefault();
-    if (step === 1 && Date.now() < deadline) return;
     const result = emailSchema.safeParse(email);
     if (!result.success) return setError("Enter a valid email address.");
     return request(async () => {
-      const response = await passwordResetApi.sendCode({ email: result.data });
+      await sendForgotPassword({ email: result.data }).unwrap();
       setEmail(result.data);
-      setChallengeId(response.challengeId);
-      setDeadline(Date.now() + response.retryAfterSeconds * 1000);
-      setRemaining(response.retryAfterSeconds);
-      setDigits(Array(6).fill(""));
-      setStep(1);
-      setNotice(PASSWORD_RESET_DEMO ? "Demo code is ready. No email was sent." : "A verification code has been sent. Check your email.");
-      // Resending stays on the same step, so restore focus after inputs enable.
-      window.requestAnimationFrame(() => inputs.current[0]?.focus({ preventScroll: true }));
+      setEmailSent(true);
     });
-  }
-
-  function updateCode(next) {
-    if (pending.current) return;
-    setDigits(next);
-    setError("");
-    if (next.every((digit) => /^\d$/.test(digit))) {
-      void request(async () => {
-        const response = await passwordResetApi.verifyCode({ challengeId, code: next.join("") });
-        setResetToken(response.resetToken);
-        setStep(2);
-      });
-    }
-  }
-
-  function fillCode(index, raw) {
-    const value = raw.replace(/\D/g, "");
-    const next = [...digits];
-    if (!value) next[index] = "";
-    else {
-      const start = value.length >= 6 ? 0 : index;
-      value.slice(0, 6 - start).split("").forEach((digit, offset) => { next[start + offset] = digit; });
-      inputs.current[Math.min(5, start + value.length)]?.focus();
-    }
-    updateCode(next);
   }
 
   function resetPassword(event) {
     event.preventDefault();
+    if (!resetToken) return setError("This password reset link is missing or invalid. Request a new link.");
     if (!rules.every((rule) => rule.test(password))) return setError("Your new password must meet all three requirements.");
     if (password !== confirm) return setError("Your passwords do not match.");
     return request(async () => {
-      await passwordResetApi.resetPassword({ resetToken, password });
+      await submitResetPassword({
+        token: resetToken,
+        newPassword: password,
+        confirmPassword: confirm,
+      }).unwrap();
       setPassword("");
       setConfirm("");
-      setResetToken(null);
       setComplete(true);
     });
   }
 
   return {
-    step, email, digits, password, confirm, remaining, busy, error, notice,
-    complete, inputs, heading, setEmail, setPassword, setConfirm, setError,
-    sendCode, updateCode, fillCode, resetPassword,
+    step, email, password, confirm, busy, error, emailSent, complete, heading,
+    setEmail, setPassword, setConfirm, setError, sendCode, resetPassword,
   };
 }

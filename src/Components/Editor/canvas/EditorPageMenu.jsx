@@ -2,19 +2,21 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ClipboardPaste, Copy, CopyPlus, Pencil, Plus, Trash2 } from "lucide-react";
 import RenameField from "../panels/RenameField.jsx";
 
-const ITEMS = [
+/* `count` is how many pages the strip has selected, so the two rows that work
+   on all of them say so rather than leaving the reach of the click in doubt. */
+const items = (count) => [
   { id: "rename", label: "Rename", icon: Pencil },
   { id: "divider-0", divider: true },
   { id: "copy", label: "Copy", icon: Copy },
   { id: "paste", label: "Paste", icon: ClipboardPaste },
   { id: "divider-1", divider: true },
-  { id: "duplicate", label: "Duplicate", icon: CopyPlus },
-  { id: "delete", label: "Delete page", icon: Trash2 },
+  { id: "duplicate", label: count > 1 ? `Duplicate ${count} pages` : "Duplicate", icon: CopyPlus },
+  { id: "delete", label: count > 1 ? `Delete ${count} pages` : "Delete page", icon: Trash2 },
   { id: "divider-2", divider: true },
   { id: "add", label: "Add page", icon: Plus },
 ];
 
-export default function EditorPageMenu({ page, name, x, y, disabled, onAction, onRename, onClose }) {
+export default function EditorPageMenu({ page, count = 1, name, x, y, disabled, onAction, onRename, onClose }) {
   const ref = useRef(null);
   // Rename turns the menu into a name field in the same spot.
   const [renaming, setRenaming] = useState(false);
@@ -61,7 +63,7 @@ export default function EditorPageMenu({ page, name, x, y, disabled, onAction, o
       {renaming ? (
         <RenameField value={name} label="Page name" className="is-menu"
           onCommit={(next) => { onRename(next); onClose(); }} onCancel={onClose} />
-      ) : ITEMS.map(({ id, label, icon: Icon, divider }) => (divider ? (
+      ) : items(count).map(({ id, label, icon: Icon, divider }) => (divider ? (
         <hr key={id} />
       ) : (
         <button

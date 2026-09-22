@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, RotateCcw, RotateCw } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
 import { targetChanged } from "../../redux/editorSlice.js";
-import { RecentColours, ToolPopover } from "../ui/EditorControls.jsx";
+import { RecentColours, SelectMenu, ToolPopover } from "../ui/EditorControls.jsx";
 import { useRecentColours } from "../ui/recentColours.js";
 import { normalizeRotation, parseHex, useEditSession } from "./inspectorEdit.js";
 
@@ -290,14 +290,14 @@ export function FontSizeField({ value, target, disabled, min = 8, max = 400 }) {
   );
 }
 
-/* A labelled native select that commits on change. Native, not a custom menu:
-   it is keyboard-complete, and on phones it opens the system picker. */
+/* A labelled select that commits on change. Ours, not the browser's: a native
+   <select> draws its list with operating-system chrome that no rule in
+   editor.css can reach, so the font menu looked nothing like the panel around
+   it. SelectMenu keeps the keyboard behaviour and drops the OS look. */
 export function SelectField({ label, value, options, onChange, disabled, style }) {
   return (
-    <select className="editor-inspector-select" aria-label={label} value={value} disabled={disabled} style={style}
-      onChange={(event) => onChange(event.target.value)}>
-      {options.map((option) => <option key={option.value} value={option.value} style={option.style}>{option.label}</option>)}
-    </select>
+    <SelectMenu className="editor-inspector-select" label={label} value={value} options={options}
+      onChange={onChange} disabled={disabled} style={style} />
   );
 }
 

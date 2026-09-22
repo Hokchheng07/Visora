@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { ChevronDown, Minus, Plus, Ruler } from "lucide-react";
 import { StaticElement } from "./EditorElement.jsx";
 import { pageLabel, visibleElements } from "../model/layerModel.js";
@@ -5,8 +6,10 @@ import { pageLabel, visibleElements } from "../model/layerModel.js";
 export default function EditorCanvasBar({
   pages,
   currentPage,
+  selectedPages = [],
   onAddPage,
   onPageChange,
+  onPageSelect,
   onPageMove,
   onPageMenu,
   zoom,
@@ -14,6 +17,26 @@ export default function EditorCanvasBar({
   showRulers,
   onToggleRulers,
 }) {
+  const selected = new Set(selectedPages.length ? selectedPages : [pages[currentPage]?.id]);
+  const anchor = useRef(currentPage);
+
+  function choose(event, index) {
+    const id = pages[index].id;
+    if (event.shiftKey) {
+      const [from, to] = [anchor.current, index].sort((a, b) => a - b);
+      onPageSelect(pages.slice(from, to + 1).map((page) => page.id), id);
+      return;
+    }
+    anchor.current = index;
+    if (event.metaKey || event.ctrlKey) {
+      const next = selected.has(id) ? [...selected].filter((item) => item !== id) : [...selected, id];
+      // The last page cannot be deselected: something is always current.
+      onPageSelect(next.length ? next : [id], selected.has(id) ? pages[currentPage].id : id);
+      return;
+    }
+    onPageChange(index);
+  }
+
   return (
     <div className="editor-canvas-bar">
       <button
@@ -27,17 +50,33 @@ export default function EditorCanvasBar({
       </button>
 
       <div className="editor-page-strip">
-        <div className="editor-page-thumbs">
+        {/* A multi-select list, not a row of buttons: Ctrl-click adds a page,
+            Shift-click takes the run from the last one clicked, Ctrl+A takes
+            the lot. The anchor is kept here because it is about what was
+            clicked, not about the document. */}
+        <div className="editor-page-thumbs" role="listbox" aria-multiselectable="true" aria-label="Pages"
+          onKeyDown={(event) => {
+            if (event.key.toLowerCase() !== "a" || !(event.metaKey || event.ctrlKey)) return;
+            event.preventDefault();
+            onPageSelect(pages.map((page) => page.id), pages[currentPage].id);
+          }}>
           {pages.map((page, index) => (
             <button
               key={page.id}
               type="button"
-              className={`editor-page-thumb${index === currentPage ? " is-active" : ""}`}
-              onClick={() => onPageChange(index)}
-              onContextMenu={(event) => onPageMenu(event, index)}
+              role="option"
+              className={`editor-page-thumb${index === currentPage ? " is-active" : ""}${selected.has(page.id) ? " is-selected" : ""}`}
+              onClick={(event) => choose(event, index)}
+              onContextMenu={(event) => {
+                // Right-clicking outside the selection moves it, the way a file
+                // manager does; inside it, the menu acts on every page picked.
+                if (!selected.has(page.id)) choose(event, index);
+                onPageMenu(event, index);
+              }}
               aria-label={`Go to page ${index + 1}: ${pageLabel(page, index)}`}
               title={pageLabel(page, index)}
               aria-current={index === currentPage}
+              aria-selected={selected.has(page.id)}
               draggable
               onDragStart={(event) => event.dataTransfer.setData("text/x-visora-page", String(index))}
               onDragOver={(event) => event.preventDefault()}
