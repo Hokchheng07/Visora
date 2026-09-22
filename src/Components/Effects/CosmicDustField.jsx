@@ -16,7 +16,7 @@ import CosmicDust from "./CosmicDust.jsx";
  * Each slab is exactly its canvas's height, so none of them slide, and only
  * the slab on screen is drawn (every CosmicDust pauses itself when it is not).
  */
-export default function CosmicDustField({ particleCount = 120, speedMultiplier, particleSize, className = "" }) {
+export default function CosmicDustField({ particleCount = 120, speedMultiplier, particleSize, trails, className = "" }) {
   const ref = useRef(null);
   const [slabs, setSlabs] = useState(1);
   const [near, setNear] = useState(0);
@@ -51,7 +51,7 @@ export default function CosmicDustField({ particleCount = 120, speedMultiplier, 
       {Array.from({ length: slabs }, (_, index) => (
         <div key={index} className="cosmic-dust-slab">
           {Math.abs(index - near) <= 1 && (
-            <CosmicDust particleCount={particleCount} speedMultiplier={speedMultiplier} particleSize={particleSize} />
+            <CosmicDust particleCount={particleCount} speedMultiplier={speedMultiplier} particleSize={particleSize} trails={trails} />
           )}
         </div>
       ))}
