@@ -13,16 +13,6 @@ import {
 } from "../../../lib/animations/animations";
 import topWave from "../../../assets/pages/home/popular-templates/PopularTemplateTopWave.svg";
 import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
-<<<<<<< HEAD
-
-const templates = [
-  { image: null, title: "Creative doodle", description: "Design with your ideas and creative" },
-  { image: null, title: "Design your ideas", description: "Bring your ideas to life with ease" },
-  { image: null, title: "Creative doodle", description: "Create beautiful backdrops your way" },
-];
-
-export default function PopularTemplates() {
-=======
 import useFetchHomepage from '../../../hooks/useFetchHomepage';
 
 export default function PopularTemplates() {
@@ -31,7 +21,6 @@ export default function PopularTemplates() {
     loading,
     error,
   } = useFetchHomepage("templates");
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   return (
     <section className="popular-templates bg-sparkle relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
       <div className="popular-templates-art" aria-hidden="true">
@@ -58,11 +47,7 @@ export default function PopularTemplates() {
           className="templates-arrow-scissors"
         />
         <motion.p
-<<<<<<< HEAD
-          className="mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[var(--text-body)] sm:text-base"
-=======
           className="popular-templates-copy mx-auto mt-3 max-w-[650px] text-center text-[15px] leading-7 text-[var(--text-body)] sm:text-base"
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -80,15 +65,6 @@ export default function PopularTemplates() {
           viewport={viewportOnce}
           variants={staggerContainer(0.15, 0.15)}
         >
-<<<<<<< HEAD
-          {templates.map((template, index) => (
-            <TemplateCard key={`${template.title}-${index}`} template={template} index={index} />
-          ))}
-        </motion.div>
-
-        <motion.div
-          className="mt-4 text-center"
-=======
           {loading && (
             <p className="col-span-full py-12 text-center text-lg text-[var(--text-muted)]">
               Loading templates…
@@ -117,7 +93,6 @@ export default function PopularTemplates() {
 
         <motion.div
           className="mt-12 text-center"
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
@@ -126,15 +101,9 @@ export default function PopularTemplates() {
         >
           <NavLink
             to="/templates"
-<<<<<<< HEAD
-            className="inline-flex items-center rounded-[14px] bg-gradient-to-r from-primary to-accent px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:-translate-y-0.5"
-          >
-            More Templates <span className="ml-2 text-xl leading-none">→</span>
-=======
             className="more-templates-button"
           >
             More Templates <span aria-hidden="true">→</span>
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
           </NavLink>
         </motion.div>
       </div>
