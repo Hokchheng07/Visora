@@ -1,10 +1,20 @@
-/*
+﻿/*
  * ============================================================
- * HERO section — pictures & doodles
+ * HERO section â€” pictures & doodles
  * Positions/sizes are % of the 1920x1080 canvas the decorations
  * live on (see the compositing notes in Hero.jsx).
  * ============================================================
  */
+
+/* Extend the background behind the navbar while keeping the hero content in place. */
+.hero-section {
+  margin-top: calc(-1 * var(--navbar-height));
+  padding-top: var(--navbar-height);
+}
+
+.hero-decorations {
+  top: var(--navbar-height);
+}
 
 /* Layer the three supplied Figma blob exports to reproduce the reference. */
 .hero-blob {
@@ -68,15 +78,18 @@
 @media (hover: hover) and (pointer: fine) {
   .hero-cta-primary:hover { filter: brightness(1.05); box-shadow: 0 14px 30px rgb(104 84 218 / .3); }
   .hero-cta-primary:hover .hero-cta-arrow { translate: 4px 0; }
+  .hero-cta-primary:hover > svg { translate: 3px 0; }
   .hero-cta-secondary:hover { background: rgb(255 194 28 / .5); }
 }
 .hero-cta:active { transform: scale(.97); }
+/* Icon arrows (Login, Sign Up) nudge like .hero-cta-arrow and the reset page's. */
+.hero-cta-primary > svg { transition: translate 160ms cubic-bezier(.23, 1, .32, 1); }
 .hero-cta:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 @media (max-width: 639px) { .hero-cta { min-width: 0; min-height: 52px; padding: 0 22px; font-size: 16px; border-radius: 14px; } .hero-cta-arrow { width: 32px; height: 32px; } }
 @media (prefers-reduced-motion: reduce) { .hero-cta, .hero-cta-arrow { transition-duration: 1ms; } .hero-cta:active { transform: none; filter: brightness(.95); } }
 .hero-stats-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .hero-stats > *:not(.hero-stats-bg) { position: relative; z-index: 1; }
-/* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row —
+/* Mobile: heroStatsBg is a wide pill shaped for a single horizontal row â€”
  stretching it over a stacked column would squash/distort it, so it's
  hidden below sm and swapped for a plain CSS card background instead. */
 @media (max-width: 639px) {
@@ -133,7 +146,7 @@
   }
 }
 
-/* Hero decorative doodles — position/size as % of the 1920x1080 canvas.
+/* Hero decorative doodles â€” position/size as % of the 1920x1080 canvas.
    Tune width/height/left/top here instead of in Hero.jsx. */
 .hero-doodle-plane-left {
   left: 6.25%;
@@ -192,8 +205,8 @@
 
 /*
  * ============================================================
- * POPULARTEMPLATES section — pictures & doodles
- * Widths below are % of the full-width section (≈1440px at
+ * POPULARTEMPLATES section â€” pictures & doodles
+ * Widths below are % of the full-width section (â‰ˆ1440px at
  * desktop); tune width/height/left/top here, not in JSX.
  * ============================================================
  */
@@ -219,7 +232,7 @@
 
 /*
  * ============================================================
- * FEATURES section (WhyChooseVisora) — pictures
+ * FEATURES section (WhyChooseVisora) â€” pictures
  * ============================================================
  */
 .why-choose-blob {
@@ -252,7 +265,7 @@
 .features-plane-tile { position: absolute; right: 8%; top: 9%; display: flex; width: 200px; height: 200px; align-items: center; justify-content: center; transform: rotate(-30deg); }
 .features-plane { width: 100%; height: 100%; object-fit: contain; }
 @media (max-width: 1023px) {
-  .hero-decorations { height: 100%; max-width: none; aspect-ratio: auto; opacity: .82; }
+  .hero-decorations { height: calc(100% - var(--navbar-height)); max-width: none; aspect-ratio: auto; opacity: .82; }
   .hero-section { min-height: auto; }
   .hero-content { min-height: 0; }
   .features-section { aspect-ratio: auto !important; min-height: 0; }
@@ -279,7 +292,7 @@
   .hero-stat-row { min-width: 0; justify-content: flex-start; }
 }
 
-/* Create without Limits — the next feature showcase section. */
+/* Create without Limits â€” the next feature showcase section. */
 .create-limits-section { min-height: 1680px; background-color: var(--surface-base); }
 .create-limits-corners { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .create-limits-yellow-art { position: absolute; top: 0; right: 0; width: 100%; max-width: none; height: auto; aspect-ratio: 1440 / 967; object-fit: contain; }
@@ -346,7 +359,7 @@
 }
 
 @media (max-width: 767px) {
-  .hero-decorations { height: 100%; max-width: none; aspect-ratio: auto; opacity: .82; }
+  .hero-decorations { height: calc(100% - var(--navbar-height)); max-width: none; aspect-ratio: auto; opacity: .82; }
   .hero-doodle-plane-left { left: 1%; top: 4%; width: 15%; height: 14%; }
   .hero-doodle-plane-right { left: auto; right: 1%; top: 5%; width: 13%; height: 12%; }
   .hero-doodle-frame-one { left: -2%; top: 56%; width: 18%; height: 16%; }
@@ -362,6 +375,7 @@
   .hero-content { padding-top: 1rem; }
   .hero-blob-card > .relative { aspect-ratio: 2 / 3 !important; }
   .hero-blob-copy { padding-inline: 1rem; padding-block: 1.5rem; }
+  .hero-blob-copy .hero-actions { position: relative; top: 14px; }
   .hero-search { margin-top: 1.25rem; }
   .hero-search-exclamation { left: .5rem; top: -3.25rem; width: 3.5rem; height: 3rem; }
   .hero-arrow-lane { margin-top: 1.25rem; max-width: 82vw; }
@@ -374,7 +388,7 @@
 
 /* Khmer Design Showcase */
 /* Two layers, sparkle on top of the gradient. The `background` shorthand used
-   to be here, and a shorthand resets background-image — which silently wiped
+   to be here, and a shorthand resets background-image â€” which silently wiped
    the .bg-sparkle texture this section also asks for, since both selectors are
    one class deep and this file loads last. Stating both layers keeps the
    gradient and puts the speckles back over it. */
@@ -564,4 +578,464 @@
   .khmer-showcase-content { width: min(88vw, 1440px); }
   .features-section > .relative { width: min(88vw, 1500px); }
   .create-limits-grid { width: min(92vw, 1840px); }
+}
+
+/* An open illustrated journey replaces card containers only on phones. */
+.how-mobile-number,
+.how-mobile-step-icon,
+.how-mobile-connector { display: none; }
+@media (min-width: 320px) and (max-width: 425px) {
+  .how-it-works-section { padding: 78px 16px 90px; }
+  .how-it-works-section .how-mountain-overlay,
+  .how-mobile-legacy-line,
+  .how-mobile-legacy-badge,
+  .how-mobile-card-glow { display: none; }
+  .how-mobile-steps { margin-top: 28px; }
+  .how-mobile-list { display: grid; gap: 48px; }
+  .how-mobile-list > * { margin-block: 0; }
+  .how-it-works-section .how-mobile-card {
+    --step-color: var(--color-primary);
+    --step-icon-ink: var(--text-on-brand);
+    position: relative;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    column-gap: 18px;
+    align-content: center;
+    align-items: start;
+    width: 100%;
+    min-width: 0;
+    min-height: 210px;
+    margin: 0;
+    padding: 20px 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--text-heading);
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .how-it-works-section .how-mobile-card-2 {
+    --step-color: var(--color-secondary);
+    --step-icon-ink: var(--text-heading);
+    grid-template-columns: minmax(0, 1fr) 88px;
+    text-align: right;
+  }
+  .how-mobile-step-icon {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1 / 4;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 38% 62% 48% 52% / 55% 40% 60% 45%;
+    background: var(--step-color);
+    color: var(--step-icon-ink);
+  }
+  .how-mobile-step-icon::before {
+    position: absolute;
+    inset: -6px;
+    border: 1px dashed var(--step-color);
+    border-radius: 48% 52% 40% 60% / 40% 58% 42% 60%;
+    content: "";
+    pointer-events: none;
+  }
+  .how-mobile-step-icon::after {
+    position: absolute;
+    top: -4px;
+    right: 6px;
+    width: 12px;
+    height: 12px;
+    clip-path: polygon(50% 0, 63% 36%, 100% 50%, 63% 64%, 50% 100%, 37% 64%, 0 50%, 37% 36%);
+    background: var(--color-secondary);
+    transform-origin: -26px 48px;
+    content: "";
+    pointer-events: none;
+  }
+  .how-mobile-card-2 .how-mobile-step-icon { grid-column: 2; }
+  .how-mobile-card-2 .how-mobile-step-icon::after { background: var(--color-primary); }
+  .how-mobile-step-icon svg { width: 34px; height: 34px; }
+  .how-mobile-number,
+  .how-mobile-card .how-mobile-title,
+  .how-mobile-card .how-mobile-description { grid-column: 2; min-width: 0; }
+  .how-mobile-number {
+    grid-row: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+    color: color-mix(in srgb, var(--color-primary) 65%, var(--text-heading));
+    font-size: .85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: .1em;
+  }
+  .how-mobile-number::before { font-size: .65rem; content: "STEP"; }
+  .how-mobile-card .how-mobile-title {
+    position: relative;
+    grid-row: 2;
+    font-size: clamp(1.4rem, 6vw, 1.8rem);
+    line-height: 1.15;
+    letter-spacing: -.035em;
+  }
+  .how-mobile-title::after {
+    position: absolute;
+    bottom: -7px;
+    left: 0;
+    width: 46px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-secondary);
+    transform-origin: left;
+    content: "";
+  }
+  .how-mobile-card-2 .how-mobile-title::after { right: 0; left: auto; transform-origin: right; }
+  .how-mobile-card .how-mobile-description {
+    grid-row: 3;
+    margin: 16px 0 0;
+    color: var(--text-body);
+    font-size: clamp(.86rem, 3.5vw, .95rem);
+    line-height: 1.6;
+  }
+  .how-mobile-card-2 .how-mobile-number,
+  .how-mobile-card-2 .how-mobile-title,
+  .how-mobile-card-2 .how-mobile-description { grid-column: 1; }
+  .how-mobile-card-2 .how-mobile-number { justify-content: flex-end; }
+  .how-mobile-connector {
+    position: absolute;
+    right: 0;
+    bottom: -68px;
+    display: block;
+    width: 100%;
+    height: 100px;
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .how-mobile-connector-guide { stroke-dasharray: 4 6; opacity: .2; }
+  .how-mobile-connector-traveler { display: none; }
+  .how-mobile-card-2 .how-mobile-connector { transform: scaleX(-1); }
+  .dark .site-shell .how-it-works-section .how-mobile-card { background: none; }
+  .dark .site-shell .how-mobile-card-2 { --step-icon-ink: var(--text-on-brand); }
+}
+@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+  .how-mobile-step-icon { animation: how-journey-float 4.5s ease-in-out infinite, how-journey-morph 7s ease-in-out infinite; }
+  .how-mobile-card-2 .how-mobile-step-icon { animation-delay: -1.5s; }
+  .how-mobile-card-3 .how-mobile-step-icon { animation-delay: -3s; }
+  .how-mobile-step-icon::before { animation: how-journey-orbit 18s linear infinite; }
+  .how-mobile-step-icon::after { animation: how-journey-orbit 12s linear infinite reverse; }
+  .how-mobile-connector-traveler {
+    display: block;
+    stroke: var(--color-secondary);
+    stroke-width: 4;
+    stroke-dasharray: .12 .88;
+    animation: how-journey-travel 3.6s linear infinite;
+  }
+  .how-mobile-card-2 .how-mobile-connector-traveler { animation-delay: -1.8s; }
+  .how-mobile-title::after { animation: how-journey-underline 4.5s ease-in-out infinite; }
+}
+@keyframes how-journey-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+@keyframes how-journey-orbit {
+  to { rotate: 360deg; }
+}
+@keyframes how-journey-morph {
+  0%, 100% { border-radius: 38% 62% 48% 52% / 55% 40% 60% 45%; }
+  50% { border-radius: 62% 38% 60% 40% / 40% 58% 42% 60%; }
+}
+@keyframes how-journey-travel {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes how-journey-underline {
+  0%, 100% { scale: .7 1; }
+  50% { scale: 1 1; }
+}
+
+/* Keep the layered desktop hero artwork, with space for phone-sized copy. */
+.hero-external-actions,
+.hero-mobile-top-decor { display: none; }
+@media (min-width: 768px) and (max-width: 2560px) {
+  .hero-blob-copy .hero-actions { display: none; }
+  .hero-external-actions {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: min(1156px, 100%);
+    margin: clamp(20px, 2vw, 32px) auto 0;
+    container-type: inline-size;
+  }
+  .hero-external-actions .hero-actions {
+    flex-direction: row;
+    justify-content: center;
+    gap: clamp(16px, 3vw, 40px);
+    margin-top: 0;
+  }
+  .hero-external-actions .hero-mobile-action-decor { display: none; }
+  .hero-stats-group { margin-top: clamp(24px, 2.5vw, 40px); }
+}
+@media (min-width: 320px) and (max-width: 425px) {
+  .hero-content { padding: 22px 10px 0; }
+  .hero-mobile-top-decor {
+    position: absolute;
+    inset: -16px 0 auto;
+    z-index: 20;
+    display: block;
+    height: 44px;
+    pointer-events: none;
+  }
+  .hero-mobile-top-art {
+    position: absolute;
+    top: 0;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+  .hero-mobile-top-art-left { left: 2px; rotate: -12deg; }
+  .hero-mobile-top-art-right { right: 2px; rotate: 10deg; }
+  .hero-mobile-top-sparkle {
+    position: absolute;
+    top: 4px;
+    left: 47%;
+    width: 12px;
+    height: 12px;
+    background: var(--color-secondary);
+    clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%);
+  }
+  .hero-blob-card > .relative {
+    min-height: 0;
+    aspect-ratio: auto !important;
+  }
+  .hero-blob-copy {
+    position: relative;
+    inset: auto;
+    padding: clamp(48px, 14vw, 60px) clamp(32px, 10vw, 42px);
+  }
+  .hero-blob-copy h1 {
+    max-width: 270px;
+    margin-top: 0;
+    font-size: clamp(1.6rem, 7vw, 2rem) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -.035em;
+  }
+  .hero-blob-copy > p[data-anime-hero-copy] {
+    max-width: 25ch;
+    margin-top: 12px;
+    font-size: clamp(.78rem, 3.4vw, .9rem) !important;
+    line-height: 1.4 !important;
+  }
+  .hero-blob-copy .hero-actions {
+    display: none;
+  }
+  .hero-external-actions {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+    padding-block: 4px;
+  }
+  .hero-external-actions .hero-actions {
+    width: min(210px, calc(100% - 88px));
+    margin-top: 0;
+    gap: 8px;
+  }
+  .hero-external-actions .hero-cta {
+    min-height: 46px;
+    padding-inline: 14px;
+    border-radius: 14px;
+    font-size: .85rem;
+  }
+  .hero-external-actions .hero-cta-arrow { width: 26px; height: 26px; margin-right: -4px; }
+  .hero-mobile-action-decor {
+    position: absolute;
+    width: clamp(30px, 9vw, 40px);
+    height: auto;
+    pointer-events: none;
+  }
+  .hero-mobile-action-decor-left { top: 8px; left: 0; rotate: -15deg; }
+  .hero-mobile-action-decor-right { right: 0; bottom: 10px; rotate: 12deg; }
+  .hero-external-actions::before,
+  .hero-external-actions::after {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--color-secondary);
+    clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%);
+    content: "";
+    pointer-events: none;
+  }
+  .hero-external-actions::before { bottom: 14px; left: 18px; }
+  .hero-external-actions::after { top: 12px; right: 15px; background: var(--color-primary); }
+  .hero-stats-group { margin-top: 8px; }
+}
+@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+  .hero-mobile-top-art { animation: hero-mobile-doodle-float 5.5s ease-in-out infinite; }
+  .hero-mobile-top-art-right { animation-delay: -2.75s; }
+  .hero-mobile-top-sparkle { animation: hero-mobile-sparkle-turn 10s linear infinite; }
+  .hero-mobile-action-decor { animation: hero-mobile-doodle-float 5s ease-in-out infinite; }
+  .hero-mobile-action-decor-right { animation-delay: -2.5s; }
+  .hero-external-actions::before,
+  .hero-external-actions::after { animation: hero-mobile-sparkle-turn 8s linear infinite; }
+}
+@keyframes hero-mobile-doodle-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+@keyframes hero-mobile-sparkle-turn {
+  to { rotate: 360deg; }
+}
+
+/* Keep the homepage cards and their artwork balanced on 320–425px screens. */
+@media (min-width: 320px) and (max-width: 425px) {
+  .hero-arrow-lane {
+    width: min(58%, 220px);
+    margin: 0 auto 6px;
+    transform: none;
+  }
+
+  /* Compact stats keep each illustrated badge beside its value and label. */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 4px 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .hero-stats .hero-stat-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    min-width: 0;
+    width: auto;
+    padding: 10px 6px;
+    border: 0;
+  }
+  .hero-stats .hero-stat-row:nth-of-type(odd) {
+    border-right: 1px dashed color-mix(in srgb, var(--color-primary) 35%, var(--border-default));
+  }
+  .hero-stats .hero-stat-row:nth-of-type(-n + 2) {
+    border-bottom: 1px dashed color-mix(in srgb, var(--color-primary) 35%, var(--border-default));
+  }
+  .hero-stat-row > div:first-child { width: 34px; height: 34px; }
+  .dark .site-shell .hero-stat-row > div:first-child > img { width: 100%; height: 100%; object-fit: contain; }
+  .hero-stat-row .ph-stat-icon { font-size: 17px; }
+  .hero-stat-row > div:last-child { min-width: 0; flex: 1; text-align: left; }
+  .hero-stat-row .hero-stat-value {
+    color: var(--color-primary);
+    font-size: clamp(1.15rem, 4.8vw, 1.35rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.045em;
+  }
+  .hero-stat-row:nth-of-type(even) .hero-stat-value {
+    color: color-mix(in srgb, var(--color-secondary) 58%, var(--text-heading));
+  }
+  .hero-stat-row .hero-stat-label {
+    margin-top: 3px;
+    font-size: clamp(.62rem, 2.6vw, .7rem);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .popular-templates > .relative > .grid { gap: 20px; margin-top: 36px; }
+  .popular-templates .template-card,
+  .khmer-showcase .template-card {
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 28px 14px 26px 14px;
+    box-shadow: 6px 7px 0 color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+  .popular-templates .template-card:nth-child(even),
+  .khmer-showcase .template-card:nth-child(even) { border-radius: 14px 28px 14px 26px; }
+  .popular-templates .template-card:nth-child(3n + 2),
+  .khmer-showcase .template-card:nth-child(3n + 2) {
+    box-shadow: 6px 7px 0 color-mix(in srgb, var(--color-secondary) 22%, transparent);
+  }
+  .template-preview-frame { padding: 8px 8px 10px; }
+  .template-card-preview { border-radius: 12px; }
+  .template-card p { padding-right: 0; }
+  .template-card ul { gap: 4px; }
+  .template-card li { padding-inline: 7px; }
+
+  .site-shell .features-section,
+  .dark .site-shell section.features-section { background: none; }
+  .features-section > :is(.features-art, .features-linear-bg, .bg-gradient-to-br) {
+    display: none;
+  }
+  .features-benefits-grid { gap: 30px; padding: 12px 8px; }
+  .features-benefits-grid article {
+    isolation: isolate;
+    overflow: visible;
+    min-height: 0;
+    padding: 27px 22px 23px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 34%, transparent);
+    border-left: 4px solid;
+    border-radius: 38% 7% 32% 9% / 8% 17% 10% 16%;
+    background: color-mix(in srgb, var(--surface-card) 88%, var(--color-primary));
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--color-primary) 14%, transparent);
+    transform: rotate(-1deg);
+  }
+  .features-benefits-grid article:nth-child(even) {
+    border-radius: 9% 36% 7% 30% / 16% 8% 17% 10%;
+    background: color-mix(in srgb, var(--surface-card) 88%, var(--color-secondary));
+    transform: rotate(1deg);
+  }
+  .features-benefits-grid article::after {
+    position: absolute;
+    inset: 5px -5px -6px 5px;
+    z-index: -1;
+    border: 1px dashed color-mix(in srgb, var(--color-primary) 40%, transparent);
+    border-radius: inherit;
+    background: inherit;
+    content: "";
+    pointer-events: none;
+    transform: rotate(1.5deg);
+  }
+  .features-benefits-grid article::before {
+    position: absolute;
+    top: -13px;
+    left: calc(50% - 10px);
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    border: 2px solid color-mix(in srgb, var(--color-primary) 50%, var(--surface-card));
+    border-radius: 45% 55% 48% 52%;
+    background: radial-gradient(circle at 38% 30%, var(--surface-card) 0 2px, var(--color-primary) 3px 100%);
+    box-shadow: 2px 3px 3px color-mix(in srgb, var(--color-primary) 24%, transparent);
+    content: "";
+    pointer-events: none;
+  }
+
+  .create-limits-grid { gap: 10px; margin-top: 32px; }
+  .create-limits-card {
+    width: min(100%, 370px);
+    aspect-ratio: 580 / 600;
+  }
+  .create-limits-complete-card { inset: -2%; width: 104%; height: 104%; }
+
+  .khmer-showcase-cards { gap: 16px; }
+  .khmer-showcase-card { border-radius: 28px 14px 26px 14px; }
+  .khmer-showcase-card > img:first-child { border-radius: 12px; }
+
+  .how-bottom-wave { display: none; }
+
+  .events-stage { min-height: 350px; }
+  .events-track { padding-inline: 16px; }
+  .explore-events-cta { z-index: 15; bottom: 8%; }
+  .explore-events-line-top,
+  .explore-events-paper-plane,
+  .explore-events-line-bottom,
+  .explore-events-line-right { z-index: 8; opacity: .45; }
 }

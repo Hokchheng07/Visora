@@ -171,6 +171,19 @@ const Hero = () => {
       <div className="hero-content relative z-10 mx-auto max-w-[1400px] px-5 pt-6 text-center sm:px-8 sm:pt-8 lg:px-10 lg:pt-5">
         {/* HEADLINE BLOB CARD */}
         <div className="hero-blob-card relative mx-auto w-full max-w-[1156px]">
+          <div className="hero-mobile-top-decor" aria-hidden="true">
+            <ThemeImage
+              src={resolvedTheme === "dark" ? jupiter : airplaneDoodle}
+              alt=""
+              className="hero-mobile-top-art hero-mobile-top-art-left"
+            />
+            <span className="hero-mobile-top-sparkle" />
+            <ThemeImage
+              src={resolvedTheme === "dark" ? smallAstro : doodlePlaneLoop}
+              alt=""
+              className="hero-mobile-top-art hero-mobile-top-art-right"
+            />
+          </div>
           {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
           <motion.div
             className="relative mx-auto w-full"
@@ -212,6 +225,27 @@ const Hero = () => {
             </div>
           </motion.div>
         </div>
+
+        <motion.div
+          className="hero-external-actions"
+          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: reduceMotion ? 0 : 0.35 }}
+        >
+          <ThemeImage
+            src={resolvedTheme === "dark" ? jupiter : airplaneDoodle}
+            alt=""
+            aria-hidden="true"
+            className="hero-mobile-action-decor hero-mobile-action-decor-left"
+          />
+          <HeroActions />
+          <ThemeImage
+            src={resolvedTheme === "dark" ? smallAstro : doodlePlaneLoop}
+            alt=""
+            aria-hidden="true"
+            className="hero-mobile-action-decor hero-mobile-action-decor-right"
+          />
+        </motion.div>
 
         {/* Keep the dotted path and scissors attached to the stats block. */}
         <div className="hero-stats-group relative z-20 mx-auto mt-20 w-full max-w-[1156px]">
@@ -293,10 +327,10 @@ const Hero = () => {
                   </div>
                 )}
                 <div className="text-left">
-                  <p className="text-[15px] font-semibold text-[var(--text-heading)]">
+                  <p className="hero-stat-value text-[15px] font-semibold text-[var(--text-heading)]">
                     {value}
                   </p>
-                  <p className="text-[13px] font-semibold text-[var(--text-body)]">
+                  <p className="hero-stat-label text-[13px] font-semibold text-[var(--text-body)]">
                     {label}
                   </p>
                 </div>
@@ -329,9 +363,16 @@ function HeroCopy() {
         timers, and everything you need.
       </p>
 
+      <HeroActions />
+    </>
+  );
+}
+
+function HeroActions() {
+  return (
       <div
         data-anime-hero-copy
-        className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6 lg:gap-[47px]"
+        className="hero-actions mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6 lg:gap-[47px]"
       >
         <NavLink to="/editor" className="hero-cta hero-cta-primary">
           Start Designing
@@ -342,7 +383,6 @@ function HeroCopy() {
           Explore Templates
         </NavLink>
       </div>
-    </>
   );
 }
 

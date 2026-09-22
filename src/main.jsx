@@ -1,8 +1,7 @@
-import { StrictMode } from "react";
+﻿import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
-import { Navigate, createBrowserRouter } from "react-router";
-import { RouterProvider } from "react-router/dom";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router";
 import "./index.css";
 import App from "./App.jsx";
 import Layout from "./Layout.jsx";
@@ -47,6 +46,11 @@ const router = createBrowserRouter([
         path: "editor",
         element: <Editor />,
       },
+      // Phase 0 proof page for effects and vector shapes. Development only: the
+      // condition is false in production builds, so the import is dropped.
+      ...(import.meta.env.DEV
+        ? [{ path: "editor-lab", lazy: async () => ({ Component: (await import("./Components/Editor/lab/EffectsLab.jsx")).default }) }]
+        : []),
       {
         path: "profile",
         element: <Navigate to="/user-dashboard/profile" replace />,
@@ -91,11 +95,11 @@ const router = createBrowserRouter([
             path: "templates",
             element: <Templates />,
           },
-          {
-            path: "*",
-            element: <NotFound />,
-          },
         ],
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
       {
         path: "auth",

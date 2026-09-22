@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
+import { Telescope, Target } from "lucide-react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
 import cardFrame from "../../assets/pages/about/vision-mission/OurVisionFrame+OurMission.svg";
@@ -51,6 +52,9 @@ export default function VisionMission() {
           <motion.article className={`about-vision-card about-vision-card-${tone}`} variants={fadeInUp} key={accent}>
             <ThemeImage className="about-vision-frame" src={cardFrame} alt="" aria-hidden="true" />
             <div className="about-vision-copy">
+              <span className="about-purpose-symbol" aria-hidden="true">
+                {tone === "mission" ? <Target /> : <Telescope />}
+              </span>
               <h3>{lead} <span>{accent}</span></h3>
               <p>{description}</p>
             </div>

@@ -15,14 +15,14 @@ function StatCard({
   captionColor,
 }){
   return(
-    <div className="group flex min-w-0 items-center gap-3 rounded-[16px] border border-[var(--border-card)] bg-[var(--surface-card)] px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md sm:rounded-[18px] sm:px-4 sm:py-3.5">
+    <div className="profile-stat group flex min-w-0 items-center gap-3 rounded-[16px] border border-[var(--border-card)] bg-[var(--surface-card)] px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md sm:rounded-[18px] sm:px-4 sm:py-3.5">
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 sm:rounded-2xl ${iconBg} ${iconColor}`}
       >
         {icon}
       </div>
 
-      <div className="min-w-0">
+      <div className="profile-stat-copy min-w-0">
         <p className="text-lg font-bold leading-none text-[var(--text-heading)] sm:text-xl">
           {value}
         </p>
@@ -53,8 +53,8 @@ export default function ProfileStats({
   ).length;
 
   return(
-    <section className="rounded-b-[20px] border border-t border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-[0_18px_55px_rgba(112,90,224,.1)] sm:rounded-b-[24px] sm:p-4 lg:rounded-b-[30px] lg:p-5">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="profile-stats rounded-b-[20px] border border-t border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-[0_18px_55px_rgba(112,90,224,.1)] sm:rounded-b-[24px] sm:p-4 lg:rounded-b-[30px] lg:p-5">
+      <div className="profile-stats-grid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<Layers className="h-5 w-5"/>}
           iconBg="bg-primary/10"

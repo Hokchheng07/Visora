@@ -10,7 +10,7 @@ import pinkBlueLine from "../../assets/pages/templates/dark/pink-blue-line.png";
 export default function TemplateDecorations(){
   return(
     <div
-      className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
+      className="templates-decorations pointer-events-none absolute inset-0 z-[1] overflow-hidden"
       aria-hidden="true"
     >
       {/* FLIGHT LINE - LIGHT */}

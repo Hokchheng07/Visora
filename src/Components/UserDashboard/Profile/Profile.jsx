@@ -86,7 +86,7 @@ export default function Profile(){
   };
 
   return(
-    <main className="min-h-screen bg-[var(--surface-warm)] bg-sparkle px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
+    <main className="user-dashboard-profile min-h-screen bg-[var(--surface-warm)] bg-sparkle px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
       <div className="mx-auto w-full max-w-[1650px]">
         <ProfileHero
           profile={profile}

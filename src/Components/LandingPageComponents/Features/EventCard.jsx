@@ -5,9 +5,9 @@ export default function EventCard({ event, index, count, duplicate = false }) {
     <div
       className={`hanging-card-slot hanging-card-${event.tone}`}
       style={{
-        "--hanging-card-offset": `${event.offset ?? 0}px`,
-        "--hanging-card-width": `${event.width ?? 270}px`,
-        "--hanging-card-gap": `${event.gapAfter ?? 40}px`,
+        "--hanging-card-offset": `calc(${event.offset ?? 0} * var(--hanging-card-unit, 1px))`,
+        "--hanging-card-width": `calc(${event.width ?? 270} * var(--hanging-card-unit, 1px))`,
+        "--hanging-card-gap": `calc(${event.gapAfter ?? 40} * var(--hanging-card-unit, 1px))`,
       }}
       role={duplicate ? "presentation" : "group"}
       aria-roledescription={duplicate ? undefined : "slide"}
