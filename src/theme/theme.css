@@ -5,7 +5,7 @@
   --surface-base: #fff;
   --surface-warm: #fffaf0;
   --surface-card: #fffdf8;
-  --surface-overlay: rgb(255 255 255 / .88);
+  --surface-overlay: #ffffff;
   --text-heading: #111;
   --text-body: #585858;
   --text-muted: #666;
@@ -23,7 +23,7 @@
   --surface-base: #000000;
   --surface-warm: #000000;
   --surface-card: #1a1a28;
-  --surface-overlay: rgb(26 26 40 / .92);
+  --surface-overlay: #1a1a28;
   /* Dark landing-page typography follows the approved Figma frame. */
   --text-heading: #fff;
   --text-body: #e2e1e1;
