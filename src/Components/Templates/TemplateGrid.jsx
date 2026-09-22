@@ -60,11 +60,12 @@ export default function TemplateGrid({
 
       {templates.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6 xl:grid-cols-3 xl:gap-7 2xl:grid-cols-3 2xl:gap-8">
-            {templates.map((template) => (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:gap-6 xl:grid-cols-3 xl:gap-7 2xl:gap-8">
+            {templates.map((template, index) => (
               <TemplateCard
                 key={template.id}
                 template={template}
+                index={index}
                 favorite={favorites.includes(template.id)}
                 onFavorite={() => onFavorite(template.id)}
                 onOpen={() => onOpen(template)}

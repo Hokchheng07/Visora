@@ -5,7 +5,7 @@ export default function Pagination({page,totalPages,onChange}){
   if(totalPages<=1)return null;
 
   return(
-    <div className="relative mt-10 flex justify-center sm:mt-11 md:mt-12 lg:mt-14 xl:mt-16 2xl:mt-18">
+    <div className="templates-pagination relative mt-10 flex justify-center sm:mt-11 md:mt-12 lg:mt-14 xl:mt-16 2xl:mt-18">
       <div className="relative z-10 flex items-center gap-0.5 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-1 shadow-sm">
         <button
           type="button"
@@ -21,6 +21,8 @@ export default function Pagination({page,totalPages,onChange}){
           <button
             key={number}
             type="button"
+            aria-label={`Page ${number}`}
+            aria-current={page === number ? "page" : undefined}
             onClick={()=>onChange(number)}
             className={`grid h-8 min-w-8 place-items-center rounded-md px-2 text-xs font-semibold transition sm:h-[34px] sm:min-w-[34px] md:h-9 md:min-w-9 lg:h-[38px] lg:min-w-[38px] 2xl:h-10 2xl:min-w-10 ${
               page===number

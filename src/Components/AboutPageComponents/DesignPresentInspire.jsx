@@ -63,7 +63,18 @@ function PinConnector({ stageRef }) {
         const r = pin.getBoundingClientRect();
         return { x: r.left - box.left + r.width * PIN_HEAD.x, y: r.top - box.top + r.height * PIN_HEAD.y };
       });
-      const d = heads.slice(1).map((head, index) => segmentPath(heads[index], head)).join(" ");
+      const isStacked = window.matchMedia("(max-width: 767px)").matches;
+      const cards = [...stage.querySelectorAll(".about-feature-card")].map((card) => {
+        const r = card.getBoundingClientRect();
+        return { x: r.left - box.left + r.width / 2, top: r.top - box.top, bottom: r.bottom - box.top };
+      });
+      const d = isStacked
+        ? cards.slice(1).map((card, index) => {
+          const previous = cards[index];
+          const gap = card.top - previous.bottom;
+          return `M ${round(previous.x)} ${round(previous.bottom)} C ${round(previous.x + 32)} ${round(previous.bottom + gap * .3)}, ${round(card.x - 32)} ${round(card.top - gap * .3)}, ${round(card.x)} ${round(card.top)}`;
+        }).join(" ")
+        : heads.slice(1).map((head, index) => segmentPath(heads[index], head)).join(" ");
       setLine((current) => (current.d === d && current.width === box.width && current.height === box.height
         ? current
         : { d, width: box.width, height: box.height }));

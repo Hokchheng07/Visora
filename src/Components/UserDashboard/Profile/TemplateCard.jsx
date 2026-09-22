@@ -35,7 +35,7 @@ export function TemplateCard({
   const isDraft=design.status==="draft";
 
   return(
-    <article className="relative rounded-[13px] border border-[var(--border-card)] bg-[var(--surface-card)] shadow-[0_8px_24px_rgba(112,90,224,0.07)]">
+    <article className="profile-template-card relative rounded-[13px] border border-[var(--border-card)] bg-[var(--surface-card)] shadow-[0_8px_24px_rgba(112,90,224,0.07)]">
       {/* TEMPLATE PREVIEW */}
       <div className="rounded-t-[13px] bg-accent p-[8px] pb-[10px]">
         <div className="aspect-[16/9] overflow-hidden rounded-[9px] bg-white">
@@ -112,7 +112,7 @@ export function TemplateCard({
         </p>
 
         {/* BOTTOM */}
-        <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="profile-template-details mt-3 flex items-end justify-between gap-3">
           <div className="flex min-w-0 flex-wrap gap-1.5">
             {design.tags.map((tag)=>(
               <span

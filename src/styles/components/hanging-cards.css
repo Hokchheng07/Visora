@@ -93,6 +93,16 @@
 }
 .events-empty { display: flex; gap: 12px; align-items: center; justify-content: center; min-height: 240px; }
 
+/* Keep the full-width gallery proportional beyond the desktop design canvas. */
+@media (min-width: 1920px) {
+  .events-section { --hanging-card-unit: calc(100vw / 1920); }
+  .hanging-card-copy h3 { font-size: calc(22 * var(--hanging-card-unit)); }
+  .hanging-card-copy p {
+    margin-top: calc(13 * var(--hanging-card-unit));
+    font-size: calc(12 * var(--hanging-card-unit));
+  }
+}
+
 @media (min-width: 1024px) and (max-height: 899px) {
   .events-journey[data-pinned="true"] .events-stage { min-height: 390px; padding-top: 28px; }
   .events-journey[data-pinned="true"] .events-card-set { min-height: 320px; }

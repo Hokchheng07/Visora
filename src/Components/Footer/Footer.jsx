@@ -13,6 +13,7 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../lib/animations/animations";
+import CosmicDust from "../Effects/CosmicDust.jsx";
 
 const footerLinks = [
   {
@@ -183,12 +184,14 @@ const Footer = () => (
   <footer className="relative shrink-0 overflow-hidden bg-[var(--surface-base)] font-sans text-[var(--text-heading)]">
     {/* Background dots */}
     <motion.div
-      className="bg-sparkle pointer-events-none absolute inset-0"
+      className="pointer-events-none absolute inset-0"
       initial="hidden"
       whileInView="show"
       viewport={viewportOnce}
       variants={fadeIn}
-    />
+    >
+      <CosmicDust particleCount={120} />
+    </motion.div>
 
     <div className="relative z-10 mx-auto max-w-[1500px] px-5 pt-12 pb-2 sm:px-8 lg:px-12 xl:px-14">
       {/* MOBILE */}

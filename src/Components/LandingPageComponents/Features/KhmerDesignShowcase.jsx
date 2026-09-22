@@ -18,6 +18,7 @@ import {
   viewportOnce,
 } from "../../../lib/animations/animations";
 import useFetchHomepage from "../../../hooks/useFetchHomepage";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const fadedArtworkReveal = {
   hidden: { opacity: 0, scale: 0.94, y: 30 },
@@ -48,11 +49,12 @@ export default function KhmerDesignShowcase() {
   } = useFetchHomepage("templates");
   return (
     <motion.section
-      className="khmer-showcase bg-sparkle"
+      className="khmer-showcase"
       initial="hidden"
       whileInView="show"
       viewport={{ ...viewportOnce, amount: 0.12 }}
     >
+      <CosmicDust particleCount={140} />
       <div className="khmer-showcase-art" aria-hidden="true">
         <img src={linearBgDark} alt="" className="khmer-showcase-linear-bg" />
         <MotionThemeImage

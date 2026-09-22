@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { motion, useReducedMotion } from "motion/react";
 
 import BottomCTA from "../Templates/BottomCTA";
 import CategoryBar from "../Templates/CategoryBar";
@@ -10,11 +11,21 @@ import TemplateHeader from "../Templates/TemplateHeader";
 
 import { templates } from "../Templates/templateData";
 import { useTemplateFilters } from "../Templates/useTemplateFilters";
+import "../../styles/pages/templates.css";
+import CosmicDust from "../Effects/CosmicDust.jsx";
 
 export default function TemplatePage() {
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
+  const reveal = (delay = 0) => ({
+    initial: reduceMotion ? false : { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.15 },
+    transition: { duration: reduceMotion ? 0 : 0.55, delay: reduceMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] },
+  });
 
   const [showFilters, setShowFilters] = useState(false);
+  const searchFilterRef = useRef(null);
   const [favorites, setFavorites] = useState([]);
 
   const {
@@ -56,41 +67,43 @@ export default function TemplatePage() {
   };
 
   return (
-    <main className="relative -mt-[126px] min-h-dvh overflow-hidden bg-[var(--surface-warm)] pt-[126px] md:-mt-[146px] md:pt-[146px]">
+    <main className="templates-page relative -mt-[126px] min-h-dvh overflow-hidden bg-[var(--surface-base)] pt-[126px] md:-mt-[146px] md:pt-[146px]">
       <div
-        className="bg-sparkle pointer-events-none absolute inset-0 z-0"
+        className="pointer-events-none absolute inset-0 z-0"
         aria-hidden="true"
-      />
+      >
+        <CosmicDust particleCount={180} />
+      </div>
 
       <TemplateDecorations />
 
       <div className="relative z-10 mx-auto w-full max-w-[1700px] px-4 pb-8 pt-7 sm:px-6 sm:pt-9 md:px-8 lg:px-10 xl:px-12">
-        <TemplateHeader
-          search={search}
-          setSearch={setSearch}
-          onCreate={handleCreate}
-          onToggleFilters={() => setShowFilters((current) => !current)}
-          activeFilterCount={activeFilterCount}
-        />
-
-        <CategoryBar
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
-
-        {showFilters && (
-          <button
-            type="button"
-            aria-label="Close filters"
-            onClick={() => setShowFilters(false)}
-            className="fixed inset-0 z-30 bg-black/35 backdrop-blur-[1px] min-[900px]:hidden"
+        <motion.div {...reveal()}>
+          <TemplateHeader
+            search={search}
+            setSearch={setSearch}
+            onCreate={handleCreate}
+            onToggleFilters={() => setShowFilters((current) => !current)}
+            showFilters={showFilters}
+            activeFilterCount={activeFilterCount}
+            filterButtonRef={searchFilterRef}
           />
-        )}
+        </motion.div>
 
-        <div className="mt-4 flex flex-col gap-5 min-[1000px]:mt-5 min-[1000px]:flex-row min-[1000px]:items-start">
+        <motion.div {...reveal(0.1)}>
+          <CategoryBar
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+          />
+        </motion.div>
+
+        <div className="mt-4 flex flex-col gap-5 min-[900px]:mt-5 min-[900px]:flex-row min-[900px]:items-start">
           <FilterSidebar
             showFilters={showFilters}
+            searchFilterRef={searchFilterRef}
+            onToggle={() => setShowFilters((current) => !current)}
             onClose={() => setShowFilters(false)}
+            activeFilterCount={activeFilterCount}
             selectedTypes={selectedTypes}
             setSelectedTypes={setSelectedTypes}
             selectedStyles={selectedStyles}
@@ -117,7 +130,9 @@ export default function TemplatePage() {
         </div>
       </div>
 
-      <BottomCTA />
+      <motion.div {...reveal()}>
+        <BottomCTA />
+      </motion.div>
     </main>
   );
 }

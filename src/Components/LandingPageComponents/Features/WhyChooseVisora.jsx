@@ -15,6 +15,7 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../../lib/animations/animations";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const benefits = [
   {
@@ -63,7 +64,9 @@ export default function WhyChooseVisora() {
         className="features-linear-bg"
       />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-br from-[#b294f0]/20 via-transparent to-[#ffc21c]/35" />
-      <div className="pointer-events-none absolute inset-0 z-[3] bg-sparkle opacity-70" />
+      <div className="pointer-events-none absolute inset-0 z-[3] opacity-70">
+        <CosmicDust particleCount={160} />
+      </div>
       <div aria-hidden="true" className="features-decorations">
         <ThemeImage src={spiralArrow} alt="" className="features-spiral" />
         <div className="features-plane-tile">
@@ -82,7 +85,7 @@ export default function WhyChooseVisora() {
           Why choose <span className="text-primary">Visora</span>?
         </motion.h2>
         <motion.div
-          className="mx-auto mt-5 h-5 w-[350px] max-w-full bg-sparkle opacity-90"
+          className="mx-auto mt-5 h-5 w-[350px] max-w-full opacity-90"
           aria-hidden="true"
           initial={{ opacity: 0, scaleX: 0.6 }}
           whileInView={{ opacity: 0.9, scaleX: 1 }}

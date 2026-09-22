@@ -1,5 +1,6 @@
 import { ThemeImage, MotionThemeImage, MotionThemeSvgImage } from '../../../theme/ThemeImage';
 import { useEffect, useRef } from "react";
+import { LayoutTemplate, SlidersHorizontal, Monitor } from "lucide-react";
 import { animate } from "animejs/animation";
 import { createScope } from "animejs/scope";
 import {
@@ -12,8 +13,6 @@ import {
 import {
   EASE,
   fadeInUp,
-  staggerContainer,
-  viewportOnce,
 } from "../../../lib/animations/animations";
 import topTornGradient from "../../../assets/pages/home/how-it-works/Top-bg.svg";
 import bottomTornStrip from "../../../assets/pages/home/how-it-works/BottomBg.svg";
@@ -34,6 +33,7 @@ import {
   dashCentrelinePoints,
   getPathData,
 } from "../../../lib/animations/svgPath";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const steps = [
   {
@@ -54,6 +54,7 @@ const steps = [
 ];
 
 const stepBadges = [badgeOne, badgeTwo, badgeThree];
+const stepIcons = [LayoutTemplate, SlidersHorizontal, Monitor];
 
 const dashedLinePath = getPathData(dashedLineSvg);
 const solidLinePath = getPathData(solidLineSvg);
@@ -333,17 +334,11 @@ function MobileSteps({ progress, reduceMotion }) {
   const drawnPathLength = useTransform(progress, [0.08, 0.9], [0, 1]);
 
   return (
-    <motion.div
-      className="relative z-10 mx-auto mt-14 max-w-xl md:hidden"
-      initial={reduceMotion ? false : "hidden"}
-      whileInView="show"
-      viewport={viewportOnce}
-      variants={staggerContainer(0.14, 0.1)}
-    >
+    <div className="how-mobile-steps relative z-10 mx-auto mt-14 max-w-xl md:hidden">
       <svg
         viewBox="0 0 486 1327"
         preserveAspectRatio="none"
-        className="pointer-events-none absolute inset-y-5 left-1/2 z-0 h-[calc(100%-2.5rem)] w-28 -translate-x-1/2 overflow-visible"
+        className="how-mobile-legacy-line pointer-events-none absolute inset-y-5 left-1/2 z-0 h-[calc(100%-2.5rem)] w-28 -translate-x-1/2 overflow-visible"
         aria-hidden="true"
       >
         {!reduceMotion && (
@@ -381,31 +376,53 @@ function MobileSteps({ progress, reduceMotion }) {
         </g>
       </svg>
 
-      <div className="relative z-10 space-y-12">
-        {steps.map((step, index) => (
+      <div className="how-mobile-list relative z-10 space-y-12">
+        {steps.map((step, index) => {
+          const StepIcon = stepIcons[index];
+          return (
           <motion.article
             key={step.number}
-            className="relative min-h-56 overflow-hidden rounded-b-3xl rounded-t-[4rem] bg-gradient-to-br from-[#8f76ec] via-[#705ae0] to-[#5537bd] px-7 pb-9 pt-20 text-center text-white shadow-[0_18px_38px_rgba(77,50,170,0.2)]"
+            className={`how-mobile-card how-mobile-card-${index + 1} relative min-h-56 overflow-hidden rounded-b-3xl rounded-t-[4rem] bg-gradient-to-br from-[#8f76ec] via-[#705ae0] to-[#5537bd] px-7 pb-9 pt-20 text-center text-white shadow-[0_18px_38px_rgba(77,50,170,0.2)]`}
+            initial={reduceMotion ? false : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, amount: 0.25 }}
             variants={fadeInUp}
           >
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent"
+              className="how-mobile-card-glow pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent"
             />
             <ThemeImage
               src={stepBadges[index]}
               alt=""
               aria-hidden="true"
-              className="absolute left-1/2 top-3 h-[68px] w-[69px] -translate-x-1/2 drop-shadow-md"
+              className="how-mobile-legacy-badge absolute left-1/2 top-3 h-[68px] w-[69px] -translate-x-1/2 drop-shadow-md"
             />
-            <h3 className="text-2xl font-bold">{step.title}</h3>
-            <p className="mx-auto mt-3 max-w-sm text-base leading-7 text-white/90">
+            <span className="how-mobile-step-icon" aria-hidden="true"><StepIcon size={22} strokeWidth={1.8} /></span>
+            <span className="how-mobile-number" aria-hidden="true">{step.number}</span>
+            <h3 className="how-mobile-title text-2xl font-bold">{step.title}</h3>
+            <p className="how-mobile-description mx-auto mt-3 max-w-sm text-base leading-7 text-white/90">
               {step.copy}
             </p>
+            {index < steps.length - 1 && (
+              <svg className="how-mobile-connector" viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+                <path className="how-mobile-connector-guide" d="M40 8C40 65 260 30 260 88" />
+                <motion.path
+                  d="M40 8C40 65 260 30 260 88"
+                  initial={reduceMotion ? false : { pathLength: 0 }}
+                  whileInView={{ pathLength: 1 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ duration: reduceMotion ? 0 : 1.2, ease: EASE }}
+                />
+                <path className="how-mobile-connector-traveler" d="M40 8C40 65 260 30 260 88" pathLength="1" />
+                <path d="M254 80L260 89L266 80" />
+              </svg>
+            )}
           </motion.article>
-        ))}
+          );
+        })}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -425,8 +442,9 @@ export default function HowItWorks() {
   return (
     <section
       ref={sectionRef}
-      className="how-it-works-section bg-sparkle relative isolate w-full overflow-hidden bg-[var(--surface-warm)] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
+      className="how-it-works-section relative isolate w-full overflow-hidden bg-[var(--surface-warm)] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
     >
+      <CosmicDust particleCount={180} />
       {/* Sits in front of the step mountains (DesktopSteps is z-10) but under
           the stickers (z-20) and the bottom torn strip (z-30). */}
       <ThemeImage
@@ -445,7 +463,7 @@ export default function HowItWorks() {
         src={bottomTornStrip}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-30 block h-16 w-full max-w-none object-fill md:h-[11.64%]"
+        className="how-bottom-wave pointer-events-none absolute inset-x-0 bottom-0 z-30 block h-16 w-full max-w-none object-fill md:h-[11.64%]"
       />
       <MotionThemeImage
         src={leftSticker}

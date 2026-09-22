@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Light artwork -> its dark-mode counterpart. ThemeImage reads this map, so a
  * component keeps importing the light asset and the swap happens on theme.
  *
