@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 /*
- * Cosmic dust: drifting specks with short trails that swirl around the pointer.
+ * Cosmic dust: drifting specks that swirl around the pointer, with an
+ * optional comet tail behind each one.
  * Ported from the Lightswind component of the same name (TypeScript, Tailwind
  * classes) to plain JSX and this project's own colours. It replaced the static
  * speckle texture (.bg-sparkle) that used to tile these same surfaces.
@@ -29,14 +30,26 @@ const PALETTES = {
 };
 
 const TRAIL_LENGTH = 6;
-const INFLUENCE_RADIUS = 180;
-/* Drag alone left nothing to keep a speck moving: it rose for about a second,
-   the 0.96 damping ate the last of its velocity, and it sat there. Two hundred
-   stalled specks read as clumps rather than dust, so a steady lift replaces the
-   velocity drag takes — terminal speed is LIFT / (1 - 0.96). The pointer's pull
-   and swirl are softened to match, or the field collects around the cursor
-   faster than the lift can carry it away. */
-const LIFT = 0.05;
+/* How far the pointer reaches, as a share of the field's short side, capped so
+   a wide desktop does not get a vortex the size of the screen. On a phone a
+   fixed 180px reached nearly corner to corner, so every speck was in the swirl
+   at once and the whole field collected into one knot. */
+const INFLUENCE_SHARE = 0.22;
+const INFLUENCE_MAX = 180;
+const DRAG = 0.96;
+/* What keeps a speck moving. Drag alone stalls it within a second; a steady
+   lift kept it moving but gave the whole field one direction, so it streamed
+   off the top of the page. This is a nudge in a heading that wanders, so the
+   motion never stops and never adds up to a direction. Terminal speed is
+   WANDER / (1 - DRAG). */
+const WANDER = 0.018;
+const TURN = 0.5;
+/* The frame this motion was tuned on. Everything below is scaled by how long
+   the real frame took, so a 144Hz desktop and a 60Hz laptop move a speck the
+   same distance per second rather than the same distance per frame. */
+const BASE_FRAME_MS = 1000 / 60;
+/* The pointer's pull and swirl, softened from the original so the cursor does
+   not gather the field faster than it can drift apart again. */
 const PULL = 0.03;
 const SWIRL = 0.14;
 /* The count a field this size gets. Below it a wide window looks empty; above
@@ -48,6 +61,10 @@ export default function CosmicDust({
   speedMultiplier = 1,
   particleSize = 1.5,
   theme = "system",
+  /* Off by default: the original drew a short comet tail behind every speck,
+     which at this density reads as streaks across the page rather than dust.
+     Pass trails to get them back. */
+  trails = false,
   className = "",
 }) {
   const canvasRef = useRef(null);
@@ -98,27 +115,32 @@ export default function CosmicDust({
     mouseRef.current.targetX = width / 2;
     mouseRef.current.targetY = height / 2;
 
-    /* `spread` places a particle anywhere in the field, for the first fill;
-       without it a particle enters from just below the bottom edge. */
-    const createParticle = (spread = false) => ({
-      x: Math.random() * width,
-      y: spread ? Math.random() * height : height + 10,
-      vx: (Math.random() - 0.5) * 1.2 * speedMultiplier,
-      vy: (-Math.random() - 0.2) * 1.5 * speedMultiplier,
-      size: (Math.random() * 0.8 + 0.6) * particleSize,
-      color: colours[Math.floor(Math.random() * colours.length)],
-      opacity: Math.random() * 0.4 + 0.4,
-      history: [],
-    });
+    /* No starting direction is preferred: the field hangs in the air rather
+       than travelling across it. */
+    const createParticle = () => {
+      const heading = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 0.3 * speedMultiplier;
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: Math.cos(heading) * speed,
+        vy: Math.sin(heading) * speed,
+        heading,
+        size: (Math.random() * 0.8 + 0.6) * particleSize,
+        color: colours[Math.floor(Math.random() * colours.length)],
+        opacity: Math.random() * 0.4 + 0.4,
+        history: [],
+      };
+    };
 
     // Density, not a fixed number: the same count over a 4K window is a handful
     // of specks, and over a phone it is a swarm.
     const density = Math.min(Math.max((width * height) / REFERENCE_AREA, 0.6), 2.2);
     const count = Math.max(12, Math.round(particleCount * density));
-    let particles = Array.from({ length: count }, () => createParticle(true));
+    let particles = Array.from({ length: count }, createParticle);
 
     function draw(p) {
-      if (p.history.length > 1) {
+      if (trails && p.history.length > 1) {
         ctx.beginPath();
         ctx.moveTo(p.history[0].x, p.history[0].y);
         for (let i = 1; i < p.history.length; i += 1) ctx.lineTo(p.history[i].x, p.history[i].y);
@@ -170,6 +192,8 @@ export default function CosmicDust({
     const seenObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "120px" });
     seenObserver.observe(canvas);
 
+    let previous = 0;
+
     function animate(time) {
       animationId = requestAnimationFrame(animate);
       if (!width || !height) return;
@@ -178,7 +202,17 @@ export default function CosmicDust({
          scroll away, stop itself, and then have nothing left to bring it
          back. Off screen it still costs one rect read a frame. */
       follow();
-      if (!visible) return;
+      if (!visible) { previous = time; return; }
+
+      /* How many 60Hz frames' worth of time has passed. Capped at 3 so a tab
+         that was in the background, or a long paint, does not teleport every
+         speck across the field in one step. */
+      const step = previous ? Math.min((time - previous) / BASE_FRAME_MS, 3) : 1;
+      previous = time;
+      // Drag is per frame, so over `step` frames it compounds.
+      const drag = DRAG ** step;
+      const reach = Math.min(Math.min(width, height) * INFLUENCE_SHARE, INFLUENCE_MAX);
+
       ctx.clearRect(0, 0, width, height);
 
       // Nobody has moved the pointer yet: the field circles the middle slowly.
@@ -187,19 +221,27 @@ export default function CosmicDust({
         mouseRef.current.targetX = width / 2 + Math.cos(time * 0.001) * radius;
         mouseRef.current.targetY = height / 2 + Math.sin(time * 0.001) * radius;
       }
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.08;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.08;
+      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * (1 - 0.92 ** step);
+      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * (1 - 0.92 ** step);
       const mX = mouseRef.current.x, mY = mouseRef.current.y;
 
-      particles.forEach((p, index) => {
-        p.vx += Math.sin(time * 0.002 + index) * 0.02 * speedMultiplier;
+      particles.forEach((p) => {
+        // A heading that drifts, so each speck keeps moving without the field
+        // agreeing on a direction.
+        p.heading += (Math.random() - 0.5) * TURN * step;
+        p.vx += Math.cos(p.heading) * WANDER * speedMultiplier * step;
+        p.vy += Math.sin(p.heading) * WANDER * speedMultiplier * step;
 
         const dx = mX - p.x, dy = mY - p.y;
         const dist = Math.hypot(dx, dy);
-        // A particle sitting exactly under the pointer has no direction to be
-        // pushed in, and dividing by that zero would take it off the canvas.
-        if (dist < INFLUENCE_RADIUS && dist > 0.001) {
-          const force = (1 - dist / INFLUENCE_RADIUS) * 0.8 * speedMultiplier;
+        /* Only a pointer someone has actually moved stirs the field. Left on,
+           the idle orbit is a fixed attractor in the middle of the canvas,
+           which on a phone — where the pointer never moves — slowly gathers
+           every speck into one knot.
+           A speck sitting exactly on the pointer has no direction to be pushed
+           in, and dividing by that zero would take it off the canvas. */
+        if (mouseRef.current.hasMoved && dist < reach && dist > 0.001) {
+          const force = (1 - dist / reach) * 0.8 * speedMultiplier * step;
           p.vx += (dx / dist) * force * PULL;
           p.vy += (dy / dist) * force * PULL;
           // And a tangent to that pull, which is what makes it a vortex.
@@ -207,20 +249,25 @@ export default function CosmicDust({
           p.vy += (dx / dist) * force * SWIRL;
         }
 
-        p.vx *= 0.96;
-        p.vy *= 0.96;
-        // Applied after the drag, so it is what the speck keeps.
-        p.vy -= LIFT * speedMultiplier;
-        p.x += p.vx;
-        p.y += p.vy;
+        p.vx *= drag;
+        p.vy *= drag;
+        p.x += p.vx * step;
+        p.y += p.vy * step;
 
-        p.history.push({ x: p.x, y: p.y });
-        if (p.history.length > TRAIL_LENGTH) p.history.shift();
+        /* Wrapped, not respawned: a speck that wanders off one edge comes back
+           at the other, so the field keeps its density and no edge becomes the
+           place specks are born. */
+        const margin = p.size + 2;
+        if (p.x < -margin) { p.x += width + margin * 2; p.history.length = 0; }
+        else if (p.x > width + margin) { p.x -= width + margin * 2; p.history.length = 0; }
+        if (p.y < -margin) { p.y += height + margin * 2; p.history.length = 0; }
+        else if (p.y > height + margin) { p.y -= height + margin * 2; p.history.length = 0; }
 
-        if (p.y < -10 || p.y > height + 60 || p.x < -10 || p.x > width + 10) {
-          particles[index] = createParticle(false);
-          return;
+        if (trails) {
+          p.history.push({ x: p.x, y: p.y });
+          if (p.history.length > TRAIL_LENGTH) p.history.shift();
         }
+
         draw(p);
       });
     }
@@ -233,7 +280,7 @@ export default function CosmicDust({
       resizeObserver.disconnect();
       seenObserver.disconnect();
     };
-  }, [particleCount, speedMultiplier, particleSize, isDarkMode]);
+  }, [particleCount, speedMultiplier, particleSize, trails, isDarkMode]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className={`cosmic-dust ${className}`} />;
 }
