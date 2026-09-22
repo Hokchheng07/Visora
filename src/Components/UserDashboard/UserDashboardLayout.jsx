@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Outlet } from "react-router";
 import { useDashboardProfile } from "../Account/useDashboardProfile";
+
+import "./dashboard-mobile.css";
 
 import UserDashboardHeader from "./UserDashboardHeader";
 import UserDashboardSidebar from "./UserDashboardSidebar";
@@ -11,17 +13,19 @@ export default function UserDashboardLayout(){
   // The signed-in account (GET /users/me); DEFAULT_PROFILE is only the
   // stand-in shown while nobody is logged in.
   const {profile,saveProfile,isSaving,error}=useDashboardProfile(DEFAULT_PROFILE);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
   return(
     <div className="site-shell flex min-h-screen bg-[var(--surface-warm)] text-[var(--text-body)]">
       <UserDashboardSidebar
         open={sidebarOpen}
-        onClose={()=>setSidebarOpen(false)}
+        onClose={closeSidebar}
       />
 
-      <div className="bg-sparkle min-w-0 flex-1 bg-[var(--surface-warm)]">
+      <div className="user-dashboard-content min-w-0 flex-1 bg-[var(--surface-warm)]">
         <UserDashboardHeader
           onMenuOpen={()=>setSidebarOpen(true)}
+          sidebarOpen={sidebarOpen}
           profile={profile}
         />
 

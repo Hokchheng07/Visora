@@ -14,6 +14,7 @@ import {
 import topWave from "../../../assets/pages/home/popular-templates/PopularTemplateTopWave.svg";
 import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
 import useFetchHomepage from '../../../hooks/useFetchHomepage';
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 export default function PopularTemplates() {
   const {
@@ -22,7 +23,8 @@ export default function PopularTemplates() {
     error,
   } = useFetchHomepage("templates");
   return (
-    <section className="popular-templates bg-sparkle relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
+    <section className="popular-templates relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
+      <CosmicDust particleCount={140} />
       <div className="popular-templates-art" aria-hidden="true">
         <ThemeImage src={topWave} className="popular-templates-top-wave" alt="" />
         <ThemeImage src={lowerWave} className="popular-templates-lower-wave" alt="" />

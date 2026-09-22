@@ -1,18 +1,30 @@
 import { Heart, UsersRound } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import TemplatePreview from "./TemplatePreview";
 
 export default function TemplateCard({
   template,
+  index = 0,
   favorite,
   onFavorite,
   onOpen,
 }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <article className="relative h-full w-full overflow-hidden rounded-[12px] border border-[#e5d5ff] bg-[var(--surface-card)] transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 dark:border-[var(--border-card)]">
+    <motion.article
+      className="templates-card relative h-full w-full overflow-hidden rounded-[12px] border border-[#e5d5ff] bg-[var(--surface-card)] shadow-[0_8px_22px_rgb(112_90_224/.08)] transition-[border-color,box-shadow] duration-200 hover:border-primary/50 hover:shadow-[0_16px_32px_rgb(112_90_224/.16)] dark:border-[var(--border-card)]"
+      layout={reduceMotion ? false : "position"}
+      initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : Math.min(index % 6, 5) * 0.06, ease: [0.22, 1, 0.36, 1], layout: { duration: 0.3, delay: 0 } }}
+      whileHover={reduceMotion ? undefined : { y: -3, transition: { duration: 0.18, delay: 0 } }}
+    >
       {/* TEMPLATE PREVIEW */}
       <button
         type="button"
         onClick={onOpen}
+        aria-label={`Customize ${template.title}`}
         className="block w-full bg-[#a98bea] p-2"
       >
         <div className="aspect-video w-full overflow-hidden rounded-[10px] bg-[#faf9f4]">
@@ -34,14 +46,17 @@ export default function TemplateCard({
             </h3>
           </button>
 
-          <button
+          <motion.button
             type="button"
             aria-label={
               favorite ? "Remove from favorites" : "Add to favorites"
             }
             aria-pressed={favorite}
             onClick={onFavorite}
-            className="shrink-0 transition hover:scale-110"
+            className="shrink-0"
+            animate={reduceMotion ? undefined : { scale: favorite ? [1, 1.3, 1] : 1 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.85 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             <Heart
               className={`h-[18px] w-[18px] sm:h-[19px] sm:w-[19px] lg:h-5 lg:w-5 ${
@@ -50,7 +65,7 @@ export default function TemplateCard({
                   : "text-[var(--text-heading)]"
               }`}
             />
-          </button>
+          </motion.button>
         </div>
 
         {/* DESCRIPTION */}
@@ -83,6 +98,6 @@ export default function TemplateCard({
           </div>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

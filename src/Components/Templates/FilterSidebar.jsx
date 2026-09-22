@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { ChevronUp,RotateCcw } from "lucide-react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ChevronDown, ChevronUp, RotateCcw, SlidersHorizontal } from "lucide-react";
 
 import { templateColors,templateStyles,templateTypes } from "./templateData";
 
 export default function FilterSidebar({
   showFilters,
+  searchFilterRef,
+  onToggle,
+  onClose,
+  activeFilterCount = 0,
   selectedTypes,
   setSelectedTypes,
   selectedStyles,
@@ -16,11 +21,36 @@ export default function FilterSidebar({
   toggleArrayValue,
   resetFilters,
 }){
+  const toggleRef = useRef(null);
+  const closeFilters = () => {
+    onClose();
+    const smallScreen = window.matchMedia("(min-width: 320px) and (max-width: 425px)").matches;
+    (smallScreen ? searchFilterRef : toggleRef)?.current?.focus();
+  };
   return(
+    <div className="templates-filter-disclosure" data-open={showFilters}>
+      <button
+        ref={toggleRef}
+        type="button"
+        className="templates-filter-toggle"
+        aria-expanded={showFilters}
+        aria-controls="template-filters"
+        onClick={onToggle}
+      >
+        <SlidersHorizontal size={18} aria-hidden="true" />
+        <span>Filters</span>
+        {activeFilterCount > 0 && <span className="templates-filter-count">{activeFilterCount}</span>}
+        <ChevronDown className="templates-filter-chevron" size={18} aria-hidden="true" />
+      </button>
+      <div className="templates-filter-collapse">
+        <div className="templates-filter-clip">
     <aside
-      className={`max-h-[70vh] w-full shrink-0 overflow-y-auto rounded-xl border border-[var(--border-card)] bg-[var(--surface-card)] p-4 shadow-[0_8px_24px_rgba(112,90,224,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.25)] sm:rounded-2xl sm:p-5 min-[900px]:max-h-none min-[900px]:w-[220px] min-[900px]:self-start min-[900px]:overflow-visible lg:w-[230px] xl:w-[240px] 2xl:w-[250px] ${
-        showFilters?"block":"hidden min-[900px]:block"
-      }`}
+      id="template-filters"
+      aria-label="Template filters"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && window.matchMedia("(max-width: 899px)").matches) closeFilters();
+      }}
+      className="w-full rounded-xl border border-[var(--border-card)] bg-[var(--surface-card)] p-4 sm:rounded-2xl sm:p-5"
     >
       {/* HEADER */}
       <div className="flex items-center justify-between gap-3">
@@ -68,7 +98,7 @@ export default function FilterSidebar({
 
       {/* COLOR */}
       <FilterSection title="Color">
-        <div className="flex flex-wrap gap-2 sm:gap-2.5">
+        <div className="template-filter-colors flex flex-wrap gap-2 sm:gap-2.5">
           {templateColors.map((color)=>{
             const active=selectedColors.includes(color.name);
 
@@ -123,7 +153,13 @@ export default function FilterSidebar({
           </button>
         )}
       </FilterSection>
+      <button type="button" onClick={closeFilters} className="mt-5 min-h-11 w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white min-[900px]:hidden">
+        Show templates
+      </button>
     </aside>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -146,11 +182,13 @@ function FilterCheckbox({label,checked,onChange}){
 
 function FilterSection({title,children}){
   const [open,setOpen]=useState(true);
+  const reduceMotion = useReducedMotion();
 
   return(
-    <div className="mt-4 border-t border-[var(--border-default)] pt-3.5 sm:mt-5 sm:pt-4">
+    <div className="template-filter-section mt-4 border-t border-[var(--border-default)] pt-3.5 sm:mt-5 sm:pt-4">
       <button
         type="button"
+        aria-expanded={open}
         onClick={()=>setOpen((current)=>!current)}
         className="flex w-full items-center justify-between text-xs font-semibold text-[var(--text-heading)] sm:text-sm"
       >
@@ -163,11 +201,20 @@ function FilterSection({title,children}){
         />
       </button>
 
-      {open&&(
-        <div className="mt-2.5 sm:mt-3">
-          {children}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pb-1 pt-2.5 sm:pt-3">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLocation, useOutlet } from "react-router";
 import { EASE } from "../../../lib/animations/animations";
-import ThemeToggle from "../../../theme/ThemeToggle";
 import { useMediaQuery } from "../../Editor/hooks/useMediaQuery";
 import { AuthArtContent, AuthArtLogo } from "./AuthArt";
 
@@ -25,14 +24,6 @@ export default function AuthLayout() {
 
   return (
     <div className="site-shell min-h-dvh">
-      {/* Fixed so it stays put while the form panel scrolls; outside the
-          animated outlet so it does not fade out on every route change. Below
-          lg the logo sits centred at the top, so the toggle moves to the
-          bottom corner instead of crowding it. */}
-      <div className="fixed bottom-4 right-4 z-50 rounded-full bg-[var(--surface-overlay)] shadow-[0_4px_16px_rgb(0_0_0/.12)] backdrop-blur sm:bottom-6 sm:right-6 lg:bottom-auto lg:top-6">
-        <ThemeToggle />
-      </div>
-
       {split ? (
         <div className="relative h-dvh overflow-hidden">
           {/* Only transform moves. initial={false}: a direct visit to a page

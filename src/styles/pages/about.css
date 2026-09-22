@@ -5,7 +5,7 @@
      force overflow-y into a scroll container and cut the blob, which has to
      overflow upward behind the navbar. */
   overflow-x: clip;
-  background-color: var(--surface-warm);
+  background-color: var(--surface-base);
   color: var(--text-heading);
 }
 .about-section {
@@ -126,6 +126,8 @@
   line-height: 1.75;
 }
 .about-hero-angkor { position: absolute; bottom: 0; left: 0; z-index: 3; width: min(100%, 580px); }
+.about-hero-mobile-art,
+.about-hero-mobile-kicker { display: none; }
 .about-hero-plane,
 .about-hero-exclamation,
 .about-hero-yellow-swoosh,
@@ -228,7 +230,9 @@
   text-align: center;
   backdrop-filter: blur(10px);
 }
-.about-what-copy > p:not(.about-eyebrow) {
+.about-what-visual,
+.about-what-label { display: none; }
+.about-what-copy > p:not(.about-eyebrow):not(.about-what-label) {
   margin-top: 22px;
   color: var(--text-body);
   font-size: clamp(1rem, 1.4vw, 1.18rem);
@@ -647,7 +651,7 @@
   .about-story { min-height: 0; padding-top: 52px; }
   .about-story-copy { padding: 22px 18px; border-radius: 24px; }
   .about-story-copy > p:not(.about-eyebrow),
-  .about-what-copy > p:not(.about-eyebrow) { margin-top: 16px; font-size: .9rem; line-height: 1.65; }
+  .about-what-copy > p:not(.about-eyebrow):not(.about-what-label) { margin-top: 16px; font-size: .9rem; line-height: 1.65; }
   .about-values-grid { margin-top: 30px; }
   .about-value-card { min-height: 220px; }
   .about-value-card img { max-height: 270px; }
@@ -695,7 +699,7 @@
  */
 @media (min-width: 768px) {
   .about-page {
-    background-color: var(--surface-warm);
+    background-color: var(--surface-base);
     /* The one box the whole composition is measured against. 1920 is the
        ceiling rather than 1440 so a 1080p window is filled edge to edge; past
        it the page surface takes over, which beats scaling a design traced at
@@ -911,30 +915,7 @@
     overflow: visible;
     background: transparent;
   }
-  /* .about-page's own bg-sparkle background-image is confined to .about-page's
-     box, which starts at the navbar's height (146px) — below where the navbar
-     wave's cutout already shows the blob art running up behind it. That strip
-     had no sparkle at all (not dim, literally absent), reading as a flat, dot-
-     less "roof" right under the nav. This patch is its own small sparkle tile
-     reaching up to match the blob's own -10.4861cqw excursion, so the same
-     texture is present anywhere the nav's cutout or the blob's translucency
-     exposes it. Its tile phase isn't aligned with .about-page's own sparkle
-     layer below (that would need matching background-position math against a
-     variable navbar height) but speckle noise has no strong repeating edge for
-     a seam to be visible against, so the mismatch doesn't read as a seam. */
-  .about-page-sparkle-patch {
-    position: absolute;
-    top: -10.4861cqw;
-    left: 0;
-    z-index: -1;
-    width: 100%;
-    height: 12cqw;
-    background-image: var(--sparkle-url, url("/textures/speckles.svg"));
-    background-repeat: repeat;
-    background-size: 256px 256px;
-    pointer-events: none;
-  }
-  /* Same strip as the sparkle patch above, one layer further back: without
+  /* The strip above the page box, behind everything: without
      this, that strip falls through to the site shell's own background
      (--surface-base) instead of the page's (--surface-warm) — the two are
      close enough in tone that the boundary where the navbar's wave cutout
@@ -943,19 +924,19 @@
   .about-page-bg-fill {
     display: block;
     position: absolute;
-    top: -10.4861cqw;
+    top: calc(-1 * var(--navbar-height));
     left: 0;
     z-index: -2;
     width: 100%;
-    height: 12cqw;
-    background: var(--surface-warm);
+    height: calc(var(--navbar-height) + 1px);
+    background: var(--surface-base);
   }
   /* Figma: Rectangle 231 at frame y=0, i.e. flush to the page top and running
      up behind the navbar. Sized against the 1440-wide canvas, offset up by the
-     146px navbar so its flat top edge lands at the very top of the page. */
+     responsive navbar height so its flat top edge lands at the page top. */
   .about-page-blob {
     position: absolute;
-    top: -10.4861cqw;
+    top: calc(-1 * var(--navbar-height));
     left: -0.1%;
     z-index: 0;
     display: block;
@@ -975,8 +956,8 @@
      the nav band, so what shows below the bar is unchanged. */
   .about-page-angkor {
     position: absolute;
-    top: -4.9861cqw;
-    left: 0;
+    top: -5.2cqw;
+    left: -1.25cqw;
     z-index: 2;
     display: block;
     width: 36.88cqw;
@@ -1445,6 +1426,9 @@
   .about-page-angkor {
     width: 42%;
     opacity: .84;
+    top : -5.4cqw;
+    left : -4.2cqw
+
   }
 
   .about-hero-copy h1 {
@@ -1496,7 +1480,6 @@
 @media (max-width: 767px) {
   .about-page {
     --about-mobile-hero-height: clamp(560px, 150vw, 720px);
-    --about-mobile-navbar-height: 126px;
   }
   .about-canvas { position: relative; }
   .about-canvas > .about-journey { display: none; }
@@ -1509,10 +1492,10 @@
 
   /* Mobile intentionally keeps only the shared hero background and copy. */
   .about-page-blob {
-    top: calc(-1 * var(--about-mobile-navbar-height));
+    top: calc(-1 * var(--navbar-height));
     left: 0;
     width: 100%;
-    height: calc(var(--about-mobile-hero-height) + var(--about-mobile-navbar-height));
+    height: calc(var(--about-mobile-hero-height) + var(--navbar-height));
     aspect-ratio: auto;
     object-fit: cover;
     object-position: center top;
@@ -1573,6 +1556,790 @@
   .about-feature-clothesline,
   .about-vision-mark,
   .about-vision-arrow { display: none; }
+}
+
+@media (min-width: 426px) and (max-width: 767px) {
+  .about-mentor-grid,
+  .about-member-grid {
+    margin-top: 145px;
+    row-gap: 125px;
+  }
+}
+
+@media (max-width: 425px) {
+  .about-page { --about-mobile-hero-height: clamp(660px, 170vw, 730px); }
+
+  .about-hero {
+    isolation: isolate;
+    background: var(--surface-base);
+  }
+
+  .about-hero-copy {
+    top: 7%;
+    right: 8%;
+    width: 84%;
+    text-align: left;
+  }
+  .about-hero-mobile-kicker {
+    display: inline-block;
+    margin-bottom: 18px;
+    padding: 8px 13px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 27%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary) 8%, var(--surface-card));
+    color: var(--color-primary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+  }
+  .about-hero-copy h1 {
+    color: var(--text-heading);
+    font-size: clamp(2.9rem, 13vw, 4rem);
+    line-height: .96;
+    letter-spacing: -.065em;
+  }
+  .about-hero-copy h1 span {
+    margin-top: 3px;
+    color: var(--color-primary);
+    font-size: clamp(4.2rem, 19vw, 5.7rem);
+    line-height: .92;
+  }
+  .about-hero-copy > p {
+    max-width: 31ch;
+    margin: 20px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--text-body);
+    font-size: clamp(.91rem, 3.7vw, 1.04rem);
+    line-height: 1.65;
+  }
+  .dark .site-shell .about-hero-copy h1 { color: var(--text-heading); }
+  .dark .site-shell .about-hero-copy h1 span { color: var(--color-primary); }
+  .dark .site-shell .about-hero-copy > p { color: var(--text-body); }
+
+  .about-hero-mobile-art {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    right: 7%;
+    bottom: 3%;
+    width: 86%;
+    height: clamp(250px, 74vw, 330px);
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    rotate: 0deg;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .about-hero-mobile-angkor {
+    display: block;
+    position: absolute;
+    bottom: -3%;
+    left: 50%;
+    width: 110%;
+    max-width: none;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 18px 22px rgb(67 42 112 / .12));
+  }
+
+  .about-hero-exclamation {
+    display: block;
+    z-index: 3;
+    top: 7%;
+    right: 8%;
+    width: 33px;
+  }
+  .about-hero-plane {
+    display: block;
+    z-index: 3;
+    right: 4%;
+    bottom: 37%;
+    width: 64px;
+    transform: rotate(-14deg);
+  }
+  .about-hero-yellow-swoosh {
+    display: block;
+    z-index: 3;
+    left: 4%;
+    bottom: 31%;
+    width: 72px;
+  }
+  .about-hero-left-line-dashed {
+    display: block;
+    z-index: 1;
+    left: -14%;
+    bottom: 23%;
+    width: 54%;
+    opacity: .28;
+  }
+
+  .about-canvas > section:not(.about-hero):not(.about-cta) {
+    width: calc(100% - 32px);
+    padding-block: 60px;
+  }
+  .about-story {
+    margin-top: -16px;
+    padding-top: 72px;
+  }
+  .about-story::before,
+  .about-what::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    width: 170px;
+    height: 170px;
+    border-radius: 46% 54% 65% 35%;
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    filter: blur(2px);
+    pointer-events: none;
+  }
+  .about-story::before { top: 26px; right: -60px; transform: rotate(25deg); }
+  .about-what::before { bottom: 18px; left: -65px; background: color-mix(in srgb, var(--color-secondary) 22%, transparent); }
+  .about-story-copy,
+  .about-what-copy {
+    border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+    border-radius: 28px;
+    box-shadow: 0 18px 42px rgb(67 42 112 / .12);
+  }
+  .about-story-copy {
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent);
+    border-radius: 52px 18px 48px 20px;
+    background: linear-gradient(145deg,
+      color-mix(in srgb, var(--color-primary) 9%, var(--surface-card)),
+      var(--surface-card) 62%);
+    box-shadow: -9px 10px 0 color-mix(in srgb, var(--color-primary) 16%, transparent),
+      0 24px 44px rgb(67 42 112 / .12);
+  }
+  .about-story-copy::before {
+    position: absolute;
+    top: -46px;
+    right: -42px;
+    z-index: 0;
+    width: 136px;
+    height: 136px;
+    border-radius: 40% 60% 55% 45%;
+    background: color-mix(in srgb, var(--color-secondary) 35%, transparent);
+    content: "";
+  }
+  .about-story-copy::after {
+    display: block;
+    width: 82px;
+    height: 6px;
+    margin-top: 22px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    content: "";
+  }
+  .about-story-copy h2 { position: relative; z-index: 1; }
+  .about-story-copy p { position: relative; z-index: 1; }
+  .about-story-copy h2 span { color: var(--color-primary); }
+  .about-story-copy p:last-of-type span { color: var(--color-primary); font-weight: 700; }
+  .about-what-copy {
+    padding: 28px 24px 34px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+    border-radius: 34px;
+    background: var(--surface-card);
+    box-shadow: 9px 10px 0 color-mix(in srgb, var(--color-secondary) 32%, transparent),
+      0 20px 38px rgb(67 42 112 / .1);
+    text-align: left;
+  }
+  .about-what-visual {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 146px;
+    margin-bottom: 23px;
+    border-radius: 23px;
+    background: radial-gradient(circle at 28% 75%, color-mix(in srgb, var(--color-secondary) 48%, transparent), transparent 32%),
+      linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 18%, var(--surface-card)),
+      color-mix(in srgb, var(--color-secondary) 19%, var(--surface-card)));
+    overflow: hidden;
+  }
+  .about-what-visual-card {
+    position: absolute;
+    display: block;
+    width: 118px;
+    height: 86px;
+    border: 5px solid var(--surface-card);
+    border-radius: 13px;
+    box-shadow: 0 10px 20px rgb(67 42 112 / .18);
+  }
+  .about-what-visual-card-back {
+    top: 24px;
+    left: calc(50% - 94px);
+    background: linear-gradient(145deg, #ffc21c 0 46%, #f7def4 46%);
+    rotate: -13deg;
+  }
+  .about-what-visual-card-front {
+    top: 34px;
+    left: calc(50% - 18px);
+    background: radial-gradient(circle at 72% 30%, #ffdf77 0 15%, transparent 16%),
+      linear-gradient(145deg, #a88bef 0 56%, #e8dafa 56%);
+    rotate: 10deg;
+  }
+  .about-what-visual-spark {
+    position: absolute;
+    top: 17px;
+    right: 18px;
+    width: 19px;
+    height: 19px;
+    background: var(--color-secondary);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  }
+  .about-what-copy > .about-what-label {
+    display: inline-block;
+    margin: 0 0 9px;
+    color: var(--color-primary);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .about-what-copy h2 { font-size: clamp(2rem, 9vw, 2.7rem); }
+  .about-what-copy > p:not(.about-what-label) {
+    margin-top: 18px;
+    font-size: .94rem;
+    line-height: 1.7;
+  }
+  .about-story-copy { padding: 30px 24px 34px; }
+  .about-story-copy h2,
+  .about-what-copy h2 { text-wrap: balance; }
+  .about-story-snail-one {
+    display: block;
+    top: auto;
+    right: -8px;
+    bottom: 6px;
+    width: 56px;
+    opacity: .75;
+  }
+  .about-story-line-dashed {
+    display: block;
+    top: 24px;
+    right: -24%;
+    width: 65%;
+    opacity: .2;
+  }
+  .about-values,
+  .about-vision,
+  .about-people { isolation: isolate; }
+  .about-value-card { min-height: 235px; }
+  .about-value-card img { filter: drop-shadow(0 14px 18px rgb(67 42 112 / .12)); }
+  .about-values { background: none; }
+  .about-value-card::before {
+    position: absolute;
+    inset: 12% 9%;
+    border: 2px dashed color-mix(in srgb, var(--color-primary) 35%, transparent);
+    border-radius: 45% 55% 54% 46%;
+    rotate: -12deg;
+    content: "";
+    pointer-events: none;
+  }
+  .about-value-card:nth-child(even)::before {
+    border-color: color-mix(in srgb, var(--color-secondary) 70%, transparent);
+    rotate: 12deg;
+  }
+  .about-values .about-section-heading h2,
+  .about-people .about-section-heading h2 { text-wrap: balance; }
+  .about-values .about-section-heading::after,
+  .about-people .about-section-heading::after {
+    display: block;
+    width: 52px;
+    height: 5px;
+    margin: 17px auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    content: "";
+  }
+  .about-values-grid { gap: 18px; }
+  .about-value-card:nth-child(odd) { rotate: -2deg; }
+  .about-value-card:nth-child(even) { rotate: 2deg; }
+  .about-design-heading {
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    box-shadow: 0 16px 38px rgb(67 42 112 / .1);
+  }
+  .about-design { background: none; }
+  .about-feature-grid { gap: 48px; }
+  .about-design { --about-pin-line: var(--color-primary); }
+  .about-pin-connector { display: block; z-index: 1; }
+  .about-feature-grid { z-index: 2; }
+  .about-pin-connector path { stroke-width: 3; stroke-dasharray: none; stroke-linecap: round; }
+  .about-vision-card { filter: drop-shadow(0 12px 18px rgb(67 42 112 / .1)); }
+
+  .about-vision-grid { gap: 28px; margin-top: 34px; }
+  .about-vision-card {
+    min-height: 0;
+    overflow: hidden;
+    width: calc(100% - 10px);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 35%, transparent);
+    border-radius: 18px 62px 22px 48px;
+    background: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface-card) 82%, var(--color-secondary)),
+      var(--surface-card));
+    box-shadow: 8px 9px 0 color-mix(in srgb, var(--color-secondary) 27%, transparent),
+      0 18px 34px rgb(67 42 112 / .1);
+    filter: none;
+  }
+  .about-vision-card-vision {
+    margin-left: auto;
+    border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
+    border-radius: 60px 20px 48px 22px;
+    background: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface-card) 86%, var(--color-primary)),
+      var(--surface-card));
+    box-shadow: -8px 9px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
+      0 18px 34px rgb(67 42 112 / .1);
+  }
+  .about-vision-card::before {
+    position: absolute;
+    top: 23px;
+    right: 26px;
+    z-index: 1;
+    color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+    content: "01";
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .about-vision-card-vision::before { content: "02"; }
+  .about-vision-card::after {
+    position: absolute;
+    top: -46px;
+    right: -30px;
+    z-index: 0;
+    width: 142px;
+    height: 142px;
+    border-radius: 40% 60% 58% 42%;
+    background: color-mix(in srgb, var(--color-secondary) 35%, transparent);
+    content: "";
+  }
+  .about-vision-card-vision::after {
+    top: auto;
+    bottom: -65px;
+    right: auto;
+    left: -48px;
+    background: color-mix(in srgb, var(--color-primary) 24%, transparent);
+  }
+  .about-vision-card-vision::before { right: 22px; }
+  .about-vision-frame { display: none; }
+  .about-vision-copy {
+    display: block;
+    min-height: 0;
+    padding: 38px 29px 36px;
+    text-align: left;
+  }
+  .about-vision-copy h3 {
+    max-width: 75%;
+    font-size: clamp(1.45rem, 6.5vw, 1.8rem);
+    line-height: 1.15;
+    letter-spacing: -.035em;
+  }
+  .about-vision-card-mission h3 span { color: var(--color-secondary); }
+  .about-vision-card-vision h3 span { color: var(--color-primary); }
+  .about-vision-copy p {
+    max-width: 33ch;
+    margin-top: 18px;
+    font-size: clamp(.88rem, 3.75vw, 1rem);
+    line-height: 1.65;
+  }
+
+  /* Portraits extend above their card boxes; reserve that space after each heading. */
+  .about-mentor-grid,
+  .about-member-grid {
+    margin-top: 130px;
+    row-gap: 115px;
+  }
+}
+
+@media (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+  .about-hero-mobile-art { animation: about-mobile-rise .9s ease-out both, about-mobile-art-float 6s ease-in-out 1s infinite; }
+  .about-hero-plane { animation: about-mobile-float 4.5s ease-in-out infinite; }
+  .about-hero-exclamation { animation: about-mobile-wiggle 5s ease-in-out infinite; }
+  .about-story-snail-one { animation: about-mobile-float 5s ease-in-out infinite; }
+  .about-what-visual-card-front { animation: about-mobile-card-tilt 5s ease-in-out infinite; }
+  .about-what-visual-card-back { animation: about-mobile-card-tilt 5s ease-in-out infinite reverse; }
+  .about-values .about-section-heading::after,
+  .about-people .about-section-heading::after { animation: about-mobile-glow 4s ease-in-out infinite; }
+  .about-value-card:nth-child(odd) { animation: about-mobile-card-tilt 6s ease-in-out infinite; }
+  .about-value-card:nth-child(even) { animation: about-mobile-card-tilt 6s ease-in-out infinite reverse; }
+  .about-pin-connector path { animation: about-mobile-line-breathe 4s ease-in-out infinite; }
+}
+
+@keyframes about-mobile-rise {
+  from { opacity: 0; translate: 0 28px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes about-mobile-art-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
+@keyframes about-mobile-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: -5px -12px; }
+}
+@keyframes about-mobile-wiggle {
+  0%, 100% { rotate: -5deg; }
+  50% { rotate: 7deg; }
+}
+@keyframes about-mobile-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 18%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-primary) 0%, transparent); }
+}
+@keyframes about-mobile-card-tilt {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+@keyframes about-mobile-line-breathe {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+.about-hero-mobile-accents,
+.about-purpose-symbol { display: none; }
+
+@media (min-width: 320px) and (max-width: 425px) {
+  .about-what::before { display: none; }
+  .about-what-copy {
+    width: 100%;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    text-align: center;
+  }
+  .about-what-visual {
+    width: min(100%, 320px);
+    height: 216px;
+    margin: 0 auto 30px;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+    isolation: isolate;
+  }
+  .about-what-visual::before {
+    content: "";
+    position: absolute;
+    inset: 12px 16px;
+    z-index: -1;
+    border-radius: 64% 36% 35% 65% / 42% 60% 40% 58%;
+    background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+    rotate: -12deg;
+  }
+  .about-what-orbit {
+    position: absolute;
+    inset: 6px 12px;
+    border: 1px dashed color-mix(in srgb, var(--color-primary) 28%, transparent);
+    border-radius: 50%;
+    rotate: -22deg;
+  }
+  .about-what-canvas {
+    position: absolute;
+    top: 36px;
+    left: 13%;
+    width: 74%;
+    height: 144px;
+    padding: 10px;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 14px;
+    background: var(--surface-base);
+    rotate: -6deg;
+  }
+  .about-what-canvas-toolbar { display: flex; gap: 4px; height: 17px; }
+  .about-what-canvas-toolbar > i { width: 4px; height: 4px; border-radius: 50%; background: var(--color-primary); opacity: .6; }
+  .about-what-canvas-scene {
+    position: relative;
+    display: block;
+    height: 102px;
+    overflow: hidden;
+    border-radius: 5px 5px 18px 5px;
+    background: color-mix(in srgb, var(--color-primary) 16%, var(--surface-base));
+  }
+  .about-what-canvas-sun { position: absolute; top: 15px; right: 23px; width: 31px; height: 31px; border-radius: 50%; background: var(--color-secondary); }
+  .about-what-canvas-hill { position: absolute; left: -15%; bottom: -58px; width: 100%; height: 120px; border-radius: 50% 60% 0 0; background: var(--color-primary); rotate: 20deg; }
+  .about-what-canvas-hill::after { content: ""; position: absolute; left: 68%; top: -16px; width: 100%; height: 100%; border-radius: 50% 50% 0 0; background: color-mix(in srgb, var(--color-primary) 65%, var(--surface-base)); rotate: -35deg; }
+  .about-what-tool {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 45% 55% 62% 38%;
+    background: var(--color-primary);
+    color: var(--surface-base);
+  }
+  .about-what-tool > svg { width: 22px; height: 22px; stroke-width: 1.6; }
+  .about-what-tool-pen { top: 14px; left: 5%; rotate: -14deg; }
+  .about-what-tool-layers {
+    top: auto;
+    bottom: 12px;
+    left: 7%;
+    background: var(--color-secondary);
+    color: #382949;
+    border-radius: 50% 50% 22% 50%;
+    rotate: 8deg;
+  }
+  .about-what-pointer {
+    position: absolute;
+    right: 5%;
+    bottom: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--color-primary);
+    fill: var(--surface-base);
+    rotate: -15deg;
+  }
+  .about-what-visual-spark { top: 6px; right: 7%; width: 22px; height: 22px; }
+  .about-what-copy > .about-what-label { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-weight: 600; letter-spacing: .12em; }
+  .about-what-label::before,
+  .about-what-label::after { content: ""; width: 24px; height: 1px; background: var(--color-primary); opacity: .4; }
+  .about-what-copy h2 { font-size: clamp(2.1rem, 9vw, 2.7rem); line-height: 1.1; }
+  .about-what-copy h2 span { position: relative; white-space: nowrap; }
+  .about-what-copy h2 span::after { content: ""; position: absolute; left: 0; bottom: -7px; width: 100%; height: 3px; border-radius: 50%; background: var(--color-secondary); rotate: -3deg; }
+  .about-what-copy > p:not(.about-what-label) { max-width: 34ch; margin: 26px auto 0; font-size: .95rem; line-height: 1.8; text-wrap: pretty; }
+
+  .about-vision-grid { gap: 44px; margin-top: 48px; }
+  .about-vision-card {
+    --purpose-color: var(--color-secondary);
+    width: 100%;
+    overflow: visible;
+    border: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    filter: none;
+  }
+  .about-vision-card-vision { --purpose-color: var(--color-primary); }
+  .about-vision-card::before {
+    top: -25px;
+    right: 8px;
+    padding-inline: 10px;
+    background: var(--surface-base);
+    color: var(--text-muted);
+    font-size: 2.4rem;
+    font-weight: 500;
+    letter-spacing: -.06em;
+  }
+  .about-vision-card::after { display: none; }
+  .about-vision-copy {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 20px 16px;
+    align-items: center;
+    padding: 28px 10px 0;
+    text-align: left;
+  }
+  .about-purpose-symbol {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 20% 50% 50% 50%;
+    background: color-mix(in srgb, var(--purpose-color) 22%, transparent);
+    color: var(--text-heading);
+  }
+  .about-purpose-symbol::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 1px dashed var(--purpose-color);
+    border-radius: 50%;
+  }
+  .about-purpose-symbol > svg { width: 28px; height: 28px; stroke-width: 1.6; }
+  .about-vision-card-vision .about-purpose-symbol { border-radius: 50% 50% 20% 50%; }
+  .about-vision-copy h3 { max-width: none; font-size: clamp(1.55rem, 6.6vw, 1.85rem); }
+  .about-vision-copy p { grid-column: 1 / -1; max-width: none; margin: 0; font-size: .95rem; line-height: 1.75; }
+}
+
+@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+  .about-what-tool { animation: about-mobile-art-float 6s ease-in-out infinite; }
+  .about-what-tool-layers { animation-delay: -2s; }
+  .about-what-canvas { animation: about-mobile-art-float 8s ease-in-out -3s infinite; }
+  .about-what-pointer { animation: about-mobile-art-float 5s ease-in-out -1s infinite; }
+  .about-what-visual-spark { animation: about-hero-sparkle 5s ease-in-out infinite; }
+  .about-purpose-symbol::before { animation: about-purpose-orbit 24s linear infinite; }
+  .about-vision-card-vision .about-purpose-symbol::before { animation-direction: reverse; }
+}
+
+@keyframes about-purpose-orbit {
+  to { transform: rotate(360deg); }
+}
+
+/* A unified phone composition, with the illustration blended behind the copy. */
+@media (min-width: 320px) and (max-width: 425px) {
+  .about-page {
+    --about-mobile-hero-height: clamp(460px, 120vw, 510px);
+  }
+  .about-page-blob {
+    opacity: .65;
+    -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+  }
+  .about-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: var(--about-mobile-hero-height);
+    padding: 44px 20px 110px;
+    background: transparent;
+  }
+  .about-hero-copy {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+  }
+  .about-hero-mobile-kicker {
+    display: block;
+    margin-bottom: 16px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--text-body);
+    font-size: clamp(.65rem, 2.8vw, .75rem);
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: .12em;
+  }
+  .about-hero-copy h1 {
+    font-size: clamp(2.4rem, 11vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -.045em;
+  }
+  .about-hero-copy h1 span {
+    display: inline-block;
+    position: relative;
+    width: fit-content;
+    margin: 0;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: inherit;
+  }
+  .about-hero-copy h1 span::after {
+    position: absolute;
+    bottom: -9px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    border-radius: 60% 20% 50% 25%;
+    background: var(--color-secondary);
+    rotate: -3deg;
+    content: "";
+  }
+  .about-hero-copy > p {
+    width: 100%;
+    max-width: 32ch;
+    margin: 24px auto 0;
+    padding: 0;
+    border: 0;
+    font-size: clamp(.98rem, 4vw, 1.08rem);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+  .about-hero-mobile-art {
+    position: absolute;
+    top: 12px;
+    left: -19%;
+    right: auto;
+    bottom: -24px;
+    width: 138%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    opacity: .85;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 48%, black 35%, transparent 72%);
+    mask-image: radial-gradient(ellipse at 50% 48%, black 35%, transparent 72%);
+    animation: none;
+  }
+  .about-hero-mobile-angkor {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: none;
+    filter: none;
+  }
+  .about-hero-exclamation { top: 78px; right: 8px; left: auto; width: 22px; }
+  .about-hero-plane { top: auto; right: 18px; bottom: 92px; width: 56px; }
+  .about-hero-yellow-swoosh { display: none; }
+  .about-hero-left-line-dashed { top: auto; bottom: 25px; left: 48%; width: 98px; opacity: .25; }
+  .about-hero-snail-left { display: none; }
+  .about-hero-mobile-accents {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .about-hero-spark {
+    position: absolute;
+    width: 20px;
+    aspect-ratio: 1;
+    background: var(--color-secondary);
+    clip-path: polygon(50% 0, 62% 36%, 100% 50%, 62% 64%, 50% 100%, 38% 64%, 0 50%, 38% 36%);
+  }
+  .about-hero-spark-one { top: 18px; left: 26px; rotate: -12deg; }
+  .about-hero-spark-two { top: 132px; right: 28px; width: 12px; background: var(--color-primary); }
+  .about-hero-spark-three { bottom: 100px; left: 42px; width: 26px; rotate: 14deg; }
+  .about-hero-accent-ring {
+    position: absolute;
+    top: 22px;
+    right: 38px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+    opacity: .6;
+  }
+  .about-hero-accent-trail {
+    position: absolute;
+    bottom: 20px;
+    left: 22px;
+    width: 130px;
+    height: auto;
+    color: var(--color-primary);
+    opacity: .5;
+  }
+}
+
+@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+  .about-hero-mobile-angkor {
+    animation: about-angkor-drift 10s ease-in-out infinite;
+  }
+  .about-hero-spark { animation: about-hero-sparkle 5s ease-in-out infinite; }
+  .about-hero-spark-two { animation-delay: -1.5s; }
+  .about-hero-spark-three { animation-delay: -3s; }
+  .about-hero-accent-trail { animation: about-mobile-art-float 7s ease-in-out infinite; }
+}
+
+@keyframes about-hero-sparkle {
+  0%, 100% { transform: scale(.85) rotate(-8deg); opacity: .65; }
+  50% { transform: scale(1.1) rotate(8deg); opacity: 1; }
+}
+
+@keyframes about-angkor-drift {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.025); }
 }
 
 /*

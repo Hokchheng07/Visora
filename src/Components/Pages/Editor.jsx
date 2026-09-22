@@ -10,7 +10,7 @@ import EditorToolPanel from "../Editor/panels/EditorToolPanel";
 import EditorTopBar from "../Editor/shell/EditorTopBar";
 import { requestFullscreen } from "../Editor/display/useFullscreen";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
-import { pageAdded, pageCopied, pageCloned, pageDeleted } from "../redux/editorSlice.js";
+import { pageAdded, pageCopied, pageCloned, pagesCloned, pagesDeleted } from "../redux/editorSlice.js";
 import { useEditorKeyboard } from "../Editor/hooks/useEditorKeyboard.js";
 import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
 import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
@@ -129,12 +129,17 @@ export default function Editor() {
     dispatch(pageAdded());
   }
 
-  function handlePageAction(action, index) {
+  /* `indexes` is what the strip has selected, in page order; the menu was
+     opened on one of them. Copy, paste and rename stay single-page — there is
+     one clipboard slot and one name — while delete and duplicate take the lot,
+     as one undo step. */
+  function handlePageAction(action, indexes) {
+    const index = indexes[0];
     if (action === "add") return handleAddPage();
     if (action === "copy") return dispatch(pageCopied(index));
-    if (action === "duplicate") return dispatch(pageCloned(pages[index], index));
-    if (action === "paste") return copiedPage && dispatch(pageCloned(copiedPage, index));
-    if (action === "delete") return dispatch(pageDeleted(index));
+    if (action === "duplicate") return dispatch(pagesCloned(pages, indexes));
+    if (action === "paste") return copiedPage && dispatch(pageCloned(copiedPage, indexes.at(-1)));
+    if (action === "delete") return dispatch(pagesDeleted(indexes));
   }
 
   return (

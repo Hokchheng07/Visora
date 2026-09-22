@@ -105,16 +105,6 @@ body {
 }
 
 /* ================================
-   SPARKLE
-================================ */
-
-.bg-sparkle {
-  background-image: var(--sparkle-url, url("/textures/speckles.svg"));
-  background-repeat: repeat;
-  background-size: 256px 256px;
-}
-
-/* ================================
    SCROLLBAR
 ================================ */
 
@@ -125,4 +115,62 @@ body {
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* ================================
+   COSMIC DUST
+================================ */
+
+/* The canvas fills the sparkle surface it is dropped into and never takes a
+   click. It sits at z-index 0, so a section that paints its own background
+   must give that background a layer of its own; every call site here already
+   does. */
+.cosmic-dust {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  /* One window tall at most, and slid down its section as the page scrolls
+     (see CosmicDust.jsx): a canvas the height of a long page costs far more to
+     clear each frame than to draw on. */
+  height: min(100%, 100vh);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* For a page whose own box starts below the navbar: the field starts at the
+   window top instead, so the strip the navbar's cutout exposes carries the
+   same dust as the rest of the page. */
+.cosmic-dust-under-nav {
+  top: calc(-1 * var(--navbar-height, 0px));
+  height: min(calc(100% + var(--navbar-height, 0px)), 100vh);
+}
+
+/* A stack of window-tall fields for a page with no sections of its own (see
+   CosmicDustField.jsx). Each slab is its canvas's own height, so the canvas
+   inside it never slides and the dust stays with the page. */
+.cosmic-dust-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cosmic-dust-field.cosmic-dust-under-nav {
+  height: calc(100% + var(--navbar-height, 0px));
+}
+
+.cosmic-dust-slab {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.cosmic-dust-slab .cosmic-dust {
+  height: 100%;
 }

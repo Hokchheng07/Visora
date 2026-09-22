@@ -4,11 +4,14 @@ import {
   LogOut,
   Menu,
   Moon,
+  Search,
   Sun,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useLocation,useNavigate } from "react-router";
+import ProfileAvatarFrame from "./Profile/ProfileAvatarFrame";
 
-export default function UserDashboardHeader({onMenuOpen,profile}){
+export default function UserDashboardHeader({onMenuOpen,profile,sidebarOpen=false}){
+  const location=useLocation();
   const navigate=useNavigate();
 
   const profileRef=useRef(null);
@@ -20,6 +23,9 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
   const [dark,setDark]=useState(
     ()=>document.documentElement.classList.contains("dark")
   );
+
+  const isProfilePage=
+    location.pathname==="/user-dashboard/profile";
 
   /* PROFILE DROPDOWN */
   useEffect(()=>{
@@ -97,7 +103,8 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
 
   return(
     <header
-      className={`sticky top-0 z-30 flex h-[74px] w-full items-center bg-transparent px-4 transition-transform duration-300 ease-out sm:px-5 md:px-6 lg:px-8 xl:px-10 ${
+      data-profile={isProfilePage}
+      className={`user-dashboard-header sticky top-0 z-30 flex h-[74px] w-full items-center bg-transparent px-4 transition-transform duration-300 ease-out sm:px-5 md:px-6 lg:px-8 xl:px-10 ${
         headerVisible
           ?"translate-y-0"
           :"-translate-y-full"
@@ -108,16 +115,34 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
         type="button"
         onClick={onMenuOpen}
         aria-label="Open sidebar"
-        className="mr-3 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-[var(--text-heading)] transition hover:bg-primary/10 hover:text-primary md:hidden"
+        aria-expanded={sidebarOpen}
+        aria-controls="user-dashboard-sidebar"
+        className="user-dashboard-menu-button mr-3 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-[var(--text-heading)] transition hover:bg-primary/10 hover:text-primary md:hidden"
       >
         <Menu size={23}/>
       </button>
 
-      {/* SPACER */}
-      <div className="min-w-0 flex-1"/>
+      {/* SEARCH */}
+      <div className="user-dashboard-header-search min-w-0 flex-1">
+        {isProfilePage && <p className="user-dashboard-header-title">My Profile</p>}
+        {!isProfilePage&&(
+          <div className="relative w-full max-w-[500px] lg:max-w-[580px] xl:max-w-[650px] 2xl:max-w-[720px]">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+            />
+
+            <input
+              type="text"
+              placeholder="Search templates, designs, or anything..."
+              className="h-11 w-full rounded-full bg-[var(--surface-card)]/90 pl-11 pr-4 text-sm text-[var(--text-heading)] shadow-[0_3px_12px_rgba(0,0,0,0.04)] outline-none backdrop-blur-md transition placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-primary/15"
+            />
+          </div>
+        )}
+      </div>
 
       {/* RIGHT ICONS */}
-      <div className="ml-auto flex shrink-0 items-center gap-5">
+      <div className="user-dashboard-header-actions ml-auto flex shrink-0 items-center gap-5">
         {/* THEME */}
         <button
           type="button"
@@ -161,11 +186,7 @@ export default function UserDashboardHeader({onMenuOpen,profile}){
               profileOpen?"text-primary":""
             }`}
           >
-            <img
-              src={profile.avatarUrl}
-              alt={`${profile.name} avatar`}
-              className="h-7 w-7 rounded-full object-cover"
-            />
+            <ProfileAvatarFrame profile={profile} compact />
           </button>
 
           {profileOpen&&(

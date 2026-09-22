@@ -17,6 +17,7 @@ import softGreenCard from "../../../assets/pages/home/create-without-limits/Soft
 import softRedCard from "../../../assets/pages/home/create-without-limits/SoftRedCard(WithoutLimits).svg";
 import magentaCard from "../../../assets/pages/home/create-without-limits/MajenticCard(WithoutLimits).svg";
 import cyanCard from "../../../assets/pages/home/create-without-limits/CyanCard(WithoutLimits).svg.svg";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const completeCardAssets = [
   yellowCard,
@@ -96,7 +97,8 @@ function FeatureCard({ title, copy, shape }) {
 
 export default function CreateWithoutLimits() {
   return (
-    <section className="create-limits-section bg-sparkle relative isolate overflow-hidden">
+    <section className="create-limits-section relative isolate overflow-hidden">
+      <CosmicDust particleCount={140} />
       <div className="create-limits-corners" aria-hidden="true">
         <ThemeImage src={YellowBlob} alt="" className="create-limits-yellow-art" />
         <ThemeImage src={PurpleBlob} alt="" className="create-limits-purple-art" />

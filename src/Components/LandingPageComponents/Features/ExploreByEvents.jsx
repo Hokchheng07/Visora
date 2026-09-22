@@ -19,6 +19,7 @@ import arrowPointingUp from "../../../assets/pages/home/explore-by-events/ArrowP
 import lineTop from "../../../assets/pages/home/explore-by-events/LineTop(ExploreByEvents).svg";
 import lineRight from "../../../assets/pages/home/explore-by-events/LineRight(ExploreByEvents).svg";
 import lineBottom from "../../../assets/pages/home/explore-by-events/LineBottom(ExploreByEvents).svg";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const PINNED_VIEWPORT = "(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine)";
 const clamp = (value) => Math.min(1, Math.max(0, value));
@@ -245,10 +246,11 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
   return (
     <section
       id="explore-events"
-      className="explore-events-section events-section bg-sparkle"
+      className="explore-events-section events-section"
       aria-labelledby="events-title"
       style={{ "--events-scroll-distance": `${pinned ? travel : 0}px` }}
     >
+      <CosmicDust particleCount={180} />
       <div
         ref={journeyRef}
         className="events-journey"

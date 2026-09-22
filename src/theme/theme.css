@@ -14,7 +14,6 @@
   --border-default: rgb(0 0 0 / .08);
   --border-card: #e6ccff;
   --gradient-khmer-from: #eadff0;
-  --sparkle-url: url('/textures/speckles.svg');
 }
 .site-shell { background: var(--surface-base); color: var(--text-heading); }
 .dark .site-shell {
@@ -34,7 +33,6 @@
   --border-default: rgb(255 255 255 / .12);
   --border-card: rgb(114 191 241 / .28);
   --gradient-khmer-from: #262037;
-  --sparkle-url: url('/textures/speckles-dark.svg');
   color-scheme: dark;
 }
 .theme-light-boundary {

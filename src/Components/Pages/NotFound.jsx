@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Home, LayoutGrid } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import ThemeToggle from "../../theme/ThemeToggle";
+import CosmicDust from "../Effects/CosmicDust.jsx";
 import "./not-found.css";
 
 // Decorative twinkling 4-point stars, crosses, and dots
@@ -309,6 +310,8 @@ export default function NotFound() {
 
   return (
     <main className="nf-full-page" aria-labelledby="nf-title">
+      {/* Replaces the speckle tile this page's mesh used to carry. */}
+      <CosmicDust particleCount={140} />
       {/* Floating Theme Toggle */}
       <div className="nf-floating-toggle">
         <ThemeToggle />

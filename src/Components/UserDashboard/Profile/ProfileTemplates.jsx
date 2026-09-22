@@ -38,13 +38,13 @@ export default function ProfileTemplates({
   },[activeTab,templates]);
 
   return(
-    <section className="mt-7">
+    <section className="profile-templates mt-7">
       {/* TOP AREA */}
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         {/* LEFT */}
         <div>
           {/* TABS */}
-          <div className="inline-flex h-11 items-center rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] p-1 shadow-sm">
+          <div className="profile-template-tabs inline-flex h-11 items-center rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] p-1 shadow-sm">
             <button
               type="button"
               onClick={()=>setActiveTab("posted")}
@@ -89,7 +89,7 @@ export default function ProfileTemplates({
         </div>
 
         {/* RIGHT ACTIONS */}
-        <div className="flex h-11 flex-wrap items-center gap-3">
+        <div className="profile-template-actions flex h-11 flex-wrap items-center gap-3">
           <Link
             to="/templates"
             className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] px-5 text-sm font-semibold text-primary transition hover:bg-primary/10"
@@ -109,7 +109,7 @@ export default function ProfileTemplates({
 
       {/* TEMPLATE GRID */}
       {visibleTemplates.length>0?(
-        <div className="mt-8 grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="profile-template-grid mt-8 grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {visibleTemplates.map((template)=>(
             <TemplateCard
               key={template.id}

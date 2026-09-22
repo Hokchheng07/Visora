@@ -13,8 +13,8 @@ import { PROFILE_TEMPLATES } from "../Profile/profileData";
 import { TemplateCard } from "../Profile/TemplateCard";
 
 import CreateNewShelf from "./CreateNewShelf";
-import TeamSpacesPromo from "./TeamSpacesPromo";
 import TrendingTemplates from "./TrendingTemplates";
+import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 const SORT_OPTIONS=[
   ["edited","Sort: Last edited"],
@@ -110,8 +110,9 @@ export default function Recent(){
   };
 
   return(
-    <section className="min-h-screen bg-[var(--surface-warm)] bg-sparkle px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
-      <div className="mx-auto w-full max-w-[1650px]">
+    <section className="relative min-h-screen bg-[var(--surface-warm)] px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
+      <CosmicDust particleCount={120} />
+      <div className="relative z-[1] mx-auto w-full max-w-[1650px]">
         {/* PAGE HEADER */}
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           {/* LEFT */}
@@ -250,8 +251,6 @@ export default function Recent(){
                 onDelete={deleteDesign}
               />
             ))}
-
-            <TeamSpacesPromo/>
           </div>
         ):(
           <div className="mt-7 flex min-h-[220px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">

@@ -1,5 +1,6 @@
 import { useRef,useState } from "react";
 import { useUserUploadMutation,getStorageUrl } from "../../API/storageApi";
+import { uploadErrorMessage } from "../../API/apiError.js";
 import {
   Camera,
   Upload,
@@ -93,7 +94,7 @@ export function ProfileEditModal({profile,onSave,onClose,saving=false,error=""})
     const fileName=result?.data?.data?.fileName;
 
     if(!fileName){
-      setPhotoError(result?.error?.data?.detail||"Couldn't upload that photo. Please try again.");
+      setPhotoError(uploadErrorMessage(result?.error,"photo"));
       return;
     }
 

@@ -4,6 +4,7 @@ import { filterId, hasVisibleEffects } from "../model/effectsFilter.js";
 import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
 import { cropStyle } from "../model/imageCrop.js";
 import { imageUrlFor, InlinedImages } from "./imageSource.js";
+import { STORAGE_CONFIGURED } from "../../API/storageApi";
 
 /*
  * An uploaded picture or a built-in library element. The address comes from
@@ -31,6 +32,13 @@ export default function ImageArtwork({ element }) {
   /* A single-colour library element is drawn as its colour through the shape's
      outline (a CSS mask), so `fill` recolours it the way it recolours a shape.
      Full-colour artwork (the Graphics section) is drawn like a photo. */
+  /* An upload with nowhere to be fetched from is not a missing picture, it is
+     a missing setting, and saying so is the difference between a five-second
+     fix and an afternoon. */
+  const unconfigured = !STORAGE_CONFIGURED && !!element.src && !/^(https?:|data:|blob:|library:)/.test(element.src);
+  const label = unconfigured ? `Image storage isn't configured, so this upload can't be shown`
+    : url ? `Couldn't load ${url}`
+    : "This element has no image";
   const library = !broken ? libraryElement(element.src) : null;
   const tinted = !!library?.recolour;
   const mask = tinted ? `url("${url}") center / 100% 100% no-repeat` : undefined;
@@ -38,7 +46,13 @@ export default function ImageArtwork({ element }) {
     <span className="editor-element-art editor-library-art" aria-hidden="true"
       style={{ background: element.fill || library.color || KHMER_GOLD, WebkitMask: mask, mask, opacity: element.opacity, transform: flip }} />
   ) : broken ? (
-    <span className="editor-element-art editor-image-missing" style={{ borderRadius: radius, opacity: element.opacity }} aria-hidden="true">
+    /* The placeholder says which address failed. A picture that will not load
+       is nearly always the address rather than the file — the wrong backend in
+       VITE_STORAGE_URL, an upload that has been removed — and without the
+       address there is nothing to check: every one of those causes looks like
+       the same grey box. Hovering it gives the link to try in a tab. */
+    <span className="editor-element-art editor-image-missing" style={{ borderRadius: radius, opacity: element.opacity }}
+      role="img" aria-label={label} title={label}>
       <ImageOff strokeWidth={1.5} />
     </span>
   ) : (
@@ -51,7 +65,12 @@ export default function ImageArtwork({ element }) {
     <span className="editor-element-art editor-image-frame" style={{ borderRadius: radius, opacity: element.opacity }}>
       <img className="editor-image-art" src={url} alt="" draggable={false}
         style={{ transform: flip, ...cropStyle(element.crop) }}
-        onError={() => setFailedUrl(url)} />
+        onError={() => {
+        setFailedUrl(url);
+        /* Written once per address, where anyone debugging will look first.
+           The canvas shows a placeholder; the console says what was asked for. */
+        console.warn(`[Visora] Image failed to load: ${url}`);
+      }} />
     </span>
   );
   if (broken || !hasVisibleEffects(element)) return picture;

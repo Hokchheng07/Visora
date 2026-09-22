@@ -6,7 +6,7 @@ import pen from "../../assets/pages/templates/bottom/pen.png";
 
 export default function BottomCTA(){
   return(
-    <section className="relative z-10 mt-8 h-[clamp(150px,13vw,250px)] w-full overflow-hidden">
+    <section className="templates-bottom-cta relative z-10 mt-8 h-[clamp(150px,13vw,250px)] w-full overflow-hidden">
       {/* LIGHT MODE */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full select-none dark:hidden"

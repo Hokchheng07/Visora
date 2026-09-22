@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+﻿import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Navigate, createBrowserRouter } from "react-router";
@@ -114,13 +114,15 @@ const router = createBrowserRouter([
             element: <SignUp />,
           },
           { path: "forgot-password", element: <ForgotPassword /> },
+          { path: "reset-password", element: <ForgotPassword /> },
         ],
       },
       {
         path: "login",
         element: <Navigate to="/auth/login" replace />,
       },
-      { path: "forgot-password", element: <Navigate to="/auth/forgot-password" replace /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password", element: <ForgotPassword /> },
       {
         path: "dashboard",
         element: <DashboardLayout />,

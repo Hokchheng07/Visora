@@ -16,6 +16,13 @@ const scrubFor = (label) => screen.getByLabelText(label).closest("label").queryS
 
 afterEach(cleanup);
 
+/* The selects are ours now, not the browser's, so a test picks an option the
+   way a person does: open the menu, click the row. */
+function pick(name, option) {
+  fireEvent.click(screen.getByRole("button", { name }));
+  fireEvent.click(screen.getByRole("option", { name: option }));
+}
+
 describe("EditorInspector", () => {
   it("renders nothing when nothing is selected, so the page bar takes over", () => {
     const { view } = setup([pageAdded()]);
@@ -59,7 +66,7 @@ describe("EditorInspector", () => {
     expect(screen.getByRole("button", { name: "Underline" }).getAttribute("aria-pressed")).toBe("true");
     expect(editor().past.length).toBe(++history);
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Font weight" }), { target: { value: "500" } });
+    pick("Font weight", "Medium");
     expect(element().fontWeight).toBe(500);
     expect(screen.getByRole("button", { name: "Bold" }).getAttribute("aria-pressed")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Bold" }));
@@ -141,14 +148,14 @@ describe("EditorInspector", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Add stroke" }));
     expect(element().stroke).toBe("#211D29");
-    fireEvent.change(screen.getByRole("combobox", { name: "Stroke position" }), { target: { value: "outside" } });
+    pick("Stroke position", "Outside");
     expect(element().strokeAlign).toBe("outside");
 
     const add = screen.getByRole("button", { name: "Add effect" });
     for (let count = 0; count < 4; count++) fireEvent.click(add);
     expect(element().effects.length).toBe(4);
     expect(screen.getByRole("button", { name: "Up to 4 effects" }).disabled).toBe(true);
-    fireEvent.change(screen.getByRole("combobox", { name: "Effect 2 type" }), { target: { value: "INNER_SHADOW" } });
+    pick("Effect 2 type", "Inner shadow");
     expect(element().effects[1].type).toBe("INNER_SHADOW");
     fireEvent.click(screen.getAllByRole("button", { name: "Remove effect" })[0]);
     expect(element().effects.length).toBe(3);
@@ -156,7 +163,7 @@ describe("EditorInspector", () => {
 
   it("fill switches to a linear gradient, and its stops can be added, edited, reversed and removed", () => {
     const { element, editor } = setup([elementInserted("square")]);
-    fireEvent.change(screen.getByRole("combobox", { name: "Fill type" }), { target: { value: "LINEAR" } });
+    pick("Fill type", "Linear");
     const gradient = () => element().gradient;
     expect(gradient().type).toBe("LINEAR");
     expect(gradient().angle).toBe(90);
@@ -193,7 +200,7 @@ describe("EditorInspector", () => {
     expect(screen.getByRole("button", { name: "Remove stop 1" }).disabled).toBe(true);
 
     const history = editor().past.length;
-    fireEvent.change(screen.getByRole("combobox", { name: "Fill type" }), { target: { value: "SOLID" } });
+    pick("Fill type", "Solid");
     expect(gradient()).toBe(null);
     expect(element().fill).toBeTruthy();
     expect(editor().past.length).toBe(history + 1);
@@ -203,7 +210,7 @@ describe("EditorInspector", () => {
     const { element } = setup([elementInserted("square")]);
     fireEvent.click(screen.getByRole("button", { name: "Add stroke" }));
     fireEvent.click(screen.getByRole("button", { name: "Stroke settings" }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Stroke style" }), { target: { value: "dashed" } });
+    pick("Stroke style", "Dashed");
     expect(element().strokeStyle).toBe("dashed");
     const gap = screen.getByLabelText("Dash gap");
     fireEvent.focus(gap);
@@ -356,7 +363,7 @@ describe("EditorInspector", () => {
 
   it("shows the timer settings for a selected timer", () => {
     const { editor, element } = setup([timerInserted()]);
-    expect(screen.getByRole("combobox", { name: "Completion sound" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Completion sound" })).toBeTruthy();
     const history = editor().past.length;
     const minutes = screen.getByLabelText("Minutes");
     fireEvent.focus(minutes);
@@ -389,7 +396,7 @@ describe("EditorInspector", () => {
     expect(element().timer.mode).toBe("COUNTDOWN");
     expect(editor().past.length).toBe(history + 1);
     // Back to a countdown: its format is chosen here now, not in the left panel.
-    fireEvent.change(screen.getByRole("combobox", { name: "Countdown format" }), { target: { value: "MM:SS" } });
+    pick("Countdown format", "Minutes, seconds (05:00)");
     expect(element().timer.format).toBe("MM:SS");
     expect(element().timer.buttonColors.stop).toBe("#112233");
   });

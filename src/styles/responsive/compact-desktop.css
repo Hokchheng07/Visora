@@ -1,4 +1,4 @@
-@media (min-width: 1024px) and (max-height: 800px) {
+﻿@media (min-width: 1024px) and (max-height: 800px) {
   .hero-section,
   .hero-content {
     min-height: max(720px, calc(100dvh - 126px));

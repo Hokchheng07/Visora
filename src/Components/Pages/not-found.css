@@ -16,7 +16,6 @@
 
   /* Clean background ambiance */
   --nf-bg-mesh: radial-gradient(circle at 50% 12%, rgba(112, 90, 224, 0.04) 0%, transparent 65%);
-  --nf-speckle-opacity: 0;
 
   /* 3D Bubble Digits */
   --nf-four-face-color: #705ae0;       /* Visora Brand Primary Purple */
@@ -87,8 +86,8 @@
   isolation: isolate;
   background-color: var(--nf-bg-color);
   background-image: var(--nf-bg-mesh);
-  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
-  background-size: 100% 100%, 650px 650px, 650px 650px, 256px 256px;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--nf-text-heading);
   font-family: var(--font-sans, "Poppins", ui-sans-serif, system-ui, sans-serif);
   display: flex;
@@ -111,9 +110,7 @@
   --nf-bg-mesh:
     radial-gradient(ellipse at 50% 20%, rgba(114, 191, 241, 0.12) 0%, rgba(218, 78, 201, 0.08) 45%, transparent 75%),
     radial-gradient(circle at 10% 85%, rgba(114, 191, 241, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 90% 75%, rgba(227, 93, 203, 0.07) 0%, transparent 45%),
-    var(--sparkle-url, url('/textures/speckles-dark.svg'));
-  --nf-speckle-opacity: 0.3;
+    radial-gradient(circle at 90% 75%, rgba(227, 93, 203, 0.07) 0%, transparent 45%);
 
   /* 3D Bubble Digits */
   --nf-four-face-color: #62c7f8;       /* Approved Dark Figma Blue */
@@ -939,6 +936,12 @@
 
   .nf-site-footer p {
     font-size: 0.7rem;
+  }
+}
+
+@media (min-width: 320px) and (max-width: 425px) {
+  .nf-action-buttons {
+    margin-inline: auto;
   }
 }
 

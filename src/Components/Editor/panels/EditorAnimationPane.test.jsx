@@ -8,6 +8,14 @@ import EditorAnimationPane from "./EditorAnimationPane.jsx";
 import EditorToolPanel from "./EditorToolPanel.jsx";
 
 afterEach(cleanup);
+
+/* The selects are ours now, not the browser's, so a test picks an option the
+   way a person does: open the menu, click the row. */
+function pick(name, option) {
+  fireEvent.click(screen.getByRole("button", { name }));
+  fireEvent.click(screen.getByRole("option", { name: option }));
+}
+
 function setup() {
   const store = configureStore({ reducer: { editor: reducer } });
   store.dispatch(elementInserted("square"));
@@ -24,7 +32,7 @@ describe("animation authoring", () => {
   it("keeps trigger editing on the right and defaults new effects by the existing steps", () => {
     const { store } = setup();
     fireEvent.click(screen.getByRole("tab", { name: "Element" }));
-    expect(screen.queryByRole("combobox", { name: "New animation trigger" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "New animation trigger" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Fade in" }));
     const row = store.getState().editor.pages[0].animations[0];
     expect(row.trigger).toBe("with");
@@ -39,7 +47,7 @@ describe("animation authoring", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Fade in" }));
     expect(store.getState().editor.pages[0].animations[2].trigger).toBe("click");
-    expect(screen.getByRole("combobox", { name: "Animation trigger" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Animation trigger" })).toBeTruthy();
   });
   it("adds an entry, swaps duplicate entrance choices, previews it, and edits row timing", () => {
     const { store, preview } = setup();
@@ -66,7 +74,7 @@ describe("animation authoring", () => {
   });
   it("stores transitions separately and preview does not edit document state", () => {
     const { store, preview } = setup();
-    fireEvent.change(screen.getByRole("combobox", { name: "Page transition" }), { target: { value: "morph" } });
+    pick("Page transition", "Morph");
     expect(store.getState().editor.pages[0].transition.preset).toBe("morph");
     const before = store.getState();
     fireEvent.click(screen.getByRole("button", { name: "Preview" }));
@@ -78,7 +86,7 @@ describe("animation authoring", () => {
     store.dispatch(animationAdded({ kind: "exit", preset: "fade", trigger: "after" }));
     render(<Provider store={store}><EditorAnimationPane docked mode="element" onStopPreview={() => {}} onPreview={() => {}} /></Provider>);
     fireEvent.click(screen.getByRole("button", { name: /exit Square Fade out/ }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Animation trigger" }), { target: { value: "with" } });
+    pick("Animation trigger", "With previous");
     expect(screen.getByRole("status").textContent).toMatch(/overlap/);
     expect(store.getState().editor.pages[0].animations[1].trigger).toBe("after");
   });

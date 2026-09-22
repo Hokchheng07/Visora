@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { Check, ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useRecentColours } from "./recentColours.js";
 
 /*
@@ -190,4 +190,101 @@ export function MenuRow({ icon: Icon, label, shortcut, danger, disabled, onSelec
 
 export function MenuDivider() {
   return <hr className="editor-menu-divider" />;
+}
+
+/* 7. Select menu. Replaces <select>, whose dropdown is drawn by the operating
+      system and ignores every token in editor.css. Headless UI's Listbox keeps
+      the keyboard behaviour of the native control — type-ahead, arrows, Home,
+      End, Escape — while the list itself is ours. */
+export function SelectMenu({ label, value, options, onChange, disabled, style, className = "", panelClassName = "", anchor = "bottom start" }) {
+  const current = options.find((option) => option.value === value);
+  return (
+    <Listbox value={value} onChange={onChange} disabled={disabled}>
+      <ListboxButton as="button" type="button" className={`editor-select ${className}`} aria-label={label} style={style}>
+        <span className="editor-select-value">{current ? current.label : ""}</span>
+        <ChevronDown size={13} className="editor-select-caret" aria-hidden="true" />
+      </ListboxButton>
+      <ListboxOptions anchor={{ to: anchor, gap: 6, padding: 12 }}
+        className={`editor-popover editor-select-panel ${panelClassName}`}>
+        {options.map((option) => (
+          <ListboxOption key={option.value} value={option.value} className="editor-select-option" style={option.style}>
+            <span>{option.label}</span>
+            {option.value === value && <Check size={14} aria-hidden="true" />}
+          </ListboxOption>
+        ))}
+      </ListboxOptions>
+    </Listbox>
+  );
+}
+
+/* 8. Time stepper. PowerPoint's timing spinner: arrows for a nudge, and the
+      field itself for a number nobody wants to reach one click at a time.
+      Holding an arrow repeats, because a second at a time to 30s is 30 clicks. */
+export function TimeStepper({ label, value, min, max, disabled, onStep, onCommit, onHoldStart, onHoldEnd, format = (ms) => String(Number((ms / 1000).toFixed(3))) }) {
+  const [draft, setDraft] = useState(null);
+  const timers = useRef([]);
+  const clamp = useCallback((next) => Math.max(min, Math.min(max, Math.round(next / 10) * 10)), [min, max]);
+
+  const stopHold = useCallback(() => {
+    timers.current.forEach((timer) => { clearTimeout(timer); clearInterval(timer); });
+    timers.current = [];
+    onHoldEnd?.();
+  }, [onHoldEnd]);
+
+  /* The window listener ends a hold even when the pointer is released off the
+     button, which is where a fast repeat usually ends up. */
+  useEffect(() => {
+    window.addEventListener("pointerup", stopHold);
+    window.addEventListener("pointercancel", stopHold);
+    window.addEventListener("blur", stopHold);
+    return () => {
+      window.removeEventListener("pointerup", stopHold);
+      window.removeEventListener("pointercancel", stopHold);
+      window.removeEventListener("blur", stopHold);
+      timers.current.forEach((timer) => { clearTimeout(timer); clearInterval(timer); });
+      timers.current = [];
+    };
+  }, [stopHold]);
+
+  function hold(direction) {
+    onHoldStart?.();
+    onStep(direction);
+    const delay = setTimeout(() => {
+      const repeat = setInterval(() => onStep(direction), 140);
+      timers.current.push(repeat);
+    }, 400);
+    timers.current.push(delay);
+  }
+
+  const shown = draft ?? format(value);
+  return (
+    <div className={`editor-time-stepper${disabled ? " is-disabled" : ""}`} role="group" aria-label={label}>
+      <input type="text" inputMode="decimal" role="spinbutton" aria-label={label} value={shown} disabled={disabled}
+        aria-valuenow={Number((value / 1000).toFixed(3))} aria-valuemin={min / 1000} aria-valuemax={max / 1000} aria-valuetext={`${format(value)} seconds`}
+        onChange={(event) => {
+          const text = event.target.value.replace(/[^0-9.]/g, "");
+          setDraft(text);
+          const seconds = Number(text);
+          if (text !== "" && Number.isFinite(seconds)) onCommit(clamp(seconds * 1000));
+        }}
+        onBlur={() => setDraft(null)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") { setDraft(null); event.currentTarget.blur(); return; }
+          if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+          event.preventDefault();
+          setDraft(null);
+          onHoldStart?.();
+          onStep(event.key === "ArrowUp" ? 1 : -1);
+          onHoldEnd?.();
+        }} />
+      <span className="editor-time-stepper-arrows">
+        <button type="button" aria-label={`Increase ${label}`} disabled={disabled || value >= max}
+          onPointerDown={() => { setDraft(null); hold(1); }} onPointerUp={stopHold} onPointerLeave={stopHold}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHoldStart?.(); onStep(1); onHoldEnd?.(); } }}><ChevronUp size={11} aria-hidden="true" /></button>
+        <button type="button" aria-label={`Decrease ${label}`} disabled={disabled || value <= min}
+          onPointerDown={() => { setDraft(null); hold(-1); }} onPointerUp={stopHold} onPointerLeave={stopHold}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHoldStart?.(); onStep(-1); onHoldEnd?.(); } }}><ChevronDown size={11} aria-hidden="true" /></button>
+      </span>
+    </div>
+  );
 }
