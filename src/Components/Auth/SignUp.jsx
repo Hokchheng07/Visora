@@ -24,7 +24,7 @@ import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
 import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
 import { EASE } from "../../lib/animations/animations";
-import { PasswordStrengthIndicator } from "@/components/lightswind/password-strength-indicator";
+import { PasswordStrengthIndicator } from "@/Components/lightswind/password-strength-indicator";
 
 const fields = [
   { name: "firstName", label: "First name", placeholder: "Enter your first name", icon: UserIcon },
