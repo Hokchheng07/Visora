@@ -17,10 +17,7 @@ export default function TemplateGrid({
   totalPages,
   onPageChange,
 }) {
-  const previewLoader = import.meta.env.DEV
-    && new URLSearchParams(window.location.search).has("loader-preview");
-
-  if (loading || previewLoader) {
+  if (loading) {
     return (
       <section className="flex min-h-[320px] min-w-0 flex-1 items-center justify-center md:min-h-[380px] lg:min-h-[420px]">
         <VisoraLoader label="Preparing your templates…" />
