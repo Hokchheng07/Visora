@@ -7,6 +7,7 @@
 @import "./styles/editor-fonts.css";
 @import "./styles/foundation.css";
 @import "./styles/components/navbar.css";
+@import "./styles/components/visora-loader.css";
 @import "./styles/pages/home.css";
 @import "./styles/components/hanging-cards.css";
 @import "./styles/pages/about.css";

@@ -19,6 +19,7 @@ import {
 } from "../../../lib/animations/animations";
 import useFetchHomepage from "../../../hooks/useFetchHomepage";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
+import VisoraLoader from "../../ui/VisoraLoader.jsx";
 
 const fadedArtworkReveal = {
   hidden: { opacity: 0, scale: 0.94, y: 30 },
@@ -118,9 +119,11 @@ export default function KhmerDesignShowcase() {
             variants={staggerContainer(0.16, 0.05)}
           >
             {loading && (
-              <p className="col-span-full py-12 text-center text-lg text-[var(--text-muted)]">
-                Loading Khmer designs…
-              </p>
+              <VisoraLoader
+                className="col-span-full py-8"
+                label="Gathering Khmer-inspired designs…"
+                compact
+              />
             )}
 
             {!loading && error && (

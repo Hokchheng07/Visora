@@ -1,7 +1,8 @@
-import { LoaderCircle, Search, TriangleAlert } from "lucide-react";
+import { Search, TriangleAlert } from "lucide-react";
 
 import Pagination from "./Pagination";
 import TemplateCard from "./TemplateCard";
+import VisoraLoader from "../ui/VisoraLoader";
 
 export default function TemplateGrid({
   templates,
@@ -16,16 +17,13 @@ export default function TemplateGrid({
   totalPages,
   onPageChange,
 }) {
-  if (loading) {
+  const previewLoader = import.meta.env.DEV
+    && new URLSearchParams(window.location.search).has("loader-preview");
+
+  if (loading || previewLoader) {
     return (
       <section className="flex min-h-[320px] min-w-0 flex-1 items-center justify-center md:min-h-[380px] lg:min-h-[420px]">
-        <div className="text-center">
-          <LoaderCircle className="mx-auto h-9 w-9 animate-spin text-primary lg:h-10 lg:w-10" />
-
-          <p className="mt-3 text-sm text-[var(--text-body)]">
-            Loading templates...
-          </p>
-        </div>
+        <VisoraLoader label="Preparing your templates…" />
       </section>
     );
   }
