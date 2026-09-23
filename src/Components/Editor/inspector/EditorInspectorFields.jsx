@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, RotateCcw, RotateCw } from "lucide-react";
+import { Check, Eye, EyeOff, Minus, Pipette, Plus, RotateCcw, RotateCw } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
 import { targetChanged } from "../../redux/editorSlice.js";
 import { RecentColours, SelectMenu, ToolPopover } from "../ui/EditorControls.jsx";
@@ -183,6 +183,25 @@ const SWATCHES = [
 /* Colour, as one row in one frame: swatch (opens document colours and a custom
    picker), hex, and optionally opacity. Swatches and typed values commit once;
    dragging in the custom picker is one session. */
+/* Sample a colour from anywhere on the screen. The native EyeDropper is
+   Chromium/Safari-only, so the button is shown only where it exists rather than
+   offering a control that would do nothing. `open()` rejects when the user
+   presses Escape — a cancel, not an error, so it is swallowed. */
+function EyeDropperButton({ label, onPick }) {
+  if (typeof window === "undefined" || typeof window.EyeDropper !== "function") return null;
+  const pick = async () => {
+    try {
+      const { sRGBHex } = await new window.EyeDropper().open();
+      if (sRGBHex) onPick(sRGBHex.toUpperCase());
+    } catch { /* the user cancelled the eyedropper */ }
+  };
+  return (
+    <button type="button" className="editor-popover-eyedrop" onClick={pick} aria-label={`Pick ${label.toLowerCase()} from the screen`}>
+      <Pipette size={14} aria-hidden="true" /><span>Pick from screen</span>
+    </button>
+  );
+}
+
 export function ColourRow({ label, value, opacity, target, property = "fill", toChanges, disabled, quickSwatches,
   toOpacityChanges = (next) => ({ opacity: next / 100 }), opacityProperty = "opacity", dimmed = false }) {
   const dispatch = useAppDispatch();
@@ -224,6 +243,7 @@ export function ColourRow({ label, value, opacity, target, property = "fill", to
               onChange={(event) => session.update(target, property, toChanges(event.target.value.toUpperCase()))}
               onBlur={session.finish} />
           </label>
+          <EyeDropperButton label={label} onPick={(colour) => { remember(colour); commit(colour); }} />
         </ToolPopover>
         <DraftInput className="editor-inspector-hex" aria-label={`${label} hex`} disabled={disabled} spellCheck={false} maxLength={7}
           value={safe.slice(1)} context={target}
@@ -343,5 +363,38 @@ export function IconAction({ icon: Icon, label, onClick, disabled, pressed, clas
       aria-pressed={pressed} onClick={onClick}>
       <Icon size={15} aria-hidden="true" />
     </button>
+  );
+}
+
+/* Outline for text and timer digits. Unlike a shape's SVG stroke there is no
+   inside/outside alignment or dash — a -webkit-text-stroke sits on the glyph
+   edge — so this offers only colour, opacity and width, following the same
+   add / hide / remove pattern as the shape stroke. */
+const NEW_TEXT_STROKE = { stroke: "#211D29", strokeWidth: 4, strokeOpacity: 1, strokeVisible: true };
+
+export function TextStrokeSection({ element, target, busy }) {
+  const dispatch = useAppDispatch();
+  const commit = (changes) => dispatch(targetChanged({ target, changes }));
+  const hasStroke = !!element.stroke && element.stroke !== "transparent";
+  return (
+    <InspectorSection title="Stroke" action={hasStroke
+      ? <IconAction icon={Minus} label="Remove stroke" disabled={busy} onClick={() => commit({ stroke: null, strokeWidth: 0 })} />
+      : <IconAction icon={Plus} label="Add stroke" disabled={busy} onClick={() => commit(NEW_TEXT_STROKE)} />}>
+      {hasStroke && (
+        <>
+          <div className="editor-inspector-paint">
+            <ColourRow label="Stroke" value={element.stroke} opacity={element.strokeOpacity ?? 1} target={target} disabled={busy}
+              property="stroke" dimmed={element.strokeVisible === false} toChanges={(stroke) => ({ stroke })}
+              opacityProperty="strokeOpacity" toOpacityChanges={(next) => ({ strokeOpacity: next / 100 })} />
+            <IconAction icon={element.strokeVisible === false ? EyeOff : Eye} disabled={busy}
+              label={element.strokeVisible === false ? "Show stroke" : "Hide stroke"} onClick={() => commit({ strokeVisible: element.strokeVisible === false })} />
+          </div>
+          <div className="editor-inspector-grid">
+            <NumberField label="Stroke width" name="≡" min={0} max={50} value={element.strokeWidth || 0} target={target}
+              property="strokeWidth" disabled={busy} toChanges={(strokeWidth) => ({ strokeWidth })} />
+          </div>
+        </>
+      )}
+    </InspectorSection>
   );
 }

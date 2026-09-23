@@ -24,6 +24,7 @@ import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
 import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
 import { EASE } from "../../lib/animations/animations";
+import { PasswordStrengthIndicator } from "@/Components/lightswind/password-strength-indicator";
 
 const fields = [
   { name: "firstName", label: "First name", placeholder: "Enter your first name", icon: UserIcon },
@@ -31,12 +32,9 @@ const fields = [
   { name: "username", label: "Username", placeholder: "Enter your username", icon: AtSymbolIcon, full: true },
   { name: "phoneNumber", label: "Phone number", placeholder: "+85512345678", icon: PhoneIcon, full: true },
   { name: "email", label: "Email Address", placeholder: "example@gmail.com", icon: EnvelopeIcon, full: true, type: "email" },
-  { name: "password", label: "Password", placeholder: "Enter your password", icon: LockClosedIcon, type: "password" },
-  { name: "confirmPassword", label: "Confirm Password", placeholder: "Confirm Password", icon: LockClosedIcon, type: "password" },
 ];
 
 export default function SignUp() {
-  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registerRequest] = useUserRegisterMutation();
   const navigate = useNavigate();
@@ -71,7 +69,7 @@ export default function SignUp() {
     });
 
   // define useForm
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
     defaultValues: {
@@ -85,11 +83,14 @@ export default function SignUp() {
       termsAccepted: false,
     },
   });
+  const password = watch("password");
+  const showConfirmation = password.length > 0;
+  const passwordRegistration = register("password");
 
   // custom register logic
   const handleRegisterSubmit = async (data) => {
     // termsAccepted is only for the form, the server doesn't need it
-    const { termsAccepted, ...userRegisterRequest } = data;
+    const { termsAccepted: _termsAccepted, ...userRegisterRequest } = data;
 
     try {
       const result = await registerRequest({
@@ -119,46 +120,24 @@ export default function SignUp() {
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
             <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
-          <header className="relative mb-8 max-w-[560px] lg:mb-10">
+          <header className="relative mb-6 max-w-[560px]">
             <img src={signupCrown} alt="" aria-hidden="true" className="pointer-events-none absolute -right-14 -top-14 hidden w-24 rotate-[45deg] lg:block" />
             <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl dark:text-white">Create an Account</h1>
-            <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-8 lg:text-xl lg:leading-7 dark:text-[#bcbccd]">Join Visora and start designing stunning event backdrops in minutes</p>
           </header>
 
           <form onSubmit={handleSubmit(handleRegisterSubmit)} noValidate>
-            <div className="grid grid-cols-1 gap-x-8 gap-y-4 lg:grid-cols-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-8 lg:gap-y-5">
               {fields.map(({ name, label, placeholder, icon: Icon, full, type = "text" }) => (
-                <label key={name} className={`block ${full ? "lg:col-span-2" : ""}`}>
-                  <span className="mb-1.5 block text-sm font-semibold text-gray-700 sm:text-base lg:mb-2 lg:text-lg dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
+                <label key={name} className={`block ${full ? "col-span-2" : ""}`}>
+                  <span className="mb-1 block text-sm font-semibold text-gray-700 sm:text-base lg:text-base dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
                   <span className="relative block">
-                    {(full || type === "password") && <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 lg:left-5 lg:h-6 lg:w-6" />}
+                    {(full || type === "password") && <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />}
                     <input
-                      type={type === "password" && ((name === "password" && showPassword) || (name === "confirmPassword" && showConfirmPassword)) ? "text" : type}
+                      type={type}
                       placeholder={placeholder}
-                      className={`h-12 w-full rounded-lg border bg-white dark:bg-[#1a1a28] px-4 text-sm text-gray-700 outline-none dark:text-gray-100 transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base lg:h-14 ${full || type === "password" ? "pl-12 lg:pl-16" : ""} ${type === "password" ? "pr-12" : ""} ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
+                      className={`h-11 w-full rounded-lg border bg-white px-4 text-sm text-gray-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base dark:bg-[#1a1a28] dark:text-gray-100 ${full ? "pl-12" : ""} ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
                       {...register(name)}
                     />
-                    {type === "password" && (
-                      <button
-                        type="button"
-                        aria-label={name === "password" ? (showPassword ? "Hide password" : "Show password") : (showConfirmPassword ? "Hide confirm password" : "Show confirm password")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-primary"
-                        onClick={() => name === "password" ? setShowPassword((visible) => !visible) : setShowConfirmPassword((visible) => !visible)}
-                      >
-                        <AnimatePresence mode="wait" initial={false}>
-                          <motion.span
-                            key={(name === "password" ? showPassword : showConfirmPassword) ? "hide" : "show"}
-                            className="block"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.12 }}
-                          >
-                            {(name === "password" ? showPassword : showConfirmPassword) ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                          </motion.span>
-                        </AnimatePresence>
-                      </button>
-                    )}
                   </span>
                   <AnimatePresence initial={false}>
                     {errors[name] && (
@@ -176,6 +155,74 @@ export default function SignUp() {
                   </AnimatePresence>
                 </label>
               ))}
+
+              <PasswordStrengthIndicator
+                className="col-span-2"
+                value={password}
+                label="Password"
+                placeholder="Enter your password"
+                required
+                error={errors.password?.message}
+                inputProps={{
+                  ...passwordRegistration,
+                  onChange: undefined,
+                }}
+                onChange={(value) => {
+                  setValue("password", value, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                  if (!value) {
+                    setValue("confirmPassword", "", { shouldDirty: true, shouldValidate: false });
+                    setShowConfirmPassword(false);
+                  }
+                }}
+              />
+
+              <AnimatePresence initial={false}>
+                {showConfirmation && (
+                  <motion.label
+                    key="confirm-password"
+                    className="col-span-2 block"
+                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: EASE }}
+                  >
+                    <span className="mb-2 block text-sm font-semibold text-gray-700 sm:text-base dark:text-gray-200">Confirm Password <span className="text-red-600">*</span></span>
+                    <span className="relative block">
+                      <LockClosedIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm your password"
+                        autoComplete="new-password"
+                        className={`h-11 w-full rounded-lg border bg-white pl-12 pr-12 text-sm text-gray-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base dark:bg-[#1a1a28] dark:text-gray-100 ${errors.confirmPassword ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
+                        {...register("confirmPassword")}
+                      />
+                      <button
+                        type="button"
+                        aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                        aria-pressed={showConfirmPassword}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition hover:text-primary"
+                        onClick={() => setShowConfirmPassword((visible) => !visible)}
+                      >
+                        {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      </button>
+                    </span>
+                    <AnimatePresence initial={false}>
+                      {errors.confirmPassword && (
+                        <motion.span
+                          key="confirm-error"
+                          className="mt-1 block text-xs text-red-600 sm:text-sm"
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.2, ease: EASE }}
+                        >
+                          {errors.confirmPassword.message}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.label>
+                )}
+              </AnimatePresence>
             </div>
 
             <label className="mt-5 flex items-start gap-2 text-sm leading-5 text-gray-600 lg:mt-6 dark:text-[#bcbccd]">
@@ -197,16 +244,16 @@ export default function SignUp() {
               )}
             </AnimatePresence>
 
-            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
-              <span>Sign Up</span><ArrowRight className="size-5 shrink-0 lg:size-6" strokeWidth={2.25} aria-hidden="true" />
+            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-11 w-full max-w-none gap-3 text-base lg:mt-6 lg:text-lg">
+              <span>Sign Up</span><ArrowRight className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true" />
             </button>
 
-            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or Sign up with<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
-            <div className="grid gap-3">
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Google</span></span></button>
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Facebook</span></span></button>
+            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or Sign up with<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
+            <div className="grid gap-3.5">
+              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Google</span></span></button>
+              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Facebook</span></span></button>
             </div>
-            <p className="mt-6 text-center text-gray-400">Already have an account? <Link to="/auth/login" className="font-medium text-primary hover:underline">Log in</Link></p>
+            <p className="mt-5 text-center text-gray-400 lg:mt-6">Already have an account? <Link to="/auth/login" className="font-medium text-primary hover:underline">Log in</Link></p>
           </form>
         </div>
       </section>

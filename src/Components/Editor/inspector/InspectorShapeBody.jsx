@@ -28,7 +28,7 @@ const STROKE_LABELS = { inside: "Inside", center: "Center", outside: "Outside" }
 const NEW_FILL = { fill: "#D9D9D9", fillOpacity: 1, fillVisible: true };
 const NEW_STROKE = { stroke: "#211D29", strokeWidth: 4, strokeAlign: "inside", strokeOpacity: 1, strokeVisible: true };
 const SHAPE_STYLE = { fill: "#AD8DEA", fillOpacity: 1, fillVisible: true, opacity: 1, stroke: null, strokeWidth: 0, cornerRadius: 0, cornerRadii: null,
-  gradient: null, strokeStyle: "solid", strokeDash: null, strokeJoin: "miter", miterAngle: 28.96, effects: [] };
+  gradient: null, fillImage: null, strokeStyle: "solid", strokeDash: null, strokeJoin: "miter", miterAngle: 28.96, effects: [] };
 // The corner icon rounds its top right, so each field turns it to point at its own corner.
 const CORNER_TURNS = [-90, 0, 90, 180];
 
@@ -36,7 +36,7 @@ export default function InspectorShapeBody({ element, target, busy, pointKeys = 
   const dispatch = useAppDispatch();
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
   const gradient = normalizeGradient(element.gradient);
-  const hasFill = !!element.fill || !!gradient;
+  const hasFill = !!element.fill || !!gradient || !!element.fillImage;
   const hasStroke = !!element.stroke && element.stroke !== "transparent";
   const ratio = element.h / element.w;
   const align = (edge) => () => dispatch(selectionAligned(edge));

@@ -93,23 +93,22 @@ export default function Login() {
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
             <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
-          <header className="relative mb-8 max-w-[560px] lg:mb-10 lg:pt-[73px]">
+          <header className="relative mb-6 max-w-[560px] lg:pt-[73px]">
             <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block dark:invert" />
             <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl dark:text-white">Welcome Back</h1>
-            <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7 dark:text-[#bcbccd]">Login to continue designing with Visora</p>
           </header>
 
           <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-4">
               {fields.map(({ name, label, placeholder, icon: Icon, type = "text" }) => (
                 <label key={name} className="block">
-                  <span className="mb-1.5 block text-sm font-semibold text-gray-700 sm:text-base lg:mb-2 lg:text-lg dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
+                  <span className="mb-1 block text-sm font-semibold text-gray-700 sm:text-base dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
                   <span className="relative block">
                     <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                     <input
                       type={type === "password" && showPassword ? "text" : type}
                       placeholder={placeholder}
-                      className={`h-12 w-full rounded-lg border bg-white dark:bg-[#1a1a28] pl-12 pr-12 text-sm text-gray-700 outline-none dark:text-gray-100 transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base lg:h-14 ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
+                      className={`h-11 w-full rounded-lg border bg-white dark:bg-[#1a1a28] pl-12 pr-12 text-sm text-gray-700 outline-none dark:text-gray-100 transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
                       {...register(name)}
                     />
                     {type === "password" && (
@@ -156,14 +155,14 @@ export default function Login() {
               <Link to="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
             </div>
 
-            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
-              <span>Login</span><ArrowRight className="size-5 shrink-0 lg:size-6" strokeWidth={2.25} aria-hidden="true" />
+            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-11 w-full max-w-none gap-3 text-base lg:text-lg">
+              <span>Login</span><ArrowRight className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true" />
             </button>
 
-            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
+            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:gap-4"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
             <div className="grid gap-3">
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Google</span></span></button>
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Facebook</span></span></button>
+              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Google</span></span></button>
+              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Facebook</span></span></button>
             </div>
             <p className="mt-6 text-center text-gray-400">Don't have an account? <Link to="/auth/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
           </form>

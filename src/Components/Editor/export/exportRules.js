@@ -17,11 +17,15 @@ import { isLibrarySrc } from "../model/libraryRef.js";
 // Formats that flatten a page to a picture, and so cannot hold a live element.
 export const STILL_FORMATS = ["pdf", "ai"];
 
-export const TIMER_BLOCK_REASON = "Not available for a backdrop with a timer — export as JSON instead";
+export const TIMER_BLOCK_REASON = "Not available for a backdrop with a timer or live clock — export as JSON instead";
 
-/** True when any page holds a timer. */
+// A timer, a Current Time or a Date all run in front of an audience; a still
+// copy of any of them is a screenshot of a stopped clock.
+const isLive = (element) => element?.type === "timer" || element?.dynamic === "time" || element?.dynamic === "date";
+
+/** True when any page holds a timer or a live clock. */
 export function hasTimer(editor) {
-  return (editor?.pages || []).some((page) => (page?.elements || []).some((element) => element?.type === "timer"));
+  return (editor?.pages || []).some((page) => (page?.elements || []).some(isLive));
 }
 
 /** Why `format` cannot be exported right now, or null when it can. */

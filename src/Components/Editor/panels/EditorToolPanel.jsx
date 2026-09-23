@@ -12,7 +12,7 @@ import { IMAGE_TYPES, useImageUpload } from "./useImageUpload.js";
 import { useUploadHistory, withDocumentImages } from "./uploadHistory.js";
 import { getStorageUrl } from "../../API/storageApi";
 import { useCurrentUser } from "../../Account/useCurrentUser";
-import { ShapeArtwork } from "../canvas/EditorElement.jsx";
+import { ElementArtwork, ShapeArtwork } from "../canvas/EditorElement.jsx";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
 import { defaultTimer } from "../model/editorDocument.js";
 import { DEFAULT_EDITOR_TEXT_COLOR } from "../model/editorDefaults.js";
@@ -257,6 +257,14 @@ const TIMER_KINDS = [
   { mode: "STOPWATCH", title: "Stopwatch", hint: "Counts up from zero, with Start/Stop and Reset" },
 ];
 
+/* The two live clocks (functional requirement 3), added beside the timers.
+   Each is inserted as a dynamic text element; the preview is the real
+   ElementArtwork, so it ticks exactly as it will on the page. */
+const CLOCK_COMPONENTS = [
+  { preset: "time", title: "Current Time", hint: "A live clock that updates on the page and in Display mode", dynamic: "time", clockFormat: "24hms", fontSize: 120, fontWeight: 600, w: 720 },
+  { preset: "date", title: "Date", hint: "Today's date, updated automatically", dynamic: "date", clockFormat: "long", fontSize: 72, fontWeight: 500, w: 900 },
+];
+
 function TimerPreview({ mode }) {
   const element = { id: `preview-${mode}`, type: "timer", w: 900, h: 460, fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", fontSize: 120,
     timer: defaultTimer("HH:MM:SS", {}, mode) };
@@ -268,16 +276,37 @@ function TimerPreview({ mode }) {
   );
 }
 
+/* A live clock preview. The sample sheet is a 1920-wide slice, so the element's
+   cqw font size matches the canvas; the slot is the element's own width in it. */
+function ClockPreview({ dynamic, clockFormat, fontSize, fontWeight, w }) {
+  const element = { id: `preview-${dynamic}`, type: "text", dynamic, clockFormat, opacity: 1,
+    fill: DEFAULT_EDITOR_TEXT_COLOR, fontFamily: "Poppins", fontSize, fontWeight, textAlign: "center", lineHeight: 1.2, letterSpacing: 0 };
+  return (
+    <span className="editor-timer-sample" aria-hidden="true">
+      <span className="editor-timer-sample-sheet">
+        <span className="editor-clock-slot" style={{ width: `calc(100% * ${w} / 1920)` }}><ElementArtwork element={element} /></span>
+      </span>
+    </span>
+  );
+}
+
 function TimerPanel() {
   const dispatch = useAppDispatch();
   return (
     <>
-      <p className="editor-panel-description">Pick a timer to add it. Change its colours and buttons in Customize.</p>
+      <p className="editor-panel-description">Pick a timer or clock to add it. Change its colours, format and buttons in Customize.</p>
       <div className="editor-timer-kinds">
         {TIMER_KINDS.map(({ mode, title, hint }) => (
           <button key={mode} type="button" className="editor-timer-preview" aria-label={`Add a ${title.toLowerCase()}`} title={hint}
             onClick={() => dispatch(timerInserted(mode))}>
             <TimerPreview mode={mode} />
+            <span className="editor-timer-kind"><b>{title}</b></span>
+          </button>
+        ))}
+        {CLOCK_COMPONENTS.map(({ preset, title, hint, ...preview }) => (
+          <button key={preset} type="button" className="editor-timer-preview" aria-label={`Add ${title.toLowerCase()}`} title={hint}
+            onClick={() => dispatch(textInserted(preset))}>
+            <ClockPreview {...preview} />
             <span className="editor-timer-kind"><b>{title}</b></span>
           </button>
         ))}

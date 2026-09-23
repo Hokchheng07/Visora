@@ -2,7 +2,7 @@ import { useAppDispatch } from "../../redux/hook.js";
 import { targetChanged } from "../../redux/editorSlice.js";
 import { TIMER_BUTTON_COLORS, TIMER_FORMATS, TIMER_MAX_MS, TIMER_MIN_MS, TIMER_SOUNDS } from "../model/editorDocument.js";
 import {
-  ColourRow, DraftInput, FieldLabel, InspectorSection, LayoutFields, ResetStyle, SelectField, ToggleRow,
+  ColourRow, DraftInput, FieldLabel, InspectorSection, LayoutFields, ResetStyle, SelectField, TextStrokeSection, ToggleRow,
 } from "./EditorInspectorFields.jsx";
 import { Segmented } from "../ui/EditorControls.jsx";
 import { elementsTarget, timerTarget } from "./inspectorEdit.js";
@@ -111,6 +111,8 @@ export default function InspectorTimerBody({ element, pageId, busy }) {
         <ColourRow label="Timer colour" value={element.fill} opacity={element.opacity ?? 1} target={style} disabled={busy}
           toChanges={(fill) => ({ fill })} quickSwatches={STYLE_SWATCHES} />
       </InspectorSection>
+
+      <TextStrokeSection element={element} target={style} busy={busy} />
 
       <InspectorSection title="Controls shown">
         {(stopwatch ? STOPWATCH_CONTROLS : COUNTDOWN_CONTROLS).map(([key, label]) => (

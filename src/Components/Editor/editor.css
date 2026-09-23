@@ -332,6 +332,8 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-timer-sample { position: relative; display: block; width: 100%; aspect-ratio: 900 / 460; overflow: hidden; }
 .editor-timer-sample-sheet { position: absolute; top: 0; left: 50%; width: calc(100% * 1920 / 900); height: 100%; translate: -50% 0; container-type: inline-size; }
 .editor-timer-sample-sheet .editor-timer-art { position: absolute; top: 0; left: 50%; width: calc(100% * 900 / 1920); height: 100%; translate: -50% 0; }
+/* A live clock preview sits in the same 1920 slice, its own width centred, so its cqw font size matches the canvas. */
+.editor-timer-sample-sheet .editor-clock-slot { position: absolute; top: 0; left: 50%; height: 100%; translate: -50% 0; }
 /* Timer tiles: the live preview on white, then the kind's name and what it does. */
 .editor-timer-kinds { display: grid; gap: 12px; margin-top: 14px; }
 .editor-timer-kinds .editor-timer-preview { margin: 0; display: grid; text-align: left; }
@@ -649,6 +651,9 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-swatch svg { mix-blend-mode: difference; }
 .editor-popover-custom { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 2px; color: var(--editor-muted); font-size: 12px; }
 .editor-popover-custom input { width: 42px; height: 28px; padding: 0; border: 1px solid var(--editor-border); border-radius: 7px; background: transparent; cursor: pointer; }
+.editor-popover-eyedrop { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-top: 8px; padding: 7px 10px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-ink); font-size: 12px; font-weight: 500; cursor: pointer; transition: border-color 120ms ease; }
+.editor-popover-eyedrop:hover { border-color: color-mix(in srgb, var(--color-primary) 55%, var(--editor-border)); }
+.editor-popover-eyedrop:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 /* Slider + number, always paired: the slider for feel, the number for precision. */
 .editor-field { display: flex; flex-direction: column; gap: 7px; }
@@ -813,6 +818,11 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-gradient-swatch { flex: none; width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 18%, transparent); }
 .editor-gradient-label { flex: 1; min-width: 0; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .editor-gradient-preview { display: block; height: 34px; border-radius: var(--field-r); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); }
+.editor-fill-image { display: grid; gap: 8px; margin-top: 8px; }
+.editor-fill-image-preview { display: block; height: 88px; border-radius: var(--field-r); background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); }
+.editor-fill-image .editor-panel-primary { min-height: 40px; font-size: 13px !important; }
+.editor-fill-image-remove { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-muted); font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-fill-image-remove:hover { color: var(--color-danger, #c4443e); border-color: color-mix(in srgb, var(--color-danger, #c4443e) 45%, var(--editor-border)); }
 .editor-inspector-number.editor-gradient-offset { width: 70px; flex: none; }
 .editor-gradient-offset input { text-align: right; }
 
@@ -1133,3 +1143,38 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-time-stepper:hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
   .editor-time-stepper-arrows button:not(:disabled):hover { background: var(--editor-raised); color: var(--color-primary); }
 }
+
+/* Publish: the topbar button and the template modal it opens. */
+.editor-topbar-actions .editor-publish-button { border-color: var(--color-primary); background: var(--color-primary); color: white; }
+@media (hover: hover) { .editor-topbar-actions .editor-publish-button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 88%, black); } }
+
+.editor-publish-backdrop { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgb(0 0 0 / .45); backdrop-filter: blur(3px); }
+.editor-publish-modal { position: relative; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; padding: 26px; border: 1px solid var(--editor-border); border-radius: 22px; background: var(--editor-surface); color: var(--editor-ink); box-shadow: 0 25px 80px rgb(0 0 0 / .28); }
+.editor-publish-close { position: absolute; top: 16px; right: 16px; display: grid; width: 34px; height: 34px; place-items: center; border: none; border-radius: 999px; background: transparent; color: var(--editor-muted); cursor: pointer; transition: background-color 120ms ease, color 120ms ease; }
+.editor-publish-close:hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); }
+.editor-publish-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; padding-right: 40px; }
+.editor-publish-badge { display: grid; width: 40px; height: 40px; flex: none; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); }
+.editor-publish-head h2 { font-size: 20px; font-weight: 700; }
+.editor-publish-head p { margin-top: 3px; color: var(--editor-muted); font-size: 13px; }
+.editor-publish-label { margin-bottom: 6px; font-size: 12px; font-weight: 600; }
+.editor-publish-preview { position: relative; margin-bottom: 18px; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 14px; background: color-mix(in srgb, var(--editor-ink) 6%, var(--editor-surface)); }
+.editor-publish-preview img { width: 100%; height: 100%; object-fit: contain; }
+.editor-publish-preview-busy { display: flex; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--editor-muted); font-size: 13px; }
+.editor-publish-thumb-change { position: absolute; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--editor-border); border-radius: 8px; background: color-mix(in srgb, var(--editor-surface) 88%, transparent); color: var(--editor-ink); font-size: 12px; font-weight: 500; cursor: pointer; backdrop-filter: blur(4px); }
+.editor-publish-thumb-change:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.editor-publish-field { display: block; margin-bottom: 16px; }
+.editor-publish-field > span { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; }
+.editor-publish-field input, .editor-publish-field textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-ink); font-size: 14px; outline: none; transition: border-color 120ms ease, box-shadow 120ms ease; }
+.editor-publish-field textarea { resize: none; }
+.editor-publish-field input:focus, .editor-publish-field textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent); }
+.editor-publish-visibility { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+.editor-publish-vis { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 8px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease; }
+.editor-publish-vis:hover { border-color: color-mix(in srgb, var(--color-primary) 40%, var(--editor-border)); }
+.editor-publish-vis.is-active { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+.editor-publish-error { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, #c4443e 12%, transparent); color: #c4443e; font-size: 13px; }
+.editor-publish-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.editor-publish-cancel { padding: 10px 18px; border: none; border-radius: 12px; background: transparent; color: var(--editor-muted); font-size: 14px; cursor: pointer; }
+.editor-publish-cancel:hover { background: color-mix(in srgb, var(--color-primary) 6%, transparent); }
+.editor-publish-submit { display: flex; align-items: center; gap: 8px; padding: 10px 22px; border: none; border-radius: 12px; background: var(--color-primary); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
+.editor-publish-submit:hover:not(:disabled) { background: color-mix(in srgb, var(--color-primary) 88%, black); }
+.editor-publish-submit:disabled, .editor-publish-cancel:disabled { opacity: .55; cursor: default; }

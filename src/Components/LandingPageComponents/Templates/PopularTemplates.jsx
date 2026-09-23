@@ -15,6 +15,7 @@ import topWave from "../../../assets/pages/home/popular-templates/PopularTemplat
 import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
 import useFetchHomepage from '../../../hooks/useFetchHomepage';
 import CosmicDust from "../../Effects/CosmicDust.jsx";
+import VisoraLoader from "../../ui/VisoraLoader.jsx";
 
 export default function PopularTemplates() {
   const {
@@ -68,9 +69,11 @@ export default function PopularTemplates() {
           variants={staggerContainer(0.15, 0.15)}
         >
           {loading && (
-            <p className="col-span-full py-12 text-center text-lg text-[var(--text-muted)]">
-              Loading templates…
-            </p>
+            <VisoraLoader
+              className="col-span-full py-8"
+              label="Curating popular templates…"
+              compact
+            />
           )}
 
           {!loading && error && (

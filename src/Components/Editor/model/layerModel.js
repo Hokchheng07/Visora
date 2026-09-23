@@ -197,6 +197,8 @@ export function layerLabel(element) {
   if (element?.type === "timer") return element.timer?.mode === "STOPWATCH" ? "Stopwatch" : "Countdown timer";
   if (element?.type === "image") return "Image";
   if (element?.type === "text" && element.pageNumber) return "Page number";
+  if (element?.type === "text" && element.dynamic === "time") return "Current time";
+  if (element?.type === "text" && element.dynamic === "date") return "Date";
   if (element?.type === "text") {
     const words = String(element.content || "").replace(/\s+/g, " ").trim();
     return words ? (words.length > 40 ? `${words.slice(0, 39)}…` : words) : "Empty text";

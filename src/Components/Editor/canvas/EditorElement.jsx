@@ -14,6 +14,31 @@ import EditorImageCropper from "./EditorImageCropper.jsx";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { cropStarted, elementSelected, pointEditStarted, targetChanged } from "../../redux/editorSlice.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
+import { clockTickMs, formatClock, isClockKind } from "../model/clockText.js";
+import { textStrokeStyle } from "../model/textStroke.js";
+import { imageUrlFor } from "./imageSource.js";
+
+/* Current Time and Date read their words live from the clock, never from the
+   document — the value ticks in the component, so a running clock never rewrites
+   the design or floods undo. A plain text layer returns its own content and
+   never starts a timer. */
+function useClockContent(element) {
+  const kind = element.dynamic;
+  const format = element.clockFormat;
+  const live = isClockKind(kind);
+  /* The current time is reactive state, not a bare new Date() read in render:
+     the React Compiler memoises this component, and a value read from outside
+     React (the clock) is not a dependency it can see, so it would cache the
+     first reading forever. Ticking `now` is the dependency that recomputes it. */
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!live) return undefined;
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), clockTickMs(kind, format));
+    return () => clearInterval(id);
+  }, [live, kind, format]);
+  return live ? formatClock(kind, format, new Date(now)) : element.content;
+}
 
 /*
  * Every shape is an SVG path built from point data (vectorPath.js) in the
@@ -40,6 +65,7 @@ export function ShapeArtwork({ element, fit = false }) {
   const w = element.w || preset?.w || 100, h = element.h || preset?.h || 100;
   const d = shapePath({ shape: element.shape, vector: element.vector, w, h, cornerRadius: element.cornerRadius || 0, cornerRadii: element.cornerRadii, flipX: element.flipX, flipY: element.flipY });
   const gradient = normalizeGradient(element.gradient);
+  const fillImageUrl = element.fillImage && element.fillVisible !== false ? imageUrlFor(element.fillImage) : null;
   const fillOn = (!!element.fill || !!gradient) && element.fillVisible !== false;
   const ramp = gradient && gradientVector(gradient.angle);
   const strokeWidth = element.strokeWidth || 0;
@@ -51,7 +77,7 @@ export function ShapeArtwork({ element, fit = false }) {
   const svg = (
     <svg className="editor-element-art editor-vector-art" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio={fit ? "xMidYMid meet" : "none"} aria-hidden="true"
       style={effects ? undefined : { opacity: element.opacity }}>
-      {((align && align !== "center") || gradient) && (
+      {((align && align !== "center") || gradient || fillImageUrl) && (
         <defs>
           {gradient && (
             <linearGradient id={`fill-${id}`} x1={ramp.x1} y1={ramp.y1} x2={ramp.x2} y2={ramp.y2}>
@@ -60,6 +86,7 @@ export function ShapeArtwork({ element, fit = false }) {
               ))}
             </linearGradient>
           )}
+          {fillImageUrl && <clipPath id={`imgclip-${id}`}><path data-morph-path="" d={d} /></clipPath>}
           {align === "inside" && <clipPath id={`clip-${id}`}><path data-morph-path="" d={d} /></clipPath>}
           {align === "outside" && (
             <mask id={`mask-${id}`} maskUnits="userSpaceOnUse" x={-margin} y={-margin} width={w + margin * 2} height={h + margin * 2}>
@@ -70,6 +97,8 @@ export function ShapeArtwork({ element, fit = false }) {
         </defs>
       )}
       {fillOn && <path data-morph-path="" data-morph-fill="" d={d} fill={gradient ? `url(#fill-${id})` : element.fill} fillOpacity={element.fillOpacity ?? 1} />}
+      {/* An image fill sits over the solid fallback, clipped to the shape and covering the box like object-fit: cover. */}
+      {fillImageUrl && <image href={fillImageUrl} x="0" y="0" width={w} height={h} preserveAspectRatio="xMidYMid slice" clipPath={`url(#imgclip-${id})`} />}
       {strokeOn && (
         <path data-morph-path="" d={d} fill="none" stroke={element.stroke} strokeOpacity={element.strokeOpacity ?? 1}
           strokeWidth={align === "center" ? strokeWidth : strokeWidth * 2} {...strokePaint(element)}
@@ -106,14 +135,18 @@ function outdent(node) {
 }
 
 export function ElementArtwork({ element, editable = false, onCommit, onCancel, onDraft, draft, editRef }) {
+  // Always first: a dynamic clock ticks through this even though only text draws it.
+  const liveContent = useClockContent(element);
   if (element.type === "timer") return <TimerArtwork element={element} />;
   if (element.type === "image") return <ImageArtwork element={element} />;
   if (element.type !== "text") return <ShapeArtwork element={element} />;
+  // A live clock is never edited by hand, so it always shows the generated value.
+  const content = editable && !isClockKind(element.dynamic) ? element.content : liveContent;
   const style = { color: element.fill, opacity: element.opacity, fontFamily: element.fontFamily, fontSize: `${element.fontSize / 19.2}cqw`,
     fontWeight: element.fontWeight, fontStyle: element.fontStyle, textAlign: element.textAlign, lineHeight: element.lineHeight,
     textDecoration: element.textDecoration === "underline" ? "underline" : "none",
     justifyContent: element.textAlign === "left" ? "flex-start" : element.textAlign === "right" ? "flex-end" : "center",
-    letterSpacing: `${element.letterSpacing / 19.2}cqw` };
+    letterSpacing: `${element.letterSpacing / 19.2}cqw`, ...textStrokeStyle(element) };
   /* plaintext-only makes Enter insert a real line break and innerText read it
      back; with a plain contentEditable the browser inserts <div>/<br> and
      textContent drops them, which lost every line break typed on the canvas.
@@ -133,14 +166,17 @@ export function ElementArtwork({ element, editable = false, onCommit, onCancel, 
     const list = (
       <span className="editor-element-art editor-text-art editor-list-art" style={style}>
         <List className={`editor-text-list${inside ? " is-inside" : ""}`} style={{ listStyleType: listStyle }}>
-          {listLines(element.content).map((line, index) => <li key={index}><span>{line || "\u00A0"}</span></li>)}
+          {listLines(content).map((line, index) => <li key={index}><span>{line || "\u00A0"}</span></li>)}
         </List>
       </span>
     );
     if (!hasVisibleEffects(element)) return list;
     return <span className="editor-element-art editor-element-effects" style={{ filter: `url(#${filterId(element.id)})` }} aria-hidden="true">{list}</span>;
   }
-  const text = <span key={element.content} ref={editRef} className={`editor-element-art editor-text-art${listStyle ? ` editor-text-listing${isOrderedList(listStyle) ? " is-ordered" : ""}` : ""}`} style={style}
+  /* A live clock's words are set on the span at mount, and React does not
+     reconcile the children of a contentEditable node afterwards — so the key
+     carries the live value, remounting the span each tick to commit it. */
+  const text = <span key={isClockKind(element.dynamic) ? `clock-${content}` : element.content} ref={editRef} className={`editor-element-art editor-text-art${listStyle ? ` editor-text-listing${isOrderedList(listStyle) ? " is-ordered" : ""}` : ""}`} style={style}
     contentEditable={editable ? "plaintext-only" : "false"} suppressContentEditableWarning
     // Pasted text can carry non-breaking spaces; they become plain spaces so saved text matches what was typed.
     onBlur={(event) => onCommit?.(event.currentTarget.innerText.replace(/\u00A0/g, " ").replace(/\n$/, ""))}
@@ -157,7 +193,7 @@ export function ElementArtwork({ element, editable = false, onCommit, onCancel, 
         else document.execCommand("insertText", false, TAB);
         onDraft?.(event.currentTarget.innerText.replace(/\u00A0/g, " ").replace(/\n$/, ""));
       }
-    }}>{element.content}</span>;
+    }}>{content}</span>;
   /* The markers, under the text being typed. `aria-hidden` and no pointer:
      it is the same words twice, and only the editable copy may be reached. */
   const markers = editable && listStyle ? (
@@ -216,14 +252,14 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
         {/* While the text is being edited the wrapper stops acting as a button, so the
             editable text is not nested inside one and its keys reach the text. */}
         <div ref={triggerRef} className="editor-element-hit" role={editing ? undefined : "button"} tabIndex={editing ? -1 : 0}
-          aria-label={element.type === "text" ? (element.pageNumber ? `Page number ${element.content}` : `Text: ${element.content}`) : element.type === "timer" ? (element.timer?.mode === "STOPWATCH" ? "Stopwatch" : "Countdown timer") : element.type === "image" ? (element.name ? `Image: ${element.name}` : "Image") : `${shapeName(element.shape)} shape`} aria-pressed={editing ? undefined : selected}
+          aria-label={element.type === "text" ? (element.pageNumber ? `Page number ${element.content}` : element.dynamic === "time" ? "Current time" : element.dynamic === "date" ? "Current date" : `Text: ${element.content}`) : element.type === "timer" ? (element.timer?.mode === "STOPWATCH" ? "Stopwatch" : "Countdown timer") : element.type === "image" ? (element.name ? `Image: ${element.name}` : "Image") : `${shapeName(element.shape)} shape`} aria-pressed={editing ? undefined : selected}
           onPointerDown={(event) => { if (event.button === 0) event.stopPropagation(); }}
           onDoubleClick={(event) => {
             if (locked) return;
             event.stopPropagation();
             if (element.groupId && store.getState().editor.selectionMode === "group") dispatch(elementSelected(element.id));
-            // A page number's digits come from its page, so there is nothing to type.
-            else if (element.type === "text" && !element.pageNumber) { setDraft(element.content); setEditing(true); }
+            // A page number's digits, and a clock's words, are generated — there is nothing to type.
+            else if (element.type === "text" && !element.pageNumber && !isClockKind(element.dynamic)) { setDraft(element.content); setEditing(true); }
             // Double-clicking a shape opens its points, as in Figma.
             else if (element.type === "shape") dispatch(pointEditStarted(element.id));
             // Double-clicking a photo crops it, as in Canva.

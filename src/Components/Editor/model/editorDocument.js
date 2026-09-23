@@ -8,6 +8,7 @@ import { migrateAnimations, normalizeTransition, repairTimeline } from "../anima
 import { normalizePageNumbers } from "./pageNumbers.js";
 import { normalizeListStyle } from "./textLists.js";
 import { DEFAULT_EDITOR_TEXT_COLOR } from "./editorDefaults.js";
+import { defaultClockFormat, isClockKind } from "./clockText.js";
 
 export const EDITOR_SCHEMA_VERSION = 4;
 export const STROKE_ALIGNS = ["inside", "center", "outside"];
@@ -73,8 +74,24 @@ function shapeStyles(element) {
     ...(radius > 0 ? { cornerRadius: radius } : {}),
     // v3 paint. A gradient rides beside `fill`, which stays the solid fallback.
     ...(gradient ? { gradient } : {}),
+    // An image fill is stored as the storage fileName, like an image element's src; `fill` stays the fallback underneath.
+    ...(element.fillImage ? { fillImage: element.fillImage } : {}),
     ...(radii && !sameCorners ? { cornerRadii: radii } : {}),
     ...(effects.length ? { effects } : {}),
+  };
+}
+
+/* Stroke fields for a text or timer element — a -webkit-text-stroke outline, so
+   no align, dash or join, just colour, width and its optional opacity/hidden.
+   Written only when a real stroke is set, so an untouched element saves exactly
+   as it did before the outline existed. */
+function textStrokeSave(element) {
+  const hasStroke = !!element.stroke && element.stroke !== "transparent" && (element.strokeWidth || 0) > 0;
+  if (!hasStroke) return {};
+  return {
+    stroke: element.stroke, strokeWidth: element.strokeWidth,
+    ...(unit(element.strokeOpacity) !== 1 ? { strokeOpacity: unit(element.strokeOpacity) } : {}),
+    ...(element.strokeVisible === false ? { strokeVisible: false } : {}),
   };
 }
 
@@ -99,6 +116,7 @@ function hydrateShape(component) {
     cornerRadii: cornerRadiiFor(component.shape, component.vector, styles.cornerRadii),
     effects: normalizeEffects(styles.effects),
     gradient: normalizeGradient(styles.gradient),
+    fillImage: typeof styles.fillImage === "string" && styles.fillImage ? styles.fillImage : null,
     strokeStyle: strokeStyleOf(styles.strokeStyle),
     strokeDash: Array.isArray(styles.strokeDash) && styles.strokeDash.length === 2 ? styles.strokeDash.map(Number) : null,
     strokeJoin: strokeJoinOf(styles.strokeJoin),
@@ -240,6 +258,8 @@ export function serializeDocument(editor) {
         ...(cleanName(element.name) ? { name: cleanName(element.name) } : {}),
         // A page-number text layer; its content is rewritten to the page's number on load.
         ...(element.type === "text" && element.pageNumber ? { pageNumber: true } : {}),
+        // A live text layer (Current Time / Date); its words are generated from the clock on every surface.
+        ...(element.type === "text" && isClockKind(element.dynamic) ? { dynamic: element.dynamic, clockFormat: element.clockFormat || defaultClockFormat(element.dynamic) } : {}),
         ...(element.groupId ? { groupUuid: element.groupId } : {}),
         ...(element.content !== undefined ? { content: element.content } : {}),
         ...(element.shape ? { shape: element.shape } : {}),
@@ -263,10 +283,12 @@ export function serializeDocument(editor) {
           // own; colour rides in `color` so hydrate's existing lookup finds it.
           color: element.fill, fontFamily: element.fontFamily, fontSize: element.fontSize,
           opacity: element.opacity,
+          ...textStrokeSave(element),
         } : element.type === "text" ? {
           fontFamily: element.fontFamily, fontSize: element.fontSize, fontWeight: element.fontWeight,
           fontStyle: element.fontStyle || "normal", textAlign: element.textAlign, color: element.fill,
           lineHeight: element.lineHeight, letterSpacing: element.letterSpacing,
+          ...textStrokeSave(element),
           // v3. Sent only when set, so a plain text box stays byte-identical to v2.
           ...(element.textDecoration === "underline" ? { textDecoration: "underline" } : {}),
           ...(normalizeListStyle(element.listStyle) ? { listStyle: normalizeListStyle(element.listStyle) } : {}),
@@ -361,6 +383,7 @@ export function hydrateDocument(document) {
           type: component.type === "TEXT" ? "text" : component.type === "COUNTDOWN_TIMER" ? "timer" : component.type === "IMAGE" ? "image" : "shape",
           ...(cleanName(component.name) ? { name: cleanName(component.name) } : {}),
           ...(component.type === "TEXT" && component.pageNumber === true ? { pageNumber: true } : {}),
+          ...(component.type === "TEXT" && isClockKind(component.dynamic) ? { dynamic: component.dynamic, clockFormat: component.clockFormat || defaultClockFormat(component.dynamic) } : {}),
           ...(groupIds.has(component.groupUuid) ? { groupId: groupIds.get(component.groupUuid) } : {}),
           ...(component.content !== undefined ? { content: component.content } : {}),
           ...(component.shape ? { shape: component.shape } : {}),
@@ -378,6 +401,7 @@ export function hydrateDocument(document) {
             timer: normalizeTimer(component.timer),
             fontFamily: component.styles?.fontFamily || "Poppins",
             fontSize: component.styles?.fontSize || 120,
+            strokeOpacity: unit(component.styles?.strokeOpacity), strokeVisible: component.styles?.strokeVisible !== false,
           } : {}),
           ...(component.type === "SHAPE" ? hydrateShape(component) : {}),
           ...(component.type === "IMAGE" ? hydrateImage(component) : {}),
@@ -392,6 +416,7 @@ export function hydrateDocument(document) {
             textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
             listStyle: normalizeListStyle(component.styles?.listStyle),
             effects: normalizeEffects(component.styles?.effects),
+            strokeOpacity: unit(component.styles?.strokeOpacity), strokeVisible: component.styles?.strokeVisible !== false,
           } : {}),
         })),
       });
