@@ -1,18 +1,20 @@
-import { MonitorPlay, Save, Undo2, Redo2 } from "lucide-react";
+import { useState } from "react";
+import { MonitorPlay, Send, Undo2, Redo2 } from "lucide-react";
 import { Link } from "react-router";
 import visoraLogo from "../../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from '../../../theme/ThemeImage';
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { documentRenamed, undo, redo } from "../../redux/editorSlice.js";
-import { saveLocalDocument } from "../model/editorDocument.js";
 import UserMenu from "../../Account/UserMenu";
 import EditorImportButton from "./EditorImportButton.jsx";
 import EditorExportMenu from "./EditorExportMenu.jsx";
+import EditorPublishModal from "./EditorPublishModal.jsx";
 
 export default function EditorTopBar({ onDisplay, inert }) {
   const dispatch = useAppDispatch();
   const editor = useAppSelector((state) => state.editor);
   const { past, future, gesture, title } = editor;
+  const [publishing, setPublishing] = useState(false);
   return (
     <header className="editor-topbar" inert={inert}>
       <div className="editor-document">
@@ -31,12 +33,13 @@ export default function EditorTopBar({ onDisplay, inert }) {
           <button type="button" aria-label="Redo" title="Redo (⌘/Ctrl Shift Z)" disabled={!future.length || !!gesture} onClick={() => dispatch(redo())}><Redo2 size={18} /></button>
         </div>
         <button type="button" onClick={onDisplay} aria-label="Display full screen" title="Display full screen"><MonitorPlay size={19} aria-hidden="true" /><span>Display</span></button>
-        <button type="button" onClick={() => saveLocalDocument(editor)} aria-label="Save locally" title="Save locally"><Save size={19} aria-hidden="true" /><span>Save</span></button>
+        <button type="button" className="editor-publish-button" onClick={() => setPublishing(true)} aria-label="Publish template" title="Publish as a template"><Send size={18} aria-hidden="true" /><span>Publish</span></button>
         <EditorImportButton />
         <EditorExportMenu />
       </div>
       <UserMenu size={42} />
       </div>
+      {publishing && <EditorPublishModal onClose={() => setPublishing(false)} />}
     </header>
   );
 }

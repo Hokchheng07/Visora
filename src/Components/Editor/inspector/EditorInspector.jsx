@@ -1,7 +1,7 @@
 import {
   PenTool, AlignCenter, AlignCenterHorizontal, AlignCenterVertical, AlignEndHorizontal, AlignEndVertical,
   AlignHorizontalSpaceAround, AlignLeft, AlignRight, AlignStartHorizontal, AlignStartVertical,
-  AlignVerticalSpaceAround, ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, Bold, Box, Group, Italic, Layers, Lock,
+  AlignVerticalSpaceAround, ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, Bold, Box, CalendarClock, Clock, Group, Italic, Layers, Lock,
   Hash, Image, MoveHorizontal, MoveVertical, TimerIcon, Trash2, Type, Underline, X,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
@@ -18,9 +18,10 @@ import {
 } from "../model/fontCatalog.js";
 import { DEFAULT_EDITOR_TEXT_COLOR } from "../model/editorDefaults.js";
 import {
-  ButtonRow, ColourRow, FontSizeField, InspectorSection, LayoutFields, LiveTextArea, NumberField, ResetStyle, SelectField,
+  ButtonRow, ColourRow, FontSizeField, InspectorSection, LayoutFields, LiveTextArea, NumberField, ResetStyle, SelectField, TextStrokeSection,
 } from "./EditorInspectorFields.jsx";
 import { elementsTarget } from "./inspectorEdit.js";
+import { DATE_FORMATS, TIME_FORMATS, isClockKind } from "../model/clockText.js";
 
 /*
  * The Customize column: every setting for what is selected. With nothing
@@ -45,7 +46,7 @@ import { elementsTarget } from "./inspectorEdit.js";
 
 const KHMER = /[ក-៿᧠-᧿]/;
 // Size and weight stay: they come from the heading / subheading / body choice.
-const TEXT_STYLE = { fontFamily: "Poppins", fill: DEFAULT_EDITOR_TEXT_COLOR, fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1 };
+const TEXT_STYLE = { fontFamily: "Poppins", fill: DEFAULT_EDITOR_TEXT_COLOR, fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1, stroke: null, strokeWidth: 0, strokeOpacity: 1, strokeVisible: true };
 
 function Header({ icon: Icon, title, onClose, children }) {
   return (
@@ -112,7 +113,15 @@ function TextBody({ element, target, busy }) {
   const align = element.textAlign || "center";
   return (
     <>
-      {element.pageNumber ? (
+      {isClockKind(element.dynamic) ? (
+        // The words come from the clock, so there is nothing to type — only a format to pick.
+        <InspectorSection title={element.dynamic === "date" ? "Date format" : "Time format"}>
+          <SelectField label="Format" value={element.clockFormat} disabled={busy}
+            options={(element.dynamic === "date" ? DATE_FORMATS : TIME_FORMATS).map((option) => ({ value: option.id, label: option.label }))}
+            onChange={(clockFormat) => commit({ clockFormat })} />
+          <p className="editor-inspector-hint">Updates on its own on the page and in Display mode.</p>
+        </InspectorSection>
+      ) : element.pageNumber ? (
         // The digits are the page's position, so there is nothing to type; everything else below applies to every page.
         <InspectorSection title="Page number">
           <p className="editor-inspector-hint">Shows each page's number by itself. Move it or change its style and every page follows. To turn page numbers off, click an empty spot on the page, then Page numbers.</p>
@@ -163,6 +172,8 @@ function TextBody({ element, target, busy }) {
       <InspectorSection title="Layout">
         <LayoutFields element={element} target={target} disabled={busy} />
       </InspectorSection>
+
+      <TextStrokeSection element={element} target={target} busy={busy} />
 
       <EffectsSection element={element} target={target} busy={busy} />
 
@@ -242,7 +253,9 @@ export default function EditorInspector({ docked, onClose }) {
       header = <Header icon={Image} title={layerLabel(element)} onClose={close}>{actions}</Header>;
       body = <InspectorImageBody key={element.id} element={element} target={target} busy={busy} />;
     } else if (element.type === "text") {
-      header = <Header icon={element.pageNumber ? Hash : Type} title={element.name || (element.pageNumber ? "Page number" : "Text")} onClose={close}>{actions}</Header>;
+      const clockIcon = element.dynamic === "date" ? CalendarClock : Clock;
+      const clockTitle = element.dynamic === "date" ? "Date" : "Current time";
+      header = <Header icon={isClockKind(element.dynamic) ? clockIcon : element.pageNumber ? Hash : Type} title={element.name || (isClockKind(element.dynamic) ? clockTitle : element.pageNumber ? "Page number" : "Text")} onClose={close}>{actions}</Header>;
       body = <TextBody key={element.id} element={element} target={target} busy={busy} />;
     } else {
       const editingPoints = editor.pointEdit?.elementId === element.id;

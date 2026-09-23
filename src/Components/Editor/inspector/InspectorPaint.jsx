@@ -1,4 +1,5 @@
-import { ArrowLeftRight, Minus, Plus, RotateCw, Settings2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeftRight, ImageOff, Loader2, Minus, Plus, RotateCw, Settings2, Upload } from "lucide-react";
 import { useAppDispatch } from "../../redux/hook.js";
 import { targetChanged } from "../../redux/editorSlice.js";
 import {
@@ -7,6 +8,8 @@ import {
 } from "../model/shapePaint.js";
 import { ButtonRow, ColourRow, FieldLabel, IconAction, NumberField, SelectField } from "./EditorInspectorFields.jsx";
 import { ToolPopover } from "../ui/EditorControls.jsx";
+import { IMAGE_TYPES, useImageUpload } from "../panels/useImageUpload.js";
+import { imageUrlFor } from "../canvas/imageSource.js";
 
 /*
  * The two paint controls that need more than one field: a gradient fill and
@@ -20,10 +23,44 @@ import { ToolPopover } from "../ui/EditorControls.jsx";
 const STYLE_LABELS = { solid: "Solid", dashed: "Dashed", dotted: "Dotted" };
 const JOIN_LABELS = { miter: "Sharp corners", round: "Round corners", bevel: "Cut corners" };
 
+// A shape filled with a picture: it covers the shape (object-fit: cover), the
+// solid `fill` staying underneath as the fallback while the picture loads or if
+// it cannot be fetched. `insert: false` keeps the upload from also dropping an
+// image element on the page — the fileName goes straight onto the shape.
+function ImageFill({ element, commit, busy }) {
+  const inputRef = useRef(null);
+  const { uploadImage, isUploading, error } = useImageUpload({ insert: false, onUploaded: ({ fileName }) => commit({ fillImage: fileName }) });
+  const url = element.fillImage ? imageUrlFor(element.fillImage) : null;
+  return (
+    <div className="editor-fill-image">
+      <input ref={inputRef} type="file" accept={IMAGE_TYPES.join(",")} hidden
+        onChange={(event) => { uploadImage(event.target.files?.[0]); event.target.value = ""; }} />
+      {url && <span className="editor-fill-image-preview" style={{ backgroundImage: `url("${url}")` }} aria-hidden="true" />}
+      <button type="button" className="editor-panel-primary" disabled={busy || isUploading} aria-busy={isUploading}
+        onClick={() => inputRef.current?.click()}>
+        {isUploading
+          ? <><Loader2 size={16} className="editor-spin" aria-hidden="true" />Uploading…</>
+          : <><Upload size={16} aria-hidden="true" />{element.fillImage ? "Replace image" : "Upload image"}</>}
+      </button>
+      {element.fillImage && (
+        <button type="button" className="editor-fill-image-remove" disabled={busy} onClick={() => commit({ fillImage: null })}>
+          <ImageOff size={14} aria-hidden="true" />Remove image
+        </button>
+      )}
+      {error && <p className="editor-upload-error" role="alert">{error}</p>}
+    </div>
+  );
+}
+
 export function FillPaint({ element, target, busy }) {
   const dispatch = useAppDispatch();
   const gradient = normalizeGradient(element.gradient);
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
+  /* Image mode is chosen before an image exists, so the choice is held here
+     until one is picked — otherwise the Fill type would snap back to Solid and
+     the picker to upload one would never show. */
+  const [imageMode, setImageMode] = useState(false);
+  const fillType = element.fillImage ? "IMAGE" : gradient ? "LINEAR" : imageMode ? "IMAGE" : "SOLID";
   /* Every write goes back through the normalizer, so stops stay sorted and in
      range however they were edited — a stop dragged past its neighbour simply
      takes its place, as in Figma. */
@@ -45,11 +82,16 @@ export function FillPaint({ element, target, busy }) {
   return (
     <>
       <div className="editor-inspector-grid">
-        <SelectField label="Fill type" value={gradient ? "LINEAR" : "SOLID"} disabled={busy}
-          options={[{ value: "SOLID", label: "Solid" }, { value: "LINEAR", label: "Linear" }]}
-          onChange={(type) => commit(type === "LINEAR"
-            ? { gradient: defaultGradient(element.fill || "#D9D9D9"), fill: element.fill || "#D9D9D9" }
-            : { gradient: null, fill: gradient?.stops[0].color || element.fill })} />
+        <SelectField label="Fill type" value={fillType} disabled={busy}
+          options={[{ value: "SOLID", label: "Solid" }, { value: "LINEAR", label: "Linear" }, { value: "IMAGE", label: "Image" }]}
+          onChange={(type) => {
+            setImageMode(type === "IMAGE");
+            commit(type === "LINEAR"
+              ? { gradient: defaultGradient(element.fill || "#D9D9D9"), fill: element.fill || "#D9D9D9", fillImage: null }
+              : type === "IMAGE"
+                ? { gradient: null, fillImage: element.fillImage || null }
+                : { gradient: null, fillImage: null, fill: gradient?.stops[0].color || element.fill });
+          }} />
         {gradient && (
           <div className="editor-inspector-paint">
             <NumberField label="Gradient angle" name={<RotateCw size={13} />} suffix="°" value={gradient.angle} target={target}
@@ -59,6 +101,8 @@ export function FillPaint({ element, target, busy }) {
           </div>
         )}
       </div>
+
+      {fillType === "IMAGE" && <ImageFill element={element} commit={commit} busy={busy} />}
 
       {gradient && (
         <>

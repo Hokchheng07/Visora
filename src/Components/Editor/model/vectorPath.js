@@ -93,6 +93,10 @@ function pill(width, height) {
 const closed = (nodes) => ({ subpaths: [{ closed: true, nodes }] });
 
 const polygon = (...points) => closed(points.map(([x, y]) => corner(x, y)));
+/* Several closed subpaths in one shape: a hole (frame) needs its inner ring
+   wound the opposite way so the non-zero fill cuts it out; separate solid
+   pieces (equals sign, division sign) simply share the same winding. */
+const multi = (...rings) => ({ subpaths: rings.map((points) => ({ closed: true, nodes: points.map(([x, y]) => corner(x, y)) })) });
 // The burst is a 24-point star; its points are generated rather than listed.
 function burst() {
   const steps = [[9, 23], [20, -15], [-3, 25], [25, -3], [-15, 20], [23, 9], [-23, 9], [15, 20], [-25, -3], [3, 25], [-20, -15], [-9, 23],
@@ -128,6 +132,52 @@ export const presetVectors = {
   "speech-bubble": polygon([5, 8], [95, 8], [95, 73], [48, 73], [24, 96], [29, 73], [5, 73]),
   cross: polygon([36, 4], [64, 4], [64, 36], [96, 36], [96, 64], [64, 64], [64, 96], [36, 96], [36, 64], [4, 64], [4, 36], [36, 36]),
   burst: burst(),
+
+  // --- Basic shapes ---
+  "right-triangle": polygon([0, 0], [100, 100], [0, 100]),
+  trapezoid: polygon([25, 0], [75, 0], [100, 100], [0, 100]),
+  heptagon: polygon([50, 0], [89, 19], [99, 61], [72, 95], [28, 95], [1, 61], [11, 19]),
+  octagon: polygon([29, 0], [71, 0], [100, 29], [100, 71], [71, 100], [29, 100], [0, 71], [0, 29]),
+  decagon: polygon([50, 0], [79, 10], [98, 35], [98, 65], [79, 91], [50, 100], [21, 91], [2, 65], [2, 35], [21, 10]),
+  corner: polygon([0, 0], [40, 0], [40, 60], [100, 60], [100, 100], [0, 100]),
+  // Outer ring clockwise, inner ring counter-clockwise so the middle is cut out.
+  frame: multi([[0, 0], [100, 0], [100, 100], [0, 100]], [[16, 16], [16, 84], [84, 84], [84, 16]]),
+  lightning: polygon([44, 0], [56, 40], [86, 40], [26, 100], [38, 54], [10, 54]),
+  teardrop: closed([
+    { x: 50, y: 0, mode: "corner", in: null, out: null },
+    { x: 100, y: 50, mode: "smooth", in: handle(0, -28), out: handle(0, 28) },
+    { x: 50, y: 100, mode: "smooth", in: handle(28, 0), out: handle(-28, 0) },
+    { x: 0, y: 50, mode: "smooth", in: handle(0, 28), out: handle(0, -28) },
+  ]),
+
+  // --- Block arrows ---
+  "home-plate": polygon([0, 0], [75, 0], [100, 50], [75, 100], [0, 100]),
+  "arrow-left": polygon([40, 8], [40, 32], [98, 32], [98, 68], [40, 68], [40, 92], [2, 50]),
+  "arrow-up": polygon([50, 2], [92, 40], [68, 40], [68, 98], [32, 98], [32, 40], [8, 40]),
+  "arrow-down": polygon([32, 2], [68, 2], [68, 60], [92, 60], [50, 98], [8, 60], [32, 60]),
+  "arrow-left-right": polygon([30, 15], [30, 35], [70, 35], [70, 15], [98, 50], [70, 85], [70, 65], [30, 65], [30, 85], [2, 50]),
+  "arrow-up-down": polygon([50, 2], [85, 30], [65, 30], [65, 70], [85, 70], [50, 98], [15, 70], [35, 70], [35, 30], [15, 30]),
+  "arrow-quad": polygon([50, 2], [68, 20], [58, 20], [58, 42], [80, 42], [80, 32], [98, 50], [80, 68], [80, 58], [58, 58], [58, 80], [68, 80], [50, 98], [32, 80], [42, 80], [42, 58], [20, 58], [20, 68], [2, 50], [20, 32], [20, 42], [42, 42], [42, 20], [32, 20]),
+  "arrow-notched": polygon([60, 8], [98, 50], [60, 92], [60, 68], [2, 68], [18, 50], [2, 32], [60, 32]),
+
+  // --- Equation shapes (plus is the existing "cross") ---
+  minus: polygon([0, 40], [100, 40], [100, 60], [0, 60]),
+  multiply: polygon([20, 4], [50, 34], [80, 4], [96, 20], [66, 50], [96, 80], [80, 96], [50, 66], [20, 96], [4, 80], [34, 50], [4, 20]),
+  equal: multi([[0, 30], [100, 30], [100, 44], [0, 44]], [[0, 56], [100, 56], [100, 70], [0, 70]]),
+  divide: multi([[10, 43], [90, 43], [90, 57], [10, 57]], [[42, 15], [58, 15], [58, 31], [42, 31]], [[42, 69], [58, 69], [58, 85], [42, 85]]),
+
+  // --- Stars & banners ---
+  "star-4": polygon([50, 0], [60, 40], [100, 50], [60, 60], [50, 100], [40, 60], [0, 50], [40, 40]),
+  "star-6": polygon([50, 0], [63, 28], [93, 25], [75, 50], [93, 75], [63, 72], [50, 100], [37, 72], [7, 75], [25, 50], [7, 25], [37, 28]),
+  "star-8": polygon([50, 0], [61, 22], [85, 15], [78, 39], [100, 50], [78, 61], [85, 85], [61, 78], [50, 100], [39, 78], [15, 85], [22, 61], [0, 50], [22, 39], [15, 15], [39, 22]),
+
+  // --- Flowchart ---
+  document: closed([
+    corner(0, 0), corner(100, 0),
+    { x: 100, y: 80, mode: "corner", in: null, out: handle(-20, 16) },
+    { x: 50, y: 90, mode: "smooth", in: handle(18, -2), out: handle(-18, 2) },
+    { x: 0, y: 82, mode: "corner", in: handle(18, 14), out: null },
+  ]),
 };
 
 // Width and height matter only for size-dependent presets (the pill).

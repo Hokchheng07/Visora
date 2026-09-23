@@ -53,7 +53,7 @@ async function shrinkImage(file, size) {
  *   4. add an image element with that fileName to the page
  *      (and tell the panel, so it can list it under "Your uploads")
  */
-export function useImageUpload({ onUploaded } = {}) {
+export function useImageUpload({ onUploaded, insert = true } = {}) {
   const [uploadRequest, { isLoading }] = useUserUploadMutation();
   const dispatch = useAppDispatch();
   const [error, setError] = useState("");
@@ -88,8 +88,8 @@ export function useImageUpload({ onUploaded } = {}) {
       const fileName = result?.data?.data?.fileName;
 
       if (fileName) {
-        // 4. put it on the page
-        dispatch(imageInserted(fileName, size, file.name));
+        // 4. put it on the page (a shape image-fill skips this and takes the fileName from onUploaded)
+        if (insert) dispatch(imageInserted(fileName, size, file.name));
         onUploaded?.({ fileName, name: file.name, width: size.width, height: size.height, uploadedAt: Date.now() });
       } else {
         setError(uploadErrorMessage(result?.error, "image"));

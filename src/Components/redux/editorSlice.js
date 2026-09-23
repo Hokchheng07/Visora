@@ -3,6 +3,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, se
 import { shapeCatalog } from "../Editor/model/shapeCatalog.js";
 import { isPageNumber, normalizePageNumbers, pageNumberPlacement, syncPageNumbers } from "../Editor/model/pageNumbers.js";
 import { defaultTimer, normalizeTimer } from "../Editor/model/editorDocument.js";
+import { defaultClockFormat, formatClock } from "../Editor/model/clockText.js";
 import { DEFAULT_EDITOR_TEXT_COLOR } from "../Editor/model/editorDefaults.js";
 import { appendAnimations, extractAnimations, insertionRows, migrateAnimations, normalizeTransition, removeAnimationRows, remapAnimations, repairTimeline, validateTimeline } from "../Editor/animation/animationTimeline.js";
 import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayers, effectiveLocked, expandCanvasSelection, groupSelection, moveIntoGroup, nextGroupName, nextPageName, normalizeGroups, pageLabel,
@@ -497,6 +498,11 @@ const reducers = {
           heading: { content: "Add a heading", fontSize: 120, fontWeight: 700, w: 960, h: 180 },
           subheading: { content: "Add a subheading", fontSize: 72, fontWeight: 600, w: 760, h: 130 },
           body: { content: "Add body text", fontSize: 48, fontWeight: 400, w: 620, h: 110 },
+          /* Event components (functional requirement 3). Time and Date generate
+             their words from the clock, so they carry a `dynamic` mark and a
+             snapshot in `content`; see clockText.js. */
+          time: { content: formatClock("time", defaultClockFormat("time")), dynamic: "time", clockFormat: defaultClockFormat("time"), fontSize: 120, fontWeight: 600, w: 720, h: 180 },
+          date: { content: formatClock("date", defaultClockFormat("date")), dynamic: "date", clockFormat: defaultClockFormat("date"), fontSize: 72, fontWeight: 500, w: 900, h: 130 },
         };
         const preset = presets[payload.preset] || presets.body; remember(state);
         const element = { id: payload.id, type: "text", x: (CANVAS_WIDTH - preset.w) / 2, y: (CANVAS_HEIGHT - preset.h) / 2,

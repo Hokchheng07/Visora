@@ -1,5 +1,6 @@
 import { Play, Pause, RotateCcw, Square } from "lucide-react";
 import { TIMER_BUTTON_COLORS } from "../model/editorDocument.js";
+import { textStrokeStyle } from "../model/textStroke.js";
 import { controlState, formatDuration, formatElapsed, startStopRole, stopwatchRole } from "./timerFormat.js";
 
 /*
@@ -77,11 +78,13 @@ export default function TimerArtwork({
   // Inert callers show the configured duration; only a live timer counts down.
   const shown = remainingMs === undefined ? timer.durationMs || 0 : remainingMs;
 
+  // The outline rides on the digits and the completion message, never on the button labels.
+  const digitStroke = textStrokeStyle(element);
   const face = stopwatch
-    ? <span className="editor-timer-digits is-stopwatch" role={interactive ? "timer" : undefined}>{formatElapsed(elapsedMs || 0)}</span>
+    ? <span className="editor-timer-digits is-stopwatch" role={interactive ? "timer" : undefined} style={digitStroke || undefined}>{formatElapsed(elapsedMs || 0)}</span>
     : completed && message
-      ? <span className="editor-timer-message">{message}</span>
-      : <span className="editor-timer-digits">{formatDuration(shown, timer.format)}</span>;
+      ? <span className="editor-timer-message" style={digitStroke || undefined}>{message}</span>
+      : <span className="editor-timer-digits" style={digitStroke || undefined}>{formatDuration(shown, timer.format)}</span>;
 
   return (
     <span
