@@ -4,10 +4,11 @@ import { uploadErrorMessage } from "../../API/apiError.js";
 import { useAppDispatch } from "../../redux/hook.js";
 import { imageInserted } from "../../redux/editorSlice.js";
 
-// What the Images panel accepts. The server does not publish a limit, so this
-// is our own: big enough for a photo, small enough to upload quickly.
+// What the Images panel accepts. Keep this in step with the backend multipart
+// limit. If the browser sends a larger body, the proxy can close the request
+// before the API returns a 413, which RTK Query can only report as FETCH_ERROR.
 export const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
+export const MAX_IMAGE_BYTES = 1024 * 1024; // 1 MB
 // Twice the 1920 px page is sharp on any screen; bigger only makes uploads slow.
 export const MAX_IMAGE_SIDE = 3840;
 
@@ -75,7 +76,8 @@ export function useImageUpload({ onUploaded, insert = true } = {}) {
       const prepared = await shrinkImage(file, await readImageSize(file));
       const size = prepared.size;
       if (prepared.file.size > MAX_IMAGE_BYTES) {
-        setError("That image is bigger than 10 MB. Please choose a smaller one.");
+        const sizeMb = (prepared.file.size / (1024 * 1024)).toFixed(1);
+        setError(`That image is ${sizeMb} MB. The upload limit is 1 MB; please choose or compress a smaller image.`);
         return;
       }
 
