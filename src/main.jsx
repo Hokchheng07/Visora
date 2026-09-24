@@ -18,9 +18,16 @@ import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
-import Profile from "./Components/Pages/Profile.jsx";
 import Templates from "./Components/Pages/Templates.jsx";
-
+import UserDashboardLayout from "./Components/UserDashboard/UserDashboardLayout.jsx";
+import Profile from "./Components/UserDashboard/Profile/Profile.jsx";
+import Recent from "./Components/UserDashboard/Recent/Recent.jsx";
+import Favorites from "./Components/UserDashboard/Favorites/Favorites.jsx";
+import MyDesigns from "./Components/UserDashboard/MyDesigns/MyDesigns.jsx";
+import Drafts from "./Components/UserDashboard/MyDesigns/Drafts.jsx";
+import PostedTemplates from "./Components/UserDashboard/MyDesigns/PostedTemplates.jsx";
+import Shared from "./Components/UserDashboard/Shared/Shared.jsx";
+import Trash from "./Components/UserDashboard/Trash/Trash.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
 
@@ -45,7 +52,27 @@ const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: <Navigate to="/user-dashboard/profile" replace />,
+      },
+      {
+        path: "user-dashboard",
+        element: <UserDashboardLayout />,
+        children: [
+          { index: true, element: <Navigate to="profile" replace /> },
+          { path: "profile", element: <Profile /> },
+          { path: "recent", element: <Recent /> },
+          { path: "favorites", element: <Favorites /> },
+          {
+            path: "my-designs",
+            element: <MyDesigns />,
+            children: [
+              { path: "drafts", element: <Drafts /> },
+              { path: "posted-templates", element: <PostedTemplates /> },
+            ],
+          },
+          { path: "shared", element: <Shared /> },
+          { path: "trash", element: <Trash /> },
+        ],
       },
       {
         path: "/",
@@ -89,20 +116,14 @@ const router = createBrowserRouter([
             path: "register",
             element: <SignUp />,
           },
-          {
-            path: "forgot-password",
-            element: <ForgotPassword />,
-          },
+          { path: "forgot-password", element: <ForgotPassword /> },
         ],
       },
       {
         path: "login",
         element: <Navigate to="/auth/login" replace />,
       },
-      {
-        path: "forgot-password",
-        element: <Navigate to="/auth/forgot-password" replace />,
-      },
+      { path: "forgot-password", element: <Navigate to="/auth/forgot-password" replace /> },
       {
         path: "dashboard",
         element: <DashboardLayout />,

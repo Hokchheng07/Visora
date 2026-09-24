@@ -153,11 +153,7 @@ const desktopSteps = [
     badgeX: 870,
     badgeY: 458,
     contentCenterX: 870,
-<<<<<<< HEAD
-    contentCenterY: 705,
-=======
     contentCenterY: 675,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     contentWidth: 370,
     contentHeight: 180,
   },
@@ -170,11 +166,7 @@ const desktopSteps = [
     badgeX: 1170,
     badgeY: 334,
     contentCenterX: 1170,
-<<<<<<< HEAD
-    contentCenterY: 645,
-=======
     contentCenterY: 550,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     contentWidth: 330,
     contentHeight: 160,
   },
@@ -435,20 +427,13 @@ export default function HowItWorks() {
       ref={sectionRef}
       className="how-it-works-section bg-sparkle relative isolate w-full overflow-hidden bg-[var(--surface-warm)] px-5 pb-28 pt-28 sm:px-8 sm:pb-32 sm:pt-32 md:aspect-[1405/911] md:px-0 md:py-0"
     >
-<<<<<<< HEAD
-=======
       {/* Sits in front of the step mountains (DesktopSteps is z-10) but under
           the stickers (z-20) and the bottom torn strip (z-30). */}
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
       <ThemeImage
         src={backgroundArtwork}
         alt=""
         aria-hidden="true"
-<<<<<<< HEAD
-        className="pointer-events-none absolute inset-0 z-0 block h-full w-full max-w-none object-fill"
-=======
         className="how-mountain-overlay pointer-events-none absolute inset-0 z-[11] block h-full w-full max-w-none object-fill"
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
       />
       <ThemeImage
         src={topTornGradient}
@@ -466,7 +451,7 @@ export default function HowItWorks() {
         src={leftSticker}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-[9%] top-[23.5%] z-20 hidden w-[17.36%] max-w-none md:block"
+        className="how-it-works-left-sticker pointer-events-none absolute left-[9%] top-[23.5%] z-20 block w-[17.36%] max-w-none"
         initial={reduceMotion ? false : { opacity: 0, x: -140, rotate: -7 }}
         animate={
           revealed
@@ -479,7 +464,7 @@ export default function HowItWorks() {
         src={rightSticker}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute right-[8.4%] top-[12.5%] z-20 hidden w-[8.4%] max-w-none md:block"
+        className="how-it-works-right-sticker pointer-events-none absolute right-[8.4%] top-[12.5%] z-20 block w-[8.4%] max-w-none"
         initial={reduceMotion ? false : { opacity: 0, x: 140, rotate: 7 }}
         animate={
           revealed

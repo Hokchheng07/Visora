@@ -117,11 +117,7 @@ export default function WhyChooseVisora() {
               <h3 className="text-[22px] font-semibold text-[var(--text-heading)] lg:text-[24px]">
                 {title}
               </h3>
-<<<<<<< HEAD
-              <p className="mt-2 max-w-[330px] text-[16px] leading-6 text-[var(--text-muted)] lg:text-[18px]">
-=======
               <p className="features-benefit-copy mt-2 max-w-[330px] text-[16px] leading-6 text-[var(--text-muted)] lg:text-[18px]">
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
                 {copy}
               </p>
             </motion.article>

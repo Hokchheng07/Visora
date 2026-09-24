@@ -47,11 +47,8 @@ export const coreValues = [
 export const featureCards = [
   {
     title: "Khmer-Inspired Design Support",
-<<<<<<< HEAD
-=======
     titleAccent: "Khmer-Inspired",
     titleRest: " Design Support",
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     description: "Use Khmer elements, patterns, text styles, templates, and cultural illustrations.",
     artwork: purpleFeatureCard,
     pin: purplePin,
@@ -60,11 +57,8 @@ export const featureCards = [
   },
   {
     title: "Design like Canva",
-<<<<<<< HEAD
-=======
     titleAccent: "Design",
     titleRest: " like Canva",
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     description: "Drag, drop, and customize templates with easy tools.",
     artwork: blueFeatureCard,
     pin: bluePin,
@@ -73,11 +67,8 @@ export const featureCards = [
   },
   {
     title: "Create Event Backdrops Easily",
-<<<<<<< HEAD
-=======
     titleAccent: "Create Event ",
     titleRest: "Backdrops Easily",
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     description: "Make backdrops for weddings, graduations, school events, and more.",
     artwork: pinkFeatureCard,
     pin: pinkPin,
@@ -86,11 +77,8 @@ export const featureCards = [
   },
   {
     title: "Present like PowerPoint",
-<<<<<<< HEAD
-=======
     titleAccent: "Present",
     titleRest: " like PowerPoint",
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     description: "Display your backdrop in presentation mode or full screen with ease.",
     artwork: yellowFeatureCard,
     pin: yellowPin,
@@ -100,10 +88,6 @@ export const featureCards = [
 ];
 
 export const mentors = [
-<<<<<<< HEAD
-  { name: "Sreng Chipor", role: "Mentor", photo: mentorChipor, github: null, facebook: null, telegram: null },
-  { name: "Kung Sovannda", role: "Mentor", photo: mentorVannda, github: null, facebook: null, telegram: null },
-=======
   {
     name: "Sreng Chipor",
     role: "Mentor",
@@ -123,21 +107,10 @@ export const mentors = [
     facebook: null,
     telegram: null,
   },
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 ];
 
 /* `quote` is optional; cards without one omit the quote line. */
 export const members = [
-<<<<<<< HEAD
-  { name: "Chhun HokChheng", role: "Leader", photo: photoHokChheng, quote: "Set your heart Ablaze", github: null, facebook: null, telegram: null },
-  { name: "Men Senghak", role: "Sub-leader", photo: photoSenghak, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Lay Lily", role: "Member", photo: photoLily, quote:"Just because you don't give up doesn't mean you will make it", github: null, facebook: null, telegram: null },
-  { name: "Chit Chimy", role: "Member", photo: photoChimy, quote: "Small steps every day lead to big results.", github: null, facebook: null, telegram: null },
-  { name: "Nin Bora", role: "Member", photo: photoBora, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Von Sovannrith", role: "Member", photo: photoSovannrith, quote: null, github: null, facebook: null, telegram: null },
-  { name: "Borey Sothearith", role: "Member", photo: photoSothearith, quote: "Every bug is a lesson. Every solution is progress.", github: null, facebook: null, telegram: null },
-  { name: "Kao Sengheang", role: "Member", photo: photoSengheang, quote: "Rain feel like home", github: null, facebook: null, telegram: null },
-=======
   {
     name: "Chhun Hokchheng",
     role: "FrontEnd Developer",
@@ -211,5 +184,4 @@ export const members = [
     facebook: null,
     telegram: null,
   },
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 ];

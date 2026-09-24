@@ -1,40 +1,28 @@
-import { ThemeImage } from '../../theme/ThemeImage';
-import { useRef, useState } from "react";
+import { useRef,useState } from "react";
 import { NavLink } from "react-router";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import ThemeToggle from '../../theme/ThemeToggle';
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+import { Bars3Icon,XMarkIcon } from "@heroicons/react/24/outline";
+import { AnimatePresence,motion,useMotionValueEvent,useScroll } from "motion/react";
+import { ThemeImage } from "../../theme/ThemeImage";
+import ThemeToggle from "../../theme/ThemeToggle";
+import UserMenu from "../Account/UserMenu";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
 import navbarBg from "../../assets/sections/navbar/NavbarBg.svg";
 import { EASE } from "../../lib/animations/animations";
 
-// Recreated from the Visora Figma file, "Landing Page" > navbar instance
-// (master component 69:171). Logo + background are the actual exported
-// assets (Figma nodes 69:165 and the flattened 69:171 background/wave —
-// Figma has no separate hover-state variants for this component, so the
-// hover treatments below are original, not traced from the file).
-//
-// Logo asset names updated 2026-08-27: the old visora-logo.png /
-// MobilephoneLogo.png were replaced with VisoraLogo.png (desktop) and
-// visora-logo-mobile.png (mobile) — the new full-color "Visora" wordmark
-// in the brand purple. The `mix-blend-screen` treatment that worked on
-// the old light-on-dark mobile mark is no longer needed (the new mark
-// sits on the navbar background cleanly) and has been removed below.
-
-const NAV_LINKS = [
-  { label: "Home", to: "/" },
-  { label: "Templates", to: "/templates" },
-  { label: "About Us", to: "/about" },
+const NAV_LINKS=[
+  {label:"Home",to:"/"},
+  {label:"Templates",to:"/templates"},
+  {label:"About Us",to:"/about"},
 ];
 
-function NavLinkRow({ to, label, onClick, className = "" }) {
-  return (
+function NavLinkRow({to,label,onClick,className=""}){
+  return(
     <NavLink
       to={to}
-      end={to === "/"}
+      end={to==="/"}
       onClick={onClick}
-      className={`group relative inline-block font-sans text-base font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:text-primary ${className}`}
+      className={`group relative inline-block font-sans font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:text-primary lg:text-sm xl:text-base 2xl:text-lg ${className}`}
     >
       {label}
       <span
@@ -45,141 +33,188 @@ function NavLinkRow({ to, label, onClick, className = "" }) {
   );
 }
 
-export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const lastScrollY = useRef(0);
-  const { scrollY } = useScroll();
+export default function Navbar(){
+  const [mobileOpen,setMobileOpen]=useState(false);
+  const [hidden,setHidden]=useState(false);
+  const lastScrollY=useRef(0);
+  const {scrollY}=useScroll();
 
-  useMotionValueEvent(scrollY, "change", (currentScrollY) => {
-    if (currentScrollY < 80 || mobileOpen) {
+  useMotionValueEvent(scrollY,"change",(currentScrollY)=>{
+    if(currentScrollY<80||mobileOpen){
       setHidden(false);
-      lastScrollY.current = currentScrollY;
+      lastScrollY.current=currentScrollY;
       return;
     }
 
-    const scrollDelta = currentScrollY - lastScrollY.current;
+    const delta=currentScrollY-lastScrollY.current;
 
-    // Ignore tiny trackpad movements to prevent the navbar from jittering.
-    if (Math.abs(scrollDelta) < 8) return;
+    if(Math.abs(delta)<8)return;
 
-    setHidden(scrollDelta > 0);
-    lastScrollY.current = currentScrollY;
+    setHidden(delta>0);
+    lastScrollY.current=currentScrollY;
   });
 
-  return (
+  return(
     <motion.header
-      className="sticky top-0 z-50 will-change-transform"
-      animate={{ y: hidden ? "-100%" : "0%" }}
-      transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.8 }}
+      className="sticky top-0 z-50 w-full will-change-transform"
+      animate={{y:hidden?"-100%":"0%"}}
+      transition={{type:"spring",stiffness:320,damping:34,mass:0.8}}
     >
-      <ThemeImage src={navbarBg} alt="" aria-hidden="true" className="navbar-background" />
-      <div className="navbar-shell relative z-10 h-[126px] w-full overflow-hidden md:h-[146px]">
-        <nav className="navbar-nav relative z-10 mx-auto flex h-[96px] w-full items-center justify-between px-6 sm:px-10 md:h-[116px]">
-          {/* Logo */}
-          <NavLink to="/" className="shrink-0">
+      <ThemeImage
+        src={navbarBg}
+        alt=""
+        aria-hidden="true"
+        className="navbar-background"
+      />
+
+      <div className="navbar-shell relative z-10 h-[88px] w-full overflow-hidden sm:h-[98px] md:h-[108px] lg:h-[124px] xl:h-[155px] 2xl:h-[195px]">
+        <nav className="navbar-nav relative z-10 flex h-[68px] w-full items-center justify-between px-5 sm:h-[76px] sm:px-8 md:h-[84px] md:px-10 lg:h-[98px] lg:px-[6vw] xl:h-[124px] xl:px-[8vw] 2xl:h-[150px] 2xl:px-[6vw]">
+          <NavLink
+            to="/"
+            onClick={()=>setMobileOpen(false)}
+            className="shrink-0"
+          >
             <ThemeImage
               src={visoraLogo}
               alt="Visora"
-              className="hidden h-[86px] w-auto md:block"
               width={152}
               height={86}
+              className="hidden w-auto lg:block lg:h-[68px] xl:h-[88px] 2xl:h-[110px]"
             />
+
+            <ThemeImage
+              src={visoraLogo}
+              alt="Visora"
+              width={152}
+              height={86}
+              className="hidden w-auto sm:block sm:h-[58px] md:h-[64px] lg:hidden"
+            />
+
             <ThemeImage
               src={mobileLogo}
               alt="Visora"
-              className="h-[57px] w-[102px] object-contain md:hidden"
               width={1672}
               height={941}
+              className="h-[46px] w-auto object-contain sm:hidden"
             />
           </NavLink>
 
-          {/* Desktop nav links */}
-          <ul className="hidden items-center gap-10 md:flex">
-            {NAV_LINKS.map((link) => (
-              <li key={link.to} className="pb-1.5">
-                <NavLinkRow to={link.to} label={link.label} />
+          <ul className="hidden items-center lg:flex lg:gap-7 xl:gap-10 2xl:gap-14">
+            {NAV_LINKS.map((link)=>(
+              <li key={link.to}>
+                <NavLinkRow to={link.to} label={link.label}/>
               </li>
             ))}
           </ul>
 
-          {/* Right-side actions */}
-          <div className="hidden items-center gap-6 md:flex">
-            <ThemeToggle />
-            <NavLink
-              to="/auth/login"
-<<<<<<< HEAD
-              className="rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
-=======
-              className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0"
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-            >
-              Sign In
-            </NavLink>
+          <div className="hidden items-center lg:flex lg:gap-4 xl:gap-6 2xl:gap-7">
+            <div className="2xl:scale-110">
+              <ThemeToggle/>
+            </div>
+
+            {/* Signed in: the account menu. Signed out: the Sign In button. */}
+            <UserMenu
+              size={44}
+              signedOut={
+                <NavLink
+                  to="/auth/login"
+                  className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 font-sans text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0 xl:px-7 xl:py-3 xl:text-base 2xl:px-9 2xl:py-3.5 2xl:text-lg"
+                >
+                  Sign In
+                </NavLink>
+              }
+            />
           </div>
 
-          {/* Mobile menu toggle */}
-          <button
-            type="button"
-            aria-label="Toggle menu"
-            className="text-[var(--text-heading)] md:hidden"
-            onClick={() => setMobileOpen((open) => !open)}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={mobileOpen ? "close" : "open"}
-                className="block"
-                initial={{ opacity: 0, rotate: -90 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                exit={{ opacity: 0, rotate: 90 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-              >
-                {mobileOpen ? (
-                  <XMarkIcon className="h-7 w-7" />
-                ) : (
-                  <Bars3Icon className="h-7 w-7" />
-                )}
-              </motion.span>
-            </AnimatePresence>
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeToggle/>
+
+            <button
+              type="button"
+              aria-label={mobileOpen?"Close menu":"Open menu"}
+              aria-expanded={mobileOpen}
+              onClick={()=>setMobileOpen((open)=>!open)}
+              className="grid h-10 w-10 place-items-center rounded-xl text-[var(--text-heading)] transition hover:bg-primary/10 hover:text-primary sm:h-11 sm:w-11"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={mobileOpen?"close":"open"}
+                  className="block"
+                  initial={{opacity:0,rotate:-90,scale:0.8}}
+                  animate={{opacity:1,rotate:0,scale:1}}
+                  exit={{opacity:0,rotate:90,scale:0.8}}
+                  transition={{duration:0.16,ease:"easeOut"}}
+                >
+                  {mobileOpen?(
+                    <XMarkIcon className="h-6 w-6 sm:h-7 sm:w-7"/>
+                  ):(
+                    <Bars3Icon className="h-6 w-6 sm:h-7 sm:w-7"/>
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </button>
+          </div>
         </nav>
       </div>
 
-      {/* Mobile menu panel */}
       <AnimatePresence initial={false}>
-        {mobileOpen && (
+        {mobileOpen&&(
           <motion.div
             key="mobile-menu"
-            className="relative z-10 border-t border-[var(--border-default)] bg-[var(--surface-base)] px-6 py-5 md:hidden"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: EASE }}
+            className="absolute left-0 right-0 top-[72px] z-40 px-3 sm:top-[82px] sm:px-6 md:top-[90px] md:px-8 lg:hidden"
+            initial={{opacity:0,y:-14,scale:0.98}}
+            animate={{opacity:1,y:0,scale:1}}
+            exit={{opacity:0,y:-12,scale:0.98}}
+            transition={{duration:0.2,ease:EASE}}
           >
-            <ul className="flex flex-col gap-4">
-              {NAV_LINKS.map((link) => (
-                <li key={link.to}>
-                  <NavLinkRow
+            <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.16)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.45)] sm:rounded-[26px] sm:p-4">
+              <nav className="space-y-1">
+                {NAV_LINKS.map((link)=>(
+                  <NavLink
+                    key={link.to}
                     to={link.to}
-                    label={link.label}
-                    onClick={() => setMobileOpen(false)}
-                    className="block"
-                  />
-                </li>
-              ))}
-            </ul>
-            <ThemeToggle mobile />
-            <NavLink
-              to="/auth/login"
-              onClick={() => setMobileOpen(false)}
-<<<<<<< HEAD
-              className="mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
-=======
-              className="navbar-sign-in mt-5 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 font-sans text-base font-semibold text-white transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110"
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-            >
-              Sign In
-            </NavLink>
+                    end={link.to==="/"}
+                    onClick={()=>setMobileOpen(false)}
+                    className={({isActive})=>
+                      `flex h-12 items-center rounded-xl px-4 font-sans text-sm font-semibold transition sm:h-13 sm:text-base ${
+                        isActive
+                          ?"bg-primary text-[var(--text-on-brand)] shadow-sm"
+                          :"text-[var(--text-heading)] hover:bg-primary/10 hover:text-primary"
+                      }`
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="my-3 h-px bg-[var(--border-default)]"/>
+
+              <UserMenu
+                size={44}
+                align="start"
+                className="mb-3"
+                signedOut={null}
+              />
+
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <NavLink
+                  to="/auth/login"
+                  onClick={()=>setMobileOpen(false)}
+                  className="flex h-11 items-center justify-center rounded-full border border-primary bg-[var(--surface-card)] px-4 text-sm font-semibold text-primary transition hover:bg-primary/10 sm:h-12 sm:text-base"
+                >
+                  Sign In
+                </NavLink>
+
+                <NavLink
+                  to="/auth/register"
+                  onClick={()=>setMobileOpen(false)}
+                  className="flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent px-4 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:h-12 sm:text-base"
+                >
+                  Sign Up
+                </NavLink>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

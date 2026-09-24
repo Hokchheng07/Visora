@@ -33,11 +33,7 @@ export default function OurStory() {
           creators, students, and organizations bring their moments to life.
         </p>
         <p>
-<<<<<<< HEAD
-          We believe every celebration deserves a backdrop that tells a story.
-=======
           We believe every celebration deserves a backdrop that <span>tells a story.</span>
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         </p>
       </div>
     </motion.section>

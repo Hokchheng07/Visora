@@ -32,3 +32,6 @@ Thumbs.db
 .vscode/
 *.swp
 .claude
+node_modules/
+node_modules/
+node_modules/

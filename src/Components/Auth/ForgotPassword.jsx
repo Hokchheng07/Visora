@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
 import { PASSWORD_RESET_DEMO } from "../API/passwordResetApi.js";
 import PasswordField from "./forgot-password/PasswordField.jsx";
@@ -6,6 +8,8 @@ import usePasswordReset from "./forgot-password/usePasswordReset.js";
 import { rules } from "./forgot-password/passwordResetValidation.js";
 import artwork from "../../assets/pages/auth/forgot-password/reset-password-art.png";
 import logo from "../../assets/shared/branding/VisoraLogo.png";
+import { ThemeImage } from "../../theme/ThemeImage";
+import { EASE } from "../../lib/animations/animations";
 import "./forgot-password.css";
 
 const steps = ["Enter Email", "Verify Code", "Create New Password"];
@@ -16,6 +20,10 @@ export default function ForgotPassword() {
     complete, inputs, heading, setEmail, setPassword, setConfirm, setError,
     sendCode, updateCode, fillCode, resetPassword,
   } = usePasswordReset();
+  const reduceMotion = useReducedMotion();
+  // The first step arrives with the route fade, so only later steps animate in.
+  const firstStep = useRef(true);
+  useEffect(() => { firstStep.current = false; }, []);
 
   return <main className="reset-page font-sans">
     <aside className="reset-art-panel" aria-label="Welcome to Visora">
@@ -29,7 +37,7 @@ export default function ForgotPassword() {
     </aside>
     <section className="reset-form-panel">
       <div className="reset-content">
-        <Link to="/" className="reset-mobile-logo"><img src={logo} alt="Visora home" /></Link>
+        <Link to="/" className="reset-mobile-logo"><ThemeImage src={logo} alt="Visora home" /></Link>
         <header className="reset-heading">
           <h1 ref={heading} tabIndex={-1}>{complete ? (PASSWORD_RESET_DEMO ? "Demo Complete" : "Password Reset!") : "Reset Your Password"}</h1>
           <p>{complete ? (PASSWORD_RESET_DEMO ? "You’ve completed the preview. Your real password has not changed." : "Your password has been updated. You can now log in.")
@@ -45,6 +53,13 @@ export default function ForgotPassword() {
         </ol>
         {!complete && <form onSubmit={step === 0 ? sendCode : step === 2 ? resetPassword : (event) => event.preventDefault()} noValidate aria-busy={busy}>
           <fieldset disabled={busy} className="reset-fields">
+            {/* Enter only, no exit: the old step leaves at once, so the new
+                step's fields exist straight away for the focus hand-off in
+                usePasswordReset. Keyed by step, so a resend does not replay it. */}
+            <motion.div key={step}
+              initial={firstStep.current ? false : { opacity: 0, y: reduceMotion ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: EASE }}>
             {step === 0 && <label className="reset-field" htmlFor="reset-email">
               <span>Email Address <b>*</b></span>
               <span className="reset-input-wrap"><Mail size={20} aria-hidden="true" />
@@ -85,6 +100,7 @@ export default function ForgotPassword() {
               <PasswordField label="Confirm New Password" id="confirm-password" value={confirm} onChange={(event) => { setConfirm(event.target.value); setError(""); }} invalid={!!error} />
             </>}
             {step !== 1 && <button className="reset-primary" type="submit">{busy ? (step === 0 ? "Sending…" : "Resetting…") : (step === 0 ? "Send Verification Code" : "Reset Password")}<ArrowRight size={20} aria-hidden="true" /></button>}
+            </motion.div>
           </fieldset>
           {error && <p id="reset-error" className="reset-error" role="alert">{error}</p>}
           <p className="reset-status" role="status">{busy && step === 1 ? "Checking your code…" : notice}</p>

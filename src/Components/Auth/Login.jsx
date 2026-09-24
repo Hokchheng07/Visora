@@ -1,7 +1,14 @@
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useUserLoginMutation } from "../API/authApi";
+import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { setAccessToken, setRefreshToken } from "../redux/authslice";
+import z from "zod";
+// add zodResolver
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast, ToastContainer } from "react-toastify";
 import {
   EnvelopeIcon,
   EyeIcon,
@@ -12,22 +19,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 import loginStyle from "../../assets/pages/auth/login/3 Strips 1.png";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
-<<<<<<< HEAD
-import googleIcon from "../../assets/shared/social/google.svg";
-import githubIcon from "../../assets/shared/social/github_light.svg";
-=======
 import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
 import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import { EASE } from "../../lib/animations/animations";
 
-import loginPic from "../../assets/pages/auth/login/LoginLogo-pic.png";
-
-const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
 
 const fields = [
   { name: "email", label: "Email Address", placeholder: "example@gmail.com", icon: EnvelopeIcon, type: "email" },
@@ -35,77 +31,85 @@ const fields = [
 ];
 
 export default function Login() {
-  const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+  const [loginRequest] = useUserLoginMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const formSchema = z.object({
+    email: z
+      .string("Please input email")
+      .trim()
+      .email("Enter a valid email address"),
+    password: z
+      .string("Please input password")
+      .min(8, "Password must be at least 8 characters"),
   });
 
-  const onSubmit = () => setSubmitted(true);
+  // define useForm
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  useEffect(() => {
-    if (!submitted) return;
-    const timer = setTimeout(() => setSubmitted(false), 3000);
-    return () => clearTimeout(timer);
-  }, [submitted]);
+  // custom login logic
+  const handleLoginSubmit = async (data) => {
+    try {
+      const result = await loginRequest({
+        userLoginRequest: data,
+      });
+
+      // the server wraps the tokens inside another "data": { data: { accessToken, refreshToken } }
+      const tokens = result?.data?.data;
+
+      if (tokens?.accessToken) {
+        dispatch(setAccessToken(tokens.accessToken));
+        dispatch(setRefreshToken(tokens.refreshToken));
+        sessionStorage.setItem("refreshToken", tokens.refreshToken);
+
+        toast.success("You have logged in successfully!");
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 3000);
+      } else {
+        toast.error("Incorrect email or password!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-<<<<<<< HEAD
-    <main className="h-dvh min-h-0 overflow-hidden bg-white font-sans lg:grid lg:grid-cols-2">
-=======
-    <main className="min-h-dvh overflow-y-auto bg-white font-sans lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-      <section className="relative hidden h-full min-h-0 overflow-hidden lg:block">
-        <img src={loginPic} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/75" />
-        <Link to="/" className="absolute left-8 top-8 z-10 sm:left-12 sm:top-10">
-<<<<<<< HEAD
-          <img src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
-=======
-          <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-40 sm:w-48" />
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-        </Link>
-        <div className="absolute bottom-10 left-8 z-10 max-w-[680px] text-white sm:bottom-14 sm:left-12 lg:left-16 lg:bottom-16">
-          <h2 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">Unleash your creativity.</h2>
-          <p className="mt-6 max-w-[620px] text-lg leading-8 sm:text-xl">
-            Join thousands of creators in bulding the next generation digital experiences
-          </p>
-        </div>
-      </section>
-
-<<<<<<< HEAD
-      <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-center lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
-        <div className="mx-auto w-full max-w-[480px]">
-          <Link to="/" className="mb-8 flex justify-center lg:hidden">
-            <img src={visoraLogo} alt="Visora" className="h-auto w-36" />
-          </Link>
-          <header className="relative mb-8 max-w-[560px] lg:mb-10">
-            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-2 -top-10 hidden w-16 rotate-[45deg] lg:block" />
-=======
+    <>
+    <ToastContainer />
+    {/* Form half only: AuthLayout draws the picture half and slides the two between Login and Sign Up. */}
+    <main className="min-h-dvh bg-white font-sans dark:bg-black lg:h-dvh">
       <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-start lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
         <div className="mx-auto w-full max-w-[480px] lg:my-auto lg:max-w-[650px]">
           <Link to="/" className="mb-8 flex justify-center lg:hidden">
             <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
           </Link>
           <header className="relative mb-8 max-w-[560px] lg:mb-10 lg:pt-[73px]">
-            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block" />
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-            <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl">Welcome Back</h1>
-            <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7">Login to continue designing with Visora</p>
+            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block dark:invert" />
+            <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl dark:text-white">Welcome Back</h1>
+            <p className="mt-4 max-w-[500px] text-base leading-6 text-gray-500 sm:text-lg lg:mt-6 lg:text-xl lg:leading-7 dark:text-[#bcbccd]">Login to continue designing with Visora</p>
           </header>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-4">
               {fields.map(({ name, label, placeholder, icon: Icon, type = "text" }) => (
                 <label key={name} className="block">
-                  <span className="mb-1.5 block text-sm font-semibold text-gray-700 sm:text-base lg:mb-2 lg:text-lg">{label} <span className="text-red-600">*</span></span>
+                  <span className="mb-1.5 block text-sm font-semibold text-gray-700 sm:text-base lg:mb-2 lg:text-lg dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
                   <span className="relative block">
                     <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                     <input
                       type={type === "password" && showPassword ? "text" : type}
                       placeholder={placeholder}
-                      className={`h-12 w-full rounded-lg border bg-white pl-12 pr-12 text-sm text-gray-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base lg:h-14 ${errors[name] ? "border-red-500" : "border-gray-300"}`}
+                      className={`h-12 w-full rounded-lg border bg-white dark:bg-[#1a1a28] pl-12 pr-12 text-sm text-gray-700 outline-none dark:text-gray-100 transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base lg:h-14 ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
                       {...register(name)}
                     />
                     {type === "password" && (
@@ -149,48 +153,23 @@ export default function Login() {
             </div>
 
             <div className="mt-3 text-right">
-<<<<<<< HEAD
-              <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
-            </div>
-
-            <button type="submit" className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-secondary via-[#e9b56b] to-primary text-base font-semibold text-white transition hover:brightness-105 lg:mt-6 lg:h-14 lg:text-xl">
-=======
               <Link to="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
             </div>
 
             <button type="submit" className="hero-cta hero-cta-primary mt-5 h-12 w-full max-w-none gap-3 text-base lg:mt-6 lg:h-14 lg:text-xl">
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-              Login <span aria-hidden="true" className="text-2xl">⟶</span>
+              <span>Login</span><ArrowRight className="size-5 shrink-0 lg:size-6" strokeWidth={2.25} aria-hidden="true" />
             </button>
-            <AnimatePresence>
-              {submitted && (
-                <motion.p
-                  key="success"
-                  className="mt-3 text-center text-sm text-green-700"
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 0.22, ease: EASE }}
-                >
-                  Your details are valid and ready to submit.
-                </motion.p>
-              )}
-            </AnimatePresence>
 
-            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300" />or<span className="h-px flex-1 bg-gray-300" /></div>
+            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:my-6 lg:gap-4 lg:text-xl"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
             <div className="grid gap-3">
-<<<<<<< HEAD
-              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={googleIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Google</button>
-              <button type="button" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><img src={githubIcon} alt="" className="h-5 w-5 lg:h-6 lg:w-6" />Continue with Github</button>
-=======
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Google</span></span></button>
-              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Facebook</span></span></button>
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Google</span></span></button>
+              <button type="button" className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 lg:h-14 lg:text-lg dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center lg:h-6 lg:w-6" /><span>Continue with Facebook</span></span></button>
             </div>
             <p className="mt-6 text-center text-gray-400">Don't have an account? <Link to="/auth/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
           </form>
         </div>
       </section>
     </main>
+    </>
   );
 }

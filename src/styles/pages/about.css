@@ -80,12 +80,9 @@
 }
 .about-page-art { z-index: 0; }
 .about-page-angkor-layer { z-index: 2; }
-<<<<<<< HEAD
-=======
 /* Desktop-only (see the media query below for its actual size/position);
    mobile art never escapes .about-page's own box, so there's no gap to fill. */
 .about-page-bg-fill { display: none; pointer-events: none; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 /* Mobile keeps the blob as a soft wash behind the stacked hero; the desktop
    canvas below repositions it to run up behind the navbar as Figma has it. */
@@ -320,15 +317,12 @@
   .about-feature-swing,
   .about-feature-swing * { user-select: auto; -webkit-user-select: auto; }
 }
-<<<<<<< HEAD
-=======
 /* Dashed clothesline drawn between the pin heads (see PinConnector). It only
    exists where the cards hang on the canvas; the stacked layout has no line. */
 .about-design { --about-pin-line: rgb(0 0 0 / .54); }
 .dark .site-shell .about-design { --about-pin-line: var(--color-secondary); }
 .about-pin-connector { display: none; position: absolute; top: 0; left: 0; z-index: 4; overflow: visible; pointer-events: none; }
 @media (min-width: 1024px) { .about-pin-connector { display: block; } }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-feature-card { position: relative; width: 100%; aspect-ratio: 1; }
 .about-feature-frame { display: block; width: 100%; height: 100%; object-fit: contain; }
 .about-feature-copy {
@@ -340,21 +334,12 @@
   justify-content: center;
   text-align: center;
 }
-<<<<<<< HEAD
-.about-feature-copy h3 { max-width: 230px; font-size: clamp(.95rem, 1.45vw, 1.22rem); font-weight: 650; line-height: 1.25; }
-.about-feature-copy p { max-width: 220px; margin-top: 10px; color: #514b5d; font-size: clamp(.72rem, .88vw, .86rem); line-height: 1.5; }
-.about-feature-hanger-purple h3 { color: #705ae0; }
-.about-feature-hanger-blue h3 { color: #259ac5; }
-.about-feature-hanger-pink h3 { color: #d645bd; }
-.about-feature-hanger-yellow h3 { color: #cc9200; }
-=======
 .about-feature-copy h3 { max-width: 230px; color: #1b1b23; font-size: clamp(.95rem, 1.45vw, 1.22rem); font-weight: 650; line-height: 1.25; }
 .about-feature-copy p { max-width: 220px; margin-top: 10px; color: #464554; font-size: clamp(.72rem, .88vw, .86rem); line-height: 1.5; }
 .about-feature-hanger-purple h3 span { color: #6854da; }
 .about-feature-hanger-blue h3 span { color: #0080ff; }
 .about-feature-hanger-pink h3 span { color: #e84af1; }
 .about-feature-hanger-yellow h3 span { color: #ff8000; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 .about-vision { min-height: 820px; }
 .about-vision-grid {
@@ -434,12 +419,9 @@
   border-radius: 50%;
   object-fit: cover;
 }
-<<<<<<< HEAD
-=======
 .about-mentor-grid .about-person-card:nth-child(2) .about-person-photo {
   object-position: center 8%;
 }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-person-placeholder {
   background: rgb(255 255 255 / .78);
   color: #2f2850;
@@ -447,23 +429,14 @@
   font-weight: 700;
 }
 .about-person-content {
-<<<<<<< HEAD
-  position: absolute;
-  inset: 44% 9% 5%;
-=======
   position: relative;
   /* Keep the original text start (44% of a 252 × 328 frame), but let
      content determine the minimum card height so three quote lines fit. */
   padding: 57.27% 9% 8%;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: center;
-<<<<<<< HEAD
-  justify-content: center;
-}
-=======
   /* Anchored to the top rather than centred: the quotes run from one line to
      three and one mentor has none at all, and centring let that difference
      slide the name, role pill and socials up and down from card to card. The
@@ -473,14 +446,10 @@
   justify-content: flex-start;
 }
 .about-person-content > * { flex-shrink: 0; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-person-card h3 { margin: 0; color: #211d31; font-size: 1.18rem; font-weight: 650; }
 .about-person-role { margin-top: 10px; padding: 5px 13px; border-radius: 999px; background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); font-size: .72rem; font-weight: 700; }
 .about-person-role-featured { background: color-mix(in srgb, var(--color-secondary) 30%, white); color: #745500; }
 .about-person-quote {
-<<<<<<< HEAD
-  margin: 14px 0 0;
-=======
   /* Always three lines tall, filled or not, so the socials row underneath is
      pinned to the same y on every card. Longer quotes clamp instead of
      pushing. */
@@ -490,7 +459,6 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   color: #5c5470;
   font-size: .82rem;
   font-style: italic;
@@ -499,13 +467,8 @@
 .about-person-socials { display: flex; gap: 12px; margin-top: 18px; }
 .about-person-socials a { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
 .about-person-socials > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 11%, transparent); color: var(--color-primary); }
-<<<<<<< HEAD
-.about-person-socials img { width: 17px; height: 17px; object-fit: contain; }
-.about-person-socials svg { width: 17px; height: 17px; }
-=======
 .about-person-socials img { width: 20.4px; height: 20.4px; object-fit: contain; transform: translateY(-2px); }
 .about-person-socials svg { width: 20.4px; height: 20.4px; transform: translateY(-2px); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .about-person-social-placeholder { margin-top: 17px; color: var(--text-muted); font-size: .72rem; }
 
 .about-cta {
@@ -558,8 +521,6 @@
    the starfield through and puts it back in the same register. */
 .dark .site-shell .about-decor-pin-etch { opacity: .5; }
 .dark .site-shell .about-feature-clothesline { --about-feature-line: var(--color-secondary); }
-<<<<<<< HEAD
-=======
 .dark .site-shell .about-page { color: #fff; }
 .dark .site-shell .about-hero-copy h1,
 .dark .site-shell .about-story h2,
@@ -590,7 +551,6 @@
 .dark .site-shell .about-cta-copy h2 span { color: #fff; }
 .dark .site-shell .about-cta-copy > p:not(.about-eyebrow),
 .dark .site-shell .about-cta-copy > a { color: #000; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 /* Vision/Mission text stays on the theme tokens: these were forced dark
    because the light frame is a pale card, and the dark frame is not. */
 
@@ -652,6 +612,76 @@
   .about-cta-doodle-left { top: 17%; left: 22%; width: 60px; height: 44px; }
   .about-cta-doodle-right { top: auto; bottom: 5%; left: 10%; width: 74px; height: 44px; }
   .about-cta-doodle-lower { display: none; }
+}
+
+/* Mid-size phones have enough side and lower-edge space for a few existing
+   decorations. Keep them restrained so they frame the content instead of
+   competing with it. */
+@media (min-width: 480px) and (max-width: 767px) {
+  .about-hero-angkor { display: block; width: 58%; opacity: .72; }
+  .about-hero-plane { display: block; right: 3%; bottom: 24%; width: 64px; }
+  .about-hero-exclamation { display: block; top: 13%; left: 5%; width: 38px; }
+  .about-hero-yellow-swoosh { display: block; top: 54%; left: 3%; width: 76px; opacity: .7; }
+  .about-hero-left-line-dashed,
+  .about-hero-left-line-solid { display: block; left: -8%; top: 35%; width: 42%; opacity: .32; }
+  .about-hero-right-line-dashed,
+  .about-hero-right-line-solid { display: block; right: -12%; top: 40%; width: 38%; opacity: .28; }
+  .about-hero-snail-left { display: block; left: 3%; bottom: 18%; width: 58px; opacity: .72; }
+  .about-hero-frame-yellow { display: block; left: 6%; bottom: 5%; width: 72px; opacity: .72; }
+  .about-story-line { display: block; top: 18px; right: -32%; width: 92%; opacity: .18; }
+  .about-story-snail-one { display: block; right: 3%; bottom: 3%; top: auto; width: 70px; opacity: .72; }
+}
+
+@media (max-width: 479px) {
+  .about-section { width: calc(100% - 24px); padding-block: 48px; }
+  .about-section-heading h2,
+  .about-story h2,
+  .about-what h2,
+  .about-design-heading h2 { font-size: clamp(1.9rem, 9vw, 2.55rem); line-height: 1.05; }
+  .about-section-subtitle { font-size: .78rem; }
+  .about-hero { min-height: 620px; }
+  .about-hero-copy { top: 12%; right: 5%; width: 90%; }
+  .about-hero-copy h1 { font-size: clamp(1.85rem, 8vw, 2.35rem); line-height: .98; }
+  .about-hero-copy h1 span { font-size: clamp(3rem, 14vw, 4.4rem); line-height: .98; }
+  .about-hero-copy > p { max-width: 18rem; font-size: .78rem; line-height: 1.5; }
+  .about-story { min-height: 0; padding-top: 52px; }
+  .about-story-copy { padding: 22px 18px; border-radius: 24px; }
+  .about-story-copy > p:not(.about-eyebrow),
+  .about-what-copy > p:not(.about-eyebrow) { margin-top: 16px; font-size: .9rem; line-height: 1.65; }
+  .about-values-grid { margin-top: 30px; }
+  .about-value-card { min-height: 220px; }
+  .about-value-card img { max-height: 270px; }
+  .about-what { min-height: 0; }
+  .about-what-copy { padding: 24px 18px; border-radius: 24px; }
+  .about-design { width: calc(100% - 16px); }
+  .about-design-heading { padding: 30px 14px; border-radius: 30px; }
+  .about-feature-stage { margin-top: 36px; }
+  .about-feature-grid { width: 100%; gap: 22px; }
+  .about-feature-copy h3 { font-size: .98rem; }
+  .about-feature-copy p { font-size: .72rem; }
+  .about-vision-grid { margin-top: 32px; }
+  .about-vision-card, .about-vision-copy { min-height: 270px; }
+  .about-vision-copy { padding: 34px 24px; }
+  .about-vision-copy h3 { font-size: 1.35rem; }
+  .about-vision-copy p { font-size: .82rem; line-height: 1.55; }
+  .about-mentor-grid, .about-member-grid { grid-template-columns: minmax(0, 270px); margin-top: 32px; }
+  .about-person-card { min-height: 340px; }
+  .about-cta { min-height: 460px; margin-top: 48px; }
+  .about-cta-copy { width: calc(100% - 36px); padding-top: 150px; }
+  .about-cta-copy h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .about-cta-copy > p:not(.about-eyebrow) { font-size: .9rem; line-height: 1.5; }
+  .about-cta-copy > a { margin-top: 22px; min-height: 48px; padding-inline: 22px; font-size: .85rem; }
+  /* There is no reliable decorative gutter at the smallest widths. */
+  .about-hero-angkor,
+  .about-hero-plane,
+  .about-hero-exclamation,
+  .about-hero-yellow-swoosh,
+  .about-hero-left-line,
+  .about-hero-right-line,
+  .about-hero-snail,
+  .about-hero-frame,
+  .about-story-line,
+  .about-story-snail { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -818,34 +848,22 @@
     height: auto;
     max-width: none;
   }
-<<<<<<< HEAD
-  .about-decor-burst            { left:  9.86%; top:  7.22%; width:  7.01%; }
-=======
   .about-decor-burst            { left:  6.86%; top:  8.22%; width:  7.01%; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   /* The design tucks each heading's mark right against the letters it marks:
      the swoosh's top edge sits exactly on the heading's ink bottom. These tops
      are therefore derived from where our type actually renders, not copied
      from the reference's own y — our headings do not land on the same
      baselines as the render, so copying its number leaves a visible gap. */
-<<<<<<< HEAD
-  .about-decor-story-underline  { left: 27.01%; top:  8.6496%; width: 13.96%; }
-=======
   .about-decor-story-underline  { left: 24.01%; top: 9.6496%; width: 13.96%; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-decor-values-underline { left: 74.6528%; top: 16.2392%; width: 13.9583%; }
   /* Offset from the heading, not absolute: the design sets this 41px right of
      "What", and our heading ink starts at x 119 rather than the render's 160. */
   .about-decor-what-underline   { left: 11.3889%; top: 31.17%; width: 31.53%; }
   .about-decor-squiggle-right   { left: 74.51%; top: 11.32%; width: 25.90%; }
   .about-decor-squiggle-left    { left:  0;     top: 12.81%; width: 28.40%; }
-<<<<<<< HEAD
-  .about-decor-arrow            { left: 18.26%; top: 17.10%; width: 16.11%; }
-=======
   /* Tucked against the left edge, just under where the left squiggle starts
      (its 409 x 74 art is 5.14cqw tall). */
   .about-decor-arrow            { left: 0; top: calc(12.81% + 3.8cqw); width: 16.11%; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   /* Behind the blobs (z-index 2) rather than merely low within its old
      section — see the note in AboutDecor.jsx. Rendered at the asset's natural
      132px because the design's plane ink measures 100x105 against the asset's
@@ -867,13 +885,6 @@
   /* Three hand-split segments, each solved so its path's own start/end land on
      the pins it joins. Explicit height (not auto) because each is scaled to
      span its pin pair exactly. Above the cards, like the old connector. */
-<<<<<<< HEAD
-  .about-decor-pin-line { z-index: 4; }
-  .about-decor-pin-line-top    { left: 48.17%; top: 40.44%; width: 32.64%; height: 1.596%; }
-  .about-decor-pin-line-second { left: 57.64%; top: 41.34%; width: 23.19%; height: 3.625%; }
-  .about-decor-pin-line-third  { left: 57.56%; top: 44.92%; width: 27.29%; height: 2.107%; }
-=======
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-decor-vision-lottie    { left: 13.89%; top: 51.22%; width: 36.25%; }
 
   /* Figma: "Our" black, "Core" primary purple, "Values" secondary yellow. */
@@ -882,11 +893,7 @@
 
   /* Our Story sat 166px left and 77px low. In the design the heading and the
      paragraph are not flush: h2 starts at x=216, the copy at x=126. */
-<<<<<<< HEAD
-  .about-story-copy { left: 8.75%; width: 43.33%; }
-=======
   .about-story-copy { left: 5.75%; width: 43.33%; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-story-copy h2 { margin-left: 14.42%; }
 
   .about-hero {
@@ -904,8 +911,6 @@
     overflow: visible;
     background: transparent;
   }
-<<<<<<< HEAD
-=======
   /* .about-page's own bg-sparkle background-image is confined to .about-page's
      box, which starts at the navbar's height (146px) — below where the navbar
      wave's cutout already shows the blob art running up behind it. That strip
@@ -945,7 +950,6 @@
     height: 12cqw;
     background: var(--surface-warm);
   }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   /* Figma: Rectangle 231 at frame y=0, i.e. flush to the page top and running
      up behind the navbar. Sized against the 1440-wide canvas, offset up by the
      146px navbar so its flat top edge lands at the very top of the page. */
@@ -1141,11 +1145,7 @@
      coordinates. Figma: h2 at x=216/y=734, paragraph at x=126/y=885 — the two
      are deliberately not flush. */
   .about-story {
-<<<<<<< HEAD
-    top: 7.69%;
-=======
     top: 8.69%;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     left: 0;
     z-index: 3;
     width: 100%;
@@ -1154,11 +1154,7 @@
   }
   .about-story-copy {
     position: absolute;
-<<<<<<< HEAD
-    left: 8.75%;
-=======
     left: 5.75%;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
     top: 0;
     width: 43.33%;
     padding: 0;
@@ -1175,11 +1171,7 @@
     line-height: 1.55;
   }
   /* Lands the first paragraph on the design's y=885, 151px below the h2 top. */
-<<<<<<< HEAD
-  .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 5.8333cqw; }
-=======
   .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 4.4cqw; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-story-copy > p:not(.about-eyebrow) ~ p { margin-top: 1.6667cqw; }
   .about-heading-underline { width: 10.0694cqw; margin-top: .5556cqw; }
   .about-story-line { top: -30%; right: -119%; width: 115%; opacity: .72; }
@@ -1288,11 +1280,7 @@
   .about-feature-hanger:nth-child(4) { translate: 2.9861cqw -2.2222cqw; }
   .about-feature-hanger:nth-child(1) { transform: translate(-36%, -10%) rotate(-7deg); }
   .about-feature-hanger:nth-child(2) { transform: translate(7%, 18%) rotate(7deg); }
-<<<<<<< HEAD
-  .about-feature-hanger:nth-child(3) { transform: translate(7%, -8.5%) rotate(4deg); }
-=======
   .about-feature-hanger:nth-child(3) { transform: translate(-3%, 2%) rotate(4deg); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-feature-hanger:nth-child(4) { transform: translate(16.7%, 10%) rotate(6deg); }
   .about-feature-pin { top: calc(var(--about-feature-offset) * .069444cqw - .5556cqw); width: 3.75cqw; }
   /* Pivot follows the padding via the shared custom property. */
@@ -1345,15 +1333,10 @@
     font-size: 1.25cqw;
     line-height: 1.6;
   }
-<<<<<<< HEAD
-  .about-vision-mark { top: 41%; right: -4%; width: 5.5556cqw; }
-  .about-vision-arrow { bottom: 8%; left: 84%; width: 6.25cqw; }
-=======
   /* Mark sits left of the Mission frame, above Vision, at 2x its original size.
      The 2x spiral sits above the thinking-woman illustration, top-left. */
   .about-vision-mark { top: calc(51.4% - 2.7778cqw); left: calc(12.5% - 2.7778cqw); right: auto; width: 11.1111cqw; }
   .about-vision-arrow { top: calc(3% - 34.3cqw); bottom: auto; left: 1%; width: 20cqw; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
   .about-mentors {
     top: 69.56%;
@@ -1423,21 +1406,13 @@
   .about-person-placeholder { font-size: 1.9444cqw; }
   .about-person-card h3 { font-size: 1.2556cqw; font-weight: 500; }
   .about-person-role { margin-top: .625cqw; padding: .3472cqw .9028cqw; font-size: .8556cqw; font-weight: 550; }
-<<<<<<< HEAD
-  .about-person-quote { margin: .9722cqw 0 0; font-size: .9111cqw; }
-=======
   .about-person-quote { height: calc(3 * 1.5em); margin: .9722cqw 0 0; font-size: .9111cqw; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .about-person-social-placeholder { margin-top: 1.1806cqw; font-size: .8cqw; }
   .about-person-socials { gap: .5556cqw; margin-top: .8333cqw; }
   .about-person-socials > a,
   .about-person-socials > span { width: 2.0833cqw; height: 2.0833cqw; }
   .about-person-socials img,
-<<<<<<< HEAD
-  .about-person-socials svg { width: 1.0417cqw; height: 1.0417cqw; }
-=======
   .about-person-socials svg { width: 1.25cqw; height: 1.25cqw; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
   .about-cta {
     bottom: 0;

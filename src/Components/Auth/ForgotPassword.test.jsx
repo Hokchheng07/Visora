@@ -2,12 +2,15 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ForgotPassword from "./ForgotPassword.jsx";
+import { ThemeProvider } from "../../theme/ThemeProvider.jsx";
 import { passwordResetApi } from "../API/passwordResetApi.js";
 
 beforeEach(() => { vi.useFakeTimers(); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); });
 const settle = () => act(async () => { await vi.advanceTimersByTimeAsync(400); });
-function openPage() { render(<MemoryRouter><ForgotPassword /></MemoryRouter>); }
+// jsdom has no matchMedia; ThemeProvider reads the system scheme through it.
+window.matchMedia ??= () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
+function openPage() { render(<ThemeProvider><MemoryRouter><ForgotPassword /></MemoryRouter></ThemeProvider>); }
 async function sendCode() {
   fireEvent.change(screen.getByLabelText(/Email Address/), { target: { value: "creator@example.com" } });
   fireEvent.click(screen.getByRole("button", { name: "Send Verification Code" }));

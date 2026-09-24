@@ -1,35 +1,58 @@
 import { useEffect, useRef, useState } from "react";
-import EditorCanvas from "../Editor/EditorCanvas";
-<<<<<<< HEAD
-=======
-import EditorTimerInspector from "../Editor/EditorTimerInspector.jsx";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-import EditorDisplay from "../Editor/EditorDisplay";
-import EditorSidebar from "../Editor/EditorSidebar";
-import EditorToolPanel from "../Editor/EditorToolPanel";
-import EditorTopBar from "../Editor/EditorTopBar";
-import { requestFullscreen } from "../Editor/useFullscreen";
+import EditorCanvas from "../Editor/canvas/EditorCanvas";
+import EditorInspector from "../Editor/inspector/EditorInspector.jsx";
+import EditorAnimationPane from "../Editor/panels/EditorAnimationPane.jsx";
+import EditorEffectDefs from "../Editor/canvas/EditorEffectDefs.jsx";
+import { hasVisibleEffects, strokeOverflow } from "../Editor/model/effectsFilter.js";
+import EditorDisplay from "../Editor/display/EditorDisplay";
+import EditorSidebar from "../Editor/shell/EditorSidebar";
+import EditorToolPanel from "../Editor/panels/EditorToolPanel";
+import EditorTopBar from "../Editor/shell/EditorTopBar";
+import { requestFullscreen } from "../Editor/display/useFullscreen";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAdded, pageCopied, pageCloned, pageDeleted } from "../redux/editorSlice.js";
-import { useEditorKeyboard } from "../Editor/useEditorKeyboard.js";
+import { useEditorKeyboard } from "../Editor/hooks/useEditorKeyboard.js";
+import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
+import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
+import { InspectorResizer, PanelToggle } from "../Editor/shell/EditorLayoutHandles.jsx";
+import { readInspectorWidth } from "../Editor/shell/inspectorWidth.js";
 import "../Editor/editor.css";
 
 export default function Editor() {
   const dispatch = useAppDispatch();
-<<<<<<< HEAD
-  const { pages, copiedPage, selectedId, currentPage } = useAppSelector((state) => state.editor);
-=======
   const { pages, copiedPage, selectedId, selectedIds, currentPage } = useAppSelector((state) => state.editor);
-  // The fourth column appears only for a single selected timer — a multi-select
-  // has no one timer to configure, and every other element is served by the bar.
-  const hasInspector = selectedIds.length === 1
-    && pages[currentPage].elements.find((element) => element.id === selectedId)?.type === "timer";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+  /* The Customize column appears while something is selected and goes away
+     with nothing selected, when the page bar above the canvas takes over.
+
+     On wide screens it is a grid column, so the canvas re-fits when it comes
+     and goes. That change waits until the pointer is released: selection
+     happens on pointerdown, and resizing the canvas under a drag that has just
+     started would move the element away from the cursor. Below 1441px the
+     column is a drawer over the canvas instead (a fourth 300px track would
+     leave too little canvas); its close button hides it until the selection
+     changes. */
+  const inspectorDocked = useMediaQuery("(min-width: 1441px)");
+  const pointerHeld = usePointerHeld();
+  const selectionKey = selectedIds.join(" ");
+  const [shownFor, setShownFor] = useState(selectionKey);
+  if (!pointerHeld && shownFor !== selectionKey) setShownFor(selectionKey);
+  const [dismissedFor, setDismissedFor] = useState(null);
+  const showInspector = shownFor !== "" && dismissedFor !== shownFor;
   const [activeTool, setActiveTool] = useState("templates");
+  const [animationPreview, setAnimationPreview] = useState(null);
+  const [animationMode, setAnimationMode] = useState("page");
+  const [animationDismissed, setAnimationDismissed] = useState(false);
   // The canvas is the point of the page, so it starts unobstructed.
   const [isPanelOpen, setPanelOpen] = useState(false);
   const [showRulers, setShowRulers] = useState(true);
   const [isDisplayOpen, setDisplayOpen] = useState(false);
+  const [inspectorWidth, setInspectorWidth] = useState(readInspectorWidth);
+  const [isResizing, setResizing] = useState(false);
+  const showAnimations = activeTool === "animations" && !animationDismissed;
+  const showRightPane = showAnimations || (activeTool !== "animations" && showInspector);
+  const previewing = showAnimations && isPanelOpen && animationPreview?.pageId === pages[currentPage].id;
+  const stopPreview = () => setAnimationPreview(null);
+  const startPreview = (request = { type: "page" }) => setAnimationPreview({ ...request, pageId: pages[currentPage].id, serial: Date.now() });
 
   const railRef = useRef(null);
   const panelRef = useRef(null);
@@ -42,7 +65,8 @@ export default function Editor() {
     if (!isPanelOpen) return;
 
     function handlePointerDown(event) {
-      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar")) return;
+      // Page and context menus float outside the bar, but using them should not close the panel either.
+      if (event.target.closest(".editor-element, .editor-shape-tools, .editor-canvas-bar, .editor-page-menu, .editor-context-menu, .editor-panel-toggle, .editor-inspector-resizer, .editor-inspector")) return;
       if (railRef.current?.contains(event.target) || panelRef.current?.contains(event.target)) return;
       setPanelOpen(false);
     }
@@ -58,7 +82,20 @@ export default function Editor() {
     };
   }, [isPanelOpen, selectedId]);
 
+  // ⌘/ or Ctrl+/ collapses and reopens the tool panel from anywhere in the editor.
+  useEffect(() => {
+    if (isDisplayOpen) return;
+    function handleKeyDown(event) {
+      if (!(event.metaKey || event.ctrlKey) || event.altKey || (event.key !== "/" && event.code !== "Slash")) return;
+      event.preventDefault();
+      setPanelOpen((open) => !open);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isDisplayOpen]);
+
   function handleToolChange(id) {
+    stopPreview(); setAnimationDismissed(false);
     if (id === activeTool) {
       setPanelOpen((open) => !open);
       return;
@@ -102,14 +139,17 @@ export default function Editor() {
 
   return (
     <div className="editor-shell font-sans" ref={shellRef}>
+      {/* One filter per element with shadows, for every page, shared by the
+          canvas, the page strip and display mode. */}
+      <EditorEffectDefs items={pages.flatMap((page) => page.elements.filter(hasVisibleEffects)
+        .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) })))} />
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
       <div
-<<<<<<< HEAD
-        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}`}
-=======
-        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${hasInspector ? " has-inspector" : ""}`}
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+        className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showRightPane && inspectorDocked ? " has-inspector" : ""}${isResizing ? " is-resizing" : ""}`}
+        style={{ "--inspector-w": `${inspectorWidth}px` }}
         inert={isDisplayOpen}
+        onPointerDownCapture={(event) => { if (previewing && !event.target.closest(".editor-animation-preview-toggle")) stopPreview(); }}
+        onKeyDownCapture={() => { if (previewing) stopPreview(); }}
       >
         <EditorSidebar
           ref={railRef}
@@ -117,18 +157,23 @@ export default function Editor() {
           onToolChange={handleToolChange}
           isPanelOpen={isPanelOpen}
         />
-        <EditorToolPanel ref={panelRef} activeTool={activeTool} isOpen={isPanelOpen} />
+        <EditorToolPanel ref={panelRef} activeTool={activeTool} isOpen={isPanelOpen} animationMode={animationMode}
+          onAnimationModeChange={(mode) => { stopPreview(); setAnimationMode(mode); }} onAnimationPreview={startPreview} />
+        <PanelToggle open={isPanelOpen} controls={`editor-panel-${activeTool}`} onToggle={() => setPanelOpen((open) => !open)} />
         <EditorCanvas
           canPaste={copiedPage !== null}
           onAddPage={handleAddPage}
           onPageAction={handlePageAction}
           showRulers={showRulers}
           onToggleRulers={() => setShowRulers((visible) => !visible)}
+          onAnimate={() => { setActiveTool("animations"); setAnimationDismissed(false); setPanelOpen(true); }}
+          previewing={previewing && !isDisplayOpen}
+          animationPreview={animationPreview}
+          onPreviewDone={stopPreview}
         />
-<<<<<<< HEAD
-=======
-        <EditorTimerInspector />
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+        {showAnimations ? <EditorAnimationPane docked={inspectorDocked} mode={animationMode} previewing={previewing} onPreview={() => startPreview({ type: "page" })} onStopPreview={stopPreview}
+          onClose={() => { setAnimationDismissed(true); stopPreview(); }} /> : activeTool !== "animations" && showInspector && <EditorInspector docked={inspectorDocked} onClose={() => setDismissedFor(shownFor)} />}
+        {showRightPane && <InspectorResizer width={inspectorWidth} onResize={setInspectorWidth} onResizing={setResizing} />}
       </div>
       {/* Rendered inside the shell, not through a portal, so it keeps the
           --editor-* tokens and focus ring scoped to .editor-shell. */}

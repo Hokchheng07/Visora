@@ -2,10 +2,6 @@ import { ThemeImage } from '../../theme/ThemeImage';
 import { useTheme } from '../../theme/useTheme';
 import { NavLink } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
-<<<<<<< HEAD
-import { ArrowRightIcon } from "@heroicons/react/24/solid";
-=======
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import "./hero-stats.css";
 
 import heroDashed from "../../assets/pages/home/hero/HeroDashedVector.svg";
@@ -25,15 +21,12 @@ import heroStatsBg from "../../assets/pages/home/hero/stats/HeroStatsBg.svg";
 import statPurpleBackground from "../../assets/pages/home/hero/stats/PurpleBackground.svg";
 import statYellowBackground from "../../assets/pages/home/hero/stats/YellowBackground.svg";
 import statFrameTwo from "../../assets/pages/home/hero/2ndFrame.png";
-<<<<<<< HEAD
-=======
 // Each dark badge is one flattened export (frame, tint and icon together), so
 // it replaces the three light layers instead of pairing with one in darkAssets.
 import statBadgeOneDark from "../../assets/pages/home/hero/dark/FistStats(DarkMode).svg";
 import statBadgeTwoDark from "../../assets/pages/home/hero/dark/2ndstats.svg";
 import statBadgeThreeDark from "../../assets/pages/home/hero/dark/thirdStats.svg";
 import statBadgeFourDark from "../../assets/pages/home/hero/dark/ForthStats(DarkMode).svg";
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import {
   fadeIn,
   fadeInUp,
@@ -99,10 +92,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
-<<<<<<< HEAD
-=======
     darkBadge: statBadgeOneDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   },
   {
     value: "10K+",
@@ -112,10 +102,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
-<<<<<<< HEAD
-=======
     darkBadge: statBadgeTwoDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   },
   {
     value: "50K+",
@@ -125,10 +112,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statYellowBackground,
-<<<<<<< HEAD
-=======
     darkBadge: statBadgeThreeDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   },
   {
     value: "27/7",
@@ -138,10 +122,7 @@ const STATS = [
     badgeClass: "bg-[var(--surface-card)]",
     iconClass: "text-[var(--text-heading)]",
     badgeBackground: statPurpleBackground,
-<<<<<<< HEAD
-=======
     darkBadge: statBadgeFourDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   },
 ];
 
@@ -156,7 +137,7 @@ const Hero = () => {
           Each wrapper flies in from its nearest side while the nested image
           owns the existing transform-based floating loop. */}
       <div
-        className="pointer-events-none absolute left-1/2 top-0 z-0 hidden w-full max-w-[1920px] -translate-x-1/2 lg:block"
+        className="hero-decorations pointer-events-none absolute left-1/2 top-0 z-0 block w-full max-w-[1920px] -translate-x-1/2"
         style={{ aspectRatio: `${CANVAS.w} / ${CANVAS.h}` }}
         aria-hidden="true"
       >
@@ -192,13 +173,8 @@ const Hero = () => {
         <div className="hero-blob-card relative mx-auto w-full max-w-[1156px]">
           {/* Supplied Figma blob layers, kept at a responsive aspect ratio. */}
           <motion.div
-<<<<<<< HEAD
-            className="relative mx-auto aspect-[799.8/512.8] w-full"
-            style={{ aspectRatio: "799.8 / 512.8" }}
-=======
             className="relative mx-auto w-full"
             style={{ aspectRatio: "1156 / 653.66" }}
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
             initial="hidden"
             animate="show"
             variants={scaleIn}
@@ -276,38 +252,13 @@ const Hero = () => {
               badgeClass,
               iconClass,
               badgeBackground,
-<<<<<<< HEAD
-=======
               darkBadge,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
             }) => (
               <motion.div
                 key={label}
                 className="hero-stat-row flex items-center gap-3 sm:bg-transparent"
                 variants={fadeInUp}
               >
-<<<<<<< HEAD
-                <div
-                  className={`relative flex h-[58px] w-[66px] flex-none items-center justify-center rounded-[2px] ${badgeClass}`}
-                >
-                  <ThemeImage
-                    src={badgeBackground}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 m-auto h-[42px] w-[50px]"
-                  />
-                  <ThemeImage
-                    src={frame}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain"
-                  />
-                  <i
-                    aria-hidden="true"
-                    className={`ph-stat-icon ${icon} relative z-10 text-[25px] ${iconClass}`}
-                  />
-                </div>
-=======
                 {resolvedTheme === "dark" ? (
                   <div className="relative h-[58px] w-[66px] flex-none">
                     {/* Natural size keeps each export's 50x42 tint the same
@@ -341,7 +292,6 @@ const Hero = () => {
                     />
                   </div>
                 )}
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
                 <div className="text-left">
                   <p className="text-[15px] font-semibold text-[var(--text-heading)]">
                     {value}
@@ -381,22 +331,6 @@ function HeroCopy() {
 
       <div
         data-anime-hero-copy
-<<<<<<< HEAD
-        className="mt-8 flex flex-wrap items-center justify-center gap-4"
-      >
-        <NavLink
-          to="/editor"
-          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-[13px] font-semibold text-white transition-transform duration-200 hover:scale-[1.03]"
-        >
-          Start Designing
-          <ArrowRightIcon className="h-4 w-4" />
-        </NavLink>
-
-        <NavLink
-          to="/templates"
-          className="rounded-full bg-secondary/20 px-6 py-3 text-[13px] font-semibold text-[var(--text-heading)] transition-colors duration-200 hover:bg-secondary/30"
-        >
-=======
         className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6 lg:gap-[47px]"
       >
         <NavLink to="/editor" className="hero-cta hero-cta-primary">
@@ -405,7 +339,6 @@ function HeroCopy() {
         </NavLink>
 
         <NavLink to="/templates" className="hero-cta hero-cta-secondary">
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
           Explore Templates
         </NavLink>
       </div>

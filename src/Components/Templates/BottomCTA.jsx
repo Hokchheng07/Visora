@@ -1,11 +1,12 @@
-import lineLeft from "../../assets/pages/templates/white-line-left.svg";
-import lineRight from "../../assets/pages/templates/white-line-right.svg";
-import boxLine from "../../assets/pages/templates/box-line.svg";
-import airplane from "../../assets/pages/templates/airplan.svg";
+import lineLeft from "../../assets/pages/templates/bottom/white-line-left.png";
+import lineRight from "../../assets/pages/templates/bottom/white-line-right.png";
+import box from "../../assets/pages/templates/bottom/box.png";
+import airplane from "../../assets/pages/templates/bottom/airplan.png";
+import pen from "../../assets/pages/templates/bottom/pen.png";
 
-export default function BottomCTA() {
-  return (
-    <section className="relative z-10 mt-6 h-[130px] w-full overflow-hidden sm:h-[160px] md:h-[210px] lg:h-[250px]">
+export default function BottomCTA(){
+  return(
+    <section className="relative z-10 mt-8 h-[clamp(150px,13vw,250px)] w-full overflow-hidden">
       {/* LIGHT MODE */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full select-none dark:hidden"
@@ -45,9 +46,9 @@ export default function BottomCTA() {
             x2="1"
             y2="0"
           >
-            <stop offset="0%" stopColor="#DA4EC9" />
-            <stop offset="50%" stopColor="#705AE0" />
-            <stop offset="100%" stopColor="#72BFF1" />
+            <stop offset="0%" stopColor="#DA4EC9"/>
+            <stop offset="50%" stopColor="#705AE0"/>
+            <stop offset="100%" stopColor="#72BFF1"/>
           </linearGradient>
         </defs>
 
@@ -68,38 +69,58 @@ export default function BottomCTA() {
         />
       </svg>
 
-      <img
-        src={lineLeft}
-        alt=""
-      className="pointer-events-none absolute bottom-6 left-[7%] z-[2] hidden w-[110px] select-none md:block lg:bottom-10 lg:left-[15%] lg:w-[140px] xl:left-[18%] xl:w-[170px]"
-      />
-
+      {/* LEFT AIRPLANE */}
       <img
         src={airplane}
         alt=""
-        className="pointer-events-none absolute bottom-7 left-[7%] z-[2] hidden w-[50px] select-none md:block lg:w-[70px]"
+        className="pointer-events-none absolute left-[5%] top-[73%] z-[2] hidden w-[clamp(42px,6vw,70px)] -translate-y-1/2 select-none md:block"
       />
 
+      {/* LEFT LINE */}
       <img
-        src={boxLine}
+        src={lineLeft}
         alt=""
-        className="pointer-events-none absolute bottom-7 right-[6%] z-[2] hidden w-[55px] select-none md:block lg:w-[80px]"
+        className="pointer-events-none absolute left-[15%] top-[68%] z-[2] hidden w-[clamp(120px,18vw,280px)] -translate-y-1/2 select-none md:block"
       />
 
+      {/* TEXT */}
+      <div className="absolute left-1/2 top-[65%] z-[3] w-full -translate-x-1/2 -translate-y-1/2 px-5 text-center">
+        <h2 className="text-[clamp(18px,2vw,30px)] font-bold leading-tight text-white">
+          Can&apos;t find what you{" "}
+          <span className="text-secondary">need</span>
+        </h2>
+
+        <p className="mx-auto mt-1.5 text-[clamp(9px,1vw,13px)] text-white/80">
+          Use our editor to create your own unique backdrop.
+        </p>
+      </div>
+
+      {/* RIGHT LINE */}
       <img
         src={lineRight}
         alt=""
-        className="pointer-events-none absolute bottom-[18px] right-[17%] z-[2] hidden w-[clamp(90px,10vw,145px)] select-none md:block"
+        className="pointer-events-none absolute left-[64%] top-[68%] z-[1] hidden w-[clamp(120px,16vw,220px)] -translate-y-1/2 select-none md:block"
       />
 
-      <div className="absolute left-1/2 top-[68%] z-[3] w-full -translate-x-1/2 -translate-y-1/2 px-4 text-center md:top-[70%]">
-        <h2 className="text-lg font-bold leading-tight text-white sm:text-xl md:text-2xl lg:text-[30px]">
-          Can&apos;t find what you <span className="text-secondary">need</span>
-        </h2>
+      {/* RIGHT PEN */}
+      <img
+        src={pen}
+        alt=""
+        className="pointer-events-none absolute left-[79%] top-[68%] z-[2] hidden w-[clamp(48px,6vw,78px)] -translate-y-1/2 select-none md:block"
+      />
 
-        <p className="mx-auto mt-1 max-w-[90%] text-[9px] text-white/80 sm:text-[11px] md:text-xs lg:text-[13px]">
-          Use our editor to create your own unique backdrop.
-        </p>
+      {/* RIGHT BOX */}
+      <img
+        src={box}
+        alt=""
+        className="pointer-events-none absolute left-[89%] top-[74%] z-[2] hidden w-[clamp(42px,5vw,65px)] -translate-y-1/2 select-none md:block"
+      />
+
+      {/* RIGHT RAYS */}
+      <div className="pointer-events-none absolute right-[2%] top-[57%] z-[2] hidden md:block">
+        <span className="absolute h-[3px] w-[13px] -rotate-[70deg] rounded-full bg-white"/>
+        <span className="absolute left-[18px] top-[8px] h-[3px] w-[13px] -rotate-[15deg] rounded-full bg-white"/>
+        <span className="absolute left-[20px] top-[22px] h-[3px] w-[12px] rotate-[22deg] rounded-full bg-white"/>
       </div>
     </section>
   );

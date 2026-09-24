@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-/* The editor is a separate application shell. Scope its styles so the
-   marketing page and the existing CV prototype keep their own layout. */
-.editor-shell {
-  --editor-tint: color-mix(in srgb, var(--color-accent) 17%, white);
-  --editor-header: color-mix(in srgb, var(--color-primary) 6%, white);
-  --editor-border: color-mix(in srgb, var(--color-primary) 16%, white);
-  --editor-ink: #211d29;
-  --editor-muted: #787280;
-  --editor-ruler: 28px;
-  --editor-canvas-bar: 116px;
-=======
 /* Headless UI portals popover and menu panels to document.body, outside
    .editor-shell — so these tokens are declared here as well as on the shell,
    or a portalled panel resolves them to nothing and renders with no
@@ -67,16 +55,11 @@
   --editor-shadow: 29 23 43;
   --editor-ruler: 28px;
   --editor-canvas-bar: 94px;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100dvh;
   overflow: hidden;
-<<<<<<< HEAD
-  background: white;
-  color: var(--editor-ink);
-=======
   background: var(--editor-surface);
   color: var(--editor-ink);
   font-size: 16px;
@@ -98,7 +81,6 @@
   --editor-muted: #9a93aa;
   --editor-danger: #ff8a80;
   --editor-shadow: 0 0 0;
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 }
 .editor-shell button { font: inherit; }
 .editor-shell button:disabled { cursor: not-allowed; }
@@ -118,67 +100,96 @@
 .editor-home { display: block; flex: none; border-radius: 6px; }
 .editor-home img { display: block; width: 140px; height: 60px; object-fit: contain; }
 .editor-document-name { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 17px; font-weight: 600; }
-<<<<<<< HEAD
-=======
 .editor-document-name input { width: 190px; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--editor-ink); font: inherit; }
 .editor-document-name input:hover, .editor-document-name input:focus { border-color: var(--editor-border); background: var(--editor-raised); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-document-name button { display: grid; place-items: center; width: 32px; height: 32px; color: var(--editor-muted); }
-.editor-topbar-actions { display: flex; flex: none; align-items: center; gap: 12px; }
+.editor-topbar-actions { position: relative; display: flex; flex: none; align-items: center; gap: 12px; }
+/* Document actions, then the account avatar, divided by a hairline. */
+.editor-topbar-end { display: flex; flex: none; align-items: center; gap: 18px; }
+.editor-topbar-end > .user-menu { padding-left: 18px; border-left: 1px solid var(--editor-border); }
 /* Enabled is the default here: a working action has to look different from the
    "coming soon" stubs beside it, or the whole bar reads as dead. */
-<<<<<<< HEAD
-.editor-topbar-actions button { display: flex; justify-content: center; align-items: center; gap: 10px; min-width: 108px; height: 42px; padding-inline: 17px; border: 1px solid color-mix(in srgb, var(--color-primary) 28%, white); border-radius: 7px; color: var(--editor-ink); background: white; font-size: 13px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
-.editor-topbar-actions button:disabled { border-color: var(--editor-border); color: var(--editor-muted); background: rgb(255 255 255 / .4); opacity: .55; }
-.editor-topbar-actions .editor-export { background: var(--color-primary); border-color: var(--color-primary); color: white; }
-.editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
-.editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 92px 272px minmax(0, 1fr); gap: 14px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
-/* Collapsing the panel track lets the workspace reflow without measuring anything. */
-.editor-body.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
-.editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
-.editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
-.editor-tool-button { display: flex; flex: none; min-height: 78px; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: var(--editor-ink); cursor: pointer; transition: background-color 150ms ease, color 150ms ease; }
-.editor-tool-button span { font-size: 10px; line-height: 1.2; }
-.editor-tool-button[aria-selected="true"] { background: white; color: var(--color-primary); }
-=======
 .editor-topbar-actions button { display: flex; justify-content: center; align-items: center; gap: 10px; min-width: 112px; height: 44px; padding-inline: 17px; border: 1px solid color-mix(in srgb, var(--color-primary) 28%, var(--editor-mix)); border-radius: 7px; color: var(--editor-ink); background: var(--editor-raised); font-size: 14px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
 .editor-topbar-actions button:disabled { border-color: var(--editor-border); color: var(--editor-muted); background: color-mix(in srgb, var(--editor-raised) 40%, transparent); opacity: .55; }
 .editor-topbar-actions .editor-export { background: var(--color-primary); border-color: var(--color-primary); color: white; }
 .editor-topbar-actions .editor-export:disabled { background: var(--color-primary); border-color: var(--color-primary); color: white; opacity: .5; }
-.editor-body { display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: 104px 300px minmax(0, 1fr); gap: 16px; padding: 20px; transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
+/* Export As dropdown (Figma 1672:92601): 257px card, 15px padding, 57px rows,
+   the hovered or focused row takes the soft purple fill. */
+/* Export failures are shown beside the button, not inside the menu: clicking a
+   format closes the menu, so a message placed in there would never be read. */
+.editor-export-error { position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; max-width: 257px; padding: 8px 10px; border-radius: 8px; background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25); color: var(--editor-ink); font-size: 12px; line-height: 18px; }
+.editor-export-menu { z-index: 60; display: flex; flex-direction: column; width: 257px; padding: 15px; border-radius: 8px; background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25); outline: none; transform-origin: top right; transition: opacity 150ms ease, scale 150ms cubic-bezier(.23, 1, .32, 1); }
+.editor-export-menu[data-closed] { opacity: 0; scale: .96; }
+.editor-export-head { display: flex; align-items: center; justify-content: space-between; }
+.editor-export-head p { color: var(--editor-ink); font-size: 16px; font-weight: 500; line-height: 26px; }
+.editor-export-close { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: #9a9a9a; cursor: pointer; }
+.editor-export-options { display: flex; flex-direction: column; gap: 15px; padding: 15px 1px 0; }
+.editor-export-option { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 57px; padding: 0 10px; border-radius: 8px; text-align: left; cursor: pointer; transition: background-color 120ms ease; }
+.editor-export-option[data-focus] { background: color-mix(in srgb, var(--editor-accent) 10%, var(--editor-float)); }
+.editor-export-option[data-disabled] { cursor: not-allowed; opacity: .55; }
+.editor-export-icon { display: grid; flex: none; place-items: center; width: 44px; height: 44px; }
+.editor-export-icon img { width: 100%; height: 100%; object-fit: contain; }
+.editor-export-icon.is-json img { width: 32px; height: 41px; }
+.editor-export-icon.is-ai img { width: 35px; height: 44px; }
+.editor-export-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.editor-export-copy strong { color: var(--editor-ink); font-size: 14px; font-weight: 500; line-height: 16px; }
+.editor-export-copy > span { color: color-mix(in srgb, var(--editor-muted) 80%, transparent); font-size: 12px; line-height: 18px; }
+@media (hover: hover) and (pointer: fine) { .editor-export-close:hover { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); color: var(--editor-ink); } }
+@media (prefers-reduced-motion: reduce) { .editor-export-menu { transition: opacity 150ms ease; } .editor-export-menu[data-closed] { scale: 1; } }
+/* Track sizes are variables so the handles on the columns (the panel toggle and
+   the Customize resizer, both positioned over the grid) can line up with them.
+   --inspector-w is set inline from the width the person dragged to. */
+.editor-body { --rail-w: 104px; --panel-w: 300px; --body-gap: 16px; --body-pad: 20px; --inspector-w: 300px; position: relative; display: grid; flex: 1; min-height: 0; min-width: 0; grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr); gap: var(--body-gap); padding: var(--body-pad); transition: grid-template-columns 220ms ease, grid-template-rows 220ms ease; }
 /* Collapsing the panel track lets the workspace reflow without measuring anything. */
-.editor-body.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
-/* The inspector is a real fourth track rather than an overlay, so the sheet
-   reflows beside it instead of hiding underneath it. Only while one timer is
-   selected — see the breakpoint note further down, the canvas runs out of room
-   long before the 760px layout flip. */
-.editor-body.has-inspector { grid-template-columns: 104px 300px minmax(0, 1fr) 300px; }
-.editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr) 300px; }
+.editor-body.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr); }
+/* While the Customize column is dragged its width follows the pointer exactly. */
+.editor-body.is-resizing { transition: none; cursor: col-resize; user-select: none; }
+/* Wide screens: while something is selected, Customize is a fourth track.
+   The track list always has four entries (the last one 0 when hidden) so the
+   column slides in and out instead of snapping. Narrower screens get a drawer;
+   see the Customize block below. */
+@media (min-width: 1441px) {
+  .editor-body { grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr) 0; }
+  .editor-body.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr) 0; }
+  .editor-body.has-inspector { grid-template-columns: var(--rail-w) var(--panel-w) minmax(0, 1fr) var(--inspector-w); }
+  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: var(--rail-w) 0 minmax(0, 1fr) var(--inspector-w); }
+}
+
+/* Panel toggle: a round tab on the tool panel's right edge, halfway down. It
+   rides the same 220ms as the grid, so it stays on the edge while the panel
+   closes, and then waits beside the rail to open it again. */
+.editor-panel-toggle { position: absolute; z-index: 12; top: 50%; left: calc(var(--body-pad) + var(--rail-w) + var(--body-gap) + var(--panel-w) - 12px); display: grid; place-items: center; width: 24px; height: 40px; translate: 0 -50%; border: 1px solid var(--editor-border); border-radius: 999px; background: var(--editor-raised); color: var(--editor-ink); box-shadow: 0 2px 8px rgb(var(--editor-shadow) / .12); cursor: pointer; transition: left 220ms ease, background-color 140ms ease, color 140ms ease; }
+.editor-body.is-panel-collapsed .editor-panel-toggle { left: calc(var(--body-pad) + var(--rail-w) + var(--body-gap) - 12px); }
+.editor-panel-toggle svg { transition: rotate 220ms cubic-bezier(.23, 1, .32, 1); }
+.editor-panel-toggle.is-collapsed svg { rotate: 180deg; }
+.editor-panel-toggle:active { scale: .95; }
+.editor-panel-toggle-tip { position: absolute; top: calc(100% + 8px); left: 50%; display: flex; align-items: center; gap: 6px; padding: 6px 8px 6px 10px; translate: -50% 0; border-radius: 8px; background: #1d1a26; color: white; font-size: 13px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.editor-panel-toggle-tip kbd { display: grid; min-width: 20px; height: 20px; padding-inline: 5px; place-items: center; border-radius: 5px; background: rgb(255 255 255 / .14); font: inherit; font-size: 11px; }
+.editor-panel-toggle:focus-visible .editor-panel-toggle-tip { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-panel-toggle:hover { color: var(--color-primary); }
+  .editor-panel-toggle:hover .editor-panel-toggle-tip { opacity: 1; transition-delay: 300ms; }
+}
+
+/* Customize resizer: an invisible 12px strip centred in the gap left of the
+   column; a line shows on hover, focus and while dragging. */
+.editor-inspector-resizer { position: absolute; z-index: 12; top: var(--body-pad); bottom: var(--body-pad); right: calc(var(--body-pad) + var(--inspector-w) + var(--body-gap) / 2 - 6px); width: 12px; cursor: col-resize; touch-action: none; }
+.editor-inspector-resizer::after { content: ""; position: absolute; top: 20%; bottom: 20%; left: 50%; width: 3px; translate: -50% 0; border-radius: 3px; background: var(--color-primary); opacity: 0; transition: opacity 140ms ease; }
+.editor-inspector-resizer:hover::after, .editor-inspector-resizer.is-active::after, .editor-inspector-resizer:focus-visible::after { opacity: 1; }
+.editor-inspector-resizer:focus-visible { outline: none; }
+@media (max-width: 1440px) {
+  /* Drawer: the strip runs down the drawer's left edge instead. */
+  .editor-inspector-resizer { position: fixed; top: 93px; bottom: 0; right: calc(min(var(--inspector-w), 86vw) - 6px); z-index: 31; }
+}
 .editor-tool-rail { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); padding: 8px; }
 .editor-tool-rail [role="tablist"] { display: flex; flex-direction: column; gap: 4px; }
 .editor-tool-button { display: flex; flex: none; min-height: 84px; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: var(--editor-ink); cursor: pointer; transition: background-color 150ms ease, color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
 .editor-tool-button span { font-size: 13px; font-weight: 500; line-height: 1.2; }
 .editor-tool-button[aria-selected="true"] { background: var(--editor-raised); color: var(--color-primary); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-tool-button:focus-visible { outline-offset: -3px; }
 .editor-tool-panel { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; padding: 24px 22px; background: var(--editor-tint); transition: opacity 160ms ease, padding 220ms ease; }
 .editor-tool-panel:focus-visible { outline-offset: -3px; }
 .editor-tool-panel.is-collapsed { overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
-<<<<<<< HEAD
-.editor-tool-panel > h2 { margin-bottom: 19px; font-size: 18px; font-weight: 600; letter-spacing: -.025em; }
-.editor-panel-search { display: flex; align-items: center; gap: 9px; height: 40px; padding-inline: 10px; border: 1px solid color-mix(in srgb, var(--color-primary) 45%, white); border-radius: 7px; background: white; color: var(--editor-muted); }
-.editor-panel-search svg { flex: none; }
-.editor-panel-search input { min-width: 0; width: 100%; border: none; background: transparent; color: var(--editor-muted); font: inherit; font-size: 10px; }
-.editor-panel-search input::placeholder { color: var(--editor-muted); opacity: 1; }
-.editor-categories { display: flex; gap: 5px; margin-block: 16px; }
-.editor-categories button { min-width: 0; padding: 8px 7px; border-radius: 5px; background: white; color: var(--editor-muted); font-size: 8px; }
-.editor-categories button.is-active { background: var(--color-primary); color: white; }
-.editor-template-list { display: grid; gap: 13px; }
-.editor-template-placeholder { aspect-ratio: 16 / 9; border: 7px solid var(--color-accent); border-radius: 11px; overflow: hidden; background: white; }
-.editor-template-paper { position: relative; display: flex; height: 100%; align-items: center; justify-content: center; flex-direction: column; gap: 8px; overflow: hidden; background: color-mix(in srgb, var(--color-primary) 6%, white); color: color-mix(in srgb, var(--color-primary) 42%, white); }
-.editor-template-tone-1 .editor-template-paper { background: color-mix(in srgb, var(--color-secondary) 12%, white); }
-.editor-template-tone-2 .editor-template-paper { background: color-mix(in srgb, var(--color-accent) 13%, white); }
-=======
 .editor-tool-panel > h2 { margin-bottom: 20px; font-size: 21px; font-weight: 600; letter-spacing: -.025em; }
 .editor-panel-search { display: flex; align-items: center; gap: 10px; height: 46px; padding-inline: 13px; border: 1px solid color-mix(in srgb, var(--color-primary) 45%, var(--editor-mix)); border-radius: 9px; background: var(--editor-raised); color: var(--editor-muted); }
 .editor-panel-search svg { flex: none; }
@@ -192,105 +203,184 @@
 .editor-template-paper { position: relative; display: flex; height: 100%; align-items: center; justify-content: center; flex-direction: column; gap: 8px; overflow: hidden; background: color-mix(in srgb, var(--color-primary) 6%, var(--editor-mix)); color: color-mix(in srgb, var(--color-primary) 42%, var(--editor-mix)); }
 .editor-template-tone-1 .editor-template-paper { background: color-mix(in srgb, var(--color-secondary) 12%, var(--editor-mix)); }
 .editor-template-tone-2 .editor-template-paper { background: color-mix(in srgb, var(--color-accent) 13%, var(--editor-mix)); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-placeholder-line { z-index: 1; width: 36%; height: 5px; border-radius: 4px; background: currentColor; opacity: .5; }
 .editor-placeholder-line.short { width: 23%; height: 3px; opacity: .35; }
 .editor-template-orbit { position: absolute; width: 96px; height: 96px; left: -51px; bottom: -45px; border: 1px dashed currentColor; border-radius: 50%; opacity: .6; }
 .editor-template-paper .editor-template-spark { position: absolute; top: 13px; right: 13px; color: var(--color-accent); }
-<<<<<<< HEAD
-.editor-view-more { width: 100%; height: 38px; margin-top: 20px; border: 1px solid var(--color-primary); border-radius: 7px; background: rgb(255 255 255 / .45); color: var(--color-primary); opacity: .65; font-size: 10px !important; }
-.editor-panel-subtitle { margin-block: 22px 12px; font-size: 12px; font-weight: 500; }
-.editor-shape-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
-.editor-shape-tile { display: grid; aspect-ratio: 1; place-items: center; border: 1px solid var(--editor-border); border-radius: 9px; background: rgb(255 255 255 / .65); }
-=======
 .editor-view-more { width: 100%; height: 42px; margin-top: 20px; border: 1px solid var(--color-primary); border-radius: 8px; background: color-mix(in srgb, var(--editor-raised) 45%, transparent); color: var(--color-primary); opacity: .65; font-size: 13px !important; }
 .editor-panel-subtitle { margin-block: 24px 14px; font-size: 15px; font-weight: 600; }
 .editor-shape-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 9px; margin-top: 12px; }
 .editor-shape-tile { display: grid; min-width: 0; min-height: 106px; grid-template-rows: 52px minmax(28px, auto); align-content: center; place-items: center; gap: 7px; padding: 10px 4px 8px; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-shape { display: block; width: 28px; height: 28px; background: var(--color-accent); }
-.editor-shape-circle { border-radius: 50%; }
-.editor-shape-triangle { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.editor-shape-diamond { width: 24px; height: 24px; transform: rotate(45deg); }
-.editor-shape-star { clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 93%,50% 72%,21% 93%,32% 57%,2% 35%,39% 35%); }
-.editor-shape-pill { width: 34px; height: 20px; border-radius: 999px; }
-<<<<<<< HEAD
-.editor-graphic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.editor-graphic-grid > span { display: grid; height: 76px; place-items: center; border-radius: 9px; background: rgb(255 255 255 / .65); color: var(--color-primary); font-size: 35px; }
-.editor-panel-primary { display: flex; width: 100%; min-height: 40px; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 7px; background: var(--color-primary); color: white; opacity: .68; font-size: 11px !important; }
-.editor-text-options { display: grid; gap: 10px; }
-.editor-text-options .editor-panel-subtitle { margin-bottom: 0; }
-.editor-text-options > button:not(.editor-panel-primary) { padding: 15px 12px; border: 1px solid var(--editor-border); border-radius: 9px; background: rgb(255 255 255 / .65); text-align: left; color: #696273; font-size: 11px; }
-.editor-text-options > .editor-text-heading { font-size: 22px !important; font-weight: 600; }
-.editor-text-options > .editor-text-subheading { font-size: 15px !important; font-weight: 500; }
-.editor-empty-state { padding: 44px 10px; text-align: center; }
-.editor-empty-icon { display: grid; width: 60px; height: 60px; margin: 0 auto 18px; place-items: center; border: 1px dashed color-mix(in srgb, var(--color-primary) 30%, white); border-radius: 16px; color: var(--color-primary); background: rgb(255 255 255 / .45); }
-.editor-empty-state h3 { font-size: 13px; font-weight: 500; }
-.editor-empty-state p { margin-top: 8px; color: var(--editor-muted); font-size: 11px; line-height: 1.7; }
-.editor-panel-description { color: var(--editor-muted); font-size: 11px; }
-=======
-.editor-shape-rounded-rectangle { border-radius: 18%; }
-.editor-graphic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.editor-graphic-grid > span { display: grid; height: 92px; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); color: var(--color-primary); font-size: 42px; }
+.editor-library-art { display: block; }
+/* Panel previews show the vector in its gold, the same way the canvas draws it. */
+/* Group cards: the Elements panel's front page. The thumbnail is a 2x2 of the
+   group's own elements, so a new group needs no artwork of its own. */
+.editor-group-grid { display: grid; gap: 10px; }
+.editor-group-card { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--editor-border); border-radius: 14px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; cursor: pointer; transition: border-color 150ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1); }
+.editor-group-card strong { color: var(--editor-ink); font-size: 14px; font-weight: 600; }
+.editor-group-card small { color: var(--editor-muted); font-size: 12px; }
+.editor-group-thumb { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; padding: 8px; border-radius: 10px; background: color-mix(in srgb, var(--editor-accent) 8%, transparent); }
+.editor-group-thumb.is-single { grid-template-columns: 1fr; justify-items: center; }
+.editor-group-thumb img { width: 100%; height: 46px; object-fit: contain; }
+.editor-group-card:active { transform: scale(.98); }
+.editor-group-card:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 2px; }
+.editor-group-back { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; padding: 6px 4px; border-radius: 8px; color: var(--editor-ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+.editor-group-back svg { color: var(--editor-muted); }
+@media (hover: hover) and (pointer: fine) {
+  .editor-group-card:hover { border-color: var(--editor-accent); }
+  .editor-group-back:hover { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .editor-group-card:active { transform: none; } }
+.editor-khmer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+.editor-khmer-grid:last-child { margin-bottom: 0; }
+.editor-khmer-tile { display: flex; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box; height: 92px; padding: 10px; border: 1px solid transparent; border-radius: 11px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); cursor: pointer; transition: border-color 150ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1); }
+.editor-khmer-tile.is-wide { grid-column: 1 / -1; height: 64px; }
+/* max-* against the flex box's fixed height: a percentage height inside a
+   grid cell with an auto row resolved to the picture's own size and spilled out. */
+.editor-khmer-tile img { display: block; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
+.editor-khmer-tile:active { transform: scale(.97); }
+.editor-khmer-tile:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .editor-khmer-tile:hover { border-color: var(--editor-accent); } }
+@media (prefers-reduced-motion: reduce) { .editor-khmer-tile:active { transform: none; } }
 .editor-panel-empty { margin-top: 20px; color: var(--editor-muted); font-size: 13px; line-height: 1.55; }
 .editor-panel-primary { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; gap: 8px; padding: 11px; border-radius: 9px; background: var(--color-primary); color: white; font-size: 14px !important; cursor: pointer; }
 .editor-panel-primary:disabled { opacity: .55; }
 .editor-text-options { display: grid; gap: 10px; }
 .editor-text-options .editor-panel-subtitle { margin-bottom: 0; }
-.editor-text-options > button:not(.editor-panel-primary) { padding: 17px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; color: #696273; font-size: 14px; }
+.editor-text-options > button:not(.editor-panel-primary) { padding: 17px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; color: var(--editor-ink); font-size: 14px; }
+.editor-text-options > button { cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms cubic-bezier(.23, 1, .32, 1); }
+.editor-text-options > button:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 3px; transition: none; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-text-options > button:hover { transform: translateY(-1px); }
+  .editor-text-options > button:not(.editor-panel-primary):hover { border-color: var(--editor-accent); color: var(--editor-accent); background: color-mix(in srgb, var(--editor-accent) 10%, var(--editor-raised)); }
+  .editor-text-options > .editor-panel-primary:hover { background: color-mix(in srgb, var(--editor-accent) 85%, var(--editor-ink)); }
+  .editor-text-options > button:active { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-text-options > button { transition: none; }
+  .editor-text-options > button:hover { transform: none; }
+}
 .editor-text-options > .editor-text-heading { font-size: 22px !important; font-weight: 600; }
 .editor-text-options > .editor-text-subheading { font-size: 15px !important; font-weight: 500; }
 .editor-empty-state { padding: 44px 10px; text-align: center; }
+.editor-upload-error { margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: color-mix(in srgb, #e0394a 10%, transparent); color: #d0293a; font-size: 13px; line-height: 1.45; }
+.editor-upload-signin { margin-top: 18px; text-decoration: none; }
+/* A text box set to a list: one item per line. Left-aligned lists hang their
+   markers in the margin; centred or right-aligned ones keep them inline. */
+.editor-list-art { align-items: center; }
+/* The marker layer sits under the text being typed: same box, same type, same
+   indent, so a marker never drifts from its line. Its own words are invisible
+   — they are there to make the line boxes, the marker is what shows. */
+.editor-list-markers { position: absolute; inset: 0; pointer-events: none; }
+.editor-list-markers li > span { visibility: hidden; }
+.editor-text-list { width: 100%; margin: 0; padding-inline-start: 1.4em; text-align: inherit; }
+ol.editor-text-list { padding-inline-start: 2em; }
+.editor-text-list.is-inside { padding-inline-start: 0; list-style-position: inside; }
+.editor-text-list li { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Page numbers popover: an on/off switch, then the options it unlocks. */
+.editor-switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 0; border: 0; background: none; color: var(--editor-ink); font: inherit; font-size: 14px; cursor: pointer; }
+.editor-switch { position: relative; flex: none; width: 36px; height: 20px; border-radius: 999px; background: color-mix(in srgb, var(--editor-muted) 40%, transparent); transition: background-color 160ms ease; }
+.editor-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 2px rgb(0 0 0 / .25); transition: translate 180ms cubic-bezier(.23, 1, .32, 1); }
+.editor-switch-row[aria-checked="true"] .editor-switch { background: var(--color-primary); }
+.editor-switch-row[aria-checked="true"] .editor-switch::after { translate: 16px 0; }
+.editor-switch-row:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: 6px; }
+.editor-check-row { display: flex; align-items: center; gap: 9px; color: var(--editor-ink); font-size: 13.5px; cursor: pointer; }
+.editor-check-row input { width: 16px; height: 16px; accent-color: var(--color-primary); }
+.editor-check-row:has(input:disabled) { opacity: .5; cursor: default; }
+/* Lists popover: each option is a tiny three-line preview of the list. */
+.editor-popover-lists { width: 252px; gap: 10px; }
+.editor-list-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.editor-list-option { display: grid; place-items: center; height: 58px; padding: 6px 8px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-ink); cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+.editor-list-option.is-on { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, var(--editor-raised)); }
+.editor-list-sample { display: grid; gap: 4px; width: 100%; }
+.editor-list-sample > span { display: flex; align-items: center; gap: 5px; }
+.editor-list-sample b { flex: none; min-width: 14px; font-size: 10px; font-weight: 600; line-height: 1; text-align: right; }
+.editor-list-sample i { flex: 1; height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--editor-muted) 45%, transparent); }
+.editor-list-none { height: 34px; border: 1px solid var(--editor-border); border-radius: 8px; background: none; color: var(--editor-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.editor-list-none:disabled { opacity: .45; cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-list-option:not(:disabled):hover { border-color: var(--color-primary); }
+  .editor-list-none:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); }
+}
+/* "Your uploads": square thumbnails, two per row. Tapping one adds it again;
+   the × only removes it from this list, never from the server. */
+.editor-upload-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.editor-upload-tile { position: relative; aspect-ratio: 1; }
+.editor-upload-use { display: block; width: 100%; height: 100%; padding: 0; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: repeating-conic-gradient(color-mix(in srgb, var(--editor-muted) 12%, transparent) 0 25%, transparent 0 50%) 50% / 14px 14px; cursor: pointer; transition: border-color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
+.editor-upload-use:active { transform: scale(.97); }
+.editor-upload-use img { width: 100%; height: 100%; object-fit: contain; }
+.editor-upload-use:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.editor-upload-missing { display: grid; width: 100%; height: 100%; place-items: center; color: var(--editor-muted); }
+.editor-upload-forget { position: absolute; top: 5px; right: 5px; display: grid; width: 22px; height: 22px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgb(20 16 32 / .72); color: white; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
+.editor-upload-tile:focus-within .editor-upload-forget { opacity: 1; }
+@media (hover: none) { .editor-upload-forget { opacity: 1; } }
+@media (hover: hover) and (pointer: fine) {
+  .editor-upload-tile:hover .editor-upload-forget { opacity: 1; }
+  .editor-upload-use:hover { border-color: var(--color-primary); }
+}
+.editor-spin { animation: editor-spin 800ms linear infinite; }
+@keyframes editor-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .editor-spin { animation-duration: 2400ms; } }
 .editor-empty-icon { display: grid; width: 60px; height: 60px; margin: 0 auto 18px; place-items: center; border: 1px dashed color-mix(in srgb, var(--color-primary) 30%, var(--editor-mix)); border-radius: 16px; color: var(--color-primary); background: color-mix(in srgb, var(--editor-raised) 45%, transparent); }
 .editor-empty-state h3 { font-size: 15px; font-weight: 600; }
 .editor-empty-state p { margin-top: 8px; color: var(--editor-muted); font-size: 13px; line-height: 1.6; }
 .editor-panel-description { color: var(--editor-muted); font-size: 13px; line-height: 1.55; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-.editor-timer-preview { margin-block: 18px; padding: 22px 10px; border-radius: 10px; background: var(--color-primary); color: white; text-align: center; }
-.editor-timer-preview > span { font-size: 25px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.editor-timer-preview small { display: flex; margin-top: 7px; justify-content: space-evenly; font-size: 6px; letter-spacing: .08em; }
-.editor-timer-preview.light { background: white; color: var(--color-primary); }
-<<<<<<< HEAD
-.editor-workspace { display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-radius: 18px; background: #f6f6f8; }
-.editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
-.editor-canvas-area { position: relative; min-height: 0; container-type: size; }
-.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 26px 24px 0; overflow: hidden; }
-.editor-page-stack { display: grid; flex: 1; min-height: 0; align-content: start; justify-items: center; padding-bottom: 26px; }
-/* Fit the sheet to the actual space left above the controls, including its
-   metadata and scroll padding, rather than assuming a fixed header height. */
-.editor-page { width: min(100%, calc((100cqh - var(--editor-ruler) - var(--editor-canvas-bar) - 78px) * 1.777778)); max-width: 1120px; }
-.editor-canvas-meta { display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
-/* Rulers ride the workspace edges rather than framing the page, so they stay
-   put while the pages scroll underneath them. */
-.editor-ruler-corner { position: absolute; z-index: 2; top: 0; left: 0; width: var(--editor-ruler); height: var(--editor-ruler); border-right: 1px solid var(--editor-border); border-bottom: 1px solid var(--editor-border); background: white; }
-.editor-ruler { position: absolute; z-index: 1; overflow: hidden; background: white; }
-.editor-ruler.is-horizontal { top: 0; right: 0; left: var(--editor-ruler); height: var(--editor-ruler); border-bottom: 1px solid var(--editor-border); }
-.editor-ruler.is-vertical { top: var(--editor-ruler); bottom: 0; left: 0; width: var(--editor-ruler); border-right: 1px solid var(--editor-border); }
-.editor-ruler-tick { position: absolute; background: color-mix(in srgb, var(--editor-muted) 40%, white); }
-=======
-.editor-animation-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 14px; padding: 3px; border-radius: 9px; background: color-mix(in srgb, var(--color-primary) 8%, var(--editor-mix)); }
-.editor-animation-modes button { height: 40px; border-radius: 7px; color: var(--editor-muted); font-size: 13px; cursor: pointer; }
-.editor-animation-modes button[aria-selected="true"] { background: var(--editor-raised); color: var(--color-primary); box-shadow: 0 1px 4px rgb(var(--editor-shadow) / .1); }
+/* Timer previews render the real TimerArtwork on a white slice of sheet. The
+   sheet is 1920/900 of the card wide, centred, so its cqw matches the canvas. */
+.editor-timer-preview { margin-block: 14px; padding: 0; overflow: hidden; border-radius: 10px; background: white; }
+.editor-timer-sample { position: relative; display: block; width: 100%; aspect-ratio: 900 / 460; overflow: hidden; }
+.editor-timer-sample-sheet { position: absolute; top: 0; left: 50%; width: calc(100% * 1920 / 900); height: 100%; translate: -50% 0; container-type: inline-size; }
+.editor-timer-sample-sheet .editor-timer-art { position: absolute; top: 0; left: 50%; width: calc(100% * 900 / 1920); height: 100%; translate: -50% 0; }
+/* Timer tiles: the live preview on white, then the kind's name and what it does. */
+.editor-timer-kinds { display: grid; gap: 12px; margin-top: 14px; }
+.editor-timer-kinds .editor-timer-preview { margin: 0; display: grid; text-align: left; }
+.editor-timer-kind { display: grid; gap: 2px; padding: 10px 12px 12px; border-top: 1px solid var(--editor-border, rgb(0 0 0 / .08)); background: var(--editor-raised); }
+.editor-timer-kind b { color: var(--editor-ink); font-size: 14px; font-weight: 600; }
+.editor-timer-kind span { color: var(--editor-muted); font-size: 12px; line-height: 1.4; }
+.editor-timer-kinds .editor-timer-preview:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .editor-timer-kinds .editor-timer-preview:hover { border-color: color-mix(in srgb, var(--color-primary) 55%, var(--editor-border)); } }
+.editor-timer-kinds .editor-timer-preview:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+/* Text for screen readers only (the stopwatch's Start / Stop / Reset announcements). */
+.editor-inspector-labelled-row { display: grid; gap: 5px; }
+.editor-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.editor-animation-selected strong { display: block; color: var(--editor-ink); font-size: 13px; font-weight: 600; }
+.editor-animation-selected small { color: var(--editor-muted); font-size: 12px; }
+.editor-animation-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 2px 0 18px; padding: 4px; border-radius: 11px; background: color-mix(in srgb, var(--color-primary) 9%, var(--editor-mix)); }
+.editor-animation-tabs button { height: 42px; border-radius: 8px; color: var(--editor-muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+.editor-animation-tabs button[aria-selected="true"] { background: var(--editor-raised); color: var(--color-primary); box-shadow: 0 1px 5px rgb(var(--editor-shadow) / .12); }
+.editor-animation-tabs button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .editor-animation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
 .editor-animation-preview { min-width: 0; padding: 7px; border: 1px solid var(--editor-border); border-radius: 10px; background: color-mix(in srgb, var(--editor-raised) 60%, transparent); color: var(--editor-ink); cursor: pointer; text-align: left; }
 .editor-animation-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 .editor-animation-preview:disabled { opacity: .45; }
 .editor-animation-preview > span:last-child { display: block; margin: 8px 3px 3px; overflow: hidden; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .editor-animation-stage { display: grid; aspect-ratio: 16 / 10; overflow: hidden; place-items: center; border-radius: 7px; background: linear-gradient(145deg, color-mix(in srgb, var(--color-primary) 12%, var(--editor-mix)), var(--editor-raised)); }
-.editor-animation-demo { display: flex; width: 70%; height: 50%; align-items: flex-end; justify-content: center; gap: 4px; padding: 7px; border: 1px solid color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); border-radius: 6px; background: var(--editor-raised); box-shadow: 0 4px 10px rgb(var(--editor-shadow) / .09); }
-.editor-animation-demo i { display: block; width: 18%; border-radius: 2px; background: var(--color-primary); }
-.editor-animation-demo i:nth-child(1) { height: 48%; opacity: .45; }
-.editor-animation-demo i:nth-child(2) { height: 82%; opacity: .75; }
-.editor-animation-demo i:nth-child(3) { height: 64%; }
+/* Hover preview: a ball acts the preset out (animationBallDemo.js). It rests on
+   a soft floor shadow; transforms scale from the ball's base so squash and
+   stretch stay planted on the floor. */
+.editor-animation-stage { position: relative; }
+.editor-ball { position: absolute; left: calc(50% - 11px); bottom: 26%; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, white 55%, var(--color-primary)) 0 12%, var(--color-primary) 55%, color-mix(in srgb, black 25%, var(--color-primary))); box-shadow: inset -2px -3px 5px rgb(0 0 0 / .18); transform-origin: 50% 100%; will-change: transform, opacity; }
+.editor-ball-shadow { position: absolute; left: calc(50% - 12px); bottom: calc(26% - 4px); width: 24px; height: 6px; border-radius: 50%; background: rgb(var(--editor-shadow) / .22); filter: blur(1px); transform-origin: 50% 50%; }
 .editor-workspace { display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-radius: 18px; background: var(--editor-workspace); }
 .editor-workspace.is-rulers-hidden { --editor-ruler: 0px; }
-.editor-canvas-area { position: relative; min-height: 0; container-type: size; }
-.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; }
-.editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; padding-bottom: 26px; }
+.editor-canvas-area { display: flex; flex-direction: column; min-height: 0; }
+/* Rulers, the page-settings bar and the scrolling work area. The page strip is
+   a sibling below this, outside the scroll, so it is always on screen. */
+.editor-canvas-view { position: relative; flex: 1 1 auto; min-height: 0; container-type: size; }
+.editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; overscroll-behavior: contain; }
+.editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; }
 /* Fit the sheet to the actual space left above the controls, including its
    metadata and scroll padding, rather than assuming a fixed header height. */
-.editor-page { flex: none; width: min(100%, calc((100cqh - var(--editor-ruler) - var(--editor-canvas-bar) - 78px) * 1.777778)); max-width: none; }
-.editor-canvas-meta { display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.editor-page { flex: none; width: max-content; max-width: none; }
+/* The work area: one page of room on every side of the sheet. The padding is a
+   percentage of the page's own width, so the margin scales with the zoom
+   without measuring anything. Elements out here are drawn (nothing clips the
+   sheet) but display mode, thumbnails and exports show only the page. */
+.editor-work-area { position: relative; }
+.editor-page-frame { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+
+.editor-canvas-meta { position: absolute; right: 0; bottom: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; color: var(--editor-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 /* Rulers ride the workspace edges rather than framing the page, so they stay
    put while the pages scroll underneath them. */
 .editor-ruler-corner { position: absolute; z-index: 2; top: 0; left: 0; width: var(--editor-ruler); height: var(--editor-ruler); border-right: 1px solid var(--editor-border); border-bottom: 1px solid var(--editor-border); background: var(--editor-surface); }
@@ -298,7 +388,6 @@
 .editor-ruler.is-horizontal { top: 0; right: 0; left: var(--editor-ruler); height: var(--editor-ruler); border-bottom: 1px solid var(--editor-border); }
 .editor-ruler.is-vertical { top: var(--editor-ruler); bottom: 0; left: 0; width: var(--editor-ruler); border-right: 1px solid var(--editor-border); }
 .editor-ruler-tick { position: absolute; background: color-mix(in srgb, var(--editor-muted) 40%, var(--editor-mix)); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-ruler.is-horizontal .editor-ruler-tick { bottom: 0; width: 1px; height: 5px; }
 .editor-ruler.is-horizontal .editor-ruler-tick.is-major { height: 9px; }
 .editor-ruler.is-vertical .editor-ruler-tick { right: 0; width: 5px; height: 1px; }
@@ -306,11 +395,7 @@
 .editor-ruler-label { position: absolute; color: var(--editor-muted); font-size: 9px; line-height: 1; font-variant-numeric: tabular-nums; }
 .editor-ruler.is-horizontal .editor-ruler-label { bottom: 12px; left: 4px; }
 .editor-ruler.is-vertical .editor-ruler-label { top: 4px; right: 12px; writing-mode: vertical-rl; }
-<<<<<<< HEAD
-.editor-blank-canvas { width: 100%; aspect-ratio: 16 / 9; background: white; box-shadow: 0 2px 5px rgb(29 23 43 / .05), 0 14px 40px rgb(29 23 43 / .08); }
-=======
 .editor-blank-canvas { width: 100%; aspect-ratio: 16 / 9; background: white; box-shadow: 0 2px 5px rgb(var(--editor-shadow) / .05), 0 14px 40px rgb(var(--editor-shadow) / .08); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-blank-canvas { position: relative; container-type: size; isolation: isolate; }
 .editor-element, .editor-static-element { position: absolute; display: block; }
 .editor-element { pointer-events: none; }
@@ -318,15 +403,53 @@
 .editor-element-hit { pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .editor-element-hit:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 .editor-element-art { display: block; width: 100%; height: 100%; pointer-events: none; }
-<<<<<<< HEAD
-.editor-element-art.editor-shape-diamond, .editor-layer-swatch.editor-shape-diamond, .editor-ghost-art.editor-shape-diamond { transform: none; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-.editor-selection-frame { position: absolute; inset: 0; border: 1.5px solid var(--color-primary); pointer-events: none; }
-.editor-resize-handle { position: absolute; width: 12px; height: 12px; border: 1.5px solid var(--color-primary); border-radius: 3px; background: white; pointer-events: auto; touch-action: none; transform: translate(-50%, -50%); }
-=======
 .editor-vector-art { background: transparent !important; overflow: visible; }
-.editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; }
-.editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }
-.editor-element-art.editor-shape-diamond, .editor-layer-swatch.editor-shape-diamond, .editor-ghost-art.editor-shape-diamond { transform: none; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.editor-text-art { display: flex; align-items: center; justify-content: inherit; padding: .08em; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; tab-size: 4; }
+/* While a list is being typed the text is indented to leave the markers their
+   gutter, in the same step the outside list uses. */
+.editor-text-listing { padding-inline-start: 1.4em; }
+.editor-text-listing.is-ordered { padding-inline-start: 2em; }
+/* Uploaded pictures fill their box; unlocking proportions crops, never stretches.
+   The placeholder stands in when the file will not load. */
+.editor-image-frame { overflow: hidden; }
+.editor-image-frame > .editor-image-art { display: block; width: 100%; height: 100%; }
+.editor-image-art { object-fit: cover; user-select: none; -webkit-user-drag: none; }
+
+/* Cropping. The overlay covers the element's own box — the box is the crop —
+   and takes the pointer so a drag moves the photo inside it instead of moving
+   the element. */
+/* Elements pass the pointer through to their hit layer; the cropper takes it
+   back, so a drag inside the frame moves the photo and not the element. */
+.editor-crop { position: absolute; inset: 0; z-index: 3; pointer-events: auto; cursor: move; touch-action: none; }
+.editor-crop-grid { position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(33.333% - .5px), rgb(255 255 255 / .55) calc(33.333% - .5px) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to right, transparent calc(66.666% - .5px), rgb(255 255 255 / .55) calc(66.666% - .5px) calc(66.666% + .5px), transparent calc(66.666% + .5px)),
+    linear-gradient(to bottom, transparent calc(33.333% - .5px), rgb(255 255 255 / .55) calc(33.333% - .5px) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to bottom, transparent calc(66.666% - .5px), rgb(255 255 255 / .55) calc(66.666% - .5px) calc(66.666% + .5px), transparent calc(66.666% + .5px));
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+}
+/* Under the photo, not on it: the bar is a control, and sitting on the picture
+   it covers the part being cropped. The work area keeps a whole page of room
+   below the sheet, so there is somewhere for it to go. */
+.editor-crop-bar { position: absolute; top: 100%; left: 50%; z-index: 4; display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; padding: 6px 8px; border-radius: 8px; translate: -50% 0;
+  background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25);
+  color: var(--editor-ink); font-size: 12px; white-space: nowrap; cursor: default; }
+.editor-crop-bar input[type="range"] { width: 110px; accent-color: var(--color-primary); }
+.editor-crop-bar button { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; color: inherit; font-size: 12px; cursor: pointer; }
+.editor-crop-bar .editor-crop-reset:disabled { opacity: .4; cursor: default; }
+.editor-crop-bar .editor-crop-done { background: var(--color-primary); color: #fff; }
+@media (hover: hover) and (pointer: fine) {
+  .editor-crop-bar .editor-crop-reset:not(:disabled):hover { background: color-mix(in srgb, var(--editor-accent) 12%, transparent); }
+  .editor-crop-bar .editor-crop-done:hover { background: color-mix(in srgb, var(--color-primary) 88%, black); }
+}
+.editor-image-missing { display: grid; place-items: center; background: repeating-linear-gradient(135deg, #ecebf1 0 12px, #e3e1ea 12px 24px); color: #9a93aa; }
+.editor-image-missing svg { width: 18%; height: auto; max-width: 64px; min-width: 14px; }
+.editor-text-art[contenteditable="plaintext-only"], .editor-text-art[contenteditable="true"] { pointer-events: auto; cursor: text; outline: 2px solid var(--color-primary); outline-offset: 2px; user-select: text; }
+/* Shapes are SVG and draw their own outline; the effects wrapper only carries the filter. */
+.editor-element-effects { position: relative; }
+.editor-element-effects > svg { position: absolute; inset: 0; }
 .editor-selection-frame { position: absolute; inset: 0; border: 1.5px solid var(--color-primary); pointer-events: none; }
 .editor-group-selection { position: absolute; z-index: 4; border: 1.5px solid var(--color-primary); pointer-events: none; }
 .editor-marquee { position: absolute; z-index: 8; border: 1px solid var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); pointer-events: none; }
@@ -334,7 +457,6 @@
 .editor-snap-guide.is-x { top: 0; bottom: 0; width: 1px; }
 .editor-snap-guide.is-y { left: 0; right: 0; height: 1px; }
 .editor-resize-handle { position: absolute; width: 12px; height: 12px; border: 1.5px solid var(--color-primary); border-radius: 3px; background: var(--editor-raised); pointer-events: auto; touch-action: none; transform: translate(-50%, -50%); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-resize-handle::after { content: ""; position: absolute; inset: -6px; }
 .editor-resize-handle.is-nw { left: 0; top: 0; cursor: nwse-resize; }
 .editor-resize-handle.is-n { left: 50%; top: 0; cursor: ns-resize; }
@@ -344,33 +466,6 @@
 .editor-resize-handle.is-s { left: 50%; top: 100%; cursor: ns-resize; }
 .editor-resize-handle.is-sw { left: 0; top: 100%; cursor: nesw-resize; }
 .editor-resize-handle.is-w { left: 0; top: 50%; cursor: ew-resize; }
-<<<<<<< HEAD
-.editor-rotate-handle { position: absolute; display: grid; place-items: center; left: 50%; top: calc(100% + 22px); width: 24px; height: 24px; translate: -50% 0; border: 1px solid var(--editor-border); border-radius: 50%; background: white; color: var(--color-primary); pointer-events: auto; cursor: grab; touch-action: none; box-shadow: 0 2px 6px rgb(29 23 43 / .1); }
-.editor-rotate-handle::before { content: ""; position: absolute; bottom: 100%; left: 50%; height: 22px; border-left: 1px solid var(--color-primary); }
-.editor-element.is-dragging .editor-resize-handle, .editor-element.is-dragging .editor-rotate-handle { visibility: hidden; }
-.editor-shape-tools { position: absolute; z-index: 5; top: calc(var(--editor-ruler) + 3px); left: calc(50% + var(--editor-ruler) / 2); translate: -50% 0; display: flex; align-items: center; gap: 8px; max-width: calc(100% - var(--editor-ruler) - 24px); height: 40px; padding: 4px 9px; border: 1px solid var(--editor-border); border-radius: 10px; background: white; box-shadow: 0 2px 8px rgb(29 23 43 / .06); white-space: nowrap; }
-.editor-selected-name { padding-right: 5px; font-size: 11px; color: var(--editor-muted); }
-.editor-shape-tools button, .editor-layer-actions button { display: grid; flex: none; place-items: center; width: 30px; height: 30px; border-radius: 6px; color: var(--editor-ink); cursor: pointer; }
-.editor-shape-tools button:disabled, .editor-layer-actions button:disabled { opacity: .3; }
-.editor-fill-control { display: grid; flex: none; place-items: center; width: 27px; height: 27px; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 6px; }
-.editor-fill-control input { width: 31px; height: 31px; padding: 0; border: 0; background: transparent; cursor: pointer; }
-.editor-property-number { display: flex; align-items: center; gap: 3px; color: var(--editor-muted); font-size: 10px; }
-.editor-property-number input { width: 35px; padding: 3px 0; font-size: 11px; text-align: right; color: var(--editor-ink); appearance: textfield; }
-.editor-property-number input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.editor-canvas-area:has(.editor-shape-tools) .editor-canvas-meta { visibility: hidden; }
-.editor-shapes-hint { margin-bottom: 18px; line-height: 1.7; }
-.editor-shape-tile { align-content: center; gap: 9px; cursor: grab; touch-action: none; }
-.editor-shape-label { color: var(--editor-muted); font-size: 9px; }
-.editor-shape-ghost { position: fixed; z-index: 100; translate: -50% -50%; width: 60px; height: 60px; pointer-events: none; opacity: .7; }
-.editor-ghost-art { display: block; width: 100%; height: 100%; background: #ad8dea; }
-.editor-layer-list { display: grid; gap: 8px; margin-block: 18px; }
-.editor-layer-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 9px; background: rgb(255 255 255 / .65); text-align: left; cursor: pointer; }
-.editor-layer-row > span:last-child { font-size: 12px; }
-.editor-layer-row[aria-pressed="true"] { border-color: var(--color-primary); background: white; }
-.editor-layer-swatch { display: block; flex: none; width: 24px; height: 24px; }
-.editor-layer-actions { display: flex; gap: 8px; }
-.editor-layer-actions button { background: white; }
-=======
 .editor-rotate-handle { position: absolute; display: grid; place-items: center; left: 50%; top: calc(100% + 22px); width: 24px; height: 24px; translate: -50% 0; border: 1px solid var(--editor-border); border-radius: 50%; background: var(--editor-raised); color: var(--color-primary); pointer-events: auto; cursor: grab; touch-action: none; box-shadow: 0 2px 6px rgb(var(--editor-shadow) / .1); }
 .editor-rotate-handle::before { content: ""; position: absolute; bottom: 100%; left: 50%; height: 22px; border-left: 1px solid var(--color-primary); }
 .editor-element.is-dragging .editor-resize-handle, .editor-element.is-dragging .editor-rotate-handle { visibility: hidden; }
@@ -394,14 +489,91 @@
 .editor-shape-label { display: -webkit-box; min-width: 0; max-width: 100%; min-height: 2.4em; overflow: hidden; color: var(--editor-muted); font-size: 12px; line-height: 1.2; text-align: center; white-space: normal; overflow-wrap: anywhere; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .editor-shape-ghost { position: fixed; z-index: 100; translate: -50% -50%; width: 60px; height: 60px; pointer-events: none; opacity: .7; }
 .editor-ghost-art { display: block; width: 100%; height: 100%; background: #ad8dea; }
-.editor-layer-list { display: grid; gap: 8px; margin-block: 18px; }
-.editor-layer-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); text-align: left; cursor: pointer; }
-.editor-layer-row > span:last-child { font-size: 12px; }
-.editor-layer-row[aria-pressed="true"] { border-color: var(--color-primary); background: var(--editor-raised); }
-.editor-layer-swatch { display: block; flex: none; width: 24px; height: 24px; }
+/* Layers: one row per layer, front to back. The row itself is the select
+   button; the eye and lock follow it and show on hover or focus, and stay
+   shown when they are on, so a hidden or locked layer reads at a glance. */
+.editor-layers-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: -6px; }
+.editor-layers-head > span { flex: none; color: var(--editor-muted); font-size: 12px; }
+.editor-layers-page { min-width: 0; overflow: hidden; padding: 3px 6px; margin-left: -6px; border-radius: 6px; color: var(--editor-ink); font-size: 13px; font-weight: 600; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: default; }
+.editor-rename-field { width: 100%; min-width: 0; height: 30px; padding: 0 8px; border: 1px solid var(--color-primary); border-radius: 6px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 13px; outline: 3px solid color-mix(in srgb, var(--color-primary) 18%, transparent); }
+.editor-rename-field.is-menu { width: 220px; }
+.editor-layer-list, .editor-layer-children { display: grid; gap: 4px; padding: 0; list-style: none; }
+.editor-layer-list { margin-block: 14px 18px; }
+/* A group's children are a nested tree container, so the indent is structure, not a margin on the row. */
+.editor-layer-children { margin-top: 4px; padding-left: 18px; }
+.editor-layer-chevron { display: grid; place-items: center; width: 24px; height: 30px; flex-shrink: 0; color: var(--editor-muted); border-radius: 5px; cursor: pointer; }
+.editor-layer-row[aria-expanded="true"] .editor-layer-chevron svg { rotate: 90deg; }
+.editor-layer-chevron svg { transition: rotate 140ms cubic-bezier(.23, 1, .32, 1); }
+.editor-layer-row.is-dragging { opacity: .45; }
+.editor-layer-row.is-drop-inside { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, var(--editor-raised)); }
+.editor-layer-drag-overlay { pointer-events: none; position: fixed; inset: 0; z-index: 1000; }
+.editor-layer-insertion { position: fixed; height: 2px; background: var(--color-primary); border-radius: 2px; }
+.editor-layer-ghost { position: fixed; max-width: 240px; padding: 8px 12px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-float); color: var(--editor-ink); box-shadow: 0 6px 20px #0002; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.editor-group-name { overflow: hidden; text-overflow: ellipsis; color: inherit; text-align: left; cursor: text; }
+.editor-group-ungroup { display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%; padding: 10px; margin-top: 14px; border: 1px solid var(--editor-border); border-radius: 8px; color: var(--editor-ink); background: var(--editor-raised); cursor: pointer; }
+.editor-layer-row { display: flex; align-items: center; gap: 2px; min-height: 38px; padding: 4px 4px 4px 10px; border: 1px solid transparent; border-radius: 9px; background: color-mix(in srgb, var(--editor-raised) 65%, transparent); color: var(--editor-ink); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.editor-layer-row:has(> .editor-layer-chevron) { padding-left: 2px; }
+.editor-layer-row.is-selected { border-color: var(--color-primary); background: var(--editor-raised); }
+.editor-layer-row > .editor-rename-field { margin-left: 6px; }
+.editor-layer-row:focus-visible, .editor-layer-toggle:focus-visible, .editor-layers-page:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
+.editor-layer-name { flex: 1; min-width: 0; margin-left: 10px; overflow: hidden; font-size: 12.5px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.editor-layer-row.is-hidden .editor-layer-name, .editor-layer-row.is-hidden .editor-layer-swatch { opacity: .45; }
+.editor-layer-swatch { display: grid; flex: none; place-items: center; width: 22px; height: 22px; color: var(--editor-muted); }
+.editor-layer-swatch .editor-element-art { width: 100%; height: 100%; }
+.editor-layer-toggle { display: grid; flex: none; place-items: center; width: 28px; height: 28px; border-radius: 7px; color: var(--editor-muted); cursor: pointer; opacity: 0; transition: opacity 120ms ease, background-color 120ms ease; }
+.editor-layer-toggle.is-on, .editor-layer-row:hover .editor-layer-toggle, .editor-layer-row:focus-within .editor-layer-toggle { opacity: 1; }
+.editor-layer-toggle.is-on { color: var(--editor-ink); }
+.editor-layer-toggle:disabled { cursor: default; }
+@media (hover: none) { .editor-layer-toggle { opacity: 1; } }
+
+/* Point editing. The overlay turns with the shape and draws in its pixels;
+   strokes stay one screen pixel at any zoom (vector-effect), and points are
+   sized in screen pixels by the component. Points outside the box still take
+   presses, which is why the SVG does not clip. */
+.editor-vector-editor { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.editor-vector-editor > * { pointer-events: auto; }
+.editor-vector-backdrop { cursor: crosshair; }
+/* In edit mode the shape is covered in thin diagonal stripes and edged with a
+   one-pixel line, so it reads as "being edited", not as the shape's own paint. */
+.editor-vector-hatch { pointer-events: none; }
+.editor-vector-hatch-line { stroke: #5B3FD6; }
+.editor-vector-hatch-light { stroke: white; stroke-opacity: .75; }
+.editor-vector-line { fill: none; stroke: var(--color-primary); stroke-width: 1.25px; pointer-events: none; }
+.editor-vector-line-hit { fill: none; stroke: transparent; stroke-width: 12px; cursor: copy; }
+.editor-vector-handle-line { stroke: var(--color-primary); stroke-width: 1px; pointer-events: none; }
+.editor-vector-handle { fill: white; stroke: var(--color-primary); stroke-width: 1.25px; cursor: grab; }
+.editor-vector-point { fill: white; stroke: var(--color-primary); stroke-width: 1.5px; cursor: move; }
+.editor-vector-point.is-selected { fill: var(--color-primary); stroke: white; }
+.editor-vector-marquee { fill: color-mix(in srgb, var(--color-primary) 10%, transparent); stroke: var(--color-primary); stroke-width: 1px; stroke-dasharray: 4 3; pointer-events: none; }
+/* Figma's mirroring control: three equal segments across the whole row,
+   divided by hairlines, each tall enough for its mark to read. */
+.editor-vector-mirroring .editor-inspector-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; width: 100%; padding: 3px; }
+.editor-vector-mirroring .editor-inspector-buttons button { position: relative; width: auto; height: 34px; color: var(--editor-muted); }
+.editor-vector-mirroring .editor-inspector-buttons button + button::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1px; background: var(--field-line); pointer-events: none; }
+/* The divider beside a pressed segment disappears into it, like a segmented control. */
+.editor-vector-mirroring .editor-inspector-buttons button.is-on::before,
+.editor-vector-mirroring .editor-inspector-buttons button.is-on + button::before { opacity: 0; }
+.editor-vector-mirroring .editor-inspector-buttons button.is-on { color: var(--color-primary); }
+.editor-vector-mirroring .editor-inspector-buttons button:disabled { opacity: .45; }
+.editor-mirror-mark { width: 32px; height: 21px; }
+.editor-mirror-node { fill: var(--editor-raised); }
+.editor-inspector-done { height: 28px; padding-inline: 12px; border-radius: 7px; background: var(--color-primary); color: var(--editor-surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.editor-inspector-done:active { transform: scale(.97); }
+
+/* Locked on the canvas: the press passes through to whatever is behind. A
+   locked layer picked in the Layers panel keeps a quiet outline and no handles. */
+.editor-element.is-locked .editor-element-hit { pointer-events: none; }
+.editor-selection-frame.is-locked, .editor-group-selection.is-locked { border-style: dashed; border-color: color-mix(in srgb, var(--color-primary) 70%, transparent); }
+.editor-inspector-locked { display: flex; align-items: center; gap: 8px; margin: 12px 16px 0; padding: 6px 6px 6px 10px; border-radius: var(--field-r); background: color-mix(in srgb, var(--color-primary) 10%, var(--editor-mix)); color: var(--editor-ink); font-size: 12px; }
+.editor-inspector-locked svg { flex: none; color: var(--color-primary); }
+.editor-inspector-locked span { flex: 1; min-width: 0; }
+.editor-inspector-locked button { flex: none; height: 26px; padding-inline: 10px; border-radius: 6px; background: var(--color-primary); color: var(--editor-surface); font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-inspector-locked button:active { transform: scale(.97); }
 .editor-layer-actions { display: flex; gap: 8px; }
+.editor-ctl.editor-layer-move { width: 40px; height: 40px; padding: 0; border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); }
+.editor-layer-move .editor-ctl-caret { display: none; }
+.editor-layer-move:disabled { opacity: .3; }
 .editor-layer-actions button { background: var(--editor-raised); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-topbar-actions .editor-history-actions { display: flex; gap: 3px; }
 .editor-topbar-actions .editor-history-actions button { min-width: 0; width: 32px; padding: 0; border: 0; background: transparent; color: var(--editor-ink); }
 .editor-topbar-actions .editor-history-actions button:disabled { opacity: .3; }
@@ -409,36 +581,16 @@
 .editor-page-thumb-number { z-index: 1; padding-inline: 2px; border-radius: 2px; background: rgb(255 255 255 / .8); }
 /* The controls remain inside the same workspace container. Only the selected
    page is displayed; thumbnails navigate without scrolling the canvas. */
-<<<<<<< HEAD
-.editor-canvas-bar { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 8px 12px; padding: 8px 0 12px; min-height: var(--editor-canvas-bar); background: #f6f6f8; }
-.editor-canvas-bar-tools { grid-area: tools; display: flex; min-width: 0; justify-self: end; align-items: center; gap: 10px; }
-.editor-canvas-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding-inline: 13px; border: 1px solid var(--editor-border); border-radius: 9px; background: white; color: var(--editor-muted); font-size: 12px; cursor: pointer; transition: color 150ms ease, background-color 150ms ease; }
-.editor-canvas-bar button:disabled { opacity: .5; }
-.editor-canvas-bar .editor-ruler-toggle { grid-area: rulers; justify-self: start; border-color: transparent; background: transparent; }
-.editor-canvas-bar .editor-ruler-toggle.is-active { border-color: color-mix(in srgb, var(--color-primary) 40%, white); background: color-mix(in srgb, var(--color-primary) 8%, white); color: var(--color-primary); }
-=======
-.editor-canvas-bar { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 4px 12px; padding: 6px 0 8px; min-height: var(--editor-canvas-bar); background: var(--editor-workspace); }
+.editor-canvas-bar { flex: none; display: grid; margin-inline: 24px; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "pages pages" "rulers tools"; align-items: center; gap: 4px 12px; padding: 6px 0 8px; min-height: var(--editor-canvas-bar); background: var(--editor-workspace); }
 .editor-canvas-bar-tools { grid-area: tools; display: flex; min-width: 0; justify-self: end; align-items: center; gap: 10px; }
 .editor-canvas-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding-inline: 13px; border: 1px solid var(--editor-border); border-radius: 9px; background: white; color: var(--editor-muted); font-size: 13px; cursor: pointer; transition: color 150ms ease, background-color 150ms ease; }
 .editor-canvas-bar button:disabled { opacity: .5; }
 .editor-canvas-bar .editor-ruler-toggle { grid-area: rulers; justify-self: start; border-color: transparent; background: transparent; }
 .editor-canvas-bar .editor-ruler-toggle.is-active { border-color: color-mix(in srgb, var(--color-primary) 40%, var(--editor-mix)); background: color-mix(in srgb, var(--color-primary) 8%, var(--editor-mix)); color: var(--color-primary); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 /* Page strip: click a thumbnail to jump to that page, like Canva's. */
 .editor-page-strip { grid-area: pages; display: flex; justify-self: center; min-width: 0; max-width: 100%; align-items: center; gap: 10px; }
 .editor-page-thumbs { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; padding: 3px; overflow-x: auto; scrollbar-width: none; }
 .editor-page-thumbs::-webkit-scrollbar { display: none; }
-<<<<<<< HEAD
-.editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: 96px; height: 54px; padding: 0; border-radius: 8px; }
-.editor-canvas-bar .editor-page-thumb.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1.5px var(--color-primary); }
-.editor-page-thumb-number { position: absolute; bottom: 3px; left: 6px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
-.editor-page-add, .editor-zoom { display: flex; flex: none; align-items: center; gap: 3px; padding: 3px; border: 1px solid var(--editor-border); border-radius: 11px; background: white; }
-.editor-canvas-bar .editor-page-add { background: #ededf1; border-color: transparent; }
-.editor-canvas-bar .editor-page-add button, .editor-canvas-bar .editor-zoom, .editor-canvas-bar .editor-zoom button { background: transparent; border-color: transparent; }
-.editor-zoom > span { padding-inline: 7px; color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
-.editor-page-count { color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
-.editor-page-menu { position: fixed; z-index: 40; display: flex; flex-direction: column; min-width: 200px; padding: 7px; border: 1px solid var(--editor-border); border-radius: 12px; background: white; box-shadow: 0 6px 28px rgb(29 23 43 / .17); }
-=======
 .editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: 88px; height: 50px; padding: 0; border-radius: 8px; }
 .editor-canvas-bar .editor-page-thumb.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1.5px var(--color-primary); }
 .editor-page-thumb-number { position: absolute; bottom: 3px; left: 6px; color: var(--editor-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
@@ -448,14 +600,11 @@
 .editor-zoom .editor-zoom-value { width: auto; padding-inline: 7px; color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
 .editor-page-count { color: var(--editor-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
 .editor-page-menu { position: fixed; z-index: 40; display: flex; flex-direction: column; min-width: 200px; padding: 7px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-float); box-shadow: 0 6px 28px rgb(var(--editor-shadow) / .17); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-page-menu button { display: flex; align-items: center; gap: 11px; height: 38px; padding-inline: 11px; border-radius: 8px; color: var(--editor-ink); font-size: 13px; cursor: pointer; }
 .editor-page-menu button:disabled { opacity: .4; }
 .editor-page-menu hr { margin: 6px; border: 0; border-top: 1px solid var(--editor-border); }
 .editor-canvas-bar .editor-page-add button { width: 36px; height: 36px; padding: 0; border: none; border-radius: 8px; }
 .editor-canvas-bar .editor-zoom button { width: 32px; height: 32px; padding: 0; border: none; border-radius: 8px; }
-<<<<<<< HEAD
-=======
 
 /* ---------------------------------------------------------------------------
  * Selection surfaces: the shared control vocabulary, the popovers they open,
@@ -467,6 +616,7 @@
 .editor-ctl:disabled { opacity: .35; cursor: not-allowed; }
 .editor-ctl-icon { width: 42px; padding: 0; }
 .editor-ctl-icon.is-on { background: color-mix(in srgb, var(--editor-accent) 14%, transparent); color: var(--editor-accent); }
+.editor-ctl-trigger.is-on { color: var(--editor-accent); }
 .editor-ctl-trigger { padding-inline: 11px; }
 .editor-ctl-trigger[data-open] { background: color-mix(in srgb, var(--editor-accent) 12%, transparent); color: var(--editor-accent); }
 .editor-ctl-caret { flex: none; opacity: .5; }
@@ -510,13 +660,18 @@
 .editor-segmented button.is-on, .editor-segmented button[aria-pressed="true"] { background: color-mix(in srgb, var(--editor-accent) 14%, transparent); color: var(--editor-accent); font-weight: 600; }
 
 /* Menu rows, shared by the popover lists and the right-click menu. */
+/* A heading inside a menu (the page list under "Move to page"): a label, not a row you can press. */
+.editor-menu-heading { display: flex; align-items: center; gap: 8px; padding: 6px 9px 2px; color: var(--editor-muted); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.editor-menu-heading svg { flex: none; }
+.editor-context-menu { max-height: min(70vh, 560px); overflow-y: auto; scrollbar-width: thin; }
 .editor-menu-row, .editor-context-menu button { display: flex; align-items: center; gap: 11px; width: 100%; height: 38px; padding-inline: 9px; border: 0; border-radius: 8px; background: transparent; color: var(--editor-ink); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
 .editor-menu-row > span, .editor-context-menu button > span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .editor-menu-row:disabled, .editor-context-menu button:disabled { opacity: .38; cursor: not-allowed; }
 .editor-menu-row[aria-pressed="true"] { color: var(--editor-accent); font-weight: 600; }
 .editor-menu-row.is-danger, .editor-context-menu button.is-danger { color: var(--editor-danger); }
 .editor-menu-row kbd, .editor-context-menu kbd { flex: none; color: var(--editor-muted); font-family: inherit; font-size: 12px; font-variant-numeric: tabular-nums; }
-.editor-menu-gap { flex: none; width: 16px; }
+/* The spacer is a span too, so it needs the extra specificity to stay 16px instead of sharing the label's flex. */
+.editor-menu-gap, .editor-menu-row > .editor-menu-gap, .editor-context-menu button > .editor-menu-gap { flex: none; width: 16px; }
 .editor-menu-divider, .editor-context-menu hr { margin: 5px 6px; border: 0; border-top: 1px solid var(--editor-border); }
 .editor-context-menu { position: fixed; z-index: 70; display: flex; flex-direction: column; min-width: 248px; padding: 6px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-float); box-shadow: 0 12px 34px rgb(var(--editor-shadow) / .22); }
 
@@ -547,53 +702,174 @@
 .editor-timer-art.is-live .editor-timer-button { cursor: pointer; pointer-events: auto; }
 .editor-timer-art.is-live .editor-timer-button:disabled { opacity: .4; cursor: not-allowed; }
 /* The format previews in the Timer panel are now the format choice. */
-.editor-timer-preview { display: block; width: 100%; border: 1px solid transparent; cursor: pointer; text-align: center; }
+.editor-timer-preview { display: block; width: 100%; border: 1px solid var(--editor-border, rgb(0 0 0 / .08)); cursor: pointer; text-align: center; }
 .editor-timer-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 
 /* ---------------------------------------------------------------------------
- * Timer inspector — the fourth column. Labelled fields are right here even
- * though they were wrong in the toolbar: a vertical column has the room to say
- * what each control is, and hiding those names behind icons would be worse.
+ * Customize column.
+ *
+ * One field anatomy: 32px tall, 8px radius, raised fill, a 1px border that
+ * turns primary on focus. Sections are real groups separated by a hairline
+ * rule, with a 12px sentence-case title in ink (not tiny grey capitals, which
+ * read as decoration). Spacing is on a 4px scale: 8 between fields in a group,
+ * 14/16 around a group. The header is sticky so the selection's name and its
+ * layer and delete actions never scroll away.
  * ------------------------------------------------------------------------ */
-.editor-inspector { display: flex; flex-direction: column; gap: 20px; min-width: 0; min-height: 0; padding: 20px 18px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint); }
-.editor-inspector-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
-.editor-inspector-group { display: flex; flex-direction: column; gap: 9px; }
-.editor-inspector-group h3 { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--editor-muted); }
-.editor-inspector-hint { color: var(--editor-muted); font-size: 11px; line-height: 1.45; }
-.editor-inspector-select, .editor-inspector-input { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 13px; }
-.editor-inspector-select:disabled { opacity: .55; }
-.editor-inspector-input::placeholder { color: var(--editor-muted); }
+.editor-inspector, .editor-popover-effect {
+  --field-h: 32px; --field-r: 8px; --field-bg: var(--editor-raised); --field-line: var(--editor-border);
+  --rule: color-mix(in srgb, var(--editor-ink) 9%, transparent);
+}
+.editor-inspector {
+  display: flex; flex-direction: column; min-width: 0; min-height: 0; padding-bottom: 12px;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-radius: 20px; background: var(--editor-tint);
+  color: var(--editor-ink); font-size: 12.5px;
+}
+.editor-inspector-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px; padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--rule); background: inherit; }
+.editor-inspector-title { display: flex; min-width: 0; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; letter-spacing: -.005em; }
+.editor-inspector-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-inspector-title svg { flex: none; color: var(--color-primary); }
+.editor-inspector-actions { display: flex; flex: none; align-items: center; gap: 2px; }
+.editor-inspector-icon, .editor-ctl.editor-inspector-icon { display: grid; place-items: center; width: 30px; height: 30px; min-width: 0; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--editor-muted); cursor: pointer; }
+.editor-inspector-icon .editor-ctl-caret { display: none; }
+.editor-inspector-icon.is-on, .editor-inspector-icon[aria-expanded="true"] { background: color-mix(in srgb, var(--color-primary) 16%, transparent); color: var(--color-primary); }
+.editor-inspector-icon.is-danger { color: var(--editor-danger); }
+.editor-inspector-icon:disabled { opacity: .4; cursor: default; }
 
-/* Three fields, not one millisecond box — HH:MM:SS is how a presenter thinks
-   about it, and each part clamps on its own. */
-.editor-duration { display: flex; gap: 7px; }
-.editor-duration label { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.editor-duration input { width: 100%; height: 40px; padding: 0; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); color: var(--editor-ink); font: inherit; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-inspector-group { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+.editor-inspector-group + .editor-inspector-group { border-top: 1px solid var(--rule); }
+.editor-inspector-group-head { display: flex; align-items: center; justify-content: space-between; min-height: 18px; }
+.editor-inspector-group h3 { margin: 0; font-size: 12px; font-weight: 600; color: var(--editor-ink); }
+.editor-inspector-note { padding: 7px 9px; border-radius: var(--field-r); background: color-mix(in srgb, #FFC21C 16%, var(--editor-mix)); color: var(--editor-ink); font-size: 11.5px; line-height: 1.4; }
+.editor-inspector-hint { color: var(--editor-muted); font-size: 12.5px; line-height: 1.5; }
+.editor-inspector-hint { color: var(--editor-muted); font-size: 11.5px; line-height: 1.4; }
+
+.editor-inspector-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; }
+.editor-inspector-grid.is-labelled > div { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.editor-inspector-label { margin-bottom: -3px; color: var(--editor-muted); font-size: 11px; font-weight: 500; }
+.editor-inspector-dimensions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px; align-items: center; gap: 8px; }
+.editor-inspector-paint { display: flex; align-items: center; gap: 2px; }
+.editor-inspector-paint > .editor-inspector-frame, .editor-inspector-paint > .editor-inspector-select { flex: 1; min-width: 0; margin-right: 4px; }
+.editor-inspector-paint > .editor-ctl-popover-root { margin-right: 2px; }
+.is-dimmed > .editor-inspector-frame, .editor-inspector-frame.is-dimmed, .editor-inspector-paint.is-dimmed > .editor-inspector-select { opacity: .45; }
+
+/* Shadow pop-up */
+.editor-popover.editor-popover-effect { width: 272px; gap: 10px; padding: 12px; color: var(--editor-ink); font-size: 12.5px; }
+.editor-effect-settings { display: flex; flex-direction: column; gap: 10px; }
+.editor-effect-type { display: flex; padding: 2px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); }
+.editor-effect-type button { flex: 1; height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--editor-muted); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-effect-type button[aria-checked="true"] { background: color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); color: var(--editor-ink); }
+.editor-effect-direction { display: grid; grid-template-columns: 108px 1fr; gap: 10px; align-items: center; }
+.editor-effect-pad { position: relative; width: 108px; height: 108px; border: 1px solid var(--field-line); border-radius: 10px; cursor: crosshair; touch-action: none;
+  background: linear-gradient(var(--field-line), var(--field-line)) center / 1px 84% no-repeat, linear-gradient(var(--field-line), var(--field-line)) center / 84% 1px no-repeat, var(--field-bg); }
+.editor-effect-pad:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.editor-effect-line { position: absolute; top: 50%; left: 50%; height: 2px; margin-top: -1px; background: var(--color-primary); transform-origin: 0 50%; pointer-events: none; }
+.editor-effect-knob { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border: 2px solid white; border-radius: 50%; background: var(--color-primary); box-shadow: 0 1px 4px rgb(0 0 0 / .35); pointer-events: none; }
+.editor-effect-xy { display: grid; gap: 8px; }
+.editor-inspector-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+/* Fields */
+.editor-inspector-select, .editor-inspector-input, .editor-inspector-number, .editor-inspector-frame {
+  width: 100%; height: var(--field-h); border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg);
+  color: var(--editor-ink); font: inherit; font-size: 12.5px; transition: border-color 120ms ease;
+}
+.editor-inspector-select, .editor-inspector-input { padding: 0 9px; }
+.editor-inspector-select { cursor: pointer; }
+.editor-inspector-input::placeholder, .editor-inspector-textarea::placeholder { color: var(--editor-muted); }
+/* Focus shows as the field's own border turning primary, never as the editor's
+   outline ring drawn around the input inside it. */
+.editor-inspector :is(input, textarea, select):focus-visible, .editor-popover-effect :is(input, textarea, select):focus-visible { outline: none; }
+.editor-inspector-select:focus-visible, .editor-inspector-input:focus, .editor-inspector-textarea:focus,
+.editor-inspector-number:focus-within, .editor-inspector-frame:focus-within { border-color: var(--color-primary); outline: none; }
+.editor-inspector-select:disabled, .editor-inspector-input:disabled, .editor-inspector-frame.is-disabled { opacity: .5; }
+.editor-inspector-textarea { width: 100%; min-height: 56px; padding: 7px 9px; resize: vertical; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 12.5px; line-height: 1.45; }
+
+.editor-inspector-number { display: flex; min-width: 0; align-items: center; gap: 6px; padding: 0 9px 0 0; }
+.editor-inspector-number input { min-width: 0; width: 100%; height: 100%; padding: 0 0 0 9px; border: 0; background: transparent; color: inherit; font: inherit; font-variant-numeric: tabular-nums; outline: none; }
+.editor-inspector-scrub { display: grid; flex: none; place-items: center; align-self: stretch; min-width: 24px; margin-right: -9px; padding-left: 4px; color: var(--editor-muted); font-size: 11px; font-weight: 600; cursor: ew-resize; user-select: none; touch-action: none; }
+.editor-inspector-scrub:empty { display: none; }
+.editor-inspector-number small { flex: none; color: var(--editor-muted); font-size: 11px; }
+.editor-inspector-number.is-bare { width: 64px; flex: none; height: 100%; border: 0; border-left: 1px solid var(--field-line); border-radius: 0; background: transparent; }
+
+/* Colour: swatch, hex and opacity in one frame. */
+.editor-inspector-frame { display: flex; align-items: stretch; overflow: hidden; }
+.editor-inspector-colour .editor-ctl-popover-root { display: flex; }
+.editor-ctl.editor-inspector-swatch-trigger { display: grid; place-items: center; width: 34px; min-width: 0; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.editor-inspector-swatch-trigger .editor-ctl-caret { display: none; }
+.editor-inspector-swatch { width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 18%, transparent); }
+.editor-inspector-hex { flex: 1; min-width: 0; padding: 0 4px; border: 0; background: transparent; color: inherit; font: inherit; font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; text-transform: uppercase; outline: none; }
+.editor-inspector-quick { display: flex; gap: 6px; }
+.editor-inspector-quick button { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); cursor: pointer; }
+.editor-inspector-quick button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Gradient fill: the ramp stands in for a swatch, and the preview bar under the
+   type row shows the whole ramp while its stops are edited. */
+.editor-gradient-row { flex: 1; min-width: 0; align-items: center; gap: 8px; padding-left: 8px; }
+.editor-gradient-swatch { flex: none; width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 18%, transparent); }
+.editor-gradient-label { flex: 1; min-width: 0; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.editor-gradient-preview { display: block; height: 34px; border-radius: var(--field-r); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); }
+.editor-inspector-number.editor-gradient-offset { width: 70px; flex: none; }
+.editor-gradient-offset input { text-align: right; }
+
+/* Grouped icon buttons: one frame, the pressed item filled. */
+.editor-inspector-grid > .editor-inspector-buttons { justify-self: start; }
+.editor-inspector-buttons { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); }
+.editor-inspector-buttons button { display: grid; place-items: center; width: 30px; height: 26px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--editor-ink); cursor: pointer; transition: background-color 120ms ease, color 120ms ease; }
+.editor-inspector-buttons button.is-on { background: color-mix(in srgb, var(--color-primary) 18%, var(--editor-mix)); color: var(--color-primary); }
+.editor-inspector-buttons button:disabled { opacity: .4; cursor: default; }
+
+/* Reset style: a full-width secondary button closing the column, quieter than
+   the fields but clearly a button. */
+.editor-inspector-reset { display: flex; align-items: center; justify-content: center; gap: 7px; height: var(--field-h); margin: 12px 16px 4px; padding: 0 12px; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+.editor-inspector-reset svg { color: var(--editor-muted); transition: rotate 300ms cubic-bezier(.23, 1, .32, 1); }
+.editor-inspector-reset:disabled { opacity: .45; cursor: default; }
+.editor-inspector-reset:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Font size: typed number plus a list of common sizes, in one frame. */
+.editor-inspector-fontsize .editor-inspector-number.is-flush { flex: 1; height: 100%; border: 0; border-radius: 0; background: transparent; }
+.editor-inspector-fontsize .editor-ctl-popover-root { display: flex; }
+.editor-ctl.editor-inspector-fontsize-toggle { width: 26px; min-width: 0; height: 100%; padding: 0; border-left: 1px solid var(--field-line); border-radius: 0; color: var(--editor-muted); }
+.editor-fontsize-list { width: 120px; max-height: 280px; overflow-y: auto; scrollbar-width: thin; }
+.editor-fontsize-list .editor-menu-row { gap: 8px; height: 32px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.editor-fontsize-list .editor-menu-row.is-on { color: var(--color-primary); font-weight: 600; }
+
+/* Corner radius with its independent-corners toggle, and the four corners below. */
+.editor-inspector-radius { display: flex; min-width: 0; align-items: center; gap: 2px; }
+.editor-inspector-radius > .editor-inspector-number { flex: 1; }
+.editor-inspector-corners { margin-top: 2px; }
+.editor-inspector-number input::placeholder { color: var(--editor-muted); opacity: 1; }
+
+/* Press feedback on every inspector button, hover only where a mouse is. */
+.editor-inspector button { transition: transform 120ms cubic-bezier(.23, 1, .32, 1), background-color 120ms ease, color 120ms ease; }
+.editor-inspector button:not(:disabled):active { transform: scale(.96); }
+@media (hover: hover) and (pointer: fine) {
+  .editor-inspector-icon:not(:disabled):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); color: var(--editor-ink); }
+  .editor-inspector-reset:not(:disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 45%, var(--field-line)); background: color-mix(in srgb, var(--color-primary) 7%, var(--field-bg)); color: var(--color-primary); }
+  .editor-inspector-reset:not(:disabled):hover svg { color: var(--color-primary); rotate: -60deg; }
+  .editor-ctl.editor-inspector-fontsize-toggle:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+  .editor-inspector-icon.is-danger:not(:disabled):hover { background: color-mix(in srgb, var(--editor-danger) 12%, transparent); color: var(--editor-danger); }
+  .editor-inspector-buttons button:not(:disabled):not(.is-on):hover { background: color-mix(in srgb, var(--editor-ink) 7%, transparent); }
+  .editor-inspector-select:not(:disabled):hover, .editor-inspector-number:hover, .editor-inspector-frame:not(.is-disabled):hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--field-line)); }
+  .editor-inspector-scrub:hover { color: var(--color-primary); }
+}
+
+/* Countdown duration: three centred parts under one label. */
+.editor-duration { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.editor-duration label { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.editor-duration input { width: 100%; height: 36px; padding: 0; border: 1px solid var(--field-line); border-radius: var(--field-r); background: var(--field-bg); color: var(--editor-ink); font: inherit; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-duration input:focus { border-color: var(--color-primary); outline: none; }
 .editor-duration span { color: var(--editor-muted); font-size: 10px; font-weight: 600; letter-spacing: .06em; }
-
-.editor-inspector-swatches { display: flex; gap: 7px; }
-.editor-inspector-swatches button { width: 34px; height: 34px; padding: 0; border: 1px solid color-mix(in srgb, var(--editor-ink) 14%, transparent); border-radius: 9px; cursor: pointer; }
-.editor-inspector-swatches button[aria-pressed="true"] { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 /* Checkbox kept as the real control and visually hidden, so the switch stays
    keyboard-operable and announces its state without any ARIA of its own. */
-.editor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--editor-ink); cursor: pointer; }
+.editor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; font-size: 12.5px; color: var(--editor-ink); cursor: pointer; }
 .editor-toggle.is-locked { cursor: default; color: var(--editor-muted); }
 .editor-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.editor-toggle-track { position: relative; flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--editor-border); transition: background-color 140ms ease; }
-.editor-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--editor-raised); box-shadow: 0 1px 3px rgb(var(--editor-shadow) / .25); transition: left 140ms ease; }
+.editor-toggle-track { position: relative; flex: none; width: 32px; height: 18px; border-radius: 999px; background: var(--editor-border); transition: background-color 140ms ease; }
+.editor-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--editor-raised); box-shadow: 0 1px 3px rgb(var(--editor-shadow) / .25); transition: left 140ms ease; }
 .editor-toggle input:checked ~ .editor-toggle-track { background: var(--color-primary); }
-.editor-toggle input:checked ~ .editor-toggle-track::after { left: 18px; }
+.editor-toggle input:checked ~ .editor-toggle-track::after { left: 16px; }
 .editor-toggle input:disabled ~ .editor-toggle-track { opacity: .5; }
 .editor-toggle input:focus-visible ~ .editor-toggle-track { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-
-.editor-inspector-xy { display: flex; gap: 7px; }
-.editor-inspector-xy label { flex: 1; display: flex; align-items: center; gap: 5px; height: 38px; padding: 0 9px; border: 1px solid var(--editor-border); border-radius: 9px; background: var(--editor-raised); }
-.editor-inspector-xy span { color: var(--editor-muted); font-size: 11px; font-weight: 600; }
-.editor-inspector-xy input { min-width: 0; width: 100%; border: 0; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; }
-.editor-inspector-xy small { color: var(--editor-muted); font-size: 10px; }
-
-.editor-inspector-reset { height: 40px; border: 1px solid var(--editor-border); border-radius: 9px; background: transparent; color: var(--editor-ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 
 /* Exit confirmation. Sits above the presentation because it may be raised
    after the browser has already dropped out of fullscreen — the overlay is
@@ -612,23 +888,58 @@
 .editor-exit-keep { border-color: var(--color-primary) !important; background: var(--color-primary) !important; color: white !important; }
 .editor-exit-stop { color: var(--editor-danger) !important; }
 
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 /* Display mode: the backdrop as an audience sees it. Black surround rather
    than the editor's grey, because this is what reaches a projector or TV. */
 .editor-display { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; background: #000; }
 .editor-display:focus-visible { outline: none; }
 .editor-display.is-idle { cursor: none; }
-<<<<<<< HEAD
-/* Letterbox a 16:9 sheet into any screen without measuring anything. */
-.editor-display-frame { width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); }
-.editor-display-page { position: relative; overflow: hidden; width: 100%; height: 100%; background: white; }
-=======
 .editor-animation-counter { position: fixed; right: 12px; top: 12px; z-index: 60; padding: 5px 8px; border-radius: 6px; background: rgb(0 0 0 / .58); color: #fff; font: 10px Poppins, sans-serif; }
 /* Letterbox a 16:9 sheet into any screen without measuring anything. */
 .editor-display-frame { width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); }
 .editor-display-page { position: relative; overflow: hidden; width: 100%; height: 100%; background: white; container-type: size; }
+.editor-animation-surface { position: absolute; inset: 0; overflow: hidden; container-type: size; isolation: isolate; }
+.editor-animation-canvas-preview { position: absolute; inset: 0; overflow: hidden; z-index: 20; pointer-events: none; }
+.editor-morph-overlay { position: absolute; inset: 0; overflow: hidden; container-type: size; isolation: isolate; pointer-events: none; }
+.editor-morph-background { position: absolute; inset: 0; mix-blend-mode: plus-lighter; }
+.editor-morph-box { position: absolute; isolation: isolate; }
+.editor-morph-look { position: absolute; inset: 0; mix-blend-mode: plus-lighter; }
+.editor-morph-box.is-reduced { inset: 0; }
+.editor-animation-pane { overflow-y: auto; }
+.editor-animation-section { padding: 16px; border-bottom: 1px solid var(--editor-border); }
+.editor-animation-section h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
+.editor-animation-section-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.editor-animation-section select, .editor-animation-trigger select { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--editor-border); border-radius: 6px; background: var(--editor-raised); color: var(--editor-ink); font-size: 12px; }
+.editor-animation-trigger { display: grid; gap: 6px; margin-block: 12px; font-size: 12px; color: var(--editor-muted); }
+.editor-animation-timing { display: grid; gap: 8px; margin-block: 14px; font-size: 12px; }
+.editor-animation-timing > span { display: flex; justify-content: space-between; }
+.editor-animation-timing small { color: var(--editor-muted); }
+.editor-animation-timing > div { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 10px; }
+.editor-animation-timing input[type='range'] { width: 100%; accent-color: var(--editor-accent); }
+.editor-animation-timing input[type='number'] { width: 72px; border: 1px solid var(--editor-border); border-radius: 5px; padding: 5px; color: var(--editor-ink); background: var(--editor-raised); }
+.editor-animation-step h4 { margin: 12px 0 6px; color: var(--editor-muted); font-size: 11px; font-weight: 600; }
+.editor-animation-step ol { list-style: none; margin: 0; padding: 0; }
+.editor-animation-step li { display: flex; align-items: center; margin-block: 5px; border: 1px solid var(--editor-border); border-radius: 7px; background: var(--editor-raised); }
+.editor-animation-step li.is-highlighted { background: color-mix(in srgb, var(--editor-accent) 8%, var(--editor-raised)); }
+.editor-animation-step li.is-active { border-color: var(--editor-accent); }
+.editor-animation-step li.is-hidden { opacity: .5; }
+.editor-animation-row { display: grid; flex: 1; gap: 4px; min-width: 0; padding: 10px; text-align: left; cursor: pointer; }
+.editor-animation-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.editor-animation-row small { color: var(--editor-muted); font-size: 11px; }
+.editor-animation-badge { justify-self: start; border-radius: 4px; padding: 1px 5px; font-size: 10px; text-transform: capitalize; }
+.editor-animation-badge.is-entrance { color: #237d53; background: #c7f5d8; }
+.editor-animation-badge.is-emphasis { color: #755513; background: #fff0b8; }
+.editor-animation-badge.is-exit { color: #a13042; background: #ffdee4; }
+.editor-animation-reorder { display: grid; padding: 3px; }
+.editor-animation-reorder button { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; }
+.editor-animation-pane button:disabled, .editor-animation-preview:disabled { opacity: .4; cursor: not-allowed; }
+.editor-animation-preview-toggle, .editor-animation-remove { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
+.editor-animation-remove, .editor-animation-message { color: var(--editor-danger); }
+.editor-animation-message { font-size: 12px; margin-top: 8px; }
+/* Width drives the height. The stage used to size from its content; with the
+   ball absolutely positioned it has none, so a min-height plus 16:9 forced it
+   117px wide and out of narrow cards. */
+.editor-animation-preview .editor-animation-stage { width: 100%; aspect-ratio: 16 / 9; height: auto; min-height: 0; }
 .editor-thumb-art { container-type: size; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-display-bar { position: absolute; z-index: 1; bottom: 22px; display: flex; align-items: center; gap: 22px; max-width: calc(100vw - 32px); padding: 9px 14px; border-radius: 13px; background: rgb(20 18 26 / .92); box-shadow: 0 8px 30px rgb(0 0 0 / .45); color: white; transition: opacity 200ms ease, translate 200ms ease; }
 /* Hover needs no handler: a pointer that is hovering has just moved, so it is
    never idle. :focus-within keeps the bar up for anyone tabbing through it. */
@@ -638,11 +949,7 @@
 .editor-display-bar button { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 9px; color: white; cursor: pointer; transition: background-color 150ms ease, color 150ms ease; }
 /* The contrast gap carries the enabled/disabled signal — dimming the stubs
    further would only make the live controls look dim by association. */
-<<<<<<< HEAD
-.editor-display-bar button:disabled { color: rgb(255 255 255 / .45); }
-=======
 .editor-display-bar button:disabled { color: color-mix(in srgb, var(--editor-raised) 45%, transparent); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 .editor-display-bar :focus-visible { outline: 2px solid white; outline-offset: 2px; }
 .editor-display-count { padding-inline: 6px; font-size: 13px; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) {
@@ -650,22 +957,8 @@
   .editor-display-bar button { width: 32px; height: 32px; }
 }
 @media (hover: hover) and (pointer: fine) {
-<<<<<<< HEAD
-  .editor-shape-tile:hover, .editor-layer-row:hover, .editor-layer-actions button:not(:disabled):hover, .editor-shape-tools button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, white); }
-  .editor-display-bar button:not(:disabled):hover { background: rgb(255 255 255 / .16); color: white; }
-  .editor-topbar-actions button:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 7%, white); }
-  .editor-topbar-actions .editor-export:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 88%, black); border-color: transparent; color: white; }
-  .editor-tool-button:hover { color: var(--color-primary); background: rgb(255 255 255 / .6); }
-  .editor-tool-button[aria-selected="true"]:hover { background: white; }
-  .editor-tool-button:active { transform: scale(.97); }
-  .editor-canvas-bar button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 7%, white); color: var(--color-primary); }
-  .editor-page-menu button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 8%, white); color: var(--color-primary); }
-}
-@media (max-width: 1100px) {
-  .editor-body { grid-template-columns: 80px 240px minmax(0, 1fr); gap: 12px; padding: 16px; }
-  .editor-body.is-panel-collapsed { grid-template-columns: 80px 0 minmax(0, 1fr); }
-=======
-  .editor-shape-tile:hover, .editor-layer-row:hover, .editor-layer-actions button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, var(--editor-mix)); }
+  .editor-layer-toggle:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); }
+  .editor-shape-tile:hover, .editor-layer-row:not(.is-selected):hover, .editor-layer-actions button:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 9%, var(--editor-mix)); }
   .editor-display-bar button:not(:disabled):hover { background: rgb(255 255 255 / .16); color: white; }
   .editor-topbar-actions button:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 7%, var(--editor-mix)); }
   .editor-topbar-actions .editor-export:not(:disabled):hover { background: color-mix(in srgb, var(--color-primary) 88%, black); border-color: transparent; color: white; }
@@ -681,26 +974,22 @@
   .editor-segmented button:not(.is-on):not(:disabled):hover { color: var(--editor-ink); }
 }
 @media (max-width: 1100px) {
-  .editor-body { grid-template-columns: 92px 276px minmax(0, 1fr); gap: 12px; padding: 16px; }
-  .editor-body.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
+  .editor-body { --rail-w: 92px; --panel-w: 276px; --body-gap: 12px; --body-pad: 16px; }
   .editor-tool-panel { padding: 22px 16px; }
   .editor-document { gap: 20px; }
   .editor-topbar-actions { gap: 8px; }
+  .editor-topbar-end { gap: 12px; }
+  .editor-topbar-end > .user-menu { padding-left: 12px; }
   .editor-topbar-actions button { min-width: 90px; padding-inline: 12px; }
 }
 @media (max-width: 760px) {
-<<<<<<< HEAD
-  .editor-selected-name { display: none; }
-  .editor-shape-tools { gap: 3px; overflow-x: auto; padding-inline: 5px; }
-=======
   .editor-selected-name, .editor-canvas-size { display: none; }
   /* Below this width the bar docks to the bottom of the canvas region, the way
      a mobile app puts its contextual controls in thumb reach. It is the bottom
      of the screen too whenever the tool panel is collapsed, which is how the
      editor opens. Order is deliberate: sheet, then bar. */
   .editor-shape-tools { top: auto; bottom: max(8px, env(safe-area-inset-bottom)); gap: 2px; padding: 4px; border-radius: 12px; max-width: calc(100% - 16px); }
-  .editor-canvas-scroll { padding-top: 16px; padding-bottom: 76px; }
+  .editor-canvas-scroll { padding-top: 16px; padding-bottom: 16px; }
   .editor-ctl { height: 36px; }
   .editor-ctl-icon { width: 36px; }
   .editor-toolbar-group { padding-inline: 5px; gap: 2px; }
@@ -708,7 +997,6 @@
      thumbnails here and keeps just the count and the add button. */
   .editor-page-thumbs { display: none; }
   .editor-page-count { display: inline-flex; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .editor-property-number { font-size: 0; }
   .editor-property-number input { width: 26px; }
   .editor-topbar { min-height: 72px; gap: 10px; padding: 6px 16px; }
@@ -726,11 +1014,7 @@
   .editor-tool-rail { grid-row: 1 / -1; padding: 5px; border-radius: 16px; }
   .editor-tool-button { min-height: 68px; gap: 7px; border-radius: 11px; }
   .editor-tool-button svg { width: 23px; height: 23px; }
-<<<<<<< HEAD
-  .editor-tool-button span { font-size: 8px; }
-=======
   .editor-tool-button span { font-size: 10px; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   .editor-tool-panel { border-radius: 16px; padding: 18px; }
   .editor-tool-panel > h2 { margin-bottom: 14px; font-size: 17px; }
   .editor-template-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -740,7 +1024,7 @@
   .editor-workspace { grid-column: 2; border-radius: 16px; --editor-ruler: 0px; --editor-canvas-bar: 98px; }
   .editor-canvas-scroll { padding: 16px 16px 0; }
   .editor-canvas-meta { font-size: 8px; }
-  .editor-canvas-bar { gap: 4px; padding: 7px 10px; }
+  .editor-canvas-bar { gap: 4px; margin-inline: 0; padding: 7px 10px; }
   .editor-canvas-bar .editor-ruler-toggle, .editor-page-count { display: none; }
   .editor-canvas-bar button { height: 32px; padding-inline: 9px; font-size: 11px; }
   .editor-canvas-bar .editor-page-thumb { width: 72px; height: 40px; }
@@ -751,38 +1035,30 @@
 @media (max-width: 420px) {
   .editor-topbar-actions > button:not(.editor-export) { display: none; }
 }
-<<<<<<< HEAD
-@media (prefers-reduced-motion: reduce) {
-  .editor-tool-button { transition: none; }
-  .editor-tool-button:active { transform: none; }
-=======
-/* The inspector stops being a column here. A fourth 300px track plus the rail
-   and the tool panel leaves the sheet unusable long before the 760px layout
-   flip — roughly 309px of canvas at 1101px, and almost nothing just above 760.
-   It becomes an overlay from this width down, so the canvas keeps its room. */
-@media (max-width: 1200px) {
-  .editor-body.has-inspector,
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 300px minmax(0, 1fr); }
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 104px 0 minmax(0, 1fr); }
-  .editor-inspector { position: fixed; z-index: 30; top: 0; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); }
+/* Customize as a drawer. The fixed columns add up to 792px, so a fourth
+   300px column at 1200px would leave a 408px canvas. Below 1441px the column
+   slides over the canvas instead of taking a track, so it never resizes the
+   sheet. It opens when something is selected and starts below the 93px top
+   bar so Display, Save and Export stay reachable. */
+@media (max-width: 1440px) {
+  .editor-inspector.is-drawer { position: fixed; z-index: 30; top: 93px; right: 0; bottom: 0; width: min(var(--inspector-w), 86vw); border-radius: 18px 0 0 18px; background: var(--editor-float); box-shadow: -12px 0 34px rgb(var(--editor-shadow) / .18); animation: editor-drawer-in 240ms cubic-bezier(.23, 1, .32, 1); }
+  @keyframes editor-drawer-in { from { transform: translateX(104%); } }
 }
-@media (max-width: 1100px) {
-  .editor-body.has-inspector { grid-template-columns: 92px 276px minmax(0, 1fr); }
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 92px 0 minmax(0, 1fr); }
-}
-/* Narrowest layout: the property bar already owns the bottom edge here, so the
-   inspector takes the whole sheet rather than stacking a second bar under it. */
+/* Narrowest layout: a bottom sheet, like a phone app's settings. */
 @media (max-width: 760px) {
-  .editor-body.has-inspector,
-  .editor-body.has-inspector.is-panel-collapsed { grid-template-columns: 68px minmax(0, 1fr); }
-  .editor-inspector { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+  .editor-inspector.is-drawer { top: auto; left: 0; width: auto; max-height: 62vh; border-radius: 18px 18px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); box-shadow: 0 -12px 34px rgb(var(--editor-shadow) / .2); }
+  .editor-inspector.is-drawer { animation-name: editor-sheet-in; }
+  /* The panel is a row and Customize a bottom sheet here: neither handle applies. */
+  .editor-panel-toggle, .editor-inspector-resizer { display: none; }
+  @keyframes editor-sheet-in { from { transform: translateY(104%); } }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .editor-tool-button { transition: none; }
   .editor-tool-button:active, .editor-ctl:not(:disabled):active { transform: none; }
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
-  .editor-body, .editor-tool-panel, .editor-canvas-bar button { transition: none; }
+  .editor-body, .editor-tool-panel, .editor-canvas-bar button, .editor-panel-toggle, .editor-panel-toggle svg, .editor-inspector-reset svg { transition: none; }
+  .editor-inspector.is-drawer { animation: none; }
+  .editor-inspector button, .editor-inspector button:not(:disabled):active { transition: none; transform: none; }
   .editor-display-bar, .editor-display-bar button { transition: none; }
 }
 

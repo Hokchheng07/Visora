@@ -28,8 +28,6 @@ export default function About() {
           that meant two copies of one asset kept in step by hand, so the wave
           is now drawn only by the real <header> and the Angkor sits behind it. */}
       <div className="about-page-art" aria-hidden="true">
-<<<<<<< HEAD
-=======
         {/* .about-page's own bg-sparkle background-image can't paint above
             .about-page's own box top, so it's absent anywhere the navbar's
             wave cutout or the blob's translucency exposes the strip running
@@ -46,7 +44,6 @@ export default function About() {
             own), so it never covers them. */}
         <div className="about-page-bg-fill" />
         <div className="about-page-sparkle-patch" />
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
         <ThemeImage className="about-page-blob" src={heroClouds} alt="" aria-hidden="true" />
       </div>
       <div className="about-canvas-shell">

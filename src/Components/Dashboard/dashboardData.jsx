@@ -1,219 +1,186 @@
-import { createContext, useContext, useMemo, useState } from "react";
-const seedTemplates = [
-  [
-    "Graduation Ceremony 2026",
-    "Sok Chantha",
-    "sok.chantha@visora.com",
-    "Graduation",
-    "pending",
-    "public",
-    "2024-05-24",
-    "10:30 AM",
-    "yellow",
-  ],
-  [
-    "Workshop on AI",
-    "Dara Vannak",
-    "dara.vannak@visora.com",
-    "Workshop",
-    "pending",
-    "public",
-    "2024-05-24",
-    "9:15 AM",
-    "blue",
-  ],
-  [
-    "Khmer New Year Celebration",
-    "Srey Pich",
-    "srey.pich@visora.com",
-    "Khmer Events",
-    "pending",
-    "public",
-    "2024-05-23",
-    "4:45 PM",
-    "pink",
-  ],
-  [
-    "Certificate of Achievement",
-    "Vuthy Keo",
-    "vuthy.keo@visora.com",
-    "Examination",
-    "pending",
-    "public",
-    "2024-05-23",
-    "2:20 PM",
-    "violet",
-  ],
-  [
-    "Business Seminar Beige",
-    "Nita Sorn",
-    "nita.sorn@visora.com",
-    "Seminar",
-    "pending",
-    "private",
-    "2024-05-22",
-    "11:05 AM",
-    "peach",
-  ],
-  [
-    "Creative Portfolio Red",
-    "Bora Chea",
-    "bora.chea@visora.com",
-    "Portfolio",
-    "pending",
-    "public",
-    "2024-05-22",
-    "8:40 AM",
-    "red",
-  ],
-  [
-    "Children’s Day Celebration",
-    "Ratha Kim",
-    "ratha.kim@visora.com",
-    "Others",
-    "pending",
-    "public",
-    "2024-05-21",
-    "5:15 PM",
-    "green",
-  ],
-  [
-    "Design Competition 2026",
-    "Malis Phan",
-    "malis.phan@visora.com",
-    "Competition",
-    "published",
-    "public",
-    "2024-05-20",
-    "1:20 PM",
-    "violet",
-  ],
-  [
-    "Modern CV Portfolio",
-    "Chan Dara",
-    "chan.dara@visora.com",
-    "Portfolio",
-    "published",
-    "public",
-    "2024-05-19",
-    "10:00 AM",
-    "blue",
-  ],
-  [
-    "Team Building Workshop",
-    "Sophea Lim",
-    "sophea.lim@visora.com",
-    "Workshop",
-    "published",
-    "private",
-    "2024-05-18",
-    "3:40 PM",
-    "green",
-  ],
-  [
-    "Annual Seminar Poster",
-    "Kosal Nhem",
-    "kosal.nhem@visora.com",
-    "Seminar",
-    "rejected",
-    "public",
-    "2024-05-17",
-    "8:30 AM",
-    "peach",
-  ],
-  [
-    "Final Exam Schedule",
-    "Thyda Vong",
-    "thyda.vong@visora.com",
-    "Examination",
-    "rejected",
-    "public",
-    "2024-05-16",
-    "4:10 PM",
-    "yellow",
-  ],
-].map(
-  (
-    [
-      name,
-      creator,
-      email,
-      category,
-      status,
-      visibility,
-      createdAt,
-      createdTime,
-      shade,
-      image,
-    ],
-    index,
-  ) => ({
-    id: index + 1,
-    name,
-    creator,
-    email,
-    category,
-    status,
-    visibility,
-    createdAt,
-    createdTime,
-    shade,
-    image,
-    description: `A polished ${category.toLowerCase()} template for Visora.`,
-  }),
-);
-const seedUsers = [
-  ["Sok Chantha", "sok.chantha@visora.com", "Designer", "active", "2024-05-24"],
-  ["Dara Vannak", "dara.vannak@visora.com", "Editor", "active", "2024-05-24"],
-  ["Vuthy Keo", "vuthy.keo@visora.com", "Viewer", "active", "2024-05-23"],
-  ["Nita Sorn", "nita.sorn@visora.com", "Designer", "active", "2024-05-22"],
-  ["Bora Chea", "bora.chea@visora.com", "Editor", "active", "2024-05-21"],
-  ["Ratha Kim", "ratha.kim@visora.com", "Viewer", "active", "2024-05-20"],
-  ["Sophea Lim", "sophea.lim@visora.com", "Designer", "active", "2024-05-18"],
-  ["Chan Dara", "chan.dara@visora.com", "Viewer", "active", "2024-05-17"],
-].map(([name, email, role, status, joinedAt], index) => ({
-  id: index + 1,
-  name,
-  email,
-  role,
-  status,
-  joinedAt,
-}));
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { getDashboardSummary, updateTemplate as apiUpdateTemplate, deleteTemplate as apiDeleteTemplate, createTemplate as apiCreateTemplate, updateUser as apiUpdateUser, deleteUser as apiDeleteUser } from "../api/endpoints";
+import { ApiError } from "../api/client";
+
 const DataContext = createContext(null);
+
+function updateStats(stats, previous, next) {
+  if (!stats) return stats;
+  return {
+    ...stats,
+    publicTemplates:
+      stats.publicTemplates +
+      (next.visibility === "public" ? 1 : 0) -
+      (previous.visibility === "public" ? 1 : 0),
+    pendingReview:
+      stats.pendingReview +
+      (next.status === "pending" ? 1 : 0) -
+      (previous.status === "pending" ? 1 : 0),
+    reportedTemplates:
+      stats.reportedTemplates +
+      (next.status === "rejected" ? 1 : 0) -
+      (previous.status === "rejected" ? 1 : 0),
+  };
+}
+
 export function DashboardDataProvider({ children }) {
-  const [templates, setTemplates] = useState(seedTemplates);
-  const [users, setUsers] = useState(seedUsers);
-  const categories = useMemo(
-    () => [...new Set(templates.map((t) => t.category))],
-    [templates],
-  );
-  const value = {
-    templates,
-    users,
-    categories,
-    addTemplate: (item) =>
-      setTemplates((old) => [
-        {
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadDashboard() {
+      try {
+        setLoading(true);
+        setDashboard(await getDashboardSummary(controller.signal));
+        setError(null);
+      } catch (requestError) {
+        if (requestError.name !== "AbortError") {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to fetch dashboard data");
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+    loadDashboard();
+    return () => controller.abort();
+  }, []);
+
+  const value = useMemo(() => {
+    const templates = dashboard?.templates || [];
+    const users = dashboard?.users || [];
+    const categoryNames = dashboard?.categories || [];
+    return {
+      dashboard,
+      loading,
+      error,
+      templates,
+      users,
+      categories: [
+        ...new Set([
+          ...categoryNames,
+          ...templates.map((template) => template.category),
+        ]),
+      ],
+      reports: dashboard?.reports || [],
+      activity: dashboard?.activity || {},
+      stats: dashboard?.stats || null,
+
+      // Each mutation below does an optimistic local update (so the UI feels
+      // instant) and fires the matching API call. If the request fails, we
+      // roll the local state back and surface the error.
+      addTemplate: (item) => {
+        const optimistic = {
           ...item,
           id: Date.now(),
-          createdAt: item.createdAt || "2024-05-25",
-          createdTime: "12:00 PM",
-          shade: "violet",
-          description: `A polished ${item.category.toLowerCase()} template for Visora.`,
-        },
-        ...old,
-      ]),
-    updateTemplate: (id, patch) =>
-      setTemplates((old) =>
-        old.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-      ),
-    deleteTemplate: (id) =>
-      setTemplates((old) => old.filter((t) => t.id !== id)),
-    addUser: (user) => setUsers((old) => [{ ...user, id: Date.now() }, ...old]),
-    updateUser: (id, patch) =>
-      setUsers((old) => old.map((u) => (u.id === id ? { ...u, ...patch } : u))),
-    deleteUser: (id) => setUsers((old) => old.filter((u) => u.id !== id)),
-  };
+          createdTime: item.createdTime || "12:00 PM",
+          shade: item.shade || "violet",
+          description: item.description || `A polished ${item.category.toLowerCase()} template for Visora.`,
+        };
+        setDashboard((current) => ({
+          ...current,
+          templates: [optimistic, ...current.templates],
+          stats: {
+            ...current.stats,
+            totalTemplates: current.stats.totalTemplates + 1,
+            publicTemplates: current.stats.publicTemplates + (item.visibility === "public" ? 1 : 0),
+            pendingReview: current.stats.pendingReview + (item.status === "pending" ? 1 : 0),
+            reportedTemplates: current.stats.reportedTemplates + (item.status === "rejected" ? 1 : 0),
+          },
+        }));
+        apiCreateTemplate(item).catch((requestError) => {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to save template");
+          setDashboard((current) => ({ ...current, templates: current.templates.filter((t) => t.id !== optimistic.id) }));
+        });
+      },
+
+      updateTemplate: (id, patch) => {
+        let previous;
+        setDashboard((current) => {
+          previous = current.templates.find((template) => template.id === id);
+          if (!previous) return current;
+          const next = { ...previous, ...patch };
+          return {
+            ...current,
+            templates: current.templates.map((template) => (template.id === id ? next : template)),
+            stats: updateStats(current.stats, previous, next),
+          };
+        });
+        apiUpdateTemplate(id, patch).catch((requestError) => {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to update template");
+          if (previous) {
+            setDashboard((current) => ({
+              ...current,
+              templates: current.templates.map((template) => (template.id === id ? previous : template)),
+              stats: updateStats(current.stats, { ...previous, ...patch }, previous),
+            }));
+          }
+        });
+      },
+
+      deleteTemplate: (id) => {
+        let removed;
+        setDashboard((current) => {
+          removed = current.templates.find((template) => template.id === id);
+          if (!removed) return current;
+          return {
+            ...current,
+            templates: current.templates.filter((template) => template.id !== id),
+            stats: {
+              ...current.stats,
+              totalTemplates: current.stats.totalTemplates - 1,
+              publicTemplates: current.stats.publicTemplates - (removed.visibility === "public" ? 1 : 0),
+              pendingReview: current.stats.pendingReview - (removed.status === "pending" ? 1 : 0),
+              reportedTemplates: current.stats.reportedTemplates - (removed.status === "rejected" ? 1 : 0),
+            },
+          };
+        });
+        apiDeleteTemplate(id).catch((requestError) => {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to delete template");
+          if (removed) setDashboard((current) => ({ ...current, templates: [removed, ...current.templates] }));
+        });
+      },
+
+      addUser: (user) => {
+        const optimistic = { ...user, id: Date.now() };
+        setDashboard((current) => ({
+          ...current,
+          users: [optimistic, ...current.users],
+          stats: { ...current.stats, totalUsers: current.stats.totalUsers + 1 },
+        }));
+      },
+
+      updateUser: (id, patch) => {
+        let previous;
+        setDashboard((current) => {
+          previous = current.users.find((user) => user.id === id);
+          return { ...current, users: current.users.map((user) => (user.id === id ? { ...user, ...patch } : user)) };
+        });
+        apiUpdateUser(id, patch).catch((requestError) => {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to update user");
+          if (previous) setDashboard((current) => ({ ...current, users: current.users.map((user) => (user.id === id ? previous : user)) }));
+        });
+      },
+
+      deleteUser: (id) => {
+        let removed;
+        setDashboard((current) => {
+          removed = current.users.find((user) => user.id === id);
+          return {
+            ...current,
+            users: current.users.filter((user) => user.id !== id),
+            stats: { ...current.stats, totalUsers: current.stats.totalUsers - 1 },
+          };
+        });
+        apiDeleteUser(id).catch((requestError) => {
+          setError(requestError instanceof ApiError ? requestError.message : "Failed to delete user");
+          if (removed) setDashboard((current) => ({ ...current, users: [removed, ...current.users] }));
+        });
+      },
+    };
+  }, [dashboard, error, loading]);
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
+
 export const useDashboardData = () => useContext(DataContext);

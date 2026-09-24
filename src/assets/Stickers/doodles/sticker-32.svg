@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="218" height="228" viewBox="-10 -10 238 248" fill="none">
+  <title>Purple emphasis marks</title>
+  <defs>
+    <linearGradient id="core" x1="48" y1="29" x2="151" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B76BFA"/>
+      <stop offset="1" stop-color="#9550EA"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="42" y1="22" x2="173" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D5AEF8"/>
+      <stop offset="1" stop-color="#AE70EA"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#6D36BD" flood-opacity=".18"/>
+    </filter>
+    <path id="mark-tall" d="M75 31C91 27 104 37 106 52C109 71 96 98 81 125L58 165C51 177 39 177 32 168C27 162 28 151 31 139L47 63C50 47 60 35 75 31Z"/>
+    <path id="mark-wide" d="M93 153C113 132 137 111 159 98C178 87 195 91 201 105C208 120 198 135 182 146C158 163 129 177 99 190C86 196 75 189 74 178C73 169 80 161 93 153Z"/>
+  </defs>
+
+  <g filter="url(#shadow)" stroke-linecap="round" stroke-linejoin="round">
+    <g>
+      <use href="#mark-tall" fill="none" stroke="#FFFDFE" stroke-width="34"/>
+      <use href="#mark-tall" fill="none" stroke="url(#rim)" stroke-width="27"/>
+      <use href="#mark-tall" fill="none" stroke="#F8ECFF" stroke-width="18"/>
+      <use href="#mark-tall" fill="url(#core)" stroke="#C391F2" stroke-width="5"/>
+      <path d="M64 43C57 49 54 59 52 72L42 121" stroke="#D7B2FA" stroke-width="4" opacity=".72"/>
+    </g>
+    <g>
+      <use href="#mark-wide" fill="none" stroke="#FFFDFE" stroke-width="34"/>
+      <use href="#mark-wide" fill="none" stroke="url(#rim)" stroke-width="27"/>
+      <use href="#mark-wide" fill="none" stroke="#F8ECFF" stroke-width="18"/>
+      <use href="#mark-wide" fill="url(#core)" stroke="#C391F2" stroke-width="5"/>
+      <path d="M91 168C112 147 137 126 161 113" stroke="#D7B2FA" stroke-width="4" opacity=".72"/>
+    </g>
+  </g>
+</svg>

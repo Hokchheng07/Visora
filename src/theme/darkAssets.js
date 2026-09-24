@@ -38,19 +38,6 @@ import dark12 from '../assets/pages/home/create-without-limits/dark/YellowBlob.s
 import light13 from '../assets/pages/home/create-without-limits/PurpleBlob.svg';
 import dark13 from '../assets/pages/home/create-without-limits/dark/PurpleBlob.svg';
 import light14 from '../assets/pages/home/create-without-limits/YellowCardBlob(WithoutLimits).svg';
-<<<<<<< HEAD
-import dark14 from '../assets/pages/home/create-without-limits/dark/YellowCardBlob(WithoutLimits).svg';
-import light15 from '../assets/pages/home/create-without-limits/PurpleCard(WithoutLimits).svg';
-import dark15 from '../assets/pages/home/create-without-limits/dark/PurpleCard(WithoutLimits).svg';
-import light16 from '../assets/pages/home/create-without-limits/SoftGreenCard(WithoutLimits).svg';
-import dark16 from '../assets/pages/home/create-without-limits/dark/SoftGreenCard(WithoutLimits).svg';
-import light17 from '../assets/pages/home/create-without-limits/SoftRedCard(WithoutLimits).svg';
-import dark17 from '../assets/pages/home/create-without-limits/dark/SoftRedCard(WithoutLimits).svg';
-import light18 from '../assets/pages/home/create-without-limits/MajenticCard(WithoutLimits).svg';
-import dark18 from '../assets/pages/home/create-without-limits/dark/MajenticCard(WithoutLimits).svg';
-import light19 from '../assets/pages/home/create-without-limits/CyanCard(WithoutLimits).svg.svg';
-import dark19 from '../assets/pages/home/create-without-limits/dark/CyanCard(WithoutLimits).svg.svg';
-=======
 import dark14 from '../assets/pages/home/why-choose-visora/dark/Group 79.svg';
 import light15 from '../assets/pages/home/create-without-limits/PurpleCard(WithoutLimits).svg';
 import dark15 from '../assets/pages/home/why-choose-visora/dark/Group 80.svg';
@@ -62,7 +49,6 @@ import light18 from '../assets/pages/home/create-without-limits/MajenticCard(Wit
 import dark18 from '../assets/pages/home/why-choose-visora/dark/Group 81.svg';
 import light19 from '../assets/pages/home/create-without-limits/CyanCard(WithoutLimits).svg.svg';
 import dark19 from '../assets/pages/home/why-choose-visora/dark/Group 84.svg';
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import light20 from '../assets/pages/home/how-it-works/FirstRactangle.svg';
 import dark20 from '../assets/pages/home/how-it-works/dark/FirstRactangle.svg';
 import light21 from '../assets/pages/home/how-it-works/2ndRactangle.svg';
@@ -82,18 +68,13 @@ import dark27 from '../assets/pages/home/how-it-works/dark/02.svg';
 import light28 from '../assets/pages/home/how-it-works/03.svg';
 import dark28 from '../assets/pages/home/how-it-works/dark/03.svg';
 import light29 from '../assets/pages/home/explore-by-events/TopBg(ExploreByEvents).svg';
-<<<<<<< HEAD
-import dark29 from '../assets/pages/home/explore-by-events/dark/TopBg(ExploreByEvents).svg';
-=======
 import dark29 from '../assets/pages/home/explore-by-events/dark/ExploreByEventTop(DarkMode).svg';
 import exploreTopLeftLight from '../assets/pages/home/explore-by-events/TopLeft.svg';
 import exploreTopLeftDark from '../assets/pages/home/explore-by-events/dark/DashedArrow(DarkMode).svg';
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import light30 from '../assets/pages/home/explore-by-events/LightPurpleBackground.svg';
 import dark30 from '../assets/pages/home/explore-by-events/dark/LightPurpleBackground.svg';
 import light31 from '../assets/pages/home/explore-by-events/ForegroundPurple.svg';
 import dark31 from '../assets/pages/home/explore-by-events/dark/ForegroundPurple.svg';
-<<<<<<< HEAD
 import light32 from '../assets/pages/home/explore-by-events/LeftLayerBlur(ExploreByEvents).svg';
 import dark32 from '../assets/pages/home/explore-by-events/dark/LeftLayerBlur(ExploreByEvents).svg';
 import light33 from '../assets/pages/home/explore-by-events/CenterLayerBlur(ExploreByEvents).svg';
@@ -102,14 +83,10 @@ import light34 from '../assets/pages/home/explore-by-events/RightLayerBlur.svg';
 import dark34 from '../assets/pages/home/explore-by-events/dark/RightLayerBlur.svg';
 import light35 from '../assets/pages/home/why-choose-visora/why-choose-blob.png';
 import dark35 from '../assets/pages/home/why-choose-visora/WhyChooseVisoraRightBlob(DarkMode).svg';
-=======
-import light35 from '../assets/pages/home/why-choose-visora/why-choose-blob.png';
-import dark35 from '../assets/pages/home/why-choose-visora/WhyChooseVisoraRightBlob(DarkMode).svg';
 import khmerApsaraLight from '../assets/pages/home/khmer-design-showcase/apsara.png';
 import khmerApsaraDark from '../assets/pages/home/khmer-design-showcase/apsara(DarkMode).svg';
 import khmerAngkorLight from '../assets/pages/home/khmer-design-showcase/ankorwat.png';
 import khmerAngkorDark from '../assets/pages/home/khmer-design-showcase/angkorwat(DarkMode).svg';
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
 
 // --- About page ---
@@ -159,11 +136,8 @@ import featurePinEtchLight from '../assets/pages/about/design-present-inspire/Pi
 import featurePinEtchDark from '../assets/pages/about/DarkMode/HangingCardBackground.svg';
 import visionFrameLight from '../assets/pages/about/vision-mission/OurVisionFrame+OurMission.svg';
 import visionFrameDark from '../assets/pages/about/DarkMode/OurMissionFrame.svg';
-<<<<<<< HEAD
-=======
 import visionLottieLight from '../assets/pages/about/vision-mission/LottieAboveOurVision.svg';
 import visionLottieDark from '../assets/pages/about/vision-mission/LottieDarkMode.svg';
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 import cardPurpleFrameLight from '../assets/pages/about/people/cards/purple/PurpleFram.svg';
 import cardPurpleFrameDark from '../assets/pages/about/DarkMode/PinkFrame.svg';
 import cardPurpleBgLight from '../assets/pages/about/people/cards/purple/prupleBg.svg';
@@ -191,13 +165,10 @@ import ctaImage110Dark from '../assets/pages/about/DarkMode/BlobBottomElements/i
 import ctaImage111Light from '../assets/pages/about/misc/bottom-blob/image 111.svg';
 import ctaImage111Dark from '../assets/pages/about/DarkMode/BlobBottomElements/image 111.svg';
 
-<<<<<<< HEAD
-=======
 // --- Branding ---
 import visoraLogoLight from '../assets/shared/branding/VisoraLogo.png';
 import visoraLogoDark from '../assets/shared/branding/VisoraLogo(DarkMode).png';
 
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 export const darkAssets = {
   [light0]: dark0,
   [light1]: dark1,
@@ -231,17 +202,13 @@ export const darkAssets = {
   [light29]: dark29,
   [light30]: dark30,
   [light31]: dark31,
-<<<<<<< HEAD
   [light32]: dark32,
   [light33]: dark33,
   [light34]: dark34,
   [light35]: dark35,
-=======
-  [light35]: dark35,
   [exploreTopLeftLight]: exploreTopLeftDark,
   [khmerApsaraLight]: khmerApsaraDark,
   [khmerAngkorLight]: khmerAngkorDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 
   // --- About page ---
   [heroYellowFrameLight]: heroYellowFrameDark,
@@ -267,10 +234,7 @@ export const darkAssets = {
   [featureBackdropLight]: featureBackdropDark,
   [featurePinEtchLight]: featurePinEtchDark,
   [visionFrameLight]: visionFrameDark,
-<<<<<<< HEAD
-=======
   [visionLottieLight]: visionLottieDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
   [cardPurpleFrameLight]: cardPurpleFrameDark,
   [cardPurpleBgLight]: cardPurpleBgDark,
   [cardPurpleBlobLight]: cardPurpleBlobDark,
@@ -284,10 +248,7 @@ export const darkAssets = {
   [ctaImage106Light]: ctaImage106Dark,
   [ctaImage110Light]: ctaImage110Dark,
   [ctaImage111Light]: ctaImage111Dark,
-<<<<<<< HEAD
-=======
 
   // --- Branding ---
   [visoraLogoLight]: visoraLogoDark,
->>>>>>> f9e4eef75714c554db8a83d494c2842113b6e9bb
 };

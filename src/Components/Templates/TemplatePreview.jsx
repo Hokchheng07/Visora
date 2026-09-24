@@ -23,7 +23,7 @@ export default function TemplatePreview({ template }) {
 
 function PortfolioPreview() {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#cbbdff] p-4">
+    <div className="relative h-full w-full overflow-hidden bg-[#cbbdff] p-4 justify-center">
       <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(90deg,#65cef0_12px,transparent_12px),linear-gradient(#65cef0_12px,transparent_12px)] [background-size:32px_32px]" />
       <div className="absolute inset-3 rounded bg-white/45" />
       <div className="absolute left-8 top-8 h-[58%] w-[70%] rotate-[-1deg] rounded-sm bg-white shadow-sm">
