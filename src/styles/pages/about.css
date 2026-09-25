@@ -164,6 +164,7 @@
   font-size: clamp(1rem, 1.35vw, 1.16rem);
   line-height: 1.85;
 }
+.about-story-copy > p span { color: var(--color-primary); }
 .about-heading-underline { width: 170px; margin-top: 18px; }
 .about-story-line { position: absolute; z-index: 1; width: min(58vw, 675px); pointer-events: none; }
 .about-story-line-solid { top: 90px; right: -7vw; }
@@ -862,7 +863,7 @@
   .about-decor-values-underline { left: 74.6528%; top: 16.2392%; width: 13.9583%; }
   /* Offset from the heading, not absolute: the design sets this 41px right of
      "What", and our heading ink starts at x 119 rather than the render's 160. */
-  .about-decor-what-underline   { left: 11.3889%; top: 31.17%; width: 31.53%; }
+  .about-decor-what-underline   { left: 11.3889%; top: calc(31.17% + .7cqw); width: 31.53%; }
   .about-decor-squiggle-right   { left: 74.51%; top: 11.32%; width: 25.90%; }
   .about-decor-squiggle-left    { left:  0;     top: 12.81%; width: 28.40%; }
   /* Tucked against the left edge, just under where the left squiggle starts
@@ -1151,9 +1152,8 @@
     font-size: 1.1111cqw;
     line-height: 1.55;
   }
-  /* Lands the first paragraph on the design's y=885, 151px below the h2 top. */
+  /* Lands the paragraph on the design's y=885, 151px below the h2 top. */
   .about-story-copy > p:not(.about-eyebrow):first-of-type { margin-top: 4.4cqw; }
-  .about-story-copy > p:not(.about-eyebrow) ~ p { margin-top: 1.6667cqw; }
   .about-heading-underline { width: 10.0694cqw; margin-top: .5556cqw; }
   .about-story-line { top: -30%; right: -119%; width: 115%; opacity: .72; }
   .about-story-line-dashed { transform: translateY(.8333cqw); }
@@ -1209,11 +1209,9 @@
     backdrop-filter: none;
   }
   .about-what-copy h2 { margin-left: 2.95%; }
-  .about-what-copy > p:not(.about-eyebrow) {
+  .about-what-copy > p:not(.about-eyebrow):not(.about-what-label) {
     max-width: none;
-    /* Holds the paragraph on the design's y=2613 now that the heading moved
-       up, which also opens the gap under the dotted rule. */
-    margin-top: 4.1667cqw;
+    margin-top: 5cqw;
     font-size: 1.1111cqw;
     line-height: 1.55;
   }

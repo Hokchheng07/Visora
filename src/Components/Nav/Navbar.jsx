@@ -99,7 +99,7 @@ export default function Navbar(){
             />
           </NavLink>
 
-          <ul className="hidden items-center lg:flex lg:gap-7 xl:gap-10 2xl:gap-14">
+          <ul className="navbar-links hidden items-center lg:flex lg:gap-7 xl:gap-10 2xl:gap-14">
             {NAV_LINKS.map((link)=>(
               <li key={link.to}>
                 <NavLinkRow to={link.to} label={link.label}/>
@@ -112,16 +112,18 @@ export default function Navbar(){
               <ThemeToggle/>
             </div>
 
-            {/* Signed in: the account menu. Signed out: the Sign In button. */}
+            {/* Signed in: the account menu. Signed out: both auth actions. */}
             <UserMenu
               size={44}
               signedOut={
-                <NavLink
-                  to="/auth/login"
-                  className="navbar-sign-in rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 font-sans text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110 active:translate-y-0 xl:px-7 xl:py-3 xl:text-base 2xl:px-9 2xl:py-3.5 2xl:text-lg"
-                >
-                  Login
-                </NavLink>
+                <div className="navbar-auth-actions">
+                  <NavLink to="/auth/login" className="navbar-auth-link navbar-auth-link-login">
+                    Login
+                  </NavLink>
+                  <NavLink to="/auth/register" className="navbar-auth-link navbar-auth-link-register">
+                    Register
+                  </NavLink>
+                </div>
               }
             />
           </div>
@@ -194,26 +196,25 @@ export default function Navbar(){
                 size={44}
                 align="start"
                 className="mb-3"
-                signedOut={null}
+                signedOut={
+                  <div className="navbar-auth-actions navbar-auth-actions-mobile">
+                    <NavLink
+                      to="/auth/login"
+                      onClick={()=>setMobileOpen(false)}
+                      className="navbar-auth-link navbar-auth-link-login"
+                    >
+                      Login
+                    </NavLink>
+                    <NavLink
+                      to="/auth/register"
+                      onClick={()=>setMobileOpen(false)}
+                      className="navbar-auth-link navbar-auth-link-register"
+                    >
+                      Register
+                    </NavLink>
+                  </div>
+                }
               />
-
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <NavLink
-                  to="/auth/login"
-                  onClick={()=>setMobileOpen(false)}
-                  className="flex h-11 items-center justify-center rounded-full border border-primary bg-[var(--surface-card)] px-4 text-sm font-semibold text-primary transition hover:bg-primary/10 sm:h-12 sm:text-base"
-                >
-                  Sign In
-                </NavLink>
-
-                <NavLink
-                  to="/auth/register"
-                  onClick={()=>setMobileOpen(false)}
-                  className="flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent px-4 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:h-12 sm:text-base"
-                >
-                  Sign Up
-                </NavLink>
-              </div>
             </div>
           </motion.div>
         )}

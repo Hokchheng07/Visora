@@ -30,10 +30,8 @@ export default function OurStory() {
         <h2 id="about-story-title">Our <span>Story</span></h2>
         <p>
           Born from a passion for events and the power of design, Visora helps
-          creators, students, and organizations bring their moments to life.
-        </p>
-        <p>
-          We believe every celebration deserves a backdrop that <span>tells a story.</span>
+          creators, students, and organizations bring their moments to life. We
+          believe every celebration deserves a backdrop that <span className="font-bold">tells a story.</span>
         </p>
       </div>
     </motion.section>

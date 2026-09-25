@@ -1,6 +1,8 @@
 import {
   ChevronLeft,
   ChevronRight,
+  Eye,
+  EyeOff,
   Minimize,
   MoreHorizontal,
   Pencil,
@@ -19,7 +21,8 @@ const PENDING = [
   { id: "more", icon: MoreHorizontal, label: "More options", note: "More options coming soon" },
 ];
 
-export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose, onNext, onPrevious }) {
+export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose, onNext, onPrevious,
+  showTimerSetting = false, autoHideTimerControls = true, onAutoHideTimerControlsChange }) {
   return (
     <div className="editor-display-bar" aria-label="Display controls">
       <div className="editor-display-nav">
@@ -45,6 +48,13 @@ export default function EditorDisplayBar({ pages, slide, onSlideChange, onClose,
       </div>
 
       <div className="editor-display-tools">
+        {showTimerSetting && (
+          <button type="button" className="editor-display-auto-hide" aria-label="Auto-hide timer controls after 4 seconds"
+            aria-pressed={autoHideTimerControls} title={`Auto-hide timer controls after 4 seconds: ${autoHideTimerControls ? "on" : "off"}`}
+            onClick={onAutoHideTimerControlsChange}>
+            {autoHideTimerControls ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+          </button>
+        )}
         {PENDING.map(({ id, icon: Icon, label, note }) => (
           <button key={id} type="button" disabled aria-label={`${label} (coming soon)`} title={note}>
             <Icon size={18} aria-hidden="true" />

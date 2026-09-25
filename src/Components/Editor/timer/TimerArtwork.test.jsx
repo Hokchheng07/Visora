@@ -19,6 +19,27 @@ const timerElement = {
 afterEach(cleanup);
 
 describe("TimerArtwork", () => {
+  it("keeps the four exam countdown controls in the expected states", () => {
+    const examElement = { ...timerElement, timer: { ...timerElement.timer, layout: "exam" } };
+    const { rerender } = render(<TimerArtwork element={examElement} interactive status="ready" />);
+    const state = () => [...document.querySelectorAll(".editor-timer-button")].map((button) => ({
+      text: button.querySelector("span").textContent,
+      disabled: button.disabled,
+    }));
+
+    expect(state()).toEqual([
+      { text: "Start", disabled: false },
+      { text: "Pause", disabled: true },
+      { text: "Stop", disabled: true },
+      { text: "Restart", disabled: false },
+    ]);
+    rerender(<TimerArtwork element={examElement} interactive status="running" />);
+    expect(screen.getByRole("button", { name: "Stop countdown" }).disabled).toBe(false);
+    rerender(<TimerArtwork element={examElement} interactive status="stopped" />);
+    expect(state()[0].disabled).toBe(false);
+    expect(state()[2].disabled).toBe(true);
+  });
+
   it("draws editor and thumbnail controls as inert presentation only", () => {
     render(<TimerArtwork element={timerElement} />);
 

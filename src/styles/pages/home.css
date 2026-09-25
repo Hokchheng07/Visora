@@ -453,7 +453,7 @@
   width: 100%;
   min-height: calc(var(--events-canvas) + var(--events-rail-extra) + var(--events-scroll-distance, 0px));
   overflow: clip;
-  background-color: var(--surface-warm);
+  background-color: var(--surface-base);
 }
 .events-frame { position: relative; padding-top: clamp(17rem, 23vw, 22rem); }
 .events-journey[data-pinned="true"] .events-frame { position: sticky; top: 0; }

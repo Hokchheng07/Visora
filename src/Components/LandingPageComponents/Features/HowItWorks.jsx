@@ -463,7 +463,7 @@ export default function HowItWorks() {
         src={bottomTornStrip}
         alt=""
         aria-hidden="true"
-        className="how-bottom-wave pointer-events-none absolute inset-x-0 bottom-0 z-30 block h-16 w-full max-w-none object-fill md:h-[11.64%]"
+        className="how-bottom-wave pointer-events-none absolute inset-x-0 -bottom-1 z-30 block h-16 w-full max-w-none object-fill md:h-[11.64%]"
       />
       <MotionThemeImage
         src={leftSticker}

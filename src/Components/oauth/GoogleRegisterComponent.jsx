@@ -1,5 +1,5 @@
 import {
-  GithubAuthProvider,
+  GoogleAuthProvider,
   browserLocalPersistence,
   onAuthStateChanged,
   setPersistence,
@@ -30,12 +30,12 @@ const getErrorMessage = (err) => {
   return JSON.stringify(description).toLowerCase();
 };
 
-export const GithubRegisterComponent = () => {
+export const GoogleRegisterComponent = () => {
   const [error, setError] = useState();
   const [pending, setIsPending] = useState(false);
   const [user, setUser] = useState(null);
-  const provider = new GithubAuthProvider();
-  provider.addScope("user:email");
+  const provider = new GoogleAuthProvider();
+  provider.addScope("email");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -53,7 +53,7 @@ export const GithubRegisterComponent = () => {
     return () => unsubscriber();
   }, []);
 
-  const loginWithgithub = () => {
+  const loginWithGoogle = () => {
     setIsPending(true);
     // avoid IndexedDB persistence — it throws "Database is closing/hidden"
     // when the popup flow shifts document visibility mid-write
@@ -63,15 +63,10 @@ export const GithubRegisterComponent = () => {
         if (!res) {
           throw new Error("login unsuccessfully");
         }
-        const githubUser = res.user;
-        console.log("Github Info: ", githubUser.providerData[0]);
+        const googleUser = res.user;
+        console.log("Google Info: ", googleUser.providerData[0]);
 
-        const info = githubUser.providerData[0];
-        if (!info.email) {
-          throw new Error(
-            "No public email on this Github account — make your email public on Github to register."
-          );
-        }
+        const info = googleUser.providerData[0];
         const usernameSeed = (info.displayName || info.email).slice(0, 5);
         // Password must be deterministic per email and provider-independent —
         // if it were based on displayName, the same email registering via a
@@ -118,7 +113,7 @@ export const GithubRegisterComponent = () => {
               if (registerResult.refreshToken) {
                 sessionStorage.setItem(
                   "refreshToken",
-                  registerResult.refreshToken
+                  registerResult.refreshToken,
                 );
               }
             }
@@ -152,10 +147,10 @@ export const GithubRegisterComponent = () => {
             sessionStorage.setItem("refreshToken", loginResult.refreshToken);
           }
           dispatch(profileApi.endpoints.userProfile.initiate());
-          toast.success("Signed in with Github!");
+          toast.success("Signed in with Google!");
           navigate("/");
         } else {
-          toast.error("Github sign-in failed — no access token received.");
+          toast.error("Google sign-in failed — no access token received.");
         }
       })
       .catch((error) => {
@@ -166,7 +161,7 @@ export const GithubRegisterComponent = () => {
         }
         setError(error);
         const message =
-          getErrorMessage(error) || error?.message || "Github sign-in failed";
+          getErrorMessage(error) || error?.message || "Google sign-in failed";
         toast.error(message);
         console.log(error);
       })
@@ -175,7 +170,7 @@ export const GithubRegisterComponent = () => {
       });
   };
 
-  const githubLogout = async () => {
+  const googleLogout = async () => {
     setIsPending(false);
     setError(null);
     try {
@@ -192,14 +187,14 @@ export const GithubRegisterComponent = () => {
   return (
     <button
       className="w-full mt-4 border border-gray-300 py-2 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
-      onClick={loginWithgithub}
+      onClick={loginWithGoogle}
     >
       <img
-        src="https://www.svgrepo.com/show/394174/github.svg"
-        alt="github"
+        src="https://www.svgrepo.com/show/355037/google.svg"
+        alt="Google"
         className="w-5 h-5 mr-2"
       />
-      Register with Github
+      Register with Google
     </button>
   );
 };

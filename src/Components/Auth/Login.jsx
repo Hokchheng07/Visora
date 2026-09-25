@@ -5,9 +5,6 @@ import { useUserLoginMutation } from "../API/authApi";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { setAccessToken, setRefreshToken } from "../redux/authslice";
-import z from "zod";
-// add zodResolver
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast, ToastContainer } from "react-toastify";
 import {
   EnvelopeIcon,
@@ -17,18 +14,30 @@ import {
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
-import loginStyle from "../../assets/pages/auth/login/3 Strips 1.png";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from '../../theme/ThemeImage';
 import googleIcon from "../../assets/shared/social/google.svg";
-import facebookIcon from "../../assets/shared/social/facebook-icon.svg";
+import githubIcon from "../../assets/shared/social/github_light.svg";
 import { EASE } from "../../lib/animations/animations";
 
 
 const fields = [
-  { name: "email", label: "Email Address", placeholder: "example@gmail.com", icon: EnvelopeIcon, type: "email" },
-  { name: "password", label: "Password", placeholder: "Enter your password", icon: LockClosedIcon, type: "password" },
+  { name: "email", label: "Email", placeholder: "you@example.com", icon: EnvelopeIcon, type: "email", autoComplete: "email" },
+  { name: "password", label: "Password", placeholder: "Enter your password", icon: LockClosedIcon, type: "password", autoComplete: "current-password" },
 ];
+
+const validationRules = {
+  email: {
+    required: "Please input email",
+    pattern: {
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: "Enter a valid email address",
+    },
+  },
+  password: {
+    required: "Please input password",
+  },
+};
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,19 +45,13 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const formSchema = z.object({
-    email: z
-      .string("Please input email")
-      .trim()
-      .email("Enter a valid email address"),
-    password: z
-      .string("Please input password")
-      .min(8, "Password must be at least 8 characters"),
-  });
-
-  // define useForm
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(formSchema),
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
     mode: "onBlur",
     defaultValues: {
       email: "",
@@ -56,15 +59,15 @@ export default function Login() {
     },
   });
 
-  // custom login logic
   const handleLoginSubmit = async (data) => {
+    clearErrors("root.credentials");
+
     try {
       const result = await loginRequest({
         userLoginRequest: data,
-      });
+      }).unwrap();
 
-      // the server wraps the tokens inside another "data": { data: { accessToken, refreshToken } }
-      const tokens = result?.data?.data;
+      const tokens = result?.data;
 
       if (tokens?.accessToken) {
         dispatch(setAccessToken(tokens.accessToken));
@@ -76,46 +79,67 @@ export default function Login() {
           navigate("/", { replace: true });
         }, 3000);
       } else {
-        toast.error("Incorrect email or password!");
+        setError("root.credentials", {
+          type: "server",
+          message: "Incorrect email or password.",
+        });
       }
     } catch (error) {
-      console.log(error);
+      const status = Number(error?.status);
+      const isCredentialError = [400, 401, 403, 404].includes(status);
+      const serverMessage =
+        error?.data?.message || error?.data?.detail || error?.data?.error;
+
+      setError("root.credentials", {
+        type: "server",
+        message: isCredentialError
+          ? "Incorrect email or password."
+          : serverMessage || "Unable to log in. Please try again.",
+      });
     }
   };
 
   return (
     <>
-    <ToastContainer />
-    {/* Form half only: AuthLayout draws the picture half and slides the two between Login and Sign Up. */}
-    <main className="min-h-dvh bg-white font-sans dark:bg-black lg:h-dvh">
-      <section className="min-h-0 overflow-y-auto overflow-x-hidden px-5 py-8 sm:px-10 sm:py-12 lg:flex lg:h-full lg:items-start lg:justify-center lg:px-16 lg:py-16 xl:px-24 xl:py-20">
-        <div className="mx-auto w-full max-w-[480px] lg:my-auto lg:max-w-[650px]">
-          <Link to="/" className="mb-8 flex justify-center lg:hidden">
-            <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-36" />
+      <ToastContainer />
+      {/* AuthLayout owns the illustration panel on desktop. */}
+      <main className="auth-login">
+        <section className="auth-login-panel">
+          <Link to="/" className="auth-mobile-logo lg:hidden">
+            <ThemeImage src={visoraLogo} alt="Visora home" />
           </Link>
-          <header className="relative mb-6 max-w-[560px] lg:pt-[73px]">
-            <img src={loginStyle} alt="" aria-hidden="true" className="pointer-events-none absolute right-0 top-0 hidden h-[109px] w-[146px] object-contain lg:block dark:invert" />
-            <h1 className="text-3xl font-normal tracking-tight text-black sm:text-4xl lg:text-5xl dark:text-white">Welcome Back</h1>
-          </header>
 
-          <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
-            <div className="grid grid-cols-1 gap-4">
-              {fields.map(({ name, label, placeholder, icon: Icon, type = "text" }) => (
-                <label key={name} className="block">
-                  <span className="mb-1 block text-sm font-semibold text-gray-700 sm:text-base dark:text-gray-200">{label} <span className="text-red-600">*</span></span>
-                  <span className="relative block">
-                    <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <article className="auth-card">
+            <header className="auth-card-header">
+              <p className="auth-eyebrow">Welcome to Visora</p>
+              <h1>Welcome back</h1>
+              <p>Log in to continue creating with Visora.</p>
+            </header>
+
+            <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
+              <div className="auth-fields">
+                {fields.map(({ name, label, placeholder, icon: Icon, type = "text", autoComplete }) => (
+                  <label key={name} className="auth-field">
+                    <span className="auth-field-label">{label}</span>
+                    <span className={`auth-input-shell ${errors[name] ? "has-error" : ""}`}>
+                      <Icon aria-hidden="true" />
                     <input
                       type={type === "password" && showPassword ? "text" : type}
                       placeholder={placeholder}
-                      className={`h-11 w-full rounded-lg border bg-white dark:bg-[#1a1a28] pl-12 pr-12 text-sm text-gray-700 outline-none dark:text-gray-100 transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-base ${errors[name] ? "border-red-500" : "border-gray-300 dark:border-white/15"}`}
-                      {...register(name)}
+                      autoComplete={autoComplete}
+                      aria-invalid={errors[name] ? "true" : "false"}
+                      aria-describedby={errors[name] ? `${name}-error` : undefined}
+                      {...register(name, {
+                        ...validationRules[name],
+                        onChange: () => clearErrors("root.credentials"),
+                      })}
                     />
                     {type === "password" && (
                       <button
                         type="button"
                         aria-label={showPassword ? "Hide password" : "Show password"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-primary"
+                        aria-pressed={showPassword}
+                        className="auth-password-toggle"
                         onClick={() => setShowPassword((visible) => !visible)}
                       >
                         <AnimatePresence mode="wait" initial={false}>
@@ -127,48 +151,75 @@ export default function Login() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.12 }}
                           >
-                            {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                            {showPassword ? <EyeIcon className="h-5 w-5" /> : <EyeSlashIcon className="h-5 w-5" />}
                           </motion.span>
                         </AnimatePresence>
                       </button>
                     )}
-                  </span>
-                  <AnimatePresence initial={false}>
-                    {errors[name] && (
-                      <motion.span
-                        key="error"
-                        className="mt-1 block text-xs text-red-600 sm:text-sm"
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.2, ease: EASE }}
-                      >
-                        {errors[name].message}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </label>
-              ))}
-            </div>
+                    </span>
+                    <AnimatePresence initial={false}>
+                      {errors[name] && (
+                        <motion.span
+                          id={`${name}-error`}
+                          key="error"
+                          className="auth-field-error"
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.2, ease: EASE }}
+                        >
+                          {errors[name].message}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </label>
+                ))}
+              </div>
 
-            <div className="mt-3 text-right">
-              <Link to="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline sm:text-base">Forgot password ?</Link>
-            </div>
+              <AnimatePresence initial={false}>
+                {errors.root?.credentials && (
+                  <motion.p
+                    role="alert"
+                    className="auth-credentials-error"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                  >
+                    {errors.root.credentials.message}
+                  </motion.p>
+                )}
+              </AnimatePresence>
 
-            <button type="submit" className="hero-cta hero-cta-primary mt-5 h-11 w-full max-w-none gap-3 text-base lg:text-lg">
-              <span>Login</span><ArrowRight className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true" />
-            </button>
+              <div className="auth-form-meta">
+                <Link to="/auth/forgot-password">Forgot password?</Link>
+              </div>
 
-            <div className="my-5 flex items-center gap-3 text-base text-gray-400 lg:gap-4"><span className="h-px flex-1 bg-gray-300 dark:bg-white/15" />or<span className="h-px flex-1 bg-gray-300 dark:bg-white/15" /></div>
-            <div className="grid gap-3">
-              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={googleIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Google</span></span></button>
-              <button type="button" className="flex h-11 items-center justify-center rounded-lg border border-gray-300 text-base text-gray-800 transition hover:bg-gray-50 dark:text-gray-100 dark:border-white/15 dark:hover:bg-white/5"><span className="grid w-[19rem] max-w-[calc(100%-2rem)] grid-cols-[1.5rem_1fr] items-center gap-3 text-left"><img src={facebookIcon} alt="" className="h-5 w-5 justify-self-center" /><span>Continue with Facebook</span></span></button>
-            </div>
-            <p className="mt-6 text-center text-gray-400">Don't have an account? <Link to="/auth/register" className="font-medium text-primary hover:underline">Sign up</Link></p>
-          </form>
-        </div>
-      </section>
-    </main>
+              <button type="submit" className="auth-submit">
+                <span>Login</span>
+                <ArrowRight aria-hidden="true" />
+              </button>
+
+              <div className="auth-divider"><span>or continue with</span></div>
+
+              <div className="auth-providers">
+                <button type="button" className="auth-provider-button">
+                  <img src={googleIcon} alt="" aria-hidden="true" />
+                  <span>Google</span>
+                </button>
+                <button type="button" className="auth-provider-button auth-provider-github">
+                  <ThemeImage src={githubIcon} alt="" aria-hidden="true" />
+                  <span>GitHub</span>
+                </button>
+              </div>
+
+              <p className="auth-signup-link">
+                New to Visora? <Link to="/auth/register">Create account</Link>
+              </p>
+            </form>
+          </article>
+        </section>
+      </main>
     </>
   );
 }

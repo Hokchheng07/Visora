@@ -44,11 +44,16 @@ export const isDefaultCrop = (crop) => {
 /** What a crop saves: nothing at all when it is the default. */
 export const serializeCrop = (crop) => (isDefaultCrop(crop) ? null : normalizeCrop(crop));
 
-/** The CSS that puts a cropped photo in its frame. */
-export function cropStyle(crop) {
+/** The CSS that puts a cropped photo in its frame.
+ *
+ * The stored crop is measured in the visible frame, not in the image's
+ * unflipped pixel space. Mirroring the image also mirrors object-position, so
+ * counter-mirror that position to keep the same region in view after a flip.
+ */
+export function cropStyle(crop, { flipX = false, flipY = false } = {}) {
   const { x, y, zoom } = normalizeCrop(crop);
   return {
-    objectPosition: `${round(x * 100)}% ${round(y * 100)}%`,
+    objectPosition: `${round((flipX ? 1 - x : x) * 100)}% ${round((flipY ? 1 - y : y) * 100)}%`,
     ...(zoom === 1 ? {} : { scale: String(zoom) }),
   };
 }
@@ -70,4 +75,11 @@ export function panCrop(crop, dx, dy, frameWidth, frameHeight) {
     x: current.x - dx / Math.max(1, frameWidth),
     y: current.y - dy / Math.max(1, frameHeight),
   });
+}
+
+/** A pointer moves in screen axes; a rotated crop frame uses local axes. */
+export function cropDragDelta(dx, dy, rotation = 0) {
+  const radians = (Number(rotation) || 0) * Math.PI / 180;
+  const cosine = Math.cos(radians), sine = Math.sin(radians);
+  return { x: dx * cosine + dy * sine, y: -dx * sine + dy * cosine };
 }

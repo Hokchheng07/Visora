@@ -434,7 +434,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
 /* Under the photo, not on it: the bar is a control, and sitting on the picture
    it covers the part being cropped. The work area keeps a whole page of room
    below the sheet, so there is somewhere for it to go. */
-.editor-crop-bar { position: absolute; top: 100%; left: 50%; z-index: 4; display: flex; align-items: center; gap: 8px;
+.editor-crop-bar { position: absolute; top: 100%; left: 50%; z-index: 4; display: flex; align-items: center; gap: 8px; pointer-events: auto;
   margin-top: 10px; padding: 6px 8px; border-radius: 8px; translate: -50% 0;
   background: var(--editor-float); border: 1px solid var(--editor-border); box-shadow: 1px 4px 1.8px rgb(0 0 0 / .25);
   color: var(--editor-ink); font-size: 12px; white-space: nowrap; cursor: default; }
@@ -700,6 +700,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
    clips cleanly instead of silently displacing the controls. */
 .editor-timer-message { display: -webkit-box; flex: 1 1 auto; min-height: 0; max-width: 100%; overflow: hidden; font-size: min(1em, 32cqh, 10cqw); font-weight: 700; line-height: 1.12; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
 .editor-timer-controls { display: flex; flex: none; align-items: center; justify-content: center; flex-wrap: wrap; }
+.editor-timer-art.is-live .editor-timer-controls { transition: opacity 200ms cubic-bezier(.23, 1, .32, 1); }
 .editor-timer-button { display: inline-flex; align-items: center; justify-content: center; border: 0; font: inherit; font-weight: 600; line-height: 1; color: white; cursor: default; white-space: nowrap; }
 .editor-timer-button.is-start { background: #2F7A55; }
 .editor-timer-button.is-pause { background: #C98A12; }
@@ -711,6 +712,11 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-timer-art:not(.is-live) .editor-timer-button { pointer-events: none; }
 .editor-timer-art.is-live .editor-timer-button { cursor: pointer; pointer-events: auto; }
 .editor-timer-art.is-live .editor-timer-button:disabled { opacity: .4; cursor: not-allowed; }
+.editor-timer-art.is-exam { display: block; overflow: visible; }
+.editor-timer-art.is-exam .editor-timer-digits,
+.editor-timer-art.is-exam .editor-timer-message { position: absolute; top: .15em; left: 0; display: block; width: 100%; }
+.editor-timer-art.is-exam .editor-timer-controls { position: absolute; top: calc(100% + .5em); left: 50%; flex-wrap: nowrap; width: max-content; translate: -50% 0; }
+.editor-timer-art.is-exam .editor-timer-button:disabled { opacity: 1; }
 /* The format previews in the Timer panel are now the format choice. */
 .editor-timer-preview { display: block; width: 100%; border: 1px solid var(--editor-border, rgb(0 0 0 / .08)); cursor: pointer; text-align: center; }
 .editor-timer-preview.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
@@ -966,7 +972,17 @@ ol.editor-text-list { padding-inline-start: 2em; }
 /* The contrast gap carries the enabled/disabled signal — dimming the stubs
    further would only make the live controls look dim by association. */
 .editor-display-bar button:disabled { color: color-mix(in srgb, var(--editor-raised) 45%, transparent); }
+.editor-display-auto-hide[aria-pressed="true"] { background: rgb(167 139 250 / .22); color: #ddd6fe; }
 .editor-display-bar :focus-visible { outline: 2px solid white; outline-offset: 2px; }
+/* Timer digits stay visible for the audience. Only their live controls fade,
+   and only on a mouse/trackpad device; a touch tap must never hit the slide
+   behind an invisible button. Keyboard focus brings controls back. */
+@media (hover: hover) and (pointer: fine) {
+  .editor-display.are-timers-idle .editor-timer-art.is-live .editor-timer-controls { opacity: 0; pointer-events: none; }
+  .editor-display.are-timers-idle .editor-timer-art.is-live .editor-timer-controls .editor-timer-button { pointer-events: none; }
+  .editor-display.are-timers-idle .editor-timer-art.is-live .editor-timer-controls:has(.editor-timer-button:focus-visible) { opacity: 1; pointer-events: auto; }
+  .editor-display.are-timers-idle .editor-timer-art.is-live .editor-timer-controls:has(.editor-timer-button:focus-visible) .editor-timer-button { pointer-events: auto; }
+}
 .editor-display-count { padding-inline: 6px; font-size: 13px; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) {
   .editor-display-bar { gap: 10px; padding: 7px 10px; }
@@ -1079,6 +1095,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-inspector.is-drawer { animation: none; }
   .editor-inspector button, .editor-inspector button:not(:disabled):active { transition: none; transform: none; }
   .editor-display-bar, .editor-display-bar button { transition: none; }
+  .editor-timer-art.is-live .editor-timer-controls { transition: opacity 150ms ease; }
 }
 
 /* Legacy CV editor responsive shell. Kept with the editor instead of the

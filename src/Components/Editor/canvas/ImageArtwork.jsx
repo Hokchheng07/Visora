@@ -61,10 +61,11 @@ export default function ImageArtwork({ element }) {
        neither can stretch it or leave the frame showing through. The frame
        around it does the clipping — a photo zoomed in would otherwise spill
        across the page — and carries the corner radius, which has to be cut
-       from the frame rather than the photo for the same reason. */
+       from the frame rather than the photo for the same reason. A flipped photo
+       counter-mirrors its object-position so the visible crop stays anchored. */
     <span className="editor-element-art editor-image-frame" style={{ borderRadius: radius, opacity: element.opacity }}>
       <img className="editor-image-art" src={url} alt="" draggable={false}
-        style={{ transform: flip, ...cropStyle(element.crop) }}
+        style={{ transform: flip, ...cropStyle(element.crop, element) }}
         onError={() => {
         setFailedUrl(url);
         /* Written once per address, where anyone debugging will look first.

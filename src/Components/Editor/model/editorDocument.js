@@ -188,6 +188,7 @@ export function normalizeTimer(raw) {
      decides what a stopwatch actually saves. */
   return {
     mode: TIMER_MODES.includes(raw.mode) ? raw.mode : "COUNTDOWN",
+    ...(raw.layout === "exam" ? { layout: "exam" } : {}),
     durationMs: Number.isFinite(duration)
       ? Math.min(TIMER_MAX_MS, Math.max(TIMER_MIN_MS, Math.round(duration)))
       : base.durationMs,

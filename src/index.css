@@ -11,4 +11,5 @@
 @import "./styles/pages/home.css";
 @import "./styles/components/hanging-cards.css";
 @import "./styles/pages/about.css";
+@import "./styles/pages/auth.css";
 @import "./styles/responsive/compact-desktop.css";
