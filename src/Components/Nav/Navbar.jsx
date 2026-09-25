@@ -1,10 +1,11 @@
-﻿import { useRef,useState } from "react";
+import { useRef,useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon,XMarkIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence,motion,useMotionValueEvent,useScroll } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import ThemeToggle from "../../theme/ThemeToggle";
-import UserMenu from "../Account/UserMenu";
+import UserProfile from "../Account/UserProfile";
+import { useCurrentUser } from "../Account/useCurrentUser";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
 import navbarBg from "../../assets/sections/navbar/NavbarBg.svg";
@@ -34,6 +35,10 @@ function NavLinkRow({to,label,onClick,className=""}){
 }
 
 export default function Navbar(){
+  const {isSignedIn}=useCurrentUser();
+  const mobileLinks=isSignedIn
+    ?[...NAV_LINKS,{label:"Profile",to:"/user-dashboard/profile"}]
+    :NAV_LINKS;
   const [mobileOpen,setMobileOpen]=useState(false);
   const [hidden,setHidden]=useState(false);
   const lastScrollY=useRef(0);
@@ -113,8 +118,8 @@ export default function Navbar(){
             </div>
 
             {/* Signed in: the account menu. Signed out: both auth actions. */}
-            <UserMenu
-              size={44}
+            <UserProfile
+              size={60}
               signedOut={
                 <div className="navbar-auth-actions">
                   <NavLink to="/auth/login" className="navbar-auth-link navbar-auth-link-login">
@@ -171,7 +176,7 @@ export default function Navbar(){
           >
             <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.16)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.45)] sm:rounded-[26px] sm:p-4">
               <nav className="space-y-1">
-                {NAV_LINKS.map((link)=>(
+                {mobileLinks.map((link)=>(
                   <NavLink
                     key={link.to}
                     to={link.to}
@@ -190,13 +195,9 @@ export default function Navbar(){
                 ))}
               </nav>
 
-              <div className="my-3 h-px bg-[var(--border-default)]"/>
-
-              <UserMenu
-                size={44}
-                align="start"
-                className="mb-3"
-                signedOut={
+              {!isSignedIn&&(
+                <>
+                  <div className="my-3 h-px bg-[var(--border-default)]"/>
                   <div className="navbar-auth-actions navbar-auth-actions-mobile">
                     <NavLink
                       to="/auth/login"
@@ -213,8 +214,8 @@ export default function Navbar(){
                       Register
                     </NavLink>
                   </div>
-                }
-              />
+                </>
+              )}
             </div>
           </motion.div>
         )}

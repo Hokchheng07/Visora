@@ -3,7 +3,6 @@ import {
   Clock3,
   FolderHeart,
   LayoutGrid,
-  Share2,
   Trash2,
   UserRound,
 } from "lucide-react";
@@ -17,7 +16,6 @@ const navigation=[
   ["Recent","/user-dashboard/recent",Clock3],
   ["Favorites","/user-dashboard/favorites",FolderHeart],
   ["My Designs","/user-dashboard/my-designs",LayoutGrid],
-  ["Shared with Me","/user-dashboard/shared",Share2],
   ["Trash","/user-dashboard/trash",Trash2],
 ];
 
@@ -82,8 +80,7 @@ export default function UserDashboardSidebar({open,onClose}){
 
       <aside ref={sidebarRef} id="user-dashboard-sidebar" aria-label="Workspace navigation" data-open={open}
         style={{
-          backgroundColor:
-            "color-mix(in srgb, var(--surface-card) 82%, var(--surface-warm))",
+          backgroundColor: "var(--surface-warm)",
         }}
         className={`user-dashboard-sidebar fixed inset-y-0 left-0 z-50 flex w-[250px] flex-col border-r border-[var(--border-default)] px-4 py-5 shadow-[6px_0_24px_rgba(0,0,0,0.03)] transition-transform duration-300 dark:shadow-[6px_0_24px_rgba(0,0,0,0.12)] md:sticky md:top-0 md:h-screen md:w-[210px] md:translate-x-0 lg:w-[225px] xl:w-[240px] 2xl:w-[250px] ${
           open?"translate-x-0":"-translate-x-full"

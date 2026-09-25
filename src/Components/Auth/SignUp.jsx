@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useUserRegisterMutation } from "../API/authApi";
+import { registrationErrorMessage } from "../API/apiError.js";
 import { useNavigate } from "react-router";
 import z from "zod";
 // add zodResolver
@@ -102,10 +103,10 @@ export default function SignUp() {
           navigate("/auth/login", { replace: true });
         }, 2000);
       } else {
-        toast.error(result?.error?.data?.message || "Could not create your account!");
+        toast.error(registrationErrorMessage(result?.error));
       }
     } catch (error) {
-      console.log(error);
+      toast.error(registrationErrorMessage(error));
     }
   };
 

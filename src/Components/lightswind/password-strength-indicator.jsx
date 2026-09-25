@@ -93,7 +93,7 @@ export function PasswordStrengthIndicator({
       </div>
 
       <div className="relative">
-        <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+        <LockKeyhole className="pointer-events-none absolute inset-y-0 left-4 my-auto size-5 text-gray-400" aria-hidden="true" />
         <input
           id={inputId}
           type={visible ? "text" : "password"}
@@ -112,7 +112,7 @@ export function PasswordStrengthIndicator({
         {showVisibilityToggle && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="absolute inset-y-0 right-3 my-auto h-fit rounded p-1 text-gray-400 transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             aria-label={visible ? "Hide password" : "Show password"}
             aria-pressed={visible}
             onClick={() => setVisible((current) => !current)}

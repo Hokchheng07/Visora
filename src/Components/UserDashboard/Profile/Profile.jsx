@@ -9,7 +9,6 @@ import ProfileHero from "./ProfileHero";
 import ProfileStats from "./ProfileStats";
 import ProfileTemplates from "./ProfileTemplates";
 import { ProfileEditModal } from "./ProfileEditModal";
-import CosmicDust from "../../Effects/CosmicDust.jsx";
 
 export default function Profile(){
   const {profile,saveProfile,isSaving,saveError}=useOutletContext();
@@ -87,8 +86,7 @@ export default function Profile(){
   };
 
   return(
-    <main className="user-dashboard-profile relative min-h-screen bg-[var(--surface-warm)] px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
-      <CosmicDust particleCount={120} />
+    <main className="user-dashboard-profile relative min-h-screen px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
       <div className="relative z-[1] mx-auto w-full max-w-[1650px]">
         <ProfileHero
           profile={profile}

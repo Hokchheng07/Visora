@@ -18,6 +18,30 @@ function serverMessage(error) {
   return body?.detail || body?.message || null;
 }
 
+function validationMessage(detail) {
+  if (typeof detail === "string") return detail.trim();
+  if (Array.isArray(detail)) return detail.map(validationMessage).filter(Boolean).join("; ");
+  if (detail && typeof detail === "object") {
+    return Object.entries(detail)
+      .map(([field, value]) => {
+        const message = validationMessage(value);
+        return message ? `${field}: ${message}` : "";
+      })
+      .filter(Boolean).join("; ");
+  }
+  return "";
+}
+
+/** Registration validation details take priority over a generic error title. */
+export function registrationErrorMessage(error) {
+  if (error?.status === "FETCH_ERROR") return "Couldn't reach the server. Please try again.";
+  return validationMessage(error?.data?.detail)
+    || validationMessage(error?.data?.error?.description)
+    || validationMessage(error?.data?.message)
+    || (typeof error?.data === "string" ? error.data.trim() : "")
+    || "Could not create your account. Please check your details and try again.";
+}
+
 /**
  * Why an upload failed, in a sentence the reader can act on.
  * `subject` names what was being uploaded, e.g. "photo" or "image".

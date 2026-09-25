@@ -149,13 +149,14 @@
 .auth-password-strength > div:nth-child(2) > svg {
   position: absolute;
   z-index: 1;
-  top: 50%;
+  inset-block: 0;
+  margin-block: auto;
   left: 17px;
   width: 20px;
   height: 20px;
   color: #8e88a2;
-  translate: 0;
-  transform: translateY(-50%);
+  translate: none;
+  transform: none;
 }
 
 .auth-password-strength input {
@@ -178,7 +179,8 @@
 
 .auth-password-strength > div:nth-child(2) button {
   position: absolute;
-  top: 50%;
+  inset-block: 0;
+  margin-block: auto;
   right: 11px;
   display: grid;
   width: 34px;
@@ -187,8 +189,8 @@
   place-items: center;
   border-radius: 9px;
   color: #8e88a2;
-  translate: 0;
-  transform: translateY(-50%);
+  translate: none;
+  transform: none;
   transition: color 160ms ease, background-color 160ms ease;
 }
 
