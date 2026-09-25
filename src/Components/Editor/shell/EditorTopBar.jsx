@@ -5,7 +5,7 @@ import { ThemeImage } from '../../../theme/ThemeImage';
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { documentRenamed, undo, redo } from "../../redux/editorSlice.js";
 import { saveLocalDocument } from "../model/editorDocument.js";
-import UserMenu from "../../Account/UserMenu";
+import UserProfile from "../../Account/UserProfile";
 import EditorImportButton from "./EditorImportButton.jsx";
 import EditorExportMenu from "./EditorExportMenu.jsx";
 
@@ -35,7 +35,7 @@ export default function EditorTopBar({ onDisplay, inert }) {
         <EditorImportButton />
         <EditorExportMenu />
       </div>
-      <UserMenu size={42} />
+      <UserProfile size={42} />
       </div>
     </header>
   );

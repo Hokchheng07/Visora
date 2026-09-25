@@ -1,10 +1,11 @@
-﻿import { useRef,useState } from "react";
+import { useRef,useState } from "react";
 import { NavLink } from "react-router";
 import { Bars3Icon,XMarkIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence,motion,useMotionValueEvent,useScroll } from "motion/react";
 import { ThemeImage } from "../../theme/ThemeImage";
 import ThemeToggle from "../../theme/ThemeToggle";
-import UserMenu from "../Account/UserMenu";
+import UserProfile from "../Account/UserProfile";
+import { useCurrentUser } from "../Account/useCurrentUser";
 import visoraLogo from "../../assets/shared/branding/VisoraLogo.png";
 import mobileLogo from "../../assets/shared/branding/visora-logo-mobile.png";
 import navbarBg from "../../assets/sections/navbar/NavbarBg.svg";
@@ -34,6 +35,10 @@ function NavLinkRow({to,label,onClick,className=""}){
 }
 
 export default function Navbar(){
+  const {isSignedIn}=useCurrentUser();
+  const mobileLinks=isSignedIn
+    ?[...NAV_LINKS,{label:"Profile",to:"/user-dashboard/profile"}]
+    :NAV_LINKS;
   const [mobileOpen,setMobileOpen]=useState(false);
   const [hidden,setHidden]=useState(false);
   const lastScrollY=useRef(0);
@@ -113,8 +118,8 @@ export default function Navbar(){
             </div>
 
             {/* Signed in: the account menu. Signed out: the Sign In button. */}
-            <UserMenu
-              size={44}
+            <UserProfile
+              size={60}
               signedOut={
                 <NavLink
                   to="/auth/login"
@@ -169,7 +174,7 @@ export default function Navbar(){
           >
             <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.16)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.45)] sm:rounded-[26px] sm:p-4">
               <nav className="space-y-1">
-                {NAV_LINKS.map((link)=>(
+                {mobileLinks.map((link)=>(
                   <NavLink
                     key={link.to}
                     to={link.to}
@@ -188,32 +193,28 @@ export default function Navbar(){
                 ))}
               </nav>
 
-              <div className="my-3 h-px bg-[var(--border-default)]"/>
+              {!isSignedIn&&(
+                <>
+                  <div className="my-3 h-px bg-[var(--border-default)]"/>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    <NavLink
+                      to="/auth/login"
+                      onClick={()=>setMobileOpen(false)}
+                      className="flex h-11 items-center justify-center rounded-full border border-primary bg-[var(--surface-card)] px-4 text-sm font-semibold text-primary transition hover:bg-primary/10 sm:h-12 sm:text-base"
+                    >
+                      Sign In
+                    </NavLink>
 
-              <UserMenu
-                size={44}
-                align="start"
-                className="mb-3"
-                signedOut={null}
-              />
-
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <NavLink
-                  to="/auth/login"
-                  onClick={()=>setMobileOpen(false)}
-                  className="flex h-11 items-center justify-center rounded-full border border-primary bg-[var(--surface-card)] px-4 text-sm font-semibold text-primary transition hover:bg-primary/10 sm:h-12 sm:text-base"
-                >
-                  Sign In
-                </NavLink>
-
-                <NavLink
-                  to="/auth/register"
-                  onClick={()=>setMobileOpen(false)}
-                  className="flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent px-4 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:h-12 sm:text-base"
-                >
-                  Sign Up
-                </NavLink>
-              </div>
+                    <NavLink
+                      to="/auth/register"
+                      onClick={()=>setMobileOpen(false)}
+                      className="flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent px-4 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:h-12 sm:text-base"
+                    >
+                      Sign Up
+                    </NavLink>
+                  </div>
+                </>
+              )}
             </div>
           </motion.div>
         )}

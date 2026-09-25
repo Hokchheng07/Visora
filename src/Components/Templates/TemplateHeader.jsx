@@ -16,7 +16,7 @@ export default function TemplateHeader({
         <span className="templates-spark templates-spark-left" />
         <span className="templates-accent-ring" />
       </div>
-      <p className="templates-eyebrow">Made for your next big idea</p>
+     
       <h1 className="mx-auto max-w-[900px] text-[32px] font-bold leading-[1.15] text-[var(--text-heading)] sm:text-[38px] md:text-[42px] lg:max-w-none lg:whitespace-nowrap lg:text-[46px] xl:text-[50px] 2xl:text-[64px]">
         Find Your Perfect{" "}
         <span className="relative inline-block text-primary">

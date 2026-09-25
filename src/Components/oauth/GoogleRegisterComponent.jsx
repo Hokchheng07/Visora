@@ -39,8 +39,8 @@ export const GithubRegisterComponent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [useOauthRegister, { data: userData }] = useUserRegisterMutation();
-  const [useUserOauthLogin, { data }] = useUserLoginMutation();
+  const [oauthRegister] = useUserRegisterMutation();
+  const [userOauthLogin] = useUserLoginMutation();
 
   useEffect(() => {
     const unsubscriber = onAuthStateChanged(auth, (user) => {
@@ -82,7 +82,7 @@ export const GithubRegisterComponent = () => {
         const passwordSeed = info.email.slice(0, 5);
         const password = `${passwordSeed}Ab1$2024`;
 
-        return useOauthRegister({
+        return oauthRegister({
           userRegisterRequest: {
             username: usernameSeed,
             phoneNumber: info.phoneNumber,
@@ -127,7 +127,7 @@ export const GithubRegisterComponent = () => {
 
             // registerResult is null when the email already existed —
             // fall through to login either way
-            return useUserOauthLogin({
+            return userOauthLogin({
               userLoginRequest: { email: info.email, password },
             })
               .unwrap()
