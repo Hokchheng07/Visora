@@ -98,10 +98,7 @@ export default function SignUp() {
       });
 
       if (result?.data) {
-        toast.success("Your account has been created! Please log in.");
-        setTimeout(() => {
-          navigate("/auth/login", { replace: true });
-        }, 2000);
+        navigate(`/auth/verify-email?email=${encodeURIComponent(userRegisterRequest.email)}`, { replace: true });
       } else {
         toast.error(registrationErrorMessage(result?.error));
       }

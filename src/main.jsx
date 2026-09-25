@@ -12,6 +12,7 @@ import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
 import ForgotPassword from "./Components/Auth/ForgotPassword.jsx";
+import VerifyEmail from "./Components/Auth/VerifyEmail.jsx";
 import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
@@ -109,6 +110,7 @@ const router = createBrowserRouter([
           },
           { path: "forgot-password", element: <ForgotPassword /> },
           { path: "reset-password", element: <ForgotPassword /> },
+          { path: "verify-email", element: <VerifyEmail /> },
         ],
       },
       {
