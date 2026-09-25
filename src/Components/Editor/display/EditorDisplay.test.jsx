@@ -1,9 +1,10 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import EditorDisplay from "./EditorDisplay.jsx";
+import { defaultTimer } from "../model/editorDocument.js";
 vi.mock("animejs", () => ({ animate: () => ({ cancel: vi.fn(), revert: vi.fn() }), createTimer: () => ({ revert: vi.fn() }) }));
 vi.mock("motion/react", () => ({ useReducedMotion: () => false }));
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.useRealTimers(); });
 const shape = (id) => ({ id, type: "shape", shape: "square", w: 100, h: 100, x: 0, y: 0, rotation: 0, opacity: 1, fill: "#ff0000" });
 const entry = (elementId, trigger = "with") => ({ id: `${elementId}:row`, elementId, kind: "entrance", preset: "fade", trigger, delayMs: 0, durationMs: 500 });
 const pages = [{ id: "p1", elements: [shape("a")], animations: [entry("a", "click")] }, { id: "p2", elements: [shape("b")], transition: { preset: "rise", durationMs: 700, delayMs: 0 }, animations: [entry("b")] }];
@@ -52,4 +53,26 @@ it("first-slide Morph falls back to Fade and finishes normally", () => {
   expect(container.querySelector('[data-element-id="a"]').style.opacity).toBe('0');
   fireEvent.keyDown(document, { key: "ArrowRight" });
   expect(container.querySelector('[data-element-id="a"]').style.opacity).toBe('1');
+});
+
+it("can auto-hide live timer controls after four idle seconds without hiding the timer", () => {
+  vi.useFakeTimers();
+  const timer = { id: "timer-1", type: "timer", x: 400, y: 300, w: 600, h: 200,
+    rotation: 0, opacity: 1, fill: "#000000", fontSize: 100, timer: defaultTimer() };
+  const { container } = render(<EditorDisplay pages={[{ id: "timer-page", elements: [timer], animations: [] }]} onClose={() => {}} />);
+  const dialog = screen.getByRole("dialog");
+  const setting = screen.getByRole("button", { name: "Auto-hide timer controls after 4 seconds" });
+
+  expect(setting.getAttribute("aria-pressed")).toBe("true");
+  expect(container.querySelector(".editor-timer-digits")).not.toBeNull();
+  act(() => vi.advanceTimersByTime(3999));
+  expect(dialog.className).not.toContain("are-timers-idle");
+  act(() => vi.advanceTimersByTime(1));
+  expect(dialog.className).toContain("are-timers-idle");
+  fireEvent.pointerMove(window);
+  expect(dialog.className).not.toContain("are-timers-idle");
+  fireEvent.click(setting);
+  expect(setting.getAttribute("aria-pressed")).toBe("false");
+  act(() => vi.advanceTimersByTime(4000));
+  expect(dialog.className).not.toContain("are-timers-idle");
 });

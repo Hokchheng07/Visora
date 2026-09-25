@@ -167,7 +167,7 @@ const Sponsor = () => (
     variants={scaleIn}
   >
     <h3 className="whitespace-nowrap text-[20px] font-semibold sm:text-[22px]">
-      Sponsored and Organized by
+      Supported and Organized by
     </h3>
 
     <Zigzag color="primary" sponsor />

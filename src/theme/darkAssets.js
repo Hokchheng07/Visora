@@ -116,6 +116,8 @@ import blobRightLight from '../assets/pages/about/shared/doodles/RightDoubleBlob
 import blobRightDark from '../assets/pages/about/DarkMode/BlueInPinkLayer.svg';
 import storySwooshLight from '../assets/pages/about/story/DashYellowUnderStory.svg';
 import storySwooshDark from '../assets/pages/about/DarkMode/BleuSWOOSH.svg';
+import headingUnderlineLight from '../assets/pages/about/what-is-visora/UnderlineForWhatIsVisora.svg';
+import headingUnderlineDark from '../assets/pages/about/DarkMode/WhiteArrowAndScissorUnderline.svg';
 import journeySolidLight from '../assets/pages/about/journey/BigMiddleSolidLine.svg';
 import journeySolidDark from '../assets/pages/about/DarkMode/SolidCenterLine.svg';
 import journeyDashedLight from '../assets/pages/about/journey/BigMiddleDashLine.svg';
@@ -168,6 +170,10 @@ import ctaImage111Dark from '../assets/pages/about/DarkMode/BlobBottomElements/i
 // --- Branding ---
 import visoraLogoLight from '../assets/shared/branding/VisoraLogo.png';
 import visoraLogoDark from '../assets/shared/branding/VisoraLogo(DarkMode).png';
+import istadLogoLight from '../assets/sections/footer/logo.png';
+import istadLogoDark from '../assets/shared/branding/ISTADLogoDarkmode.png';
+import githubLight from '../assets/shared/social/github_light.svg';
+import githubDark from '../assets/shared/social/github_dark.svg';
 
 export const darkAssets = {
   [light0]: dark0,
@@ -224,6 +230,7 @@ export const darkAssets = {
   [blobLeftLight]: blobLeftDark,
   [blobRightLight]: blobRightDark,
   [storySwooshLight]: storySwooshDark,
+  [headingUnderlineLight]: headingUnderlineDark,
   [journeySolidLight]: journeySolidDark,
   [journeyDashedLight]: journeyDashedDark,
   [journeyGlowLight]: journeyGlowDark,
@@ -251,4 +258,6 @@ export const darkAssets = {
 
   // --- Branding ---
   [visoraLogoLight]: visoraLogoDark,
+  [istadLogoLight]: istadLogoDark,
+  [githubLight]: githubDark,
 };

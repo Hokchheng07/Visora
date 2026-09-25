@@ -43,7 +43,22 @@ const STOPWATCH_BUTTONS = [
   { id: "reset", tone: "reset", icon: RotateCcw, text: "Reset", label: "Reset stopwatch to zero" },
 ];
 
+// The exam backdrop uses four always-visible positions. It is still the same
+// live countdown: Start begins or resumes it, Stop freezes it, and Restart resets it.
+const EXAM_BUTTONS = [
+  { id: "start", tone: "start", icon: Play, text: "Start", label: "Start countdown" },
+  { id: "pauseResume", tone: "pause", icon: Pause, text: "Pause", label: "Pause countdown" },
+  { id: "stop", tone: "stop", icon: Square, text: "Stop", label: "Stop countdown" },
+  { id: "reset", tone: "reset", icon: RotateCcw, text: "Restart", label: "Reset timer to the configured duration" },
+];
+
 function describe(button, status, stopwatch) {
+  if (button.id === "pauseResume" && status === "paused") {
+    return { text: "Resume", label: "Resume countdown", Icon: Play, tone: "pause" };
+  }
+  if (button.id === "start" || button.id === "stop") {
+    return { text: button.text, label: button.label, Icon: button.icon, tone: button.tone };
+  }
   if (button.id === "startStop" && stopwatch) {
     return stopwatchRole(status) === "stop"
       ? { text: "Stop", label: "Stop the stopwatch", Icon: Square, tone: "stop" }
@@ -53,9 +68,6 @@ function describe(button, status, stopwatch) {
     return startStopRole(status) === "start"
       ? { text: "Start", label: "Start countdown", Icon: Play, tone: "start" }
       : { text: "Stop", label: "Stop presenting and return to editor", Icon: Square, tone: "stop" };
-  }
-  if (button.id === "pauseResume" && status === "paused") {
-    return { text: "Resume", label: "Resume countdown", Icon: Play, tone: "pause" };
   }
   return { text: button.text, label: button.label, Icon: button.icon, tone: button.tone };
 }
@@ -71,8 +83,11 @@ export default function TimerArtwork({
   const timer = element.timer || {};
   const controls = timer.controls || {};
   const stopwatch = timer.mode === "STOPWATCH";
+  const exam = !stopwatch && timer.layout === "exam";
   // Both stopwatch buttons always work: Reset clears a running count too.
-  const enabled = stopwatch ? { startStop: true, reset: true } : controlState(status);
+  const enabled = stopwatch ? { startStop: true, reset: true } : exam
+    ? { start: status === "ready" || status === "stopped", pauseResume: status === "running" || status === "paused", stop: status === "running" || status === "paused", reset: true }
+    : controlState(status);
   const completed = status === "completed";
   const message = timer.onComplete?.message || "";
   // Inert callers show the configured duration; only a live timer counts down.
@@ -88,7 +103,7 @@ export default function TimerArtwork({
 
   return (
     <span
-      className={`editor-element-art editor-timer-art${interactive ? " is-live" : ""}`}
+      className={`editor-element-art editor-timer-art${interactive ? " is-live" : ""}${exam ? " is-exam" : ""}`}
       style={{
         color: element.fill,
         opacity: element.opacity,
@@ -98,8 +113,8 @@ export default function TimerArtwork({
       }}
     >
       {face}
-      <span className="editor-timer-controls" style={{ gap: em(.16) }}>
-        {(stopwatch ? STOPWATCH_BUTTONS : BUTTONS).filter((button) => controls[button.id] !== false).map((button) => {
+      <span className="editor-timer-controls" style={{ gap: em(exam ? .22 : .16) }}>
+        {(stopwatch ? STOPWATCH_BUTTONS : exam ? EXAM_BUTTONS : BUTTONS).filter((button) => controls[button.id] !== false).map((button) => {
           const { text, label, Icon, tone } = describe(button, status, stopwatch);
           // StaticElement sits inside the page-thumbnail button. Rendering an
           // inert <button> here would create invalid nested buttons, so only
@@ -116,7 +131,13 @@ export default function TimerArtwork({
                 onClick: () => onControl?.(button.id),
               } : { "aria-hidden": true })}
               className={`editor-timer-button is-${tone}`}
-              style={{ background: timer.buttonColors?.[tone] || TIMER_BUTTON_COLORS[tone], gap: em(.32), padding: `${em(.46)} ${em(.82)}`, borderRadius: em(.4), fontSize: em(.34) }}
+              style={exam ? {
+                background: timer.buttonColors?.[tone] || TIMER_BUTTON_COLORS[tone],
+                gap: em(.25), padding: "0", borderRadius: em(.5), fontSize: em(.22), width: em(5.3), height: em(2.2),
+              } : {
+                background: timer.buttonColors?.[tone] || TIMER_BUTTON_COLORS[tone],
+                gap: em(.32), padding: `${em(.46)} ${em(.82)}`, borderRadius: em(.4), fontSize: em(.34),
+              }}
               tabIndex={interactive ? 0 : -1}
             >
               <Icon size={16} aria-hidden="true" />

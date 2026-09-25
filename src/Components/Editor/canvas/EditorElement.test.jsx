@@ -101,3 +101,29 @@ describe("EditorElement text editing", () => {
     expect(element().content).toBe("Add body text");
   });
 });
+
+describe("EditorElement image cropping", () => {
+  it("keeps the crop toolbar outside the artwork's rotation layer", () => {
+    const store = configureStore({ reducer: { editor: editorReducer } });
+    const image = {
+      id: "test-image", type: "image", x: 100, y: 200, w: 300, h: 160,
+      rotation: 180, visible: true, opacity: 1,
+      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E",
+      crop: { x: 0.2, y: 0.7, zoom: 2 },
+    };
+    const { container } = render(
+      <Provider store={store}>
+        <EditorElement element={image} pageId={store.getState().editor.pages[0].id}
+          sheetRef={{ current: document.createElement("div") }} scale={1} selected cropping />
+      </Provider>,
+    );
+    const frame = container.querySelector(".editor-element-rotation");
+    const toolbar = container.querySelector(".editor-crop-bar");
+
+    expect(frame.contains(container.querySelector(".editor-crop"))).toBe(true);
+    expect(frame.contains(toolbar)).toBe(false);
+    expect(toolbar.parentElement.classList.contains("editor-element")).toBe(true);
+    expect(toolbar.style.top).toBe(`${image.h / 19.2}cqw`);
+    expect(container.querySelector(".editor-image-art").style.objectPosition).toBe("20% 70%");
+  });
+});

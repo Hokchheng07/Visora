@@ -35,10 +35,99 @@
   transition:opacity 220ms ease;
 }
 
+.navbar-auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-auth-link {
+  display: inline-flex;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 999px;
+  font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 160ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms ease, filter 180ms ease;
+}
+
+.navbar-auth-link-login {
+  background: var(--color-primary);
+  box-shadow: 0 7px 18px rgb(112 90 224 / .19);
+  color: #fff;
+}
+
+.navbar-auth-link-register {
+  border: 2px solid var(--color-primary);
+  background: #fff;
+  box-shadow: 0 7px 18px rgb(112 90 224 / .18);
+  color: #111;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navbar-auth-link:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .navbar-auth-link-login:hover { box-shadow: 0 10px 22px rgb(112 90 224 / .28); }
+  .navbar-auth-link-register:hover { box-shadow: 0 10px 22px rgb(112 90 224 / .28); }
+}
+
+.navbar-auth-link:active { transform: scale(.97); }
+
+.dark .site-shell .navbar-auth-link-login {
+  background: #72bff1;
+  box-shadow: 0 7px 18px rgb(114 191 241 / .24);
+  color: #fff;
+}
+
+.dark .site-shell .navbar-auth-link-register {
+  border: 0;
+  background: var(--color-accent);
+  box-shadow: 0 7px 18px rgb(227 93 203 / .24);
+  color: #fff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dark .site-shell .navbar-auth-link-login:hover {
+    box-shadow: 0 10px 22px rgb(114 191 241 / .34);
+  }
+  .dark .site-shell .navbar-auth-link-register:hover {
+    box-shadow: 0 10px 22px rgb(227 93 203 / .34);
+  }
+}
+
+.navbar-auth-actions-mobile {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.navbar-auth-actions-mobile .navbar-auth-link { height: 44px; padding-inline: 12px; }
+
+@media (min-width: 1280px) {
+  .navbar-auth-link { height: 48px; padding-inline: 24px; font-size: 1rem; }
+}
+
 @media (min-width:768px){
   .navbar-nav{
     padding-inline:clamp(3rem,4vw,5rem);
     transform:translateY(-0.65rem);
+  }
+}
+
+@media (min-width:1024px){
+  .navbar-nav{
+    padding-right:clamp(1.25rem,2.5vw,2.5rem);
+  }
+
+  .navbar-links{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
   }
 }
 

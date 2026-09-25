@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import loginPic from "../../../assets/pages/auth/login/LoginLogo-pic.png";
+import loginPic from "../../../assets/pages/auth/login/LoginHero-v3.png";
 import signupPicture from "../../../assets/pages/auth/register/SignUp-pic.png";
 import visoraLogo from "../../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from "../../../theme/ThemeImage";
@@ -9,20 +9,20 @@ import { ThemeImage } from "../../../theme/ThemeImage";
 const AUTH_ART = {
   login: {
     image: loginPic,
-    title: "Unleash your creativity.",
-    text: "Join thousands of creators in bulding the next generation digital experiences",
+    title: "Create without limits.",
+    text: null,
   },
   register: {
     image: signupPicture,
-    title: "Begin Your Journey",
-    text: "Create an account to start building, sharing, and discovering incredible digital experiences today.",
+    title: "Begin your journey.",
+    text: null,
   },
 };
 
 export function AuthArtLogo() {
   return (
-    <Link to="/" className="absolute left-12 top-10 z-10">
-      <ThemeImage src={visoraLogo} alt="Visora" className="h-auto w-48" />
+    <Link to="/" className="auth-art-logo">
+      <ThemeImage src={visoraLogo} alt="Visora home" />
     </Link>
   );
 }
@@ -30,13 +30,18 @@ export function AuthArtLogo() {
 export function AuthArtContent({ page }) {
   const art = AUTH_ART[page];
   return (
-    <>
-      <img src={art.image} alt="Khmer-inspired woman surrounded by decorative motifs" className="absolute inset-0 h-full w-full object-cover object-center" />
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/75" />
-      <div className="absolute bottom-16 left-16 z-10 max-w-[680px] text-white">
-        <h2 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">{art.title}</h2>
-        <p className="mt-6 max-w-[620px] text-lg leading-8 sm:text-xl">{art.text}</p>
+    <div className={`auth-art auth-art-${page}`}>
+      <img src={art.image} alt="Khmer-inspired women holding lotus flowers" />
+      <div className="auth-art-wash" aria-hidden="true" />
+      <div className="auth-art-kicker" aria-hidden="true">
+        <span>Ideas</span><span>People</span><span>Culture</span>
       </div>
-    </>
+      {(art.title || art.text) && (
+        <div className="auth-art-copy">
+          {art.title && <h2>{art.title}</h2>}
+          {art.text && <p>{art.text}</p>}
+        </div>
+      )}
+    </div>
   );
 }

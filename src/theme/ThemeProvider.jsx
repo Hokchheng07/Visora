@@ -51,25 +51,16 @@ export function ThemeProvider({ children }) {
       flushSync(() => { setPreference(next); apply(next); });
     };
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || event?.detail === 0;
-    let ruler;
     let committed = false;
     try {
       if (!document.startViewTransition) { commit(); return; }
       const width = innerWidth;
       const height = innerHeight;
       const distance = (width + height) / (2 * Math.SQRT2) + 80;
-      document.documentElement.dataset.themeTransition = reduce ? 'fade' : 'ruler';
+      document.documentElement.dataset.themeTransition = reduce ? 'fade' : 'diagonal';
       const transition = document.startViewTransition(() => {
         commit();
         committed = true;
-        if (!reduce) {
-          ruler = document.createElement('div');
-          ruler.className = `theme-ruler theme-ruler-${next}`;
-          ruler.setAttribute('aria-hidden', 'true');
-          ruler.style.width = `${Math.hypot(width, height) * 2 + 200}px`;
-          ruler.innerHTML = '<span>VISORA · DESIGN YOUR WORLD · 45°</span>';
-          document.body.append(ruler);
-        }
       });
       transitionRef.current = transition;
       await transition.ready;
@@ -79,17 +70,16 @@ export function ThemeProvider({ children }) {
         // Percentages keep WebKit's high-DPI transition snapshots in CSS space.
         const polygon = (k) => `polygon(${k / width * 100}% 0%, 100% 0%, 100% 100%, ${(height + k) / width * 100}% 100%)`;
         const timing = { duration: 650, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'both' };
-        await Promise.all([
-          document.documentElement.animate({ clipPath: [polygon(start), polygon(end)] }, { ...timing, pseudoElement: '::view-transition-new(root)' }).finished,
-          document.documentElement.animate({ transform: [`translateY(${-distance}px)`, `translateY(${distance}px)`] }, { ...timing, pseudoElement: '::view-transition-new(theme-ruler)' }).finished,
-        ]);
+        await document.documentElement.animate(
+          { clipPath: [polygon(start), polygon(end)] },
+          { ...timing, pseudoElement: '::view-transition-new(root)' },
+        ).finished;
       }
       await transition.finished;
     } catch {
       transitionRef.current?.skipTransition();
       if (!committed) commit();
     } finally {
-      ruler?.remove();
       delete document.documentElement.dataset.themeTransition;
       transitionRef.current = null;
       running.current = false;
