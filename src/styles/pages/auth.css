@@ -149,13 +149,14 @@
 .auth-password-strength > div:nth-child(2) > svg {
   position: absolute;
   z-index: 1;
-  top: 50%;
+  inset-block: 0;
+  margin-block: auto;
   left: 17px;
   width: 20px;
   height: 20px;
   color: #8e88a2;
-  translate: 0;
-  transform: translateY(-50%);
+  translate: none;
+  transform: none;
 }
 
 .auth-password-strength input {
@@ -178,7 +179,8 @@
 
 .auth-password-strength > div:nth-child(2) button {
   position: absolute;
-  top: 50%;
+  inset-block: 0;
+  margin-block: auto;
   right: 11px;
   display: grid;
   width: 34px;
@@ -187,8 +189,8 @@
   place-items: center;
   border-radius: 9px;
   color: #8e88a2;
-  translate: 0;
-  transform: translateY(-50%);
+  translate: none;
+  transform: none;
   transition: color 160ms ease, background-color 160ms ease;
 }
 
@@ -362,4 +364,84 @@
 
 @media (prefers-reduced-motion: reduce) {
   .auth-submit, .auth-submit svg, .auth-provider-button, .auth-input-shell input { transition-duration: 1ms; }
+}
+
+/* Verify email keeps the illustration unobstructed and the form intentionally brief. */
+.auth-art-verify > img { object-position: center; transform: none; }
+.auth-art-verify .auth-art-wash { background: none; }
+.dark .auth-art-verify .auth-art-wash { background: rgb(21 12 39 / .3); }
+
+.auth-verify-panel { padding: clamp(28px, 4vw, 72px); }
+.auth-verify-card {
+  display: flex;
+  width: min(100%, 600px);
+  min-height: min(640px, calc(100dvh - 72px));
+  padding: clamp(34px, 4vw, 64px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28px;
+  text-align: center;
+}
+.auth-verify-envelope { display: block; width: clamp(116px, 11vw, 164px); height: auto; flex: 0 0 auto; }
+.auth-verify-card h1 {
+  margin: 32px 0 14px;
+  color: #17132f;
+  font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.35rem, 3.4vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: -.045em;
+  line-height: 1.12;
+}
+.auth-verify-message { min-height: 70px; color: #615b73; font-size: clamp(.97rem, 1.4vw, 1.12rem); line-height: 1.55; }
+.auth-verify-message p { margin: 0; }
+.auth-verify-message strong { display: block; overflow-wrap: anywhere; color: #6443db; font-weight: 600; }
+.auth-verify-form { width: 100%; }
+.auth-verify-email-field { display: block; margin-top: 18px; }
+.auth-verify-email-field input {
+  width: 100%;
+  height: 54px;
+  padding: 0 18px;
+  border: 1px solid #d9d3e5;
+  border-radius: 13px;
+  outline: none;
+  background: #fff;
+  color: #29243d;
+  font-size: .95rem;
+  text-align: center;
+}
+.auth-verify-email-field input:focus { border-color: #705ae0; box-shadow: 0 0 0 4px rgb(112 90 224 / .12); }
+.auth-verify-primary { height: 64px; margin-top: 28px; font-size: 1.05rem; text-decoration: none; }
+.auth-verify-primary:disabled { cursor: wait; opacity: .72; }
+.auth-verify-feedback { margin: 18px 0 0; color: #5d4c9c; font-size: .86rem; line-height: 1.45; }
+.auth-verify-back { margin-top: 34px; color: #6443db; font-size: .97rem; font-weight: 500; text-decoration: none; }
+.auth-verify-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+.auth-verify-back:focus-visible, .auth-verify-primary:focus-visible { outline: 3px solid #9d85ed; outline-offset: 4px; }
+
+.dark .auth-verify-card h1 { color: #f7f4fb; }
+.dark .auth-verify-message { color: #c2bacd; }
+.dark .auth-verify-message strong, .dark .auth-verify-back { color: #c4adff; }
+.dark .auth-verify-feedback { color: #d0baff; }
+.dark .auth-verify-email-field input { border-color: #3e354b; background: #211b2a; color: #f7f4fb; }
+.dark .auth-verify-email-field input:focus { border-color: #9a7bea; box-shadow: 0 0 0 4px rgb(154 123 234 / .16); }
+
+@media (max-width: 1023px) {
+  .auth-verify-panel { padding: 36px 20px; }
+  .auth-verify-card { min-height: 540px; }
+}
+
+@media (max-width: 639px) {
+  .auth-verify-panel { padding: 48px 16px 28px; }
+  .auth-verify-card { min-height: 0; padding: 38px 24px 42px; }
+  .auth-verify-card h1 { margin-top: 24px; font-size: clamp(2rem, 9vw, 2.5rem); }
+  .auth-verify-message { min-height: 0; font-size: .95rem; }
+  .auth-verify-primary { height: 56px; margin-top: 26px; }
+}
+
+@media (max-height: 700px) and (min-width: 1024px) {
+  .auth-verify-card { min-height: 0; padding-block: 26px; }
+  .auth-verify-envelope { width: 110px; }
+  .auth-verify-card h1 { margin-top: 14px; font-size: 2.35rem; }
+  .auth-verify-primary { height: 54px; margin-top: 16px; }
+  .auth-verify-back { margin-top: 20px; }
 }

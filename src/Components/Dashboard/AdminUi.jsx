@@ -57,8 +57,11 @@ export function UserAvatar({ size = 36 }) {
   );
 }
 
+// Mock data has plain days ("2024-05-24"); the server sends full timestamps.
+// A plain day gets a local midnight so it is not shifted a day by the timezone.
 export function formatDate(iso) {
-  const date = new Date(`${iso}T00:00:00`);
+  if (!iso) return "—";
+  const date = new Date(iso.includes("T") ? iso : `${iso}T00:00:00`);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }

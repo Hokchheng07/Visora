@@ -1,38 +1,58 @@
-import { useMemo,useState } from "react";
-import {
-  LayoutGrid,
-  List,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  SquarePlus,
-} from "lucide-react";
-import { Link } from "react-router";
-
-import { PROFILE_TEMPLATES } from "../Profile/profileData";
-import { TemplateCard } from "../Profile/TemplateCard";
-
-import CreateNewShelf from "./CreateNewShelf";
-import TrendingTemplates from "./TrendingTemplates";
+import {useMemo,useState} from "react";
+import {Grid2X2,List,Search,SquarePlus} from "lucide-react";
+import {Link} from "react-router";
+import {PROFILE_TEMPLATES} from "../Profile/profileData";
+import RecentDesignCard from "./RecentDesignCard";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
 
+const FILTERS=[
+  {id:"all",label:"All"},
+  {id:"posted",label:"Posted"},
+  {id:"draft",label:"Drafts"},
+  {id:"public",label:"Public"},
+  {id:"private",label:"Private"},
+];
+
 const SORT_OPTIONS=[
-  ["edited","Sort: Last edited"],
-  ["name","Sort: Name (A-Z)"],
-  ["views","Sort: Most viewed"],
+  {value:"edited",label:"Last edited"},
+  {value:"name",label:"Name"},
+  {value:"views",label:"Most viewed"},
 ];
 
 export default function Recent(){
-  // Same mock set the profile page uses until the designs endpoint exists.
   const [designs,setDesigns]=useState(PROFILE_TEMPLATES);
   const [query,setQuery]=useState("");
+  const [filter,setFilter]=useState("all");
   const [sort,setSort]=useState("edited");
   const [view,setView]=useState("grid");
+
+  const counts=useMemo(()=>{
+    return{
+      all:designs.length,
+      posted:designs.filter(
+        (design)=>design.status==="posted"
+      ).length,
+      draft:designs.filter(
+        (design)=>design.status==="draft"
+      ).length,
+      public:designs.filter(
+        (design)=>design.visibility==="public"
+      ).length,
+      private:designs.filter(
+        (design)=>design.visibility==="private"
+      ).length,
+    };
+  },[designs]);
 
   const visibleDesigns=useMemo(()=>{
     const needle=query.trim().toLowerCase();
 
-    const filtered=designs.filter((design)=>{
+    let result=designs.filter((design)=>{
+      if(filter==="posted"&&design.status!=="posted")return false;
+      if(filter==="draft"&&design.status!=="draft")return false;
+      if(filter==="public"&&design.visibility!=="public")return false;
+      if(filter==="private"&&design.visibility!=="private")return false;
+
       if(!needle)return true;
 
       return(
@@ -44,32 +64,56 @@ export default function Recent(){
       );
     });
 
-    return[...filtered].sort((a,b)=>{
-      if(sort==="name"){
-        return a.title.localeCompare(b.title);
-      }
-
-      if(sort==="views"){
-        return b.views-a.views;
-      }
-
-      return(
-        new Date(b.updatedAt).getTime()-
-        new Date(a.updatedAt).getTime()
+    if(sort==="name"){
+      result.sort(
+        (a,b)=>a.title.localeCompare(b.title)
       );
-    });
-  },[designs,query,sort]);
+    }
+
+    if(sort==="views"){
+      result.sort(
+        (a,b)=>b.views-a.views
+      );
+    }
+
+    if(sort==="edited"){
+      result.sort(
+        (a,b)=>
+          new Date(b.updatedAt).getTime()-
+          new Date(a.updatedAt).getTime()
+      );
+    }
+
+    return result;
+  },[designs,query,filter,sort]);
 
   const updateDesign=(updatedDesign)=>{
     setDesigns((current)=>
-      current.map((design)=>
-        design.id===updatedDesign.id
-          ?{
-              ...updatedDesign,
-              updatedAt:new Date().toISOString(),
-            }
-          :design
-      )
+      current.map((design)=>{
+        if(design.id!==updatedDesign.id)return design;
+
+        const now=new Date().toISOString();
+
+        if(updatedDesign.visibility==="private"){
+          return{
+            ...updatedDesign,
+            status:"draft",
+            publishedAt:null,
+            updatedAt:now,
+          };
+        }
+
+        const wasDraft=design.status==="draft";
+
+        return{
+          ...updatedDesign,
+          status:"posted",
+          publishedAt:wasDraft
+            ?now
+            :design.publishedAt||now,
+          updatedAt:now,
+        };
+      })
     );
   };
 
@@ -101,150 +145,160 @@ export default function Recent(){
       },
       ...current,
     ]);
+
+    setFilter("all");
   };
 
   const deleteDesign=(id)=>{
     setDesigns((current)=>
-      current.filter((design)=>design.id!==id)
+      current.filter(
+        (design)=>design.id!==id
+      )
     );
   };
 
   return(
-    <section className="relative min-h-screen bg-[var(--surface-warm)] px-3 pb-8 pt-3 text-[var(--text-body)] sm:px-5 sm:pb-10 sm:pt-4 md:px-6 lg:px-8 xl:px-10">
-      <CosmicDust particleCount={120} />
+    <section className="relative min-h-screen px-3 pb-10 pt-4 text-[var(--text-body)] sm:px-5 md:px-6 lg:px-8 xl:px-10">
+      <CosmicDust particleCount={120}/>
+
       <div className="relative z-[1] mx-auto w-full max-w-[1650px]">
-        {/* PAGE HEADER */}
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          {/* LEFT */}
-          <div className="min-w-0">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-[var(--text-heading)] sm:text-4xl">
                 Recent
               </h1>
 
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-                {designs.length} Files
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                {designs.length} items
               </span>
-
-              <Sparkles className="h-4 w-4 text-secondary"/>
             </div>
 
-            <p className="mt-2 max-w-[560px] text-sm text-[var(--text-muted)]">
-              Continue working on your latest designs, collaborative boards, and
-              vector graphics.
+            <p className="mt-2 text-base text-[var(--text-muted)]">
+              Continue working on your recently edited designs.
             </p>
           </div>
 
-          {/* RIGHT CONTROLS */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* FILTER */}
-            <div className="relative">
-              <Search
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-              />
+          <Link
+            to="/editor"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-base font-semibold text-[var(--text-on-brand)] transition hover:opacity-90 sm:w-auto"
+          >
+            <SquarePlus className="h-4 w-4"/>
+            New Canvas
+          </Link>
+        </div>
 
-              <input
-                type="text"
-                value={query}
-                onChange={(event)=>setQuery(event.target.value)}
-                placeholder="Filter designs..."
-                className="h-11 w-full min-w-[200px] rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] pl-10 pr-4 text-sm text-[var(--text-heading)] outline-none transition placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-primary/15 sm:w-[220px]"
-              />
-            </div>
+        {/* FILTER BAR */}
+        <section className="mt-6 rounded-[18px] border border-[var(--border-card)] bg-[var(--surface-card)] p-2.5 shadow-sm sm:p-3">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            {/* LEFT */}
+            <div className="flex min-w-0 flex-1 flex-col gap-3 md:flex-row md:items-center">
+              {/* SEARCH */}
+              <div className="relative w-full md:max-w-[300px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"/>
 
-            {/* SORT */}
-            <div className="relative">
-              <SlidersHorizontal
-                size={16}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-              />
+                <input
+                  value={query}
+                  onChange={(event)=>setQuery(event.target.value)}
+                  placeholder="Filter designs..."
+                  className="h-10 w-full rounded-xl border border-transparent bg-primary/5 pl-10 pr-4 text-base text-[var(--text-heading)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-primary/30"
+                />
+              </div>
 
-              <select
-                value={sort}
-                onChange={(event)=>setSort(event.target.value)}
-                aria-label="Sort designs"
-                className="h-11 cursor-pointer appearance-none rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] pl-10 pr-8 text-sm font-medium text-[var(--text-heading)] outline-none transition focus:ring-2 focus:ring-primary/15"
-              >
-                {SORT_OPTIONS.map(([value,label])=>(
-                  <option
-                    key={value}
-                    value={value}
+              <div className="hidden h-6 w-px bg-[var(--border-default)] md:block"/>
+
+              {/* FILTERS */}
+              <div className="flex max-w-full gap-1 overflow-x-auto">
+                {FILTERS.map((item)=>(
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={()=>setFilter(item.id)}
+                    className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                      filter===item.id
+                        ?"bg-primary/15 text-primary"
+                        :"text-[var(--text-body)] hover:bg-primary/5 hover:text-primary"
+                    }`}
                   >
-                    {label}
-                  </option>
+                    {item.label}
+                    <span className="ml-1 text-xs">
+                      {counts[item.id]}
+                    </span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            {/* VIEW TOGGLE */}
-            <div className="inline-flex h-11 items-center gap-1 rounded-full border border-[var(--border-card)] bg-[var(--surface-card)] p-1">
-              <button
-                type="button"
-                onClick={()=>setView("grid")}
-                aria-label="Grid view"
-                aria-pressed={view==="grid"}
-                className={`grid h-9 w-9 place-items-center rounded-full transition ${
-                  view==="grid"
-                    ?"bg-primary text-[var(--text-on-brand)]"
-                    :"text-[var(--text-muted)] hover:bg-primary/10 hover:text-primary"
-                }`}
-              >
-                <LayoutGrid className="h-[18px] w-[18px]"/>
-              </button>
+            {/* RIGHT */}
+            <div className="flex items-center justify-between gap-2 sm:justify-end">
+              <div className="flex items-center gap-2">
+                <span className="hidden text-sm text-[var(--text-muted)] sm:inline">
+                  Sort:
+                </span>
 
-              <button
-                type="button"
-                onClick={()=>setView("list")}
-                aria-label="List view"
-                aria-pressed={view==="list"}
-                className={`grid h-9 w-9 place-items-center rounded-full transition ${
-                  view==="list"
-                    ?"bg-primary text-[var(--text-on-brand)]"
-                    :"text-[var(--text-muted)] hover:bg-primary/10 hover:text-primary"
-                }`}
-              >
-                <List className="h-[18px] w-[18px]"/>
-              </button>
+                <select
+                  value={sort}
+                  onChange={(event)=>setSort(event.target.value)}
+                  className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-semibold text-[var(--text-heading)] outline-none"
+                >
+                  {SORT_OPTIONS.map((option)=>(
+                    <option
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* VIEW */}
+              <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-1">
+                <button
+                  type="button"
+                  onClick={()=>setView("grid")}
+                  aria-label="Grid view"
+                  className={`grid h-8 w-8 place-items-center rounded-lg transition ${
+                    view==="grid"
+                      ?"bg-primary/15 text-primary"
+                      :"text-[var(--text-muted)] hover:text-primary"
+                  }`}
+                >
+                  <Grid2X2 className="h-4 w-4"/>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={()=>setView("list")}
+                  aria-label="List view"
+                  className={`grid h-8 w-8 place-items-center rounded-lg transition ${
+                    view==="list"
+                      ?"bg-primary/15 text-primary"
+                      :"text-[var(--text-muted)] hover:text-primary"
+                  }`}
+                >
+                  <List className="h-4 w-4"/>
+                </button>
+              </div>
             </div>
-
-            {/* NEW CANVAS */}
-            <Link
-              to="/editor"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-[var(--text-on-brand)] transition hover:opacity-90"
-            >
-              <SquarePlus className="h-4 w-4"/>
-              New Canvas
-            </Link>
           </div>
-        </div>
+        </section>
 
-        {/* QUICK FORMATS */}
-        <CreateNewShelf/>
-
-        {/* SECTION CHIP */}
-        <div className="mt-7 flex items-center gap-2 border-b border-[var(--border-default)] pb-5">
-          <span className="inline-flex h-9 items-center gap-2 rounded-full bg-primary/10 px-4 text-sm font-semibold text-primary">
-            Recent Designs
-            <span className="text-[11px] font-bold">
-              {visibleDesigns.length}
-            </span>
-          </span>
-        </div>
-
-        {/* DESIGN GRID */}
+        {/* CARDS */}
         {visibleDesigns.length>0?(
           <div
-            className={`mt-7 grid gap-7 ${
+            className={
               view==="grid"
-                ?"grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-                :"grid-cols-1"
-            }`}
+                ?"mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                :"mt-6 flex flex-col gap-4"
+            }
           >
             {visibleDesigns.map((design)=>(
-              <TemplateCard
+              <RecentDesignCard
                 key={design.id}
                 design={design}
+                viewMode={view}
                 onUpdate={updateDesign}
                 onRename={renameDesign}
                 onDuplicate={duplicateDesign}
@@ -253,21 +307,18 @@ export default function Recent(){
             ))}
           </div>
         ):(
-          <div className="mt-7 flex min-h-[220px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">
-            <Search className="h-9 w-9 text-primary"/>
+          <div className="mt-8 flex min-h-[300px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">
+            <Search className="h-10 w-10 text-primary"/>
 
-            <h3 className="mt-3 font-semibold text-[var(--text-heading)]">
-              No designs match "{query}"
-            </h3>
+            <h2 className="mt-4 text-xl font-semibold text-[var(--text-heading)]">
+              No designs found
+            </h2>
 
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Try another name, or clear the filter to see everything.
+            <p className="mt-1 max-w-sm text-base text-[var(--text-muted)]">
+              Try changing your search or filter.
             </p>
           </div>
         )}
-
-        {/* TRENDING */}
-        <TrendingTemplates/>
       </div>
     </section>
   );

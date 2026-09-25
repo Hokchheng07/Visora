@@ -8,7 +8,11 @@ import { AuthArtContent, AuthArtLogo } from "./AuthArt";
    between them slides the two halves past each other so they read as two
    sides of one page. Everything else (forgot password, and every page below
    lg, where there is no picture) keeps the plain fade. */
-const SPLIT_PAGES = { "/auth/login": "login", "/auth/register": "register" };
+const SPLIT_PAGES = {
+  "/auth/login": "login",
+  "/auth/register": "register",
+  "/auth/verify-email": "verify",
+};
 const SWAP = { duration: 0.55, ease: [0.77, 0, 0.175, 1] };
 
 export default function AuthLayout() {
@@ -42,7 +46,7 @@ export default function AuthLayout() {
                 <AuthArtContent page={page} />
               </motion.div>
             </AnimatePresence>
-            <AuthArtLogo />
+            <AuthArtLogo page={page} />
           </motion.section>
 
           <motion.div className="absolute inset-y-0 left-0 w-1/2"
