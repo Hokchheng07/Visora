@@ -4,6 +4,7 @@ import { useAppDispatch } from "../../redux/hook.js";
 import { cropFinished, elementTransformed, gestureCancelled, gestureFinished, gestureStarted, targetChanged } from "../../redux/editorSlice.js";
 import { cropDragDelta, DEFAULT_CROP, MAX_ZOOM, normalizeCrop, panCrop } from "../model/imageCrop.js";
 import { bounds } from "../model/elementGeometry.js";
+import { designPx } from "../model/pageSize.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
 
 /*
@@ -91,7 +92,7 @@ export function EditorImageCropToolbar({ element, pageId }) {
   const commit = (next) => dispatch(targetChanged({ target, changes: { crop: normalizeCrop(next) } }));
 
   return (
-    <div className="editor-crop-bar" style={{ top: `${bottom / 19.2}cqw` }}
+    <div className="editor-crop-bar" style={{ top: designPx(bottom) }}
       onPointerDown={(event) => event.stopPropagation()}>
       <ZoomIn size={15} aria-hidden="true" />
       <input type="range" aria-label="Crop zoom" min={1} max={MAX_ZOOM} step={0.01} value={crop.zoom}

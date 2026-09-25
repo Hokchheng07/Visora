@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { RotateCw } from "lucide-react";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { elementChanged, elementTransformed, gestureStarted, gestureFinished, gestureCancelled } from "../../redux/editorSlice.js";
-import { CANVAS_WIDTH, resizeElement } from "../model/elementGeometry.js";
+import { resizeElement } from "../model/elementGeometry.js";
+import { normalizePageSize } from "../model/pageSize.js";
 
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
 const LABELS = { nw: "top left", n: "top", ne: "top right", e: "right", se: "bottom right", s: "bottom", sw: "bottom left", w: "left" };
@@ -41,7 +42,7 @@ export default function EditorSelectionFrame({ element, sheetRef, locked = false
     if (event.button !== 0 || gestureRef.current || store.getState().editor.gesture) return;
     event.preventDefault(); event.stopPropagation();
     const rect = sheetRef.current.getBoundingClientRect();
-    const scale = rect.width / CANVAS_WIDTH;
+    const scale = rect.width / normalizePageSize(store.getState().editor.canvas).width;
     const cx = rect.left + (element.x + element.w / 2) * scale;
     const cy = rect.top + (element.y + element.h / 2) * scale;
     gestureRef.current = { handle, start: element, x: event.clientX, y: event.clientY,
@@ -57,7 +58,7 @@ export default function EditorSelectionFrame({ element, sheetRef, locked = false
       let rotation = g.start.rotation + (Math.atan2(event.clientY - g.cy, event.clientX - g.cx) - g.angle) * 180 / Math.PI;
       if (event.shiftKey) rotation = Math.round(rotation / 15) * 15;
       changes = { rotation: ((rotation % 360) + 360) % 360 };
-    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey !== !!g.start.lockAspect);
+    } else changes = resizeElement(g.start, g.handle, (event.clientX - g.x) / g.scale, (event.clientY - g.y) / g.scale, event.shiftKey !== !!g.start.lockAspect, normalizePageSize(store.getState().editor.canvas));
     dispatch(elementTransformed({ token, changes }));
   }
   function end(event, cancelled = false) {
@@ -78,7 +79,7 @@ export default function EditorSelectionFrame({ element, sheetRef, locked = false
       const dx = event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
       const dy = event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
       // A locked shape keeps its proportions; Shift does the opposite, as in Figma.
-      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey !== !!element.lockAspect)));
+      dispatch(elementChanged(resizeElement(element, handle, dx, dy, event.shiftKey !== !!element.lockAspect, normalizePageSize(store.getState().editor.canvas))));
     }
   }
   function events(handle) {

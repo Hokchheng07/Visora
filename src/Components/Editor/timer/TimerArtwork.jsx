@@ -1,6 +1,7 @@
 import { Play, Pause, RotateCcw, Square } from "lucide-react";
 import { TIMER_BUTTON_COLORS } from "../model/editorDocument.js";
 import { textStrokeStyle } from "../model/textStroke.js";
+import { designPx } from "../model/pageSize.js";
 import { controlState, formatDuration, formatElapsed, startStopRole, stopwatchRole } from "./timerFormat.js";
 
 /*
@@ -15,10 +16,10 @@ import { controlState, formatDuration, formatElapsed, startStopRole, stopwatchRo
  * of it.
  *
  * Sizes are in cqw against the page container, the same unit text uses
- * (1cqw = 19.2 design px), so the whole face scales with the sheet.
+ * (see designPx: the sheet is --page-w design px wide), so the whole face scales with the sheet.
  */
 
-const px = (design) => `${design / 19.2}cqw`;
+const px = designPx;
 /* Controls are sized in em against the timer's own type, not in cqw.
    .editor-timer-art is a container (so a long completion message can clamp to
    the box), which re-bases any cqw written inside it onto the element's width

@@ -2,7 +2,9 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import EditorCanvasBar from "./EditorCanvasBar";
 import EditorPageMenu from "./EditorPageMenu";
 import EditorRuler from "./EditorRuler";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, useCanvasMetrics } from "./useCanvasMetrics";
+import { useCanvasMetrics } from "./useCanvasMetrics";
+import { pagePercentX, pagePercentY } from "../model/elementGeometry.js";
+import { normalizePageSize } from "../model/pageSize.js";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { canvasAllSelected, cropFinished, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected, pagesSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../../redux/editorSlice.js";
@@ -38,7 +40,8 @@ export default function EditorCanvas({
       .map((row, index) => ({ ...row, trigger: index ? "with" : "after", delayMs: 0 }));
     return { ...page, transition: undefined, animations: rows };
   }, [page, previewing, animationPreview]);
-  const { scrollRef, pageRef, metrics, pageStyle } = useCanvasMetrics(zoom);
+  const size = useMemo(() => normalizePageSize(editor.canvas), [editor.canvas]);
+  const { scrollRef, pageRef, metrics, pageStyle } = useCanvasMetrics(zoom, size);
   // Kept out of the bar so the menu doesn't inherit the bar's button styling.
   const [pageMenu, setPageMenu] = useState(null);
   const [marquee, setMarquee] = useState(null);
@@ -102,7 +105,7 @@ export default function EditorCanvas({
   /* One page of room on every side, in real pixels at the current zoom. A
      percentage would be measured against a parent that is itself sized by its
      content, which collapses the sheet to nothing. */
-  const workStyle = metrics.scale ? { width: `${CANVAS_WIDTH * 3 * metrics.scale}px`, height: `${CANVAS_HEIGHT * 3 * metrics.scale}px` } : undefined;
+  const workStyle = metrics.scale ? { width: `${size.width * 3 * metrics.scale}px`, height: `${size.height * 3 * metrics.scale}px` } : undefined;
   const selectedElements = page.elements.filter((element) => selectedIds.includes(element.id));
   // Hidden layers selected from the Layers panel get no frame; the canvas cannot transform what it does not show.
   const framedElements = selectedElements.filter((element) => effectiveVisible(page, element));
@@ -190,13 +193,13 @@ export default function EditorCanvas({
                     setContextMenu({ x: event.clientX, y: event.clientY, target: id ? "element" : "canvas" });
                   }}>
                 <div className="editor-page-frame" style={pageStyle}>
-                <div className="editor-canvas-meta"><span>{CANVAS_WIDTH} × {CANVAS_HEIGHT} px</span></div>
+                <div className="editor-canvas-meta"><span>{size.width} × {size.height} px</span></div>
                 <div
                   ref={pageRef}
                   className="editor-blank-canvas"
                   role="group"
                   tabIndex={0}
-                  aria-label={`Canvas for page ${currentPage + 1}, ${CANVAS_WIDTH} by ${CANVAS_HEIGHT} pixels`}
+                  aria-label={`Canvas for page ${currentPage + 1}, ${size.width} by ${size.height} pixels`}
                   style={{ background: page.background?.type === "COLOR" ? page.background.value : "#fff" }}
                 >
                   {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
@@ -204,10 +207,10 @@ export default function EditorCanvas({
                     locked={effectiveLocked(page, element)} pointKeys={pointEdit?.elementId === element.id ? pointEdit.keys : null}
                     cropping={cropping?.elementId === element.id} />)}
                   {framedElements.length > 1 && <EditorGroupSelectionFrame elements={framedElements} sheetRef={pageRef} locked={selectionLocked} />}
-                  {marquee && <span className="editor-marquee" style={{ left: `${Math.min(marquee.left, marquee.right) / 19.2}%`, top: `${Math.min(marquee.top, marquee.bottom) / 10.8}%`,
-                    width: `${Math.abs(marquee.right - marquee.left) / 19.2}%`, height: `${Math.abs(marquee.bottom - marquee.top) / 10.8}%` }} />}
+                  {marquee && <span className="editor-marquee" style={{ left: pagePercentX(Math.min(marquee.left, marquee.right)), top: pagePercentY(Math.min(marquee.top, marquee.bottom)),
+                    width: pagePercentX(Math.abs(marquee.right - marquee.left)), height: pagePercentY(Math.abs(marquee.bottom - marquee.top)) }} />}
                   {snapGuides.map((guide) => <span key={`${guide.axis}:${guide.value}`} className={`editor-snap-guide is-${guide.axis}`}
-                    style={guide.axis === "x" ? { left: `${guide.value / 19.2}%` } : { top: `${guide.value / 10.8}%` }} />)}
+                    style={guide.axis === "x" ? { left: pagePercentX(guide.value) } : { top: pagePercentY(guide.value) }} />)}
                   {previewing && <div className="editor-animation-canvas-preview"><AnimationSurface key={animationPreview?.serial} page={previewPage}
                     transition={animationPreview?.type === "element" ? null : previewPage.transition} preview onDone={onPreviewDone} /></div>}
                 </div>

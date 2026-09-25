@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
 import BottomCTA from "../Templates/BottomCTA";
+import CanvasPickerModal from "../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../Templates/useCanvasPicker.js";
 import CategoryBar from "../Templates/CategoryBar";
 import FilterSidebar from "../Templates/FilterSidebar";
 import TemplateDecorations from "../Templates/templateDecorations";
@@ -16,6 +18,7 @@ import CosmicDust from "../Effects/CosmicDust.jsx";
 
 export default function TemplatePage() {
   const navigate = useNavigate();
+  const canvasPicker = useCanvasPicker();
   const reduceMotion = useReducedMotion();
   const reveal = (delay = 0) => ({
     initial: reduceMotion ? false : { opacity: 0, y: 24 },
@@ -62,10 +65,6 @@ export default function TemplatePage() {
     navigate("/editor");
   };
 
-  const handleCreate = () => {
-    navigate("/editor");
-  };
-
   return (
     <main className="templates-page relative -mt-[126px] min-h-dvh overflow-hidden bg-[var(--surface-base)] pt-[126px] md:-mt-[146px] md:pt-[146px]">
       <div
@@ -82,7 +81,7 @@ export default function TemplatePage() {
           <TemplateHeader
             search={search}
             setSearch={setSearch}
-            onCreate={handleCreate}
+            onCreate={canvasPicker.show}
             onToggleFilters={() => setShowFilters((current) => !current)}
             showFilters={showFilters}
             activeFilterCount={activeFilterCount}
@@ -133,6 +132,7 @@ export default function TemplatePage() {
       <motion.div {...reveal()}>
         <BottomCTA />
       </motion.div>
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create} />
     </main>
   );
 }

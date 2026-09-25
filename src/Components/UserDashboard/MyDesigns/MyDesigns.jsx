@@ -1,5 +1,6 @@
 import {useMemo,useRef,useState} from "react";
 import {
+  Clock3,
   FilePlus2,
   Grid2X2,
   Import,
@@ -9,6 +10,9 @@ import {
   X,
 } from "lucide-react";
 import {useNavigate} from "react-router";
+import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
+import {useCanvasPicker} from "../../Templates/useCanvasPicker.js";
+import {loadPublishedTemplates} from "../../Editor/model/templatePublish.js";
 import MyDesignCard from "./MyDesignsCard";
 import {MY_DESIGNS} from "./myDesignsData";
 
@@ -24,9 +28,13 @@ const FILTERS=[
 
 export default function MyDesigns(){
   const navigate=useNavigate();
+  const canvasPicker=useCanvasPicker();
   const fileInputRef=useRef(null);
 
   const [designs,setDesigns]=useState(MY_DESIGNS);
+  const [pendingBackdrops]=useState(()=>loadPublishedTemplates().filter(
+    (record)=>record?.visibility==="public"&&record.status==="pending"
+  ));
   const [activeFilter,setActiveFilter]=useState("all");
   const [search,setSearch]=useState("");
   const [sort,setSort]=useState("recent");
@@ -235,7 +243,7 @@ export default function MyDesigns(){
     <main className="min-h-screen px-3 pb-12 pt-4 text-[var(--text-body)] sm:px-5 md:px-6 lg:px-8 xl:px-10">
       <div className="mx-auto w-full max-w-[1650px]">
         {/* HEADER */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-5 @3xl:flex-row @3xl:items-start @3xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-[var(--text-heading)] sm:text-4xl">
@@ -272,7 +280,7 @@ export default function MyDesigns(){
 
             <button
               type="button"
-              onClick={()=>navigate("/editor")}
+              onClick={canvasPicker.show}
               className="inline-flex h-11 shrink-0 whitespace-nowrap items-center justify-center gap-2 rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] shadow-[0_7px_18px_rgba(112,90,224,.18)] transition hover:-translate-y-0.5 hover:opacity-90"
             >
               <Plus className="h-[18px] w-[18px]"/>
@@ -281,12 +289,35 @@ export default function MyDesigns(){
           </div>
         </div>
 
+        {pendingBackdrops.length>0&&(
+          <section className="mt-7 rounded-[18px] border border-primary/25 bg-[var(--surface-card)] p-4 shadow-sm sm:p-5" aria-labelledby="pending-backdrops-title">
+            <div className="flex items-center gap-2 text-primary">
+              <Clock3 className="h-5 w-5" aria-hidden="true"/>
+              <h2 id="pending-backdrops-title" className="text-lg font-semibold">Under review</h2>
+            </div>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">Your public backdrops will appear after admin approval.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {pendingBackdrops.map((backdrop)=>(
+                <div key={backdrop.id} className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border-card)] p-2.5">
+                  {backdrop.thumbnail
+                    ? <img src={backdrop.thumbnail} alt="" className="h-14 w-20 shrink-0 rounded-lg bg-white object-cover"/>
+                    : <div className="h-14 w-20 shrink-0 rounded-lg bg-primary/10" aria-hidden="true"/>}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[var(--text-heading)]">{backdrop.title}</p>
+                    <p className="mt-0.5 text-xs font-medium text-primary">In review</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* FILTER BAR */}
         <section className="mt-7 rounded-[18px] border border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-sm">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex min-w-0 flex-1 flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="contents">
               {/* SEARCH */}
-              <div className="relative w-full md:max-w-[300px]">
+              <div className="relative min-w-[200px] flex-1 @7xl:max-w-[300px]">
                 <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"/>
 
                 <input
@@ -300,10 +331,10 @@ export default function MyDesigns(){
                 />
               </div>
 
-              <div className="hidden h-7 w-px bg-[var(--border-default)] md:block"/>
+              <div className="hidden h-7 w-px bg-[var(--border-default)] @7xl:block"/>
 
               {/* FILTERS */}
-              <div className="flex max-w-full gap-1 overflow-x-auto">
+              <div className="order-last flex w-full max-w-full gap-1 overflow-x-auto @7xl:order-none @7xl:w-auto @7xl:flex-1">
                 {FILTERS.map((filter)=>(
                   <button
                     key={filter.id}
@@ -332,7 +363,7 @@ export default function MyDesigns(){
             </div>
 
             {/* SORT + VIEW */}
-            <div className="flex items-center justify-between gap-2 sm:justify-end">
+            <div className="ml-auto flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="hidden text-sm text-[var(--text-muted)] sm:inline">
                   Sort:
@@ -444,7 +475,7 @@ export default function MyDesigns(){
           <div
             className={
               viewMode==="grid"
-                ?"mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                ?"mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-5"
                 :"mt-6 flex flex-col gap-4"
             }
           >
@@ -476,7 +507,7 @@ export default function MyDesigns(){
 
             <button
               type="button"
-              onClick={()=>navigate("/editor")}
+              onClick={canvasPicker.show}
               className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90"
             >
               <Plus className="h-4 w-4"/>
@@ -538,6 +569,7 @@ export default function MyDesigns(){
           </div>
         </div>
       )}
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create}/>
     </main>
   );
 }

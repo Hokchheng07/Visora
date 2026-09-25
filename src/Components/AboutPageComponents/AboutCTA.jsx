@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
-import { NavLink } from "react-router";
 import { ThemeImage } from "../../theme/ThemeImage";
+import CanvasPickerModal from "../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../Templates/useCanvasPicker.js";
 import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
 import purpleWave from "../../assets/pages/about/cta/PurpleWave(Bottom).svg";
 import plane from "../../assets/pages/about/misc/bottom-blob/image 110.svg";
@@ -12,6 +13,7 @@ import leftLine from "../../assets/pages/about/misc/bottom-blob/Line 35.svg";
 
 export default function AboutCTA() {
   const reduceMotion = useReducedMotion();
+  const canvasPicker = useCanvasPicker();
 
   return (
     <motion.section
@@ -34,8 +36,9 @@ export default function AboutCTA() {
       <div className="about-cta-copy">
         <h2 id="about-cta-title">Ready to Create <span>Something Amazing?</span></h2>
         <p>Bring your next event to life with Visora.</p>
-        <NavLink to="/editor">Start Creating</NavLink>
+        <button type="button" onClick={canvasPicker.show}>Start Creating</button>
       </div>
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create} />
     </motion.section>
   );
 }
