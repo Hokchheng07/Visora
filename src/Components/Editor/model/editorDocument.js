@@ -6,6 +6,7 @@ import { normalizeCrop, serializeCrop } from "./imageCrop.js";
 import { normalizeGradient, strokeJoinOf, strokeStyleOf, miterAngleOf } from "./shapePaint.js";
 import { migrateAnimations, normalizeTransition, repairTimeline } from "../animation/animationTimeline.js";
 import { normalizePageNumbers } from "./pageNumbers.js";
+import { normalizePageSize, orientationOf } from "./pageSize.js";
 import { normalizeListStyle } from "./textLists.js";
 import { DEFAULT_EDITOR_TEXT_COLOR } from "./editorDefaults.js";
 import { defaultClockFormat, isClockKind } from "./clockText.js";
@@ -239,8 +240,9 @@ export function serializeDocument(editor) {
     uuid: editor.documentId || "backdrop-local",
     name: editor.title || "Untitled-1",
     version: editor.version || 0,
-    orientation: "LANDSCAPE",
-    canvas: { width: 1920, height: 1080 },
+    // The server wants both; orientation is only ever read from the size.
+    orientation: orientationOf(normalizePageSize(editor.canvas)),
+    canvas: normalizePageSize(editor.canvas),
     // Written only when switched on, so a design without numbers saves as before.
     ...(normalizePageNumbers(editor.pageNumbers).enabled ? { pageNumbers: normalizePageNumbers(editor.pageNumbers) } : {}),
     pages: editor.pages.map((page, pageIndex) => ({
@@ -367,6 +369,8 @@ export function hydrateDocument(document) {
     documentId: value.uuid,
     title: value.name,
     pageNumbers: normalizePageNumbers(value.pageNumbers),
+    // A missing or broken size loads as the old fixed 1920 × 1080 page.
+    canvas: normalizePageSize(value.canvas),
     version: value.version || 0,
     pages: value.pages.map((page) => {
       const groups = hydrateGroups(page.groups, seenGroups);

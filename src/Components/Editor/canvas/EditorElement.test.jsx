@@ -4,6 +4,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import editorReducer, { textInserted } from "../../redux/editorSlice.js";
 import EditorElement from "./EditorElement.jsx";
+import { designPx } from "../model/pageSize.js";
 
 // jsdom has no innerText; the editor reads it to keep line breaks.
 beforeAll(() => {
@@ -123,7 +124,7 @@ describe("EditorElement image cropping", () => {
     expect(frame.contains(container.querySelector(".editor-crop"))).toBe(true);
     expect(frame.contains(toolbar)).toBe(false);
     expect(toolbar.parentElement.classList.contains("editor-element")).toBe(true);
-    expect(toolbar.style.top).toBe(`${image.h / 19.2}cqw`);
+    expect(toolbar.style.top).toBe(designPx(image.h));
     expect(container.querySelector(".editor-image-art").style.objectPosition).toBe("20% 70%");
   });
 });

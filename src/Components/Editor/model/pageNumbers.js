@@ -1,5 +1,6 @@
 import { createNextState, nanoid } from "@reduxjs/toolkit";
 import { normalizeGroups } from "./layerModel.js";
+import { DEFAULT_PAGE, normalizePageSize } from "./pageSize.js";
 import { removeAnimationRows, repairTimeline } from "../animation/animationTimeline.js";
 
 /*
@@ -25,7 +26,7 @@ export const DEFAULT_PAGE_NUMBERS = { enabled: false, position: "bottom-right", 
 export const PAGE_NUMBER_SHARED = ["x", "y", "w", "h", "rotation", "fill", "opacity", "fontFamily", "fontSize", "fontWeight",
   "fontStyle", "textAlign", "lineHeight", "letterSpacing", "textDecoration", "effects", "locked", "visible", "name"];
 
-const PAGE_W = 1920, PAGE_H = 1080, MARGIN_X = 46, MARGIN_Y = 36;
+const MARGIN_X = 46, MARGIN_Y = 36;
 
 export function normalizePageNumbers(value) {
   const settings = value && typeof value === "object" ? value : {};
@@ -52,18 +53,18 @@ export function pageNumberColor(background) {
 }
 
 // Where a corner preset puts the box, and how the digits line up inside it.
-export function pageNumberPlacement(position, w, h) {
-  const y = PAGE_H - MARGIN_Y - h;
+export function pageNumberPlacement(position, w, h, page = DEFAULT_PAGE) {
+  const y = page.height - MARGIN_Y - h;
   if (position === "bottom-left") return { x: MARGIN_X, y, textAlign: "left" };
-  if (position === "bottom-center") return { x: (PAGE_W - w) / 2, y, textAlign: "center" };
-  return { x: PAGE_W - MARGIN_X - w, y, textAlign: "right" };
+  if (position === "bottom-center") return { x: (page.width - w) / 2, y, textAlign: "center" };
+  return { x: page.width - MARGIN_X - w, y, textAlign: "right" };
 }
 
 // The first page-number layer ever made, before anyone has styled it.
-export function defaultPageNumberStyle(settings, pages) {
+export function defaultPageNumberStyle(settings, pages, page = DEFAULT_PAGE) {
   const w = 200, h = 80;
   return {
-    w, h, ...pageNumberPlacement(normalizePageNumbers(settings).position, w, h), rotation: 0,
+    w, h, ...pageNumberPlacement(normalizePageNumbers(settings).position, w, h, page), rotation: 0,
     fill: pageNumberColor(pages?.[0]?.background), opacity: 1, fontFamily: "Poppins", fontSize: 44, fontWeight: 600,
     fontStyle: "normal", lineHeight: 1.2, letterSpacing: 0, textDecoration: "none", effects: [],
     locked: false, visible: true,
@@ -127,7 +128,7 @@ export function syncPageNumbers(prev, next, action, deletedType) {
     } else {
       // The look to copy: the layer that just changed, else any existing one, else the default.
       const changed = layers.find((layer) => layer && prevLayers.has(layer.id) && !sameShared(layer, prevLayers.get(layer.id)));
-      const template = sharedOf(changed || layers.find(Boolean) || defaultPageNumberStyle(settings, draft.pages));
+      const template = sharedOf(changed || layers.find(Boolean) || defaultPageNumberStyle(settings, draft.pages, normalizePageSize(draft.canvas)));
 
       draft.pages.forEach((page, index) => {
         const wanted = !(settings.skipFirst && index === 0);

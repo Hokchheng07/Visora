@@ -1,5 +1,6 @@
 import { initialVisibility, rowVisible } from "./animationTimeline.js";
 import { elementStyle } from "../model/elementGeometry.js";
+import { designPx } from "../model/pageSize.js";
 import { shapePath } from "../model/vectorPath.js";
 import { effectFilter, strokeOverflow } from "../model/effectsFilter.js";
 
@@ -70,7 +71,7 @@ function bindLook(root, source) {
     }
     if (text) {
       if (frame.fill) text.style.color = frame.fill;
-      if (frame.fontSize !== null) text.style.fontSize = `${frame.fontSize / 19.2}cqw`;
+      if (frame.fontSize !== null) text.style.fontSize = designPx(frame.fontSize);
     }
     if (filter) {
       const spec = effectFilter(source.id, source.effects, w, h, { extra: strokeOverflow(source) });

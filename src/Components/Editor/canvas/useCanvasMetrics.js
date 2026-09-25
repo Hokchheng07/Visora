@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../model/elementGeometry.js";
-export { CANVAS_HEIGHT, CANVAS_WIDTH } from "../model/elementGeometry.js";
+import { DEFAULT_PAGE } from "../model/pageSize.js";
 
 const INITIAL = { scale: 0, fitScale: 0, originX: 0, originY: 0, viewWidth: 0, viewHeight: 0 };
 
-export function useCanvasMetrics(zoom = null) {
+// `size` is the design's page size (see model/pageSize.js); scale is screen px per design px.
+export function useCanvasMetrics(zoom = null, size = DEFAULT_PAGE) {
   const scrollRef = useRef(null), pageRef = useRef(null), [metrics, setMetrics] = useState(INITIAL);
   const measure = useCallback(() => {
     const scroller = scrollRef.current, page = pageRef.current; if (!scroller || !page) return;
     const view = scroller.getBoundingClientRect(), rect = page.getBoundingClientRect();
     // The page strip now sits below the scroll view, so Fit only has to clear
     // the page-settings bar floating over the top (≈78px) and a small margin.
-    const fitScale = Math.max(.1, Math.min((view.width - 48) / CANVAS_WIDTH, (view.height - 118) / CANVAS_HEIGHT));
+    const fitScale = Math.max(.02, Math.min((view.width - 48) / size.width, (view.height - 118) / size.height));
     /* The page's origin as the rulers see it: measured from the visible corner
        of the workspace, not from the start of the scrolled content. The page
        now sits in the middle of a work area three times its size, so the two
@@ -19,7 +19,7 @@ export function useCanvasMetrics(zoom = null) {
     const next = { scale: zoom || fitScale, fitScale, originX: rect.left - view.left,
       originY: rect.top - view.top, viewWidth: view.width, viewHeight: view.height };
     setMetrics((previous) => Object.keys(next).every((key) => Math.abs(previous[key] - next[key]) < .001) ? previous : next);
-  }, [zoom]);
+  }, [zoom, size.width, size.height]);
   useLayoutEffect(measure, [measure]);
   useEffect(() => {
     const scroller = scrollRef.current; if (!scroller) return;
@@ -30,5 +30,5 @@ export function useCanvasMetrics(zoom = null) {
     scroller.addEventListener("scroll", onScroll, { passive: true });
     return () => { observer.disconnect(); scroller.removeEventListener("scroll", onScroll); cancelAnimationFrame(frame); };
   }, [measure]);
-  return { scrollRef, pageRef, metrics, pageStyle: metrics.scale ? { width: `${CANVAS_WIDTH * metrics.scale}px` } : undefined };
+  return { scrollRef, pageRef, metrics, pageStyle: metrics.scale ? { width: `${size.width * metrics.scale}px` } : undefined };
 }

@@ -31,7 +31,9 @@ export default function UserDashboardLayout(){
           profile={profile}
         />
 
-        <div className="relative z-[1] min-h-screen">
+        {/* A size container: the pages lay out by the width they actually get
+            (the window minus the sidebar), using @-prefixed breakpoints. */}
+        <div className="@container relative z-[1] min-h-screen">
           <Outlet context={{profile,saveProfile,isSaving,saveError:error}}/>
         </div>
       </div>

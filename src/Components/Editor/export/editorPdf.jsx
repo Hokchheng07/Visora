@@ -3,7 +3,7 @@ import { StaticElement } from "../canvas/EditorElement.jsx";
 import EditorEffectDefs from "../canvas/EditorEffectDefs.jsx";
 import { hasVisibleEffects, strokeOverflow } from "../model/effectsFilter.js";
 import { visibleElements } from "../model/layerModel.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../model/elementGeometry.js";
+import { DEFAULT_PAGE, normalizePageSize, orientationOf, pdfPageFormat } from "../model/pageSize.js";
 import { InlinedImages } from "../canvas/imageSource.js";
 import { fontEmbedCssFor } from "./exportFonts.js";
 import { exportBlockedReason, JPEG_QUALITY, pageImageFormat } from "./exportRules.js";
@@ -28,9 +28,9 @@ import { inlineImages } from "./inlineImages.js";
 /* The PDF page is the design measured in points, so one PDF point is one
    design pixel and the numbers in the file are the numbers in the editor.
    jsPDF's "px" unit looks like the obvious choice and is not: it converts at
-   96dpi, so a 1920-wide design silently becomes a 2560-point page. */
+   96dpi, so a 1920-wide design silently becomes a 2560-point page.
+   Paper sizes (A4) are the exception; see pdfPageFormat. */
 const PAGE_UNIT = "pt";
-const PAGE = [CANVAS_WIDTH, CANVAS_HEIGHT];
 // 2x gives a sharp page on a retina screen and when printed, without the memory cost of 3x.
 const PIXEL_RATIO = 2;
 
@@ -60,19 +60,21 @@ const background = (page) => (page?.background?.type === "COLOR" ? page.backgrou
  * The live canvas cannot be captured directly: it is zoomed, it carries
  * selection frames, rulers, snap guides and a marquee, and its sheet is only
  * as big as the viewport lets it be. This disposable copy has the page's own
- * 1920x1080 geometry, so what is captured is what was authored.
+ * geometry (the design's page size), so what is captured is what was authored.
  *
  * One host serves the whole document rather than one per page. A twenty-page
  * backdrop would otherwise mount and tear down twenty React roots, and every
  * one of them costs a layout pass and a fresh set of image decodes for
  * artwork the previous page had already loaded.
  */
-function createSheet(images) {
+function createSheet(images, size = DEFAULT_PAGE) {
   const host = document.createElement("div");
   /* Offscreen, but still laid out. `display: none` would give every element a
      zero box and the capture would come back blank, and the same is true of
      the effect filters, which Chrome stops drawing inside a hidden tree. */
-  host.style.cssText = `position: fixed; left: -20000px; top: 0; width: ${CANVAS_WIDTH}px; height: ${CANVAS_HEIGHT}px; pointer-events: none;`;
+  host.style.cssText = `position: fixed; left: -20000px; top: 0; width: ${size.width}px; height: ${size.height}px; pointer-events: none;`;
+  // The sheet is outside the editor, so it needs the page size its elements are drawn against.
+  host.style.setProperty("--page-w", size.width); host.style.setProperty("--page-h", size.height);
   document.body.appendChild(host);
   const root = createRoot(host);
 
@@ -91,7 +93,7 @@ function createSheet(images) {
            replaces the tree instead of trying to reconcile one page's elements
            into another's. */
         <InlinedImages.Provider key={page.id} value={images}>
-        <div className="editor-animation-surface" style={{ position: "relative", width: CANVAS_WIDTH, height: CANVAS_HEIGHT, background: background(page) }}>
+        <div className="editor-animation-surface" style={{ position: "relative", width: size.width, height: size.height, background: background(page) }}>
           <EditorEffectDefs items={elements.filter(hasVisibleEffects)
             .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) }))} />
           {elements.map((element) => <StaticElement key={element.id} element={element} layered />)}
@@ -112,7 +114,7 @@ function createSheet(images) {
 
          The page's own fonts are passed in already gathered, and every picture
          is already data, so nothing here reaches the network. */
-      const options = { width: CANVAS_WIDTH, height: CANVAS_HEIGHT, pixelRatio: PIXEL_RATIO, fontEmbedCSS };
+      const options = { width: size.width, height: size.height, pixelRatio: PIXEL_RATIO, fontEmbedCSS };
       const format = pageImageFormat(page);
       /* JPEG has no transparency, so the encoder is told the page's own colour.
          Without it a photo page would come out on black. */
@@ -128,10 +130,10 @@ function createSheet(images) {
   };
 }
 
-/** One page as a data URL. Kept for callers that want a single picture. */
-export async function renderPage(page) {
+/** One page as a data URL. Kept for callers that want a single picture. `size` is the design's page size. */
+export async function renderPage(page, size = DEFAULT_PAGE) {
   const { images } = await inlineImages([page]);
-  const sheet = createSheet(images);
+  const sheet = createSheet(images, normalizePageSize(size));
   try { return (await sheet.capture(page)).data; }
   finally { sheet.dispose(); }
 }
@@ -170,8 +172,10 @@ export async function exportPdf(editor, onProgress) {
   const { getFontEmbedCSS } = await import("html-to-image");
   const { images, missing } = await inlineImages(pages);
 
-  const doc = new jsPDF({ orientation: "landscape", unit: PAGE_UNIT, format: PAGE, compress: true });
-  const sheet = createSheet(images);
+  const size = normalizePageSize(editor.canvas);
+  const format = pdfPageFormat(size), orientation = orientationOf(size) === "PORTRAIT" ? "portrait" : "landscape";
+  const doc = new jsPDF({ orientation, unit: PAGE_UNIT, format, compress: true });
+  const sheet = createSheet(images, size);
   try {
     // Every family the document uses, gathered once. See exportFonts.
     const fontEmbedCSS = await fontEmbedCssFor(pages, getFontEmbedCSS);
@@ -179,9 +183,9 @@ export async function exportPdf(editor, onProgress) {
       onProgress?.(index + 1, pages.length);
       // The document opens with one page already in it, so only the pages after
       // the first add one.
-      if (index > 0) doc.addPage(PAGE, "landscape");
-      const { data, format } = await sheet.capture(page, fontEmbedCSS);
-      doc.addImage(data, format, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      if (index > 0) doc.addPage(format, orientation);
+      const picture = await sheet.capture(page, fontEmbedCSS);
+      doc.addImage(picture.data, picture.format, 0, 0, format[0], format[1]);
     }
   } finally {
     sheet.dispose();

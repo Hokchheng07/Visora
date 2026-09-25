@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { elementStyle } from "../model/elementGeometry.js";
+import { designPx } from "../model/pageSize.js";
 import { shapeDefinition, shapeName } from "../model/shapeCatalog.js";
 import { filterId, hasVisibleEffects } from "../model/effectsFilter.js";
 import { shapePath } from "../model/vectorPath.js";
@@ -142,11 +143,11 @@ export function ElementArtwork({ element, editable = false, onCommit, onCancel, 
   if (element.type !== "text") return <ShapeArtwork element={element} />;
   // A live clock is never edited by hand, so it always shows the generated value.
   const content = editable && !isClockKind(element.dynamic) ? element.content : liveContent;
-  const style = { color: element.fill, opacity: element.opacity, fontFamily: element.fontFamily, fontSize: `${element.fontSize / 19.2}cqw`,
+  const style = { color: element.fill, opacity: element.opacity, fontFamily: element.fontFamily, fontSize: designPx(element.fontSize),
     fontWeight: element.fontWeight, fontStyle: element.fontStyle, textAlign: element.textAlign, lineHeight: element.lineHeight,
     textDecoration: element.textDecoration === "underline" ? "underline" : "none",
     justifyContent: element.textAlign === "left" ? "flex-start" : element.textAlign === "right" ? "flex-end" : "center",
-    letterSpacing: `${element.letterSpacing / 19.2}cqw`, ...textStrokeStyle(element) };
+    letterSpacing: designPx(element.letterSpacing), ...textStrokeStyle(element) };
   /* plaintext-only makes Enter insert a real line break and innerText read it
      back; with a plain contentEditable the browser inserts <div>/<br> and
      textContent drops them, which lost every line break typed on the canvas.

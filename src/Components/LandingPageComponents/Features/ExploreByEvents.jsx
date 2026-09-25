@@ -1,6 +1,5 @@
 import { ThemeImage } from '../../../theme/ThemeImage';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { NavLink } from "react-router";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ImageIcon } from "lucide-react";
 import EventCard from "./EventCard";
@@ -20,6 +19,8 @@ import lineTop from "../../../assets/pages/home/explore-by-events/LineTop(Explor
 import lineRight from "../../../assets/pages/home/explore-by-events/LineRight(ExploreByEvents).svg";
 import lineBottom from "../../../assets/pages/home/explore-by-events/LineBottom(ExploreByEvents).svg";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
+import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../../Templates/useCanvasPicker.js";
 
 const PINNED_VIEWPORT = "(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine)";
 const clamp = (value) => Math.min(1, Math.max(0, value));
@@ -129,6 +130,7 @@ function HangingCardSet({ events, duplicate, setRef }) {
 // Pass API records as events when available. Measure again when data or the
 // viewport changes so the scroll runway always matches the actual card row.
 export default function ExploreByEvents({ events = placeholderEvents }) {
+  const canvasPicker = useCanvasPicker();
   const journeyRef = useRef(null);
   const stageRef = useRef(null);
   const [stageHeight, setStageHeight] = useState(0);
@@ -333,12 +335,13 @@ export default function ExploreByEvents({ events = placeholderEvents }) {
       <div id="events-create" className="explore-events-cta">
         <h3>Ready to Create <span>Something Amazing?</span></h3>
         <p>Bring your next event to life with Visora.</p>
-        <NavLink to="/editor">Start Designing <span aria-hidden="true">→</span></NavLink>
+        <button type="button" onClick={canvasPicker.show}>Start Designing <span aria-hidden="true">→</span></button>
       </div>
       <ThemeImage src={lineTop} alt="" aria-hidden="true" className="explore-events-line-top" />
       <ThemeImage src={paperPlane} alt="" aria-hidden="true" className="explore-events-paper-plane" />
       <ThemeImage src={lineBottom} alt="" aria-hidden="true" className="explore-events-line-bottom" />
       <ThemeImage src={lineRight} alt="" aria-hidden="true" className="explore-events-line-right" />
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create} />
     </section>
   );
 }

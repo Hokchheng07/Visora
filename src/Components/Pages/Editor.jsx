@@ -16,11 +16,12 @@ import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
 import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
 import { InspectorResizer, PanelToggle } from "../Editor/shell/EditorLayoutHandles.jsx";
 import { readInspectorWidth } from "../Editor/shell/inspectorWidth.js";
+import { normalizePageSize, pageCssVars } from "../Editor/model/pageSize.js";
 import "../Editor/editor.css";
 
 export default function Editor() {
   const dispatch = useAppDispatch();
-  const { pages, copiedPage, selectedId, selectedIds, currentPage } = useAppSelector((state) => state.editor);
+  const { pages, copiedPage, selectedId, selectedIds, currentPage, canvas } = useAppSelector((state) => state.editor);
   /* The Customize column appears while something is selected and goes away
      with nothing selected, when the page bar above the canvas takes over.
 
@@ -143,7 +144,9 @@ export default function Editor() {
   }
 
   return (
-    <div className="editor-shell font-sans" ref={shellRef}>
+    /* --page-w / --page-h tell every sheet below (canvas, strip, display mode)
+       the design's page size; see model/pageSize.js. */
+    <div className="editor-shell font-sans" ref={shellRef} style={pageCssVars(normalizePageSize(canvas))}>
       {/* One filter per element with shadows, for every page, shared by the
           canvas, the page strip and display mode. */}
       <EditorEffectDefs items={pages.flatMap((page) => page.elements.filter(hasVisibleEffects)

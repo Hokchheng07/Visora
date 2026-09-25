@@ -5,6 +5,8 @@ import {
   Upload,
 } from "lucide-react";
 import { Link } from "react-router";
+import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../../Templates/useCanvasPicker.js";
 
 import { TemplateCard } from "./TemplateCard";
 
@@ -16,6 +18,7 @@ export default function ProfileTemplates({
   onDelete,
 }){
   const [activeTab,setActiveTab]=useState("posted");
+  const canvasPicker=useCanvasPicker();
 
   const visibleTemplates=useMemo(()=>{
     return templates
@@ -97,13 +100,14 @@ export default function ProfileTemplates({
             Browse Templates
           </Link>
 
-          <Link
-            to="/editor"
+          <button
+            type="button"
+            onClick={canvasPicker.show}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-[var(--text-on-brand)] transition hover:opacity-90"
           >
             <Plus className="h-4 w-4"/>
             New Design
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -138,6 +142,7 @@ export default function ProfileTemplates({
           </p>
         </div>
       )}
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create}/>
     </section>
   );
 }

@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Globe2, Image as ImageIcon, Loader2, Lock, Send, Upload, Users, X } from "lucide-react";
+import { Check, Globe2, Image as ImageIcon, Loader2, Lock, Send, Upload, X } from "lucide-react";
+import { useNavigate } from "react-router";
+import reviewInboxArt from "../../../assets/pages/editor/review-inbox.png";
 import { useAppSelector } from "../../redux/hook.js";
 import { renderPage } from "../export/editorPdf.jsx";
 import { buildTemplateRecord, publishTemplate } from "../model/templatePublish.js";
 import { IMAGE_TYPES } from "../panels/useImageUpload.js";
+import { useReviewReceiptMotion } from "./useReviewReceiptMotion.js";
 
 const VISIBILITIES = [
   { id: "public", label: "Public", icon: Globe2 },
-  { id: "team", label: "Team", icon: Users },
   { id: "private", label: "Private", icon: Lock },
 ];
 
@@ -19,6 +21,7 @@ const VISIBILITIES = [
  * or, later, from the dashboard's Edit Template form.
  */
 export default function EditorPublishModal({ onClose }) {
+  const navigate = useNavigate();
   const editor = useAppSelector((state) => state.editor);
   const [title, setTitle] = useState(editor.title || "");
   const [description, setDescription] = useState("");
@@ -27,13 +30,15 @@ export default function EditorPublishModal({ onClose }) {
   const [thumbBusy, setThumbBusy] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState("");
+  const [submittedRecord, setSubmittedRecord] = useState(null);
   const fileRef = useRef(null);
+  const receipt = useReviewReceiptMotion(!!submittedRecord);
 
   // The first page becomes the thumbnail. Rendered once, when the modal opens.
   useEffect(() => {
     let alive = true;
     setThumbBusy(true);
-    renderPage(editor.pages[0])
+    renderPage(editor.pages[0], editor.canvas)
       .then((url) => { if (alive) { setThumbnail(url); setThumbBusy(false); } })
       .catch(() => { if (alive) setThumbBusy(false); });
     return () => { alive = false; };
@@ -45,6 +50,7 @@ export default function EditorPublishModal({ onClose }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, publishing]);
+
 
   const chooseThumbnail = (file) => {
     if (!file || !IMAGE_TYPES.includes(file.type)) return;
@@ -59,8 +65,13 @@ export default function EditorPublishModal({ onClose }) {
     setError("");
     try {
       const record = buildTemplateRecord({ editor, title, description, visibility, thumbnail });
-      await publishTemplate(record);
-      onClose(true);
+      const saved = await publishTemplate(record);
+      if (saved.visibility === "public") {
+        setSubmittedRecord(saved);
+        setPublishing(false);
+      } else {
+        onClose(true);
+      }
     } catch (err) {
       setError(err?.message || "Couldn't publish the template. Please try again.");
       setPublishing(false);
@@ -68,17 +79,60 @@ export default function EditorPublishModal({ onClose }) {
   };
 
   return createPortal(
-    <div className="editor-publish-backdrop" role="dialog" aria-modal="true" aria-label="Publish template"
+    <div className="editor-publish-backdrop" role="dialog" aria-modal="true"
+      aria-labelledby={submittedRecord ? "editor-publish-review-title" : "editor-publish-title"}
       onPointerDown={(event) => { if (event.target === event.currentTarget && !publishing) onClose(false); }}>
-      <div className="editor-publish-modal">
+      <div className={`editor-publish-modal${submittedRecord ? " is-review" : ""}`}>
         <button type="button" className="editor-publish-close" aria-label="Close" disabled={publishing} onClick={() => onClose(false)}>
           <X size={16} aria-hidden="true" />
         </button>
 
+        {submittedRecord ? (
+          <div className="editor-publish-review">
+            <div className="editor-publish-review-art" aria-hidden="true">
+              <div className="editor-publish-review-art-preview">
+                {submittedRecord.thumbnail ? <img src={submittedRecord.thumbnail} alt="" /> : <ImageIcon size={30} />}
+              </div>
+              <svg className="editor-publish-review-art-arrow" viewBox="0 0 72 52" fill="none" aria-hidden="true">
+                <path d="M4 12c19-11 43-4 54 19m-16-4 17 7 5-18" pathLength="1" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <img className="editor-publish-review-art-inbox" src={reviewInboxArt} alt="" />
+            </div>
+
+            <h2 ref={receipt.headingRef} id="editor-publish-review-title" tabIndex={-1}>Your backdrop is in review</h2>
+            <p className="editor-publish-review-copy">An admin will review it before it appears publicly.</p>
+
+            <ol className="editor-publish-review-steps" aria-label="Publication progress" style={receipt.lineStyle}>
+              <li className="is-complete"><span className="editor-publish-review-step-icon"><Check size={22} strokeWidth={3} aria-hidden="true" /></span><span>Submitted</span></li>
+              <li ref={receipt.currentStepRef} className={`is-current${receipt.reached ? " is-reached" : ""}`} aria-current="step"><span className="editor-publish-review-step-icon"><span className="editor-publish-review-step-ripple" aria-hidden="true" /><span className="editor-publish-review-step-dot" /></span><span>In review</span></li>
+              <li><span className="editor-publish-review-step-icon"><Lock size={19} aria-hidden="true" /></span><span>Published</span></li>
+            </ol>
+
+            <div className="editor-publish-review-design">
+              <div className="editor-publish-review-design-image">
+                {submittedRecord.thumbnail ? <img src={submittedRecord.thumbnail} alt="" /> : <ImageIcon size={26} aria-hidden="true" />}
+              </div>
+              <div className="editor-publish-review-design-copy">
+                <strong>{submittedRecord.title}</strong>
+                <span>Visibility: Public</span>
+              </div>
+            </div>
+
+            <div className="editor-publish-review-actions">
+              <button type="button" className="editor-publish-review-secondary" onClick={() => { onClose(true); navigate("/user-dashboard/my-designs"); }}>
+                View my designs
+              </button>
+              <button type="button" className="editor-publish-review-primary" onClick={() => onClose(true)}>
+                Back to editor
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
         <div className="editor-publish-head">
           <span className="editor-publish-badge" aria-hidden="true"><Send size={18} /></span>
           <div>
-            <h2>Publish Template</h2>
+            <h2 id="editor-publish-title">Publish Template</h2>
             <p>Share this backdrop as a reusable template.</p>
           </div>
         </div>
@@ -118,15 +172,22 @@ export default function EditorPublishModal({ onClose }) {
             </button>
           ))}
         </div>
+        <p className="editor-publish-visibility-note">
+          {visibility === "public" ? "Public backdrops are reviewed before they appear to others." : "Only you can see a private backdrop."}
+        </p>
 
         {error && <p className="editor-publish-error" role="alert">{error}</p>}
 
         <div className="editor-publish-actions">
           <button type="button" className="editor-publish-cancel" disabled={publishing} onClick={() => onClose(false)}>Cancel</button>
           <button type="button" className="editor-publish-submit" disabled={!title.trim() || publishing} onClick={publish}>
-            {publishing ? <><Loader2 size={16} className="editor-spin" aria-hidden="true" />Publishing…</> : "Publish"}
+            {publishing
+              ? <><Loader2 size={16} className="editor-spin" aria-hidden="true" />{visibility === "public" ? "Submitting…" : "Saving…"}</>
+              : visibility === "public" ? "Submit for review" : "Save privately"}
           </button>
         </div>
+          </>
+        )}
       </div>
     </div>,
     document.body,

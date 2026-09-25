@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { elementSelected, groupSelected, elementsChanged, gestureStarted, gestureFinished, gestureCancelled } from "../../redux/editorSlice.js";
-import { CANVAS_WIDTH, clampSelectionDelta, snapSelectionDelta } from "../model/elementGeometry.js";
+import { clampSelectionDelta, snapSelectionDelta } from "../model/elementGeometry.js";
+import { normalizePageSize } from "../model/pageSize.js";
 import { effectiveLocked, effectiveVisible } from "../model/layerModel.js";
 
 export function useElementDrag(element, pageId, sheetRef) {
@@ -47,16 +48,17 @@ export function useElementDrag(element, pageId, sheetRef) {
     }
     function move(event) {
       if (!active || active.pointerId !== event.pointerId || !sheetRef.current) return;
-      const scale = sheetRef.current.getBoundingClientRect().width / CANVAS_WIDTH;
+      const size = normalizePageSize(store.getState().editor.canvas);
+      const scale = sheetRef.current.getBoundingClientRect().width / size.width;
       let dx = (event.clientX - active.x) / scale, dy = (event.clientY - active.y) / scale;
       if (Math.abs(dx) + Math.abs(dy) < 3 / scale && !active.moved) return;
       active.moved = true;
       const state = store.getState().editor;
       const page = state.pages.find((item) => item.id === pageId);
       const selectedSet = new Set(active.starts.map((item) => item.id));
-      const clamped = clampSelectionDelta(active.starts, dx, dy);
-      const snapped = event.altKey ? { ...clamped, guides: [] } : snapSelectionDelta(active.starts, page.elements.filter((item) => !selectedSet.has(item.id)), clamped.x, clamped.y, 7 / scale);
-      const finalDelta = clampSelectionDelta(active.starts, snapped.x, snapped.y);
+      const clamped = clampSelectionDelta(active.starts, dx, dy, size);
+      const snapped = event.altKey ? { ...clamped, guides: [] } : snapSelectionDelta(active.starts, page.elements.filter((item) => !selectedSet.has(item.id)), clamped.x, clamped.y, 7 / scale, size);
+      const finalDelta = clampSelectionDelta(active.starts, snapped.x, snapped.y, size);
       dispatch(elementsChanged({ token, guides: snapped.guides, elements: active.starts.map((item) => ({ ...item, x: item.x + finalDelta.x, y: item.y + finalDelta.y })) }));
     }
     function up(event) {

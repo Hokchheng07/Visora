@@ -35,6 +35,8 @@ import {
 } from "../../lib/animations/animations";
 import { useAnimeHeroCopy } from "../../hooks/useAnimeSplitText";
 import CosmicDust from "../Effects/CosmicDust.jsx";
+import CanvasPickerModal from "../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../Templates/useCanvasPicker.js";
 
 // Recreated from the Visora Figma file ("Landing Page" frame, hero region:
 // nodes 376:116917 blob card, 376:116980 search bar, 376:117047 stats
@@ -131,6 +133,7 @@ const Hero = () => {
   const reduceMotion = useReducedMotion();
   const heroCopyRef = useAnimeHeroCopy();
   const { resolvedTheme } = useTheme();
+  const canvasPicker = useCanvasPicker();
 
   return (
     <section className="hero-section relative overflow-hidden bg-transparent font-sans">
@@ -224,7 +227,7 @@ const Hero = () => {
               ref={heroCopyRef}
               className="hero-blob-copy absolute inset-0 flex flex-col items-center justify-center px-10 py-10 text-center xl:px-16"
             >
-              <HeroCopy />
+              <HeroCopy onStartDesigning={canvasPicker.show} />
             </div>
           </motion.div>
         </div>
@@ -241,7 +244,7 @@ const Hero = () => {
             aria-hidden="true"
             className="hero-mobile-action-decor hero-mobile-action-decor-left"
           />
-          <HeroActions />
+          <HeroActions onStartDesigning={canvasPicker.show} />
           <ThemeImage
             src={resolvedTheme === "dark" ? smallAstro : doodlePlaneLoop}
             alt=""
@@ -343,11 +346,12 @@ const Hero = () => {
           </motion.div>
         </div>
       </div>
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create} />
     </section>
   );
 };
 
-function HeroCopy() {
+function HeroCopy({ onStartDesigning }) {
   return (
     <>
       <h1
@@ -366,21 +370,21 @@ function HeroCopy() {
         timers, and everything you need.
       </p>
 
-      <HeroActions />
+      <HeroActions onStartDesigning={onStartDesigning} />
     </>
   );
 }
 
-function HeroActions() {
+function HeroActions({ onStartDesigning }) {
   return (
       <div
         data-anime-hero-copy
         className="hero-actions mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6 lg:gap-[47px]"
       >
-        <NavLink to="/editor" className="hero-cta hero-cta-primary">
+        <button type="button" onClick={onStartDesigning} className="hero-cta hero-cta-primary">
           Start Designing
           <span className="hero-cta-arrow" aria-hidden="true" />
-        </NavLink>
+        </button>
 
         <NavLink to="/templates" className="hero-cta hero-cta-secondary">
           Explore Templates
