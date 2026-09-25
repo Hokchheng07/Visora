@@ -1,45 +1,43 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { addUpload, MAX_UPLOADS, readUploads, removeUpload, withDocumentImages, writeUploads } from "./uploadHistory.js";
+import { uploadsFromServer, withDocumentImages } from "./uploadHistory.js";
 
-function memoryStorage() {
-  const values = new Map();
-  return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, String(value)) };
-}
-
-test("uploads are newest first, never duplicated and capped", () => {
-  let list = [];
-  list = addUpload(list, { fileName: "a.png" });
-  list = addUpload(list, { fileName: "b.png" });
-  list = addUpload(list, { fileName: "a.png", name: "again" });
-  assert.deepEqual(list.map((item) => item.fileName), ["a.png", "b.png"]);
-  assert.equal(list[0].name, "again");
-  assert.equal(addUpload(list, { fileName: "" }), list);
-  for (let index = 0; index < MAX_UPLOADS + 5; index += 1) list = addUpload(list, { fileName: `${index}.png` });
-  assert.equal(list.length, MAX_UPLOADS);
-  assert.deepEqual(removeUpload([{ fileName: "a.png" }, { fileName: "b.png" }], "a.png"), [{ fileName: "b.png" }]);
+test("server files become picture tiles, newest first", () => {
+  const list = uploadsFromServer([
+    { fileName: "old.png", originalFileName: "Old.png", mimeType: "image/png", createdAt: "2026-09-01T10:00:00" },
+    { fileName: "notes.pdf", originalFileName: "Notes.pdf", mimeType: "application/pdf", createdAt: "2026-09-03T10:00:00" },
+    { fileName: "new.jpg", originalFileName: "New.jpg", mimeType: "image/jpeg", createdAt: "2026-09-02T10:00:00" },
+    { originalFileName: "no file name", mimeType: "image/png" },
+    null,
+  ]);
+  assert.deepEqual(list, [
+    { fileName: "new.jpg", name: "New.jpg", uploadedAt: "2026-09-02T10:00:00" },
+    { fileName: "old.png", name: "Old.png", uploadedAt: "2026-09-01T10:00:00" },
+  ]);
 });
 
-test("each account keeps its own list, and bad data reads as empty", () => {
-  const storage = memoryStorage();
-  writeUploads("hok", [{ fileName: "h.png" }], storage);
-  writeUploads("dara", [{ fileName: "d.png" }], storage);
-  assert.deepEqual(readUploads("hok", storage), [{ fileName: "h.png" }]);
-  assert.deepEqual(readUploads("dara", storage), [{ fileName: "d.png" }]);
-  assert.deepEqual(readUploads("", storage), []);
-  storage.setItem("visora.uploads.v1.broken", "{not json");
-  assert.deepEqual(readUploads("broken", storage), []);
-  storage.setItem("visora.uploads.v1.mixed", JSON.stringify([{ fileName: "ok.png" }, null, { name: "no file" }]));
-  assert.deepEqual(readUploads("mixed", storage), [{ fileName: "ok.png" }]);
+test("a missing or broken server answer reads as no uploads", () => {
+  assert.deepEqual(uploadsFromServer(undefined), []);
+  assert.deepEqual(uploadsFromServer({ contents: [] }), []);
 });
 
-test("pictures already on the design are listed after the remembered ones", () => {
+test("pictures already on the design are listed after the server's ones", () => {
   const pages = [
     { elements: [{ type: "image", src: "on-page.png", name: "Logo", w: 400, h: 200 }, { type: "text" }] },
-    { elements: [{ type: "image", src: "remembered.png", w: 10, h: 10 }, { type: "image", src: "on-page.png", w: 1, h: 1 }] },
+    { elements: [{ type: "image", src: "uploaded.png", w: 10, h: 10 }, { type: "image", src: "on-page.png", w: 1, h: 1 }] },
   ];
-  const list = withDocumentImages([{ fileName: "remembered.png" }], pages);
-  assert.deepEqual(list.map((item) => item.fileName), ["remembered.png", "on-page.png"]);
+  const list = withDocumentImages([{ fileName: "uploaded.png" }], pages);
+  assert.deepEqual(list.map((item) => item.fileName), ["uploaded.png", "on-page.png"]);
   assert.deepEqual(list[1], { fileName: "on-page.png", name: "Logo", width: 400, height: 200, inUse: true });
   assert.equal(withDocumentImages([{ fileName: "unused.png" }], pages)[0].inUse, undefined);
+});
+
+test("design pictures that are not storage files are not listed as uploads", () => {
+  const pages = [{ elements: [
+    { type: "image", src: "data:image/png;base64,iVBORw0KGgo" },
+    { type: "image", src: "https://example.com/cat.png" },
+    { type: "image", src: "library:khmer-flower" },
+    { type: "image", src: "kept.png" },
+  ] }];
+  assert.deepEqual(withDocumentImages([], pages).map((item) => item.fileName), ["kept.png"]);
 });

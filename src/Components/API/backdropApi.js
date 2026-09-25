@@ -1,13 +1,28 @@
-
 import { baseApi } from "./baseApi";
 
 export const backdropApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getBackdrops: builder.query({
-      query: () => ({
+      query: ({
+        search,
+        status,
+        hasTimer,
+        sort,
+        pageNumber = 0,
+        pageSize = 25,
+      } = {}) => ({
         url: "/backdrops",
         method: "GET",
+        params: {
+          search,
+          status,
+          hasTimer,
+          sort,
+          pageNumber,
+          pageSize,
+        },
       }),
+      providesTags: ["Backdrops"],
     }),
 
     getBackdropById: builder.query({
@@ -15,6 +30,7 @@ export const backdropApi = baseApi.injectEndpoints({
         url: `/backdrops/${backdropUuid}`,
         method: "GET",
       }),
+      providesTags: ["Backdrops"],
     }),
 
     createBackdrop: builder.mutation({
@@ -23,6 +39,7 @@ export const backdropApi = baseApi.injectEndpoints({
         method: "POST",
         body: backdropRequest,
       }),
+      invalidatesTags: ["Backdrops"],
     }),
 
     updateBackdrop: builder.mutation({
@@ -31,6 +48,7 @@ export const backdropApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: backdropRequest,
       }),
+      invalidatesTags: ["Backdrops"],
     }),
 
     deleteBackdrop: builder.mutation({
@@ -38,27 +56,33 @@ export const backdropApi = baseApi.injectEndpoints({
         url: `/backdrops/${backdropUuid}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Backdrops"],
     }),
 
     duplicateBackdrop: builder.mutation({
-      query: ({ backdropUuid }) => ({
+      query: ({ backdropUuid, duplicateBackdropRequest }) => ({
         url: `/backdrops/${backdropUuid}/duplicate`,
         method: "POST",
+        body: duplicateBackdropRequest,
       }),
+      invalidatesTags: ["Backdrops"],
     }),
 
     submitPublicationRequest: builder.mutation({
-      query: ({ backdropUuid }) => ({
-        url: `/backdrops/${backdropUuid}/publication-requests`,
+      query: ({ backdropUuid, submitTemplateRequest }) => ({
+        url: `/backdrops/${backdropUuid}/templates`,
         method: "POST",
+        body: submitTemplateRequest,
       }),
+      invalidatesTags: ["Backdrops", "Templates"],
     }),
 
     withdrawPublicationRequest: builder.mutation({
       query: ({ backdropUuid }) => ({
-        url: `/backdrops/${backdropUuid}/publication-requests`,
+        url: `/backdrops/${backdropUuid}/templates`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Backdrops", "Templates"],
     }),
   }),
 });

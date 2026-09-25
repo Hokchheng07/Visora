@@ -1,4 +1,4 @@
-import { ChevronLeft, Image, ImageOff, Loader2, Search, Sparkles, Upload, X } from "lucide-react";
+import { ChevronLeft, Image, ImageOff, Loader2, Search, Sparkles, Upload } from "lucide-react";
 import { Link } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -9,8 +9,8 @@ import { shapeCatalog } from "../model/shapeCatalog.js";
 import { usePanelDragInsert } from "./usePanelDragInsert.js";
 import EditorLayersPanel from "./EditorLayersPanel.jsx";
 import { IMAGE_TYPES, useImageUpload } from "./useImageUpload.js";
-import { useUploadHistory, withDocumentImages } from "./uploadHistory.js";
-import { getStorageUrl } from "../../API/storageApi";
+import { UPLOADS_PAGE_SIZE, uploadsFromServer, withDocumentImages } from "./uploadHistory.js";
+import { getStorageUrl, useUserStorageQuery } from "../../API/storageApi";
 import { useCurrentUser } from "../../Account/useCurrentUser";
 import { ElementArtwork, ShapeArtwork } from "../canvas/EditorElement.jsx";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
@@ -169,11 +169,14 @@ function TextPanel() {
 }
 
 // One saved upload. Clicking it puts the picture on the page again without
-// uploading it a second time; the small × only forgets it from this list, and
-// is not offered while the picture is used on the design.
-function UploadTile({ item, onUse, onForget }) {
+// uploading it a second time. There is no remove button: the server has no
+// endpoint for deleting a file, so a tile removed here would come back.
+// The server can still list a file whose picture is gone; such a tile hides
+// itself, unless the design uses it — then it stays, showing it is missing.
+function UploadTile({ item, onUse }) {
   const [broken, setBroken] = useState(false);
   const label = item.name || "Uploaded image";
+  if (broken && !item.inUse) return null;
   return (
     <li className="editor-upload-tile">
       <button type="button" className="editor-upload-use" onClick={() => onUse(item)} aria-label={`Add ${label} to the page`} title={label}>
@@ -181,11 +184,6 @@ function UploadTile({ item, onUse, onForget }) {
           ? <span className="editor-upload-missing"><ImageOff size={20} strokeWidth={1.5} aria-hidden="true" /></span>
           : <img src={getStorageUrl(item.fileName)} alt="" loading="lazy" draggable={false} onError={() => setBroken(true)} />}
       </button>
-      {!item.inUse && (
-        <button type="button" className="editor-upload-forget" onClick={() => onForget(item.fileName)} aria-label={`Remove ${label} from your uploads`} title="Remove from list">
-          <X size={12} strokeWidth={2.5} aria-hidden="true" />
-        </button>
-      )}
     </li>
   );
 }
@@ -195,10 +193,17 @@ function UploadPanel() {
   const inputRef = useRef(null);
   const account = useCurrentUser();
   const pages = useAppSelector((state) => state.editor.pages);
-  // one list per account; the username arrives with the profile
-  const { uploads, remember, forget } = useUploadHistory(account.user?.username || account.user?.email || "");
-  const { uploadImage, isUploading, error } = useImageUpload({ onUploaded: remember });
-  const shown = withDocumentImages(uploads, pages);
+  // The list is asked for by account uuid, which arrives with the profile;
+  // until then (or signed out) the request is skipped, not sent as "undefined".
+  const uuid = account.user?.uuid;
+  const [size, setSize] = useState(UPLOADS_PAGE_SIZE);
+  const storage = useUserStorageQuery({ uuid, size }, { skip: !uuid });
+  const page = storage.data?.data;
+  // No onUploaded needed: the upload marks the "Storage" tag stale, so RTK
+  // asks for this list again and the new picture joins it.
+  const { uploadImage, isUploading, error } = useImageUpload();
+  const shown = withDocumentImages(uploadsFromServer(page?.contents), pages);
+  const hasMore = (page?.totalElements ?? 0) > (page?.contents?.length ?? 0);
 
   // Uploading needs the login token, so a signed-out visitor is sent to sign in.
   if (!account.isSignedIn) {
@@ -227,15 +232,24 @@ function UploadPanel() {
           : <><Upload size={17} aria-hidden="true" />Upload an image</>}
       </button>
       {error && <p className="editor-upload-error" role="alert">{error}</p>}
-      {shown.length ? (
+      {storage.isError && <p className="editor-upload-error" role="alert">Couldn't load your uploads. <button type="button" className="editor-upload-retry" onClick={() => storage.refetch()}>Try again</button></p>}
+      {storage.isLoading ? (
+        <p className="editor-panel-empty" aria-busy="true">Loading your uploads…</p>
+      ) : shown.length ? (
         <>
           <h3 className="editor-panel-subtitle">Your uploads</h3>
           <ul className="editor-upload-grid" aria-label="Your uploads">
             {shown.map((item) => (
-              <UploadTile key={item.fileName} item={item} onForget={forget}
+              <UploadTile key={item.fileName} item={item}
                 onUse={(picked) => dispatch(imageInserted(picked.fileName, { width: picked.width, height: picked.height }, picked.name))} />
             ))}
           </ul>
+          {hasMore && (
+            <button type="button" className="editor-upload-more" disabled={storage.isFetching} aria-busy={storage.isFetching}
+              onClick={() => setSize((current) => current + UPLOADS_PAGE_SIZE)}>
+              {storage.isFetching ? "Loading…" : "Show more"}
+            </button>
+          )}
         </>
       ) : (
         <div className="editor-empty-state">
