@@ -12,6 +12,7 @@ import NotFound from "./Components/Pages/NotFound.jsx";
 import Login from "./Components/Auth/Login.jsx";
 import SignUp from "./Components/Auth/SignUp.jsx";
 import ForgotPassword from "./Components/Auth/ForgotPassword.jsx";
+import VerifyEmail from "./Components/Auth/VerifyEmail.jsx";
 import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
@@ -21,9 +22,6 @@ import Profile from "./Components/UserDashboard/Profile/Profile.jsx";
 import Recent from "./Components/UserDashboard/Recent/Recent.jsx";
 import Favorites from "./Components/UserDashboard/Favorites/Favorites.jsx";
 import MyDesigns from "./Components/UserDashboard/MyDesigns/MyDesigns.jsx";
-import Drafts from "./Components/UserDashboard/MyDesigns/Drafts.jsx";
-import PostedTemplates from "./Components/UserDashboard/MyDesigns/PostedTemplates.jsx";
-import Shared from "./Components/UserDashboard/Shared/Shared.jsx";
 import Trash from "./Components/UserDashboard/Trash/Trash.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./theme/theme.css";
@@ -62,12 +60,9 @@ const router = createBrowserRouter([
           {
             path: "my-designs",
             element: <MyDesigns />,
-            children: [
-              { path: "drafts", element: <Drafts /> },
-              { path: "posted-templates", element: <PostedTemplates /> },
-            ],
           },
-          { path: "shared", element: <Shared /> },
+          { path: "my-designs/drafts", element: <Navigate to="/user-dashboard/my-designs" replace /> },
+          { path: "my-designs/posted-templates", element: <Navigate to="/user-dashboard/my-designs" replace /> },
           { path: "trash", element: <Trash /> },
         ],
       },
@@ -115,6 +110,7 @@ const router = createBrowserRouter([
           },
           { path: "forgot-password", element: <ForgotPassword /> },
           { path: "reset-password", element: <ForgotPassword /> },
+          { path: "verify-email", element: <VerifyEmail /> },
         ],
       },
       {

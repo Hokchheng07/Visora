@@ -470,6 +470,20 @@
   text-align: center;
   color: var(--dash-muted);
 }
+/* A failed save or delete, shown above the table and inside forms. */
+.ad-alert,
+.ad-form-error {
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--dash-red) 30%, transparent);
+  border-radius: 10px;
+  background: var(--dash-red-tint);
+  color: var(--dash-red);
+  font-size: 13px;
+}
+.dark .ad-alert,
+.dark .ad-form-error {
+  background: color-mix(in srgb, var(--dash-red) 14%, transparent);
+}
 @container (max-width: 640px) {
   .ad-table thead {
     position: absolute;

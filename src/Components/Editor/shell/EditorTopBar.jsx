@@ -5,7 +5,7 @@ import visoraLogo from "../../../assets/shared/branding/VisoraLogo.png";
 import { ThemeImage } from '../../../theme/ThemeImage';
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { documentRenamed, undo, redo } from "../../redux/editorSlice.js";
-import UserMenu from "../../Account/UserMenu";
+import UserProfile from "../../Account/UserProfile";
 import EditorImportButton from "./EditorImportButton.jsx";
 import EditorExportMenu from "./EditorExportMenu.jsx";
 import EditorPublishModal from "./EditorPublishModal.jsx";
@@ -37,7 +37,7 @@ export default function EditorTopBar({ onDisplay, inert }) {
         <EditorImportButton />
         <EditorExportMenu />
       </div>
-      <UserMenu size={42} />
+      <UserProfile size={42} />
       </div>
       {publishing && <EditorPublishModal onClose={() => setPublishing(false)} />}
     </header>

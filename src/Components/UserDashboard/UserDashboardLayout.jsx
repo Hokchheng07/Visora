@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Outlet } from "react-router";
 import { useDashboardProfile } from "../Account/useDashboardProfile";
+import CosmicDust from "../Effects/CosmicDust.jsx";
 
 import "./dashboard-mobile.css";
 
@@ -16,22 +17,23 @@ export default function UserDashboardLayout(){
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
   return(
-    <div className="site-shell flex min-h-screen bg-[var(--surface-warm)] text-[var(--text-body)]">
+    <div className="site-shell user-dashboard-shell flex min-h-screen bg-[var(--surface-warm)] text-[var(--text-body)]">
       <UserDashboardSidebar
         open={sidebarOpen}
         onClose={closeSidebar}
       />
 
-      <div className="user-dashboard-content min-w-0 flex-1 bg-[var(--surface-warm)]">
+      <div className="user-dashboard-content relative isolate min-w-0 flex-1 bg-[var(--surface-warm)]">
+        <CosmicDust particleCount={120} />
         <UserDashboardHeader
           onMenuOpen={()=>setSidebarOpen(true)}
           sidebarOpen={sidebarOpen}
           profile={profile}
         />
 
-        <main className="min-h-screen">
+        <div className="relative z-[1] min-h-screen">
           <Outlet context={{profile,saveProfile,isSaving,saveError:error}}/>
-        </main>
+        </div>
       </div>
     </div>
   );
