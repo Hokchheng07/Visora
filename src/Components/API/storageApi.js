@@ -9,6 +9,14 @@ export const storageApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: userUploadRequest,
             }),
+            invalidatesTags: ['Storage'],
+        }),
+        userStorage : builder.query({
+            query : ({uuid,page=0,size=25}) => ({
+                url : `/storages/${uuid}?pageNumber=${page}&pageSize=${size}`,
+                method : "GET",
+            }),
+            providesTags : ["Storage"],
         }),
     }),
 });
@@ -24,4 +32,4 @@ if (!STORAGE_CONFIGURED) {
 
 export const getStorageUrl = (fileName) => storageUrl(STORAGE_BASE, fileName);
 
-export const { useUserUploadMutation } = storageApi;
+export const { useUserUploadMutation, useUserStorageQuery} = storageApi;

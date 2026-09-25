@@ -303,8 +303,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-list-option:not(:disabled):hover { border-color: var(--color-primary); }
   .editor-list-none:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); }
 }
-/* "Your uploads": square thumbnails, two per row. Tapping one adds it again;
-   the × only removes it from this list, never from the server. */
+/* "Your uploads": square thumbnails, two per row. Tapping one adds it again. */
 .editor-upload-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .editor-upload-tile { position: relative; aspect-ratio: 1; }
 .editor-upload-use { display: block; width: 100%; height: 100%; padding: 0; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 9px; background: repeating-conic-gradient(color-mix(in srgb, var(--editor-muted) 12%, transparent) 0 25%, transparent 0 50%) 50% / 14px 14px; cursor: pointer; transition: border-color 150ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
@@ -312,12 +311,12 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-upload-use img { width: 100%; height: 100%; object-fit: contain; }
 .editor-upload-use:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .editor-upload-missing { display: grid; width: 100%; height: 100%; place-items: center; color: var(--editor-muted); }
-.editor-upload-forget { position: absolute; top: 5px; right: 5px; display: grid; width: 22px; height: 22px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgb(20 16 32 / .72); color: white; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
-.editor-upload-tile:focus-within .editor-upload-forget { opacity: 1; }
-@media (hover: none) { .editor-upload-forget { opacity: 1; } }
+.editor-upload-more { width: 100%; height: 36px; margin-top: 10px; border: 1px solid var(--editor-border); border-radius: 8px; background: none; color: var(--editor-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.editor-upload-more:disabled { opacity: .55; cursor: default; }
+.editor-upload-retry { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
 @media (hover: hover) and (pointer: fine) {
-  .editor-upload-tile:hover .editor-upload-forget { opacity: 1; }
   .editor-upload-use:hover { border-color: var(--color-primary); }
+  .editor-upload-more:not(:disabled):hover { border-color: var(--color-primary); color: var(--color-primary); }
 }
 .editor-spin { animation: editor-spin 800ms linear infinite; }
 @keyframes editor-spin { to { rotate: 360deg; } }
