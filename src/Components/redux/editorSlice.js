@@ -1,5 +1,6 @@
 import { createSlice, current, nanoid } from "@reduxjs/toolkit";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/model/elementGeometry.js";
+import { clamp, clampSelectionDelta, fitElement, selectionBounds } from "../Editor/model/elementGeometry.js";
+import { DEFAULT_PAGE, normalizePageSize, samePageSize, scalePagesToSize } from "../Editor/model/pageSize.js";
 import { shapeCatalog } from "../Editor/model/shapeCatalog.js";
 import { isPageNumber, normalizePageNumbers, pageNumberPlacement, syncPageNumbers } from "../Editor/model/pageNumbers.js";
 import { defaultTimer, normalizeTimer } from "../Editor/model/editorDocument.js";
@@ -11,6 +12,8 @@ import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayer
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
+  // The size of every page, in design pixels; see model/pageSize.js.
+  canvas: { ...DEFAULT_PAGE },
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
   currentPage: 0, selectedIds: [], selectedId: null, selectionMode: "direct",
   /* Which pages the strip has picked out, by id so a reorder cannot rename the
@@ -33,6 +36,7 @@ function setSelection(state, ids, mode = "direct") {
   if (state.cropping && !(state.selectedIds.length === 1 && state.selectedIds[0] === state.cropping.elementId)) state.cropping = null;
 }
 const currentPageOf = (state) => state.pages[state.currentPage];
+const pageSizeOf = (state) => normalizePageSize(state.canvas);
 /* Locking is enforced here, not only by greyed-out buttons: every reducer that
    moves, restyles, reorders or deletes layers asks first, and a refused action
    changes nothing and adds no undo step. */
@@ -48,7 +52,7 @@ function tidyGroups(page) {
 }
 function snapshot(state) {
   const plain = current(state);
-  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, selectionMode: plain.selectionMode, title: plain.title, pageNumbers: plain.pageNumbers };
+  return { pages: plain.pages, currentPage: plain.currentPage, selectedIds: plain.selectedIds, selectedId: plain.selectedId, selectionMode: plain.selectionMode, title: plain.title, pageNumbers: plain.pageNumbers, canvas: plain.canvas };
 }
 function remember(state, before = snapshot(state)) {
   state.past.push(before); if (state.past.length > 50) state.past.shift(); state.future = [];
@@ -56,6 +60,7 @@ function remember(state, before = snapshot(state)) {
 function restore(state, saved) {
   state.pages = saved.pages; state.title = saved.title || state.title;
   if (saved.pageNumbers) state.pageNumbers = saved.pageNumbers;
+  if (saved.canvas) state.canvas = saved.canvas;
   state.currentPage = clamp(saved.currentPage, 0, state.pages.length - 1);
   setSelection(state, saved.selectedIds || (saved.selectedId ? [saved.selectedId] : []), saved.selectionMode);
 }
@@ -149,7 +154,7 @@ function applyToTarget(state, target, changes) {
     if (target.kind === "timer") { if (element.type === "timer") element.timer = mergeTimer(element.timer, changes); }
     else {
       const { name, ...rest } = changes;
-      Object.assign(element, fitElement({ ...element, ...rest }));
+      Object.assign(element, fitElement({ ...element, ...rest }, pageSizeOf(state)));
       if ("name" in changes) assignName(element, name);
     }
   }
@@ -178,8 +183,21 @@ const reducers = {
     documentLoaded(state, { payload }) {
       Object.assign(state, initialEditorState, payload);
       state.pageNumbers = normalizePageNumbers(payload?.pageNumbers);
+      state.canvas = normalizePageSize(payload?.canvas);
       state.pages = state.pages.map((page) => migrateAnimations(normalizeGroups({ ...page, groups: page.groups || [] })));
       state.currentPage = 0; setSelection(state, []);
+    },
+    /* A new page size for the whole design, "scale to fit": everything on
+       every page grows or shrinks by one factor and is centred (see
+       scalePagesToSize), so nothing is stretched or pushed off the page.
+       One undo step puts the old size and the old layout back together. */
+    pageSizeChanged(state, { payload }) {
+      if (state.gesture) return;
+      const from = pageSizeOf(state), to = normalizePageSize(payload);
+      if (samePageSize(from, to)) return;
+      cancelGesture(state); remember(state);
+      state.pages = scalePagesToSize(current(state).pages, from, to);
+      state.canvas = to;
     },
     documentRenamed(state, { payload }) {
       const title = String(payload || "").trim(); if (!title || title === state.title) return;
@@ -276,7 +294,7 @@ const reducers = {
       if (state.gesture || JSON.stringify(normalizePageNumbers(state.pageNumbers)) === JSON.stringify(next)) return;
       remember(state); state.pageNumbers = next;
       if (payload?.position) state.pages.forEach((page) => page.elements.filter(isPageNumber)
-        .forEach((element) => Object.assign(element, pageNumberPlacement(next.position, element.w, element.h))));
+        .forEach((element) => Object.assign(element, pageNumberPlacement(next.position, element.w, element.h, pageSizeOf(state)))));
     },
     pageBackgroundChanged(state, { payload }) {
       const page = state.pages[state.currentPage];
@@ -480,12 +498,13 @@ const reducers = {
       reducer(state, { payload }) {
         const preset = shapeCatalog.find((shape) => shape.id === payload.shape); if (!preset || state.gesture) return;
         remember(state); const elements = state.pages[state.currentPage].elements; const offset = (elements.length % 8) * 24;
-        const x = payload.position ? payload.position.x - preset.w / 2 : (CANVAS_WIDTH - preset.w) / 2 + offset;
-        const y = payload.position ? payload.position.y - preset.h / 2 : (CANVAS_HEIGHT - preset.h) / 2 + offset;
+        const size = pageSizeOf(state);
+        const x = payload.position ? payload.position.x - preset.w / 2 : (size.width - preset.w) / 2 + offset;
+        const y = payload.position ? payload.position.y - preset.h / 2 : (size.height - preset.h) / 2 + offset;
         elements.push(fitElement({ id: payload.id, type: "shape", shape: preset.id, x, y, w: preset.w, h: preset.h, rotation: 0,
           fill: "#ad8dea", fillOpacity: 1, fillVisible: true, opacity: 1, locked: false, visible: true,
           stroke: null, strokeWidth: 0, strokeAlign: "inside", strokeOpacity: 1, strokeVisible: true,
-          cornerRadius: preset.id === "rounded-rectangle" ? 50 : 0, flipX: false, flipY: false, lockAspect: false, effects: [] }));
+          cornerRadius: preset.id === "rounded-rectangle" ? 50 : 0, flipX: false, flipY: false, lockAspect: false, effects: [] }, size));
         setSelection(state, [payload.id]);
       },
     },
@@ -505,7 +524,8 @@ const reducers = {
           date: { content: formatClock("date", defaultClockFormat("date")), dynamic: "date", clockFormat: defaultClockFormat("date"), fontSize: 72, fontWeight: 500, w: 900, h: 130 },
         };
         const preset = presets[payload.preset] || presets.body; remember(state);
-        const element = { id: payload.id, type: "text", x: (CANVAS_WIDTH - preset.w) / 2, y: (CANVAS_HEIGHT - preset.h) / 2,
+        const size = pageSizeOf(state);
+        const element = { id: payload.id, type: "text", x: (size.width - preset.w) / 2, y: (size.height - preset.h) / 2,
           w: preset.w, h: preset.h, rotation: 0, fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", textAlign: "center",
           lineHeight: 1.2, letterSpacing: 0, fontStyle: "normal", locked: false, visible: true, ...preset };
         state.pages[state.currentPage].elements.push(element); setSelection(state, [payload.id]);
@@ -520,14 +540,15 @@ const reducers = {
       reducer(state, { payload }) {
         if (!payload.src || state.gesture) return;
         const width = payload.width > 0 ? payload.width : 800, height = payload.height > 0 ? payload.height : 600;
-        const scale = Math.min(1, (CANVAS_WIDTH * 0.6) / width, (CANVAS_HEIGHT * 0.6) / height);
+        const size = pageSizeOf(state);
+        const scale = Math.min(1, (size.width * 0.6) / width, (size.height * 0.6) / height);
         const w = Math.max(24, Math.round(width * scale)), h = Math.max(24, Math.round(height * scale));
         remember(state);
         const elements = state.pages[state.currentPage].elements; const offset = (elements.length % 8) * 24;
         elements.push({
           id: payload.id, type: "image", src: payload.src,
           ...(cleanName(payload.name) ? { name: cleanName(payload.name) } : {}),
-          x: (CANVAS_WIDTH - w) / 2 + offset, y: (CANVAS_HEIGHT - h) / 2 + offset, w, h, rotation: 0,
+          x: (size.width - w) / 2 + offset, y: (size.height - h) / 2 + offset, w, h, rotation: 0,
           opacity: 1, cornerRadius: 0, flipX: false, flipY: false, lockAspect: true,
           locked: false, visible: true, effects: [],
         });
@@ -545,10 +566,10 @@ const reducers = {
       reducer(state, { payload }) {
         if (state.gesture) return;
         remember(state);
-        const w = 900, h = 460;
+        const w = 900, h = 460, size = pageSizeOf(state);
         state.pages[state.currentPage].elements.push({
           id: payload.id, type: "timer",
-          x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h, rotation: 0,
+          x: (size.width - w) / 2, y: (size.height - h) / 2, w, h, rotation: 0,
           fill: DEFAULT_EDITOR_TEXT_COLOR, opacity: 1, fontFamily: "Poppins", fontSize: 120,
           locked: false, visible: true,
           timer: defaultTimer(payload.format, payload.buttonColors, payload.mode),
@@ -577,7 +598,7 @@ const reducers = {
     },
     elementChanged(state, { payload }) {
       if (!selected(state) || state.gesture || !selectionEditable(state)) return;
-      const elements = selectedElements(state); const changes = elements.map((element) => fitElement({ ...element, ...payload }));
+      const elements = selectedElements(state); const changes = elements.map((element) => fitElement({ ...element, ...payload }, pageSizeOf(state)));
       if (elements.every((element, index) => JSON.stringify(element) === JSON.stringify(changes[index]))) return;
       remember(state); elements.forEach((element, index) => Object.assign(element, changes[index]));
     },
@@ -589,13 +610,13 @@ const reducers = {
     },
     elementNudged(state, { payload }) {
       const elements = selectedElements(state); if (!elements.length || state.gesture || !selectionEditable(state)) return;
-      const delta = clampSelectionDelta(elements, payload.x, payload.y); if (!delta.x && !delta.y) return;
+      const delta = clampSelectionDelta(elements, payload.x, payload.y, pageSizeOf(state)); if (!delta.x && !delta.y) return;
       remember(state); elements.forEach((element) => { element.x += delta.x; element.y += delta.y; });
     },
     selectionAligned(state, { payload }) {
       // One element aligns to the page, several align to their shared bounds, as in Figma.
       const elements = selectedElements(state); if (!elements.length || state.gesture || !selectionEditable(state)) return;
-      const box = elements.length === 1 ? { left: 0, top: 0, right: CANVAS_WIDTH, bottom: CANVAS_HEIGHT } : selectionBounds(elements);
+      const box = elements.length === 1 ? { left: 0, top: 0, right: pageSizeOf(state).width, bottom: pageSizeOf(state).height } : selectionBounds(elements);
       if (!box) return;
       remember(state); elements.forEach((element) => {
         const own = selectionBounds([element]);
@@ -652,7 +673,7 @@ const reducers = {
         let count = 0; const makeId = () => `${payload.seed}-${count++}`;
         const layers = cloneLayers(current(state).copiedElements, current(state).copiedGroups || [], makeId);
         remember(state);
-        const pasted = layers.elements.map((element) => fitElement({ ...element, x: element.x + 32, y: element.y + 32 }));
+        const pasted = layers.elements.map((element) => fitElement({ ...element, x: element.x + 32, y: element.y + 32 }, pageSizeOf(state)));
         const page = currentPageOf(state);
         const keys = new Set(page.elements.map((item) => item.morphId || item.id));
         pasted.forEach((item) => { if (keys.has(item.morphId || item.id)) item.morphId = makeId(); keys.add(item.morphId || item.id); });
@@ -669,7 +690,7 @@ const reducers = {
     gestureStarted(state, { payload }) { if (!state.gesture && state.selectedIds.length && selectionEditable(state)) state.gesture = { token: payload, before: snapshot(state) }; },
     elementTransformed(state, { payload }) {
       const element = selected(state); if (!element || state.gesture?.token !== payload.token) return;
-      Object.assign(element, fitElement({ ...element, ...payload.changes }));
+      Object.assign(element, fitElement({ ...element, ...payload.changes }, pageSizeOf(state)));
     },
     gestureFinished(state, { payload }) {
       if (state.gesture?.token !== payload) return; const before = state.gesture.before;
@@ -731,7 +752,7 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
+export const { documentLoaded, pageSizeChanged, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
   elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, imageInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,

@@ -192,7 +192,7 @@ export default function Trash(){
     <main className="min-h-screen px-3 pb-12 pt-4 text-[var(--text-body)] sm:px-5 md:px-6 lg:px-8 xl:px-10">
       <div className="mx-auto w-full max-w-[1650px]">
         {/* HEADER */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-5 @3xl:flex-row @3xl:items-start @3xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-[var(--text-heading)] sm:text-4xl">
@@ -253,10 +253,10 @@ export default function Trash(){
 
         {/* FILTER BAR */}
         <section className="mt-6 rounded-[18px] border border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-sm">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex min-w-0 flex-1 flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="contents">
               {/* SEARCH */}
-              <div className="relative w-full md:max-w-[300px]">
+              <div className="relative min-w-[200px] flex-1 @7xl:max-w-[300px]">
                 <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"/>
 
                 <input
@@ -267,10 +267,10 @@ export default function Trash(){
                 />
               </div>
 
-              <div className="hidden h-7 w-px bg-[var(--border-default)] md:block"/>
+              <div className="hidden h-7 w-px bg-[var(--border-default)] @7xl:block"/>
 
               {/* FILTERS */}
-              <div className="flex max-w-full gap-1 overflow-x-auto">
+              <div className="order-last flex w-full max-w-full gap-1 overflow-x-auto @7xl:order-none @7xl:w-auto @7xl:flex-1">
                 {TRASH_FILTERS.map((filter)=>(
                   <button
                     key={filter.id}
@@ -299,7 +299,7 @@ export default function Trash(){
             </div>
 
             {/* SORT + VIEW */}
-            <div className="flex items-center justify-between gap-2 sm:justify-end">
+            <div className="ml-auto flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="hidden text-sm text-[var(--text-muted)] sm:inline">
                   Sort:
@@ -368,7 +368,7 @@ export default function Trash(){
           <div
             className={
               viewMode==="grid"
-                ?"mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                ?"mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-5"
                 :"mt-6 flex flex-col gap-4"
             }
           >

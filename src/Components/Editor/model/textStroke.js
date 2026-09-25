@@ -1,3 +1,4 @@
+import { designPx } from "./pageSize.js";
 /*
  * Outline for text and timer digits. A shape strokes an SVG path and can align
  * the stroke inside, centre or outside; a glyph has no path to align to, so the
@@ -7,11 +8,9 @@
  * The width doubles, as a shape's inside stroke does, because half of a centred
  * text-stroke is hidden under the fill — doubling makes `strokeWidth` read as
  * the visible outer thickness, matching the shape control. Width is in cqw
- * (1cqw = 19.2 design px), the unit the type itself uses, so it scales with the
- * sheet on every surface.
+ * (see designPx), the unit the type itself uses, so it scales with the sheet
+ * on every surface.
  */
-
-const STROKE_BASE = 19.2;
 
 function hexToRgba(hex, opacity) {
   const match = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(String(hex).trim());
@@ -28,5 +27,5 @@ export function textStrokeStyle(element) {
   if (!on) return null;
   const opacity = element.strokeOpacity ?? 1;
   const color = opacity < 1 ? hexToRgba(element.stroke, opacity) : element.stroke;
-  return { WebkitTextStroke: `${(width * 2) / STROKE_BASE}cqw ${color}`, paintOrder: "stroke fill" };
+  return { WebkitTextStroke: `${designPx(width * 2)} ${color}`, paintOrder: "stroke fill" };
 }

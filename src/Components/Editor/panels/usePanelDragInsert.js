@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useAppDispatch } from "../../redux/hook.js";
+import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { elementInserted } from "../../redux/editorSlice.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../model/elementGeometry.js";
+import { normalizePageSize } from "../model/pageSize.js";
 
 export function usePanelDragInsert(shape) {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch(), store = useAppStore();
   const activeRef = useRef(null), suppressClick = useRef(false);
   const [ghost, setGhost] = useState(null);
   useEffect(() => {
@@ -45,7 +45,8 @@ export function usePanelDragInsert(shape) {
       if (!sheet) return;
       const rect = sheet.getBoundingClientRect();
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
-      dispatch(elementInserted(shape, { x: (event.clientX - rect.left) / rect.width * CANVAS_WIDTH, y: (event.clientY - rect.top) / rect.height * CANVAS_HEIGHT }));
+      const size = normalizePageSize(store.getState().editor.canvas);
+      dispatch(elementInserted(shape, { x: (event.clientX - rect.left) / rect.width * size.width, y: (event.clientY - rect.top) / rect.height * size.height }));
     },
     onPointerCancel() { activeRef.current = null; suppressClick.current = true; setGhost(null); },
     onLostPointerCapture() { if (activeRef.current) { activeRef.current = null; suppressClick.current = true; setGhost(null); } },

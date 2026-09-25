@@ -3,6 +3,7 @@ import { ImageOff } from "lucide-react";
 import { filterId, hasVisibleEffects } from "../model/effectsFilter.js";
 import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
 import { cropStyle } from "../model/imageCrop.js";
+import { designPx } from "../model/pageSize.js";
 import { imageUrlFor, InlinedImages } from "./imageSource.js";
 import { STORAGE_CONFIGURED } from "../../API/storageApi";
 
@@ -12,7 +13,7 @@ import { STORAGE_CONFIGURED } from "../../API/storageApi";
  *
  * The photo fills its box (object-fit: cover), so resizing without the
  * proportion lock crops the photo instead of stretching it. Corner radius is
- * in canvas pixels like a shape's; 19.2 converts it to the container-query
+ * in canvas pixels like a shape's; designPx converts it to the container-query
  * units the canvas, page strip and display mode all scale with.
  *
  * If the file cannot load (deleted, offline) a grey placeholder keeps the box
@@ -26,7 +27,7 @@ export default function ImageArtwork({ element }) {
   const url = inlined?.get(address) || address;
   const [failedUrl, setFailedUrl] = useState(null);
   const broken = !url || failedUrl === url;
-  const radius = `${(element.cornerRadius || 0) / 19.2}cqw`;
+  const radius = designPx(element.cornerRadius || 0);
   const flip = element.flipX || element.flipY ? `scale(${element.flipX ? -1 : 1}, ${element.flipY ? -1 : 1})` : undefined;
 
   /* A single-colour library element is drawn as its colour through the shape's

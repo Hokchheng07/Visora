@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { elementTransformed, gestureCancelled, gestureFinished, gestureStarted, pointsSelected, targetChanged } from "../../redux/editorSlice.js";
-import { CANVAS_WIDTH } from "../model/elementGeometry.js";
+import { normalizePageSize } from "../model/pageSize.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
 import {
   editableSubpaths, insertNode, moveNodes, nearestOnOutline, nodeKey, pageDeltaToLocal, pageToLocal, parseKey,
@@ -60,7 +60,7 @@ export default function EditorVectorEditor({ element, pageId, sheetRef, scale, k
   }, [dispatch, token]);
 
   function pagePoint(event) {
-    const rect = sheetRef.current.getBoundingClientRect(), pageScale = rect.width / CANVAS_WIDTH;
+    const rect = sheetRef.current.getBoundingClientRect(), pageScale = rect.width / normalizePageSize(store.getState().editor.canvas).width;
     return { x: (event.clientX - rect.left) / pageScale, y: (event.clientY - rect.top) / pageScale };
   }
 

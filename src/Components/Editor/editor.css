@@ -396,7 +396,8 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-ruler-label { position: absolute; color: var(--editor-muted); font-size: 9px; line-height: 1; font-variant-numeric: tabular-nums; }
 .editor-ruler.is-horizontal .editor-ruler-label { bottom: 12px; left: 4px; }
 .editor-ruler.is-vertical .editor-ruler-label { top: 4px; right: 12px; writing-mode: vertical-rl; }
-.editor-blank-canvas { width: 100%; aspect-ratio: 16 / 9; background: white; box-shadow: 0 2px 5px rgb(var(--editor-shadow) / .05), 0 14px 40px rgb(var(--editor-shadow) / .08); }
+/* The page's shape comes from --page-w / --page-h, set on .editor-shell from the design's size. */
+.editor-blank-canvas { width: 100%; aspect-ratio: var(--page-w, 1920) / var(--page-h, 1080); background: white; box-shadow: 0 2px 5px rgb(var(--editor-shadow) / .05), 0 14px 40px rgb(var(--editor-shadow) / .08); }
 .editor-blank-canvas { position: relative; container-type: size; isolation: isolate; }
 .editor-element, .editor-static-element { position: absolute; display: block; }
 .editor-element { pointer-events: none; }
@@ -592,7 +593,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-page-strip { grid-area: pages; display: flex; justify-self: center; min-width: 0; max-width: 100%; align-items: center; gap: 10px; }
 .editor-page-thumbs { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; padding: 3px; overflow-x: auto; scrollbar-width: none; }
 .editor-page-thumbs::-webkit-scrollbar { display: none; }
-.editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: 88px; height: 50px; padding: 0; border-radius: 8px; }
+.editor-canvas-bar .editor-page-thumb { position: relative; flex: none; width: auto; height: 50px; aspect-ratio: var(--page-w, 1920) / var(--page-h, 1080); padding: 0; border-radius: 8px; }
 /* Two different things: is-selected is what the menu will act on, is-active is
    the one page the canvas is showing. The current page is always selected, so
    its ring is the stronger of the two. */
@@ -916,7 +917,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-display.is-idle { cursor: none; }
 .editor-animation-counter { position: fixed; right: 12px; top: 12px; z-index: 60; padding: 5px 8px; border-radius: 6px; background: rgb(0 0 0 / .58); color: #fff; font: 10px Poppins, sans-serif; }
 /* Letterbox a 16:9 sheet into any screen without measuring anything. */
-.editor-display-frame { width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); }
+.editor-display-frame { width: min(100vw, calc(100vh * var(--page-w, 1920) / var(--page-h, 1080))); height: min(100vh, calc(100vw * var(--page-h, 1080) / var(--page-w, 1920))); }
 .editor-display-page { position: relative; overflow: hidden; width: 100%; height: 100%; background: white; container-type: size; }
 .editor-animation-surface { position: absolute; inset: 0; overflow: hidden; container-type: size; isolation: isolate; }
 .editor-animation-canvas-preview { position: absolute; inset: 0; overflow: hidden; z-index: 20; pointer-events: none; }
@@ -959,7 +960,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
 /* Width drives the height. The stage used to size from its content; with the
    ball absolutely positioned it has none, so a min-height plus 16:9 forced it
    117px wide and out of narrow cards. */
-.editor-animation-preview .editor-animation-stage { width: 100%; aspect-ratio: 16 / 9; height: auto; min-height: 0; }
+.editor-animation-preview .editor-animation-stage { width: 100%; aspect-ratio: var(--page-w, 1920) / var(--page-h, 1080); height: auto; min-height: 0; }
 .editor-thumb-art { container-type: size; }
 .editor-display-bar { position: absolute; z-index: 1; bottom: 22px; display: flex; align-items: center; gap: 22px; max-width: calc(100vw - 32px); padding: 9px 14px; border-radius: 13px; background: rgb(20 18 26 / .92); box-shadow: 0 8px 30px rgb(0 0 0 / .45); color: white; transition: opacity 200ms ease, translate 200ms ease; }
 /* Hover needs no handler: a pointer that is hovering has just moved, so it is
@@ -1059,7 +1060,7 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-canvas-bar { gap: 4px; margin-inline: 0; padding: 5px 8px 6px; }
   .editor-canvas-bar .editor-ruler-toggle, .editor-page-count { display: none; }
   .editor-canvas-bar button { height: 32px; padding-inline: 9px; font-size: 11px; }
-  .editor-canvas-bar .editor-page-thumb { width: 64px; height: 36px; }
+  .editor-canvas-bar .editor-page-thumb { height: 36px; }
   .editor-canvas-bar .editor-page-add button { width: 32px; height: 32px; }
   .editor-canvas-bar .editor-zoom button { width: 26px; height: 26px; }
   .editor-zoom > span { padding-inline: 5px; font-size: 11px; }
@@ -1183,10 +1184,11 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-publish-field input, .editor-publish-field textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-ink); font-size: 14px; outline: none; transition: border-color 120ms ease, box-shadow 120ms ease; }
 .editor-publish-field textarea { resize: none; }
 .editor-publish-field input:focus, .editor-publish-field textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent); }
-.editor-publish-visibility { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+.editor-publish-visibility { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
 .editor-publish-vis { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 8px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease; }
 .editor-publish-vis:hover { border-color: color-mix(in srgb, var(--color-primary) 40%, var(--editor-border)); }
 .editor-publish-vis.is-active { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+.editor-publish-visibility-note { margin-top: 10px; color: var(--editor-muted); font-size: 12px; line-height: 1.5; }
 .editor-publish-error { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, #c4443e 12%, transparent); color: #c4443e; font-size: 13px; }
 .editor-publish-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 .editor-publish-cancel { padding: 10px 18px; border: none; border-radius: 12px; background: transparent; color: var(--editor-muted); font-size: 14px; cursor: pointer; }
@@ -1194,3 +1196,96 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-publish-submit { display: flex; align-items: center; gap: 8px; padding: 10px 22px; border: none; border-radius: 12px; background: var(--color-primary); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
 .editor-publish-submit:hover:not(:disabled) { background: color-mix(in srgb, var(--color-primary) 88%, black); }
 .editor-publish-submit:disabled, .editor-publish-cancel:disabled { opacity: .55; cursor: default; }
+
+/* A public submission stays on-screen as a review receipt rather than vanishing like a toast. */
+.editor-publish-modal.is-review { max-width: 652px; padding: 38px 40px 30px; }
+.editor-publish-review { text-align: center; }
+.editor-publish-review-art { position: relative; width: min(100%, 430px); aspect-ratio: 430 / 190; margin: 0 auto 18px; }
+.editor-publish-review-art-preview { position: absolute; top: 18%; left: 2%; display: grid; width: 45%; height: 67%; overflow: hidden; place-items: center; border: 9px solid #fff; border-radius: 17px; background: #fff; color: var(--editor-accent); box-shadow: 0 8px 20px rgb(64 43 127 / .18); transform: rotate(-10deg); }
+.editor-publish-review-art-preview img { width: 100%; height: 100%; object-fit: contain; }
+.editor-publish-review-art-arrow { position: absolute; top: 25%; left: 47%; width: 13%; color: var(--editor-accent); }
+.editor-publish-review-art-inbox { position: absolute; top: 4%; right: 0; width: 48%; height: 86%; object-fit: contain; }
+.editor-publish-review h2 { margin: 0; color: var(--editor-ink); font-size: clamp(23px, 4vw, 30px); font-weight: 700; line-height: 1.22; letter-spacing: -.03em; }
+.editor-publish-review-copy { margin: 13px auto 0; color: var(--editor-muted); font-size: 16px; line-height: 1.5; }
+.editor-publish-review-steps { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 35px 0 27px; padding: 0; list-style: none; }
+.editor-publish-review-steps::before, .editor-publish-review-steps::after { content: ""; position: absolute; top: 24px; left: 16.666%; height: 2px; pointer-events: none; }
+.editor-publish-review-steps::before { right: 16.666%; background: var(--editor-border); }
+.editor-publish-review-steps::after { width: 33.333%; background: var(--editor-accent); }
+.editor-publish-review-steps li { position: relative; z-index: 1; display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 10px; color: var(--editor-muted); font-size: 14px; font-weight: 600; line-height: 1.25; text-align: center; }
+.editor-publish-review-step-icon { position: relative; display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--editor-ink) 7%, var(--editor-surface)); color: var(--editor-muted); }
+.editor-publish-review-steps .is-complete { color: var(--editor-ink); }
+.editor-publish-review-steps .is-complete .editor-publish-review-step-icon { background: var(--editor-accent); color: white; }
+/* "In review" waits in grey until the line reaches it (is-reached; see useReviewReceiptMotion). */
+.editor-publish-review-steps .is-current { transition: color 250ms ease; }
+.editor-publish-review-steps .is-current .editor-publish-review-step-icon { border: 2px solid var(--editor-border); background: var(--editor-surface); transition: border-color 250ms ease; }
+.editor-publish-review-step-dot { width: 22px; height: 22px; border-radius: 50%; background: var(--editor-accent); }
+.editor-publish-review-steps .is-current:not(.is-reached) .editor-publish-review-step-dot { scale: 0; }
+.editor-publish-review-steps .is-reached { color: var(--editor-accent); }
+.editor-publish-review-steps .is-reached .editor-publish-review-step-icon { border-color: var(--editor-accent); }
+/* A soft ring pulsing out of the dot: still with the admin, still moving. */
+.editor-publish-review-step-ripple { position: absolute; inset: -2px; border: 2px solid var(--editor-accent); border-radius: 50%; opacity: 0; pointer-events: none; }
+.editor-publish-review-steps .is-reached .editor-publish-review-step-ripple { animation: editor-review-ripple 1800ms cubic-bezier(.22, .61, .36, 1) 350ms infinite; }
+@keyframes editor-review-ripple { from { opacity: .5; scale: 1; } to { opacity: 0; scale: 1.8; } }
+.editor-publish-review-design { display: flex; min-width: 0; align-items: center; gap: 20px; padding: 12px; border: 1px solid var(--editor-border); border-radius: 16px; background: var(--editor-raised); text-align: left; }
+.editor-publish-review-design-image { display: grid; width: 154px; height: 102px; flex: none; overflow: hidden; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--editor-accent) 10%, var(--editor-surface)); color: var(--editor-accent); }
+.editor-publish-review-design-image img { width: 100%; height: 100%; object-fit: cover; }
+.editor-publish-review-design-copy { display: grid; min-width: 0; gap: 5px; }
+.editor-publish-review-design-copy strong { overflow: hidden; color: var(--editor-ink); font-size: 18px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.editor-publish-review-design-copy span { color: var(--editor-muted); font-size: 14px; }
+.editor-publish-review-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.editor-publish-review-actions button { display: grid; min-width: 0; min-height: 58px; place-items: center; padding: 10px 16px; border-radius: 13px; font-size: 15px; font-weight: 600; line-height: 1.3; text-align: center; cursor: pointer; }
+.editor-publish-review-secondary { border: 1px solid var(--editor-border); background: var(--editor-raised); color: var(--editor-muted); }
+.editor-publish-review-secondary:hover { border-color: var(--editor-accent); color: var(--editor-accent); }
+.editor-publish-review-primary { border: 1px solid var(--editor-accent); background: var(--editor-accent); color: white; }
+.editor-publish-review-primary:hover { background: color-mix(in srgb, var(--editor-accent) 88%, black); }
+.editor-publish-modal :is(button, input, textarea):focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 3px; }
+@media (max-width: 520px) {
+  .editor-publish-modal.is-review { padding: 34px 20px 20px; }
+  .editor-publish-review-art { width: min(100%, 340px); margin-bottom: 12px; }
+  .editor-publish-review-art-preview { border-width: 6px; border-radius: 13px; }
+  .editor-publish-review-copy { font-size: 14px; }
+  .editor-publish-review-steps { margin-block: 26px 22px; }
+  .editor-publish-review-steps li { font-size: 12px; }
+  .editor-publish-review-design { gap: 11px; }
+  .editor-publish-review-design-image { width: 96px; height: 72px; }
+  .editor-publish-review-design-copy strong { font-size: 15px; }
+  .editor-publish-review-actions { gap: 9px; margin-top: 18px; }
+  .editor-publish-review-actions button { min-height: 52px; padding-inline: 8px; font-size: 13px; }
+}
+
+/* Modal entrances. The panels mount on open, so @starting-style gives them a
+   from-state without JS. They stay centred (no trigger origin) and close
+   instantly — a lingering exit would only delay getting back to work. */
+.editor-publish-backdrop, .editor-exit-scrim { transition: opacity 200ms ease; }
+.editor-publish-modal, .editor-exit-prompt { transition: opacity 220ms cubic-bezier(.23, 1, .32, 1), scale 220ms cubic-bezier(.23, 1, .32, 1); }
+@starting-style {
+  .editor-publish-backdrop, .editor-exit-scrim { opacity: 0; }
+  .editor-publish-modal, .editor-exit-prompt { opacity: 0; scale: .96; }
+}
+
+/* Review receipt: publishing is rare, so it earns one short beat. Pieces rise
+   in turn, then the progress line grows into "In review" and the arrow draws
+   itself. Keyframes, not transitions — it plays once and never retargets. */
+@keyframes editor-review-rise { from { opacity: 0; translate: 0 8px; } }
+@keyframes editor-review-line { from { scale: 0 1; } }
+@keyframes editor-review-draw { from { stroke-dashoffset: 1; } }
+.editor-publish-review > * { animation: editor-review-rise 300ms cubic-bezier(.23, 1, .32, 1) both; }
+/* The heading has its own entrance (anime.js, see useReviewReceiptMotion). */
+.editor-publish-review > h2 { animation: none; }
+.editor-publish-review > :nth-child(3) { animation-delay: 100ms; }
+.editor-publish-review > :nth-child(4) { animation-delay: 150ms; }
+.editor-publish-review > :nth-child(5) { animation-delay: 200ms; }
+/* Actions are there from frame one: the receipt must never block leaving it. */
+.editor-publish-review > .editor-publish-review-actions { animation: none; }
+/* Slow, eased at both ends, after a short pause: it fills up rather than snaps. */
+.editor-publish-review-steps::after { transform-origin: left; animation: editor-review-line var(--line-duration, 1400ms) cubic-bezier(.65, 0, .35, 1) var(--line-delay, 500ms) both; }
+.editor-publish-review-art-arrow path { stroke-dasharray: 1; animation: editor-review-draw 400ms cubic-bezier(.23, 1, .32, 1) 150ms both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-publish-modal, .editor-exit-prompt { transition: opacity 200ms ease; }
+  @starting-style { .editor-publish-modal, .editor-exit-prompt { scale: 1; } }
+  @keyframes editor-review-fade { from { opacity: 0; } }
+  .editor-publish-review > * { animation: editor-review-fade 200ms ease both; animation-delay: 0ms !important; }
+  .editor-publish-review > .editor-publish-review-actions, .editor-publish-review-steps::after, .editor-publish-review-art-arrow path,
+  .editor-publish-review-steps .is-reached .editor-publish-review-step-ripple { animation: none; }
+}

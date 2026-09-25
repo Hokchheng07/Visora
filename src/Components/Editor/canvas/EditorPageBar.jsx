@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { pageBackgroundChanged, pageNumbersChanged, targetChanged } from "../../redux/editorSlice.js";
 import { effectiveLocked, pageLabel } from "../model/layerModel.js";
 import { normalizePageNumbers } from "../model/pageNumbers.js";
+import { normalizePageSize } from "../model/pageSize.js";
 import { BULLET_STYLES, isOrderedList, normalizeListStyle, NUMBER_STYLES } from "../model/textLists.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
 import { IconButton, Segmented, Stepper, SwatchButton, ToolPopover } from "../ui/EditorControls.jsx";
@@ -17,11 +18,12 @@ import { IconButton, Segmented, Stepper, SwatchButton, ToolPopover } from "../ui
  */
 export default function EditorPageBar({ onAnimate }) {
   const dispatch = useAppDispatch();
-  const { pages, currentPage, selectedIds, gesture, pageNumbers } = useAppSelector((state) => state.editor);
+  const { pages, currentPage, selectedIds, gesture, pageNumbers, canvas } = useAppSelector((state) => state.editor);
+  const size = normalizePageSize(canvas);
   const page = pages[currentPage];
   if (!selectedIds.length) {
     return <PageProperties page={page} label={pageLabel(page, currentPage)} busy={!!gesture} dispatch={dispatch}
-      onAnimate={onAnimate} pageNumbers={pageNumbers} />;
+      onAnimate={onAnimate} pageNumbers={pageNumbers} size={size} />;
   }
   const selection = page.elements.filter((element) => selectedIds.includes(element.id));
   if (selection.length === 1 && selection[0].type === "text") {
@@ -32,7 +34,7 @@ export default function EditorPageBar({ onAnimate }) {
 
 /* Nothing selected: the bar describes the page. For a backdrop the background
    is most of the design, so it gets a named button rather than a bare chip. */
-function PageProperties({ page, label, busy, dispatch, onAnimate, pageNumbers }) {
+function PageProperties({ page, label, busy, dispatch, onAnimate, pageNumbers, size }) {
   const background = page.background?.value || "#FFFFFF";
   return (
     <div className="editor-shape-tools" role="group" aria-label="Page settings"
@@ -49,7 +51,8 @@ function PageProperties({ page, label, busy, dispatch, onAnimate, pageNumbers })
         <PageNumbersMenu settings={pageNumbers} busy={busy} dispatch={dispatch} />
       </div>
       <div className="editor-toolbar-group">
-        <span className="editor-canvas-size">1920 &times; 1080</span>
+        {/* Read-only for now; the size picker (pageSizeChanged) will live here. */}
+        <span className="editor-canvas-size">{size.width} &times; {size.height}</span>
       </div>
       <div className="editor-toolbar-group">
         {/* The same control as Page numbers beside it: icon and word on one line. */}

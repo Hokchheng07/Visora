@@ -483,8 +483,8 @@
 .explore-events-cta h3 { font-size: clamp(2rem, 3.2vw, 3rem); font-weight: 600; line-height: 1.12; letter-spacing: -.035em; }
 .explore-events-cta h3 span { color: #ffbf1f; }
 .explore-events-cta p { margin-top: .7rem; font-size: clamp(1rem, 1.6vw, 1.45rem); line-height: 1.5; }
-.explore-events-cta a { display: inline-flex; align-items: center; gap: 1rem; margin-top: 2.25rem; border-radius: 1rem; padding: 1.05rem 2.15rem; background: linear-gradient(135deg, #ffd12b, #ffbf1f); color: white; font-size: clamp(1rem, 1.3vw, 1.2rem); font-weight: 700; box-shadow: 0 12px 28px rgb(51 35 135 / .18); transition: transform 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1), filter 180ms cubic-bezier(.23, 1, .32, 1); }
-.explore-events-cta a span { font-size: 1.55em; line-height: 1; }
+.explore-events-cta button { display: inline-flex; align-items: center; gap: 1rem; margin-top: 2.25rem; border-radius: 1rem; padding: 1.05rem 2.15rem; background: linear-gradient(135deg, #ffd12b, #ffbf1f); color: white; font-size: clamp(1rem, 1.3vw, 1.2rem); font-weight: 700; box-shadow: 0 12px 28px rgb(51 35 135 / .18); cursor: pointer; transition: transform 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1), filter 180ms cubic-bezier(.23, 1, .32, 1); }
+.explore-events-cta button span { font-size: 1.55em; line-height: 1; }
 .explore-events-line-top,
 .explore-events-paper-plane,
 .explore-events-line-bottom,
@@ -495,7 +495,7 @@
 .explore-events-line-right { right: 15%; bottom: 11vw; width: clamp(110px, 11.8vw, 170px); }
 
 @media (hover: hover) and (pointer: fine) {
-  .explore-events-cta a:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgb(51 35 135 / .25); filter: brightness(1.04); }
+  .explore-events-cta button:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgb(51 35 135 / .25); filter: brightness(1.04); }
 }
 
 @media (max-width: 767px) {
@@ -515,7 +515,7 @@
   .explore-events-cta { bottom: 11%; padding-inline: .5rem; }
   .explore-events-cta h3 { margin-inline: auto; max-width: 360px; font-size: clamp(2rem, 9vw, 2.6rem); }
   .explore-events-cta p { margin-inline: auto; max-width: 310px; font-size: 1rem; }
-  .explore-events-cta a { margin-top: 1.75rem; border-radius: .875rem; padding: .9rem 1.5rem; }
+  .explore-events-cta button { margin-top: 1.75rem; border-radius: .875rem; padding: .9rem 1.5rem; }
   .explore-events-line-top { bottom: auto; top: 58%; left: 7%; width: 74px; }
   .explore-events-paper-plane { bottom: 6%; left: 4%; width: 72px; }
   .explore-events-line-bottom { bottom: 2%; left: 26%; width: 62px; }
@@ -523,7 +523,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .explore-events-cta a { transition-duration: 120ms; }
+  .explore-events-cta button { transition-duration: 120ms; }
 }
 
 /* Responsive safeguards for the complete homepage composition. These only

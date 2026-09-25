@@ -1,5 +1,7 @@
 import { MonitorPlay,Plus } from "lucide-react";
 import { Link } from "react-router";
+import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
+import { useCanvasPicker } from "../../Templates/useCanvasPicker.js";
 
 /* The quick-format shelf. Blank Canvas is the highlighted first tile; the rest
  * are plain format presets that open the editor at a fixed size. */
@@ -15,6 +17,7 @@ const FORMATS=[
 ];
 
 export default function CreateNewShelf(){
+  const canvasPicker=useCanvasPicker();
   return(
     <section className="mt-7">
       {/* SECTION TITLE */}
@@ -29,9 +32,10 @@ export default function CreateNewShelf(){
       {/* FORMAT TILES */}
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* BLANK CANVAS */}
-        <Link
-          to="/editor"
-          className="group relative flex flex-col justify-between rounded-[16px] border-2 border-dashed border-primary/45 bg-[var(--surface-card)] p-4 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_10px_26px_rgba(112,90,224,0.12)]"
+        <button
+          type="button"
+          onClick={canvasPicker.show}
+          className="group relative flex flex-col justify-between rounded-[16px] border-2 border-dashed border-primary/45 bg-[var(--surface-card)] p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_10px_26px_rgba(112,90,224,0.12)]"
         >
           <div className="flex items-start justify-between">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary text-[var(--text-on-brand)] shadow-[0_6px_16px_rgba(112,90,224,0.25)]">
@@ -52,7 +56,7 @@ export default function CreateNewShelf(){
               Custom size &amp; DPI
             </p>
           </div>
-        </Link>
+        </button>
 
         {/* PRESETS */}
         {FORMATS.map(({id,title,caption,icon:Icon,iconClass,to})=>(
@@ -77,6 +81,7 @@ export default function CreateNewShelf(){
           </Link>
         ))}
       </div>
+      <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create}/>
     </section>
   );
 }

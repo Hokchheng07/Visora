@@ -1,18 +1,20 @@
-export const CANVAS_WIDTH = 1920;
-export const CANVAS_HEIGHT = 1080;
+import { DEFAULT_PAGE } from "./pageSize.js";
+
+/* The default page. A design's own size lives in the editor state (canvas),
+   and every function below that needs the page takes it as its last argument,
+   falling back to this one. */
+export const CANVAS_WIDTH = DEFAULT_PAGE.width;
+export const CANVAS_HEIGHT = DEFAULT_PAGE.height;
 export const MIN_SIZE = 24;
 /* The work area: the page plus one page of room on every side, the way Figma's
    canvas and Canva's workspace let an element wait just off-stage. Elements
    may live out here — a morph can then slide one onto the page — but nothing
    out here is shown in display mode, page thumbnails or an image export, which
    clip to the page. These are the ranges the API documents. */
-export const WORK_MARGIN_X = CANVAS_WIDTH;
-export const WORK_MARGIN_Y = CANVAS_HEIGHT;
-export const WORK_AREA = { left: -WORK_MARGIN_X, top: -WORK_MARGIN_Y, right: CANVAS_WIDTH + WORK_MARGIN_X, bottom: CANVAS_HEIGHT + WORK_MARGIN_Y };
-export const MAX_WIDTH = CANVAS_WIDTH * 3;
-export const MAX_HEIGHT = CANVAS_HEIGHT * 3;
+export const workArea = (page = DEFAULT_PAGE) => ({ left: -page.width, top: -page.height, right: page.width * 2, bottom: page.height * 2 });
+export const WORK_AREA = workArea();
 // Whether any of the element shows on the page, which is all display mode draws.
-export const onPage = (element) => intersectsRect(element, { left: 0, top: 0, right: CANVAS_WIDTH, bottom: CANVAS_HEIGHT });
+export const onPage = (element, page = DEFAULT_PAGE) => intersectsRect(element, { left: 0, top: 0, right: page.width, bottom: page.height });
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export const radians = (degrees) => degrees * Math.PI / 180;
 
@@ -35,12 +37,13 @@ export function selectionBounds(elements) {
   return { left, right, top, bottom, x: left, y: top, w: right - left, h: bottom - top };
 }
 
-export function clampSelectionDelta(elements, dx, dy) {
+export function clampSelectionDelta(elements, dx, dy, page = DEFAULT_PAGE) {
   const box = selectionBounds(elements);
   if (!box) return { x: 0, y: 0 };
+  const area = workArea(page);
   return {
-    x: clamp(dx, WORK_AREA.left - box.left, WORK_AREA.right - box.right),
-    y: clamp(dy, WORK_AREA.top - box.top, WORK_AREA.bottom - box.bottom),
+    x: clamp(dx, area.left - box.left, area.right - box.right),
+    y: clamp(dy, area.top - box.top, area.bottom - box.bottom),
   };
 }
 
@@ -57,14 +60,14 @@ export function elementsInRect(elements, rect) {
   return elements.filter((element) => intersectsRect(element, normalized)).map((element) => element.id);
 }
 
-export function snapSelectionDelta(selectedElements, otherElements, dx, dy, threshold = 8) {
+export function snapSelectionDelta(selectedElements, otherElements, dx, dy, threshold = 8, page = DEFAULT_PAGE) {
   const start = selectionBounds(selectedElements);
   if (!start) return { x: dx, y: dy, guides: [] };
   const moved = { left: start.left + dx, right: start.right + dx, top: start.top + dy, bottom: start.bottom + dy };
   moved.cx = (moved.left + moved.right) / 2;
   moved.cy = (moved.top + moved.bottom) / 2;
-  const xTargets = [0, CANVAS_WIDTH / 2, CANVAS_WIDTH];
-  const yTargets = [0, CANVAS_HEIGHT / 2, CANVAS_HEIGHT];
+  const xTargets = [0, page.width / 2, page.width];
+  const yTargets = [0, page.height / 2, page.height];
   for (const element of otherElements) {
     const box = bounds(element);
     xTargets.push(box.left, (box.left + box.right) / 2, box.right);
@@ -98,8 +101,9 @@ export function diagonalScale(w, h, sx, sy, dx, dy) {
   return length > 0 ? ((cornerX + dx) * cornerX + (cornerY + dy) * cornerY) / length : 1;
 }
 
-export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = false) {
+export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = false, page = DEFAULT_PAGE) {
   if (!startBox || !elements.length) return elements;
+  const WORK_AREA = workArea(page);
   const sx = handle.includes("e") ? 1 : handle.includes("w") ? -1 : 0;
   const sy = handle.includes("s") ? 1 : handle.includes("n") ? -1 : 0;
   /* The anchored edge never moves, so it sets how far the opposite edge can
@@ -148,7 +152,8 @@ export function scaleSelection(elements, startBox, handle, dx, dy, lockAspect = 
 
 /* Keeps an element inside the work area, which is where it may be, not inside
    the page, which is only what the audience sees. */
-export function fitElement(element) {
+export function fitElement(element, page = DEFAULT_PAGE) {
+  const WORK_AREA = workArea(page), MAX_WIDTH = page.width * 3, MAX_HEIGHT = page.height * 3;
   let result = { ...element, w: clamp(element.w, MIN_SIZE, MAX_WIDTH), h: clamp(element.h, MIN_SIZE, MAX_HEIGHT) };
   let box = bounds(result);
   const ratio = Math.min(1, MAX_WIDTH / (box.halfW * 2), MAX_HEIGHT / (box.halfH * 2));
@@ -160,7 +165,8 @@ export function fitElement(element) {
   return result;
 }
 
-export function resizeElement(start, handle, dx, dy, lockAspect = false) {
+export function resizeElement(start, handle, dx, dy, lockAspect = false, page = DEFAULT_PAGE) {
+  const WORK_AREA = workArea(page);
   const angle = radians(start.rotation);
   const cos = Math.cos(angle), sin = Math.sin(angle);
   const localX = dx * cos + dy * sin;
@@ -197,7 +203,13 @@ export function resizeElement(start, handle, dx, dy, lockAspect = false) {
   return at(low);
 }
 
+/* Where an element sits on its sheet, as a share of the page. The page size
+   comes from --page-w / --page-h on a wrapper (see pageCssVars), so the same
+   element draws right on the canvas, a thumbnail, display mode and an export. */
+export const pagePercentX = (value) => `calc(${value} / var(--page-w, ${CANVAS_WIDTH}) * 100%)`;
+export const pagePercentY = (value) => `calc(${value} / var(--page-h, ${CANVAS_HEIGHT}) * 100%)`;
+
 export function elementStyle(element) {
-  return { left: `${element.x / CANVAS_WIDTH * 100}%`, top: `${element.y / CANVAS_HEIGHT * 100}%`,
-    width: `${element.w / CANVAS_WIDTH * 100}%`, height: `${element.h / CANVAS_HEIGHT * 100}%` };
+  return { left: pagePercentX(element.x), top: pagePercentY(element.y),
+    width: pagePercentX(element.w), height: pagePercentY(element.h) };
 }

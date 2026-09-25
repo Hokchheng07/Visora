@@ -26,8 +26,8 @@ export function TemplateActionModal({
   onDelete,
 }){
   return(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
-      <div className="relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[var(--border-card)] bg-[var(--surface-card)] p-6 shadow-[0_25px_80px_rgba(0,0,0,.28)]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm transition-opacity duration-200 starting:opacity-0">
+      <div className="relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[24px] transition-[opacity,scale] duration-[220ms] ease-[cubic-bezier(.23,1,.32,1)] starting:scale-[.96] starting:opacity-0 motion-reduce:starting:scale-100 border border-[var(--border-card)] bg-[var(--surface-card)] p-6 shadow-[0_25px_80px_rgba(0,0,0,.28)]">
         {/* ONLY THIS X CLOSES DIRECTLY */}
         <button
           type="button"
