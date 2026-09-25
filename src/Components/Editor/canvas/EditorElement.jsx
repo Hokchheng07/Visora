@@ -10,7 +10,7 @@ import { isOrderedList, listLines, normalizeListStyle } from "../model/textLists
 import { useElementDrag } from "./useElementDrag.js";
 import EditorSelectionFrame from "./EditorSelectionFrame.jsx";
 import EditorVectorEditor from "./EditorVectorEditor.jsx";
-import EditorImageCropper from "./EditorImageCropper.jsx";
+import EditorImageCropper, { EditorImageCropToolbar } from "./EditorImageCropper.jsx";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { cropStarted, elementSelected, pointEditStarted, targetChanged } from "../../redux/editorSlice.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
@@ -279,11 +279,12 @@ export default function EditorElement({ element, pageId, sheetRef, scale, select
         </div>
         {/* The cropper sits beside the selection frame, not instead of it: the
             frame is what resizes the crop, and the cropper moves the photo in it. */}
-        {selected && selectedCount === 1 && cropping && <EditorImageCropper element={element} pageId={pageId} scale={scale} />}
+        {selected && selectedCount === 1 && cropping && <EditorImageCropper element={element} scale={scale} />}
         {selected && selectedCount === 1 && (pointKeys
           ? <EditorVectorEditor element={element} pageId={pageId} sheetRef={sheetRef} scale={scale} keys={pointKeys} />
           : <EditorSelectionFrame element={element} sheetRef={sheetRef} locked={locked} />)}
       </div>
+      {selected && selectedCount === 1 && cropping && <EditorImageCropToolbar element={element} pageId={pageId} />}
     </div>
   );
 }

@@ -13,6 +13,8 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
   const slide = visit.slide;
   const rootRef = useRef(null);
   const isIdle = useIdlePointer();
+  const timerControlsIdle = useIdlePointer(4000);
+  const [autoHideTimerControls, setAutoHideTimerControls] = useState(true);
   const controllerRef = useRef(null);
   const [exitPrompt, setExitPrompt] = useState(null);
   /* Which timers have been started, paused or finished. Only a touched timer
@@ -102,7 +104,7 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
   return (
     <div
       ref={rootRef}
-      className={`editor-display${isIdle ? " is-idle" : ""}`}
+      className={`editor-display${isIdle ? " is-idle" : ""}${autoHideTimerControls && timerControlsIdle ? " are-timers-idle" : ""}`}
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
@@ -120,6 +122,9 @@ export default function EditorDisplay({ pages, initialPage = 0, onClose }) {
       <EditorDisplayBar
         pages={pages}
         slide={slide}
+        showTimerSetting={pages[slide]?.elements?.some((element) => element.type === "timer" && element.visible !== false)}
+        autoHideTimerControls={autoHideTimerControls}
+        onAutoHideTimerControlsChange={() => setAutoHideTimerControls((enabled) => !enabled)}
         onSlideChange={goTo}
         onNext={() => { if (!exitPrompt) controllerRef.current?.next(); }}
         onPrevious={() => { if (!exitPrompt) goTo(slide - 1); }}

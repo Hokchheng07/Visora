@@ -79,8 +79,6 @@
 .dark .site-shell .hero-cta-primary { background: #e35dcb; box-shadow: 0 10px 24px rgb(227 93 203 / .28); }
 .dark .site-shell .hero-cta-secondary { background: #72bff1; color: #fff; }
 @media (hover: hover) and (pointer: fine) { .dark .site-shell .hero-cta-secondary:hover { background: #86c9f4; } }
-/* Sign In uses the solid dark primary instead of the blue-to-pink gradient. */
-.dark .site-shell .navbar-sign-in { background: var(--color-primary); }
 .dark .site-shell .hero-backdrop-word,
 .dark .site-shell .hero-backdrop-word [data-word] { color: #f5a5ec; text-shadow: .35cqw .35cqw 0 #e35dcb; }
 .dark .site-shell .khmer-showcase-button { color: #fff; }
@@ -102,30 +100,13 @@
 .dark .site-shell .how-it-works-section > img:first-of-type { opacity: .12; }
 .dark .site-shell .how-it-works-section article { background: linear-gradient(145deg, #315b89, #613c71); }
 .dark .site-shell footer { border-color: var(--border-default); }
-.dark .site-shell img[alt='ISTAD'] { background: #eee7f6; border-radius: 12px; padding: 8px; }
 
-/* The 45° ruler travels along the normal of x-y=k. The new page is clipped
-   to that same line, so the palette never leaks ahead of the ruler. */
-.theme-ruler {
-  position: fixed; left: 50%; top: 50%; height: 52px; z-index: 2147483647;
-  transform: translate(-50%, -50%) rotate(45deg);
-  view-transition-name: theme-ruler; pointer-events: none;
-  background: linear-gradient(90deg, #72bff1, #e35dcb);
-  color: #171321; border-block: 1px solid rgb(255 255 255 / .4);
-  box-shadow: 0 8px 24px rgb(0 0 0 / .25);
-  contain: layout;
-}
-.theme-ruler-light { background: linear-gradient(90deg, #b294f0, #ffc21c); }
-.theme-ruler::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10px) top / 100% 8px no-repeat, repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 50px) top / 100% 16px no-repeat, repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10px) bottom / 100% 8px no-repeat; opacity: .6; }
-.theme-ruler span { position: absolute; inset: 0; display: grid; place-items: center; font: 600 10px Poppins, sans-serif; letter-spacing: 3px; }
 html[data-theme-transition]::view-transition { pointer-events: none; }
-html[data-theme-transition='ruler']::view-transition-old(root),
-html[data-theme-transition='ruler']::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-html[data-theme-transition='ruler']::view-transition-group(root) { animation-duration: 650ms; }
-html[data-theme-transition='ruler']::view-transition-new(root) { z-index: 2; }
-html[data-theme-transition='ruler']::view-transition-old(root) { z-index: 1; }
-html[data-theme-transition='ruler']::view-transition-group(theme-ruler) { z-index: 3; animation: none; }
-html[data-theme-transition='ruler']::view-transition-new(theme-ruler) { animation: none; overflow: visible; }
+html[data-theme-transition='diagonal']::view-transition-old(root),
+html[data-theme-transition='diagonal']::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html[data-theme-transition='diagonal']::view-transition-group(root) { animation-duration: 650ms; }
+html[data-theme-transition='diagonal']::view-transition-new(root) { z-index: 2; }
+html[data-theme-transition='diagonal']::view-transition-old(root) { z-index: 1; }
 html[data-theme-transition='fade']::view-transition-group(*) { animation-duration: 180ms; }
 @media (prefers-reduced-motion: reduce) {
   .theme-toggle, .theme-toggle-icons svg { transition: opacity 180ms ease; }

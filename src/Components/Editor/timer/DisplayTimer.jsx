@@ -148,6 +148,14 @@ function DisplayCountdown({ element, onRequestStop, onRunningChange }) {
   }, [dispose]);
 
   const control = useCallback((id) => {
+    if (id === "start" || id === "stop") {
+      if (id === "start" && (status === "ready" || status === "stopped")) begin(status === "ready" ? duration : remainingMs);
+      if (id === "stop" && (status === "running" || status === "paused")) {
+        dispose();
+        setStatus("stopped");
+      }
+      return;
+    }
     /* Position one carries both meanings: begin the countdown while it is
        ready, leave the presentation once it is running. Resuming is position
        two's job, so Start never has to double as Resume. */
@@ -168,7 +176,7 @@ function DisplayCountdown({ element, onRequestStop, onRunningChange }) {
       setRemainingMs(duration);
       setStatus("ready");
     }
-  }, [status, duration, begin, dispose, onRequestStop]);
+  }, [status, duration, remainingMs, begin, dispose, onRequestStop]);
 
   return (
     <span className="editor-static-element" data-element-id={element.id}
