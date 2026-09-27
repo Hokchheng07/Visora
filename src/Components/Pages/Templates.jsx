@@ -34,10 +34,12 @@ function fromServerTemplate(template) {
     description: template.description || "",
     type: eventType,
     categories,
+    eventType,
     styles: template.styles || [],
-    tags: [...categories, ...(template.styles || [])].filter(Boolean),
+    tags: [...categories, ...(template.hasTimer ? ["Timer"] : []), ...(template.styles || [])].filter(Boolean),
     orientation: template.orientation === "PORTRAIT" ? "Portrait" : "Landscape",
-    users: 0,
+    pageCount: Math.max(1, Number(template.pageCount) || 1),
+    hasTimer: Boolean(template.hasTimer),
     image: template.thumbnail ? getStorageUrl(template.thumbnail) : null,
   };
 }
@@ -67,7 +69,9 @@ export default function TemplatePage() {
      which holds everyone's templates — GET /templates may only return the
      signed-in account's own. Both are merged, each template once. */
   const fresh = { refetchOnMountOrArgChange: true };
-  const { data: ownPage } = useGetTemplatesQuery({ templateStatus: "APPROVED", pageSize: 100 }, { ...fresh, skip: !isSignedIn });
+  // Asked for signed out too: browsing is for everyone. Until the server makes
+  // GET /templates public it answers visitors 401, and they see the samples only.
+  const { data: ownPage } = useGetTemplatesQuery({ templateStatus: "APPROVED", pageSize: 100 }, fresh);
   const { data: adminPage } = useGetAllTemplatesQuery({ templateStatus: "APPROVED", pageSize: 100 }, { ...fresh, skip: !isAdmin });
   const allTemplates = useMemo(() => {
     const seen = new Set();
@@ -124,7 +128,12 @@ export default function TemplatePage() {
 
   // A server template is copied into your designs and opened (see useOpenRemoteDesign);
   // a sample one opens the editor as it is.
+  // Looking is open to everyone; using a template (a copy saved to an account) needs one.
   const handleUseTemplate = (template) => {
+    if (template.remoteId && !isSignedIn) {
+      navigate("/auth/login");
+      return;
+    }
     navigate(template.remoteId ? `/editor?template=${template.remoteId}` : "/editor");
   };
 

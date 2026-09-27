@@ -11,8 +11,10 @@
 }
 .cm-toolbar-end {
   display: flex;
+  align-items: center;
   gap: 16px;
 }
+.cm-add-button { min-width: 132px; }
 .cm-table .ad-table th:first-child {
   width: 22%;
 }
@@ -81,12 +83,18 @@
   .cm-search,
   .cm-toolbar-end {
     width: 100%;
+    flex-wrap: wrap;
   }
   .cm-toolbar-end .ad-sort {
     flex: 1;
   }
+  .cm-add-button {
+    order: -1;
+    width: 100%;
+  }
 }
 /* Edit category: the icon picker. One choice; its key is saved as the category's `icon`. */
+.cm-category-modal { width: min(560px, 100%); }
 .cm-icon-picker { min-width: 0; margin: 0 0 16px; padding: 0; border: 0; }
 .cm-icon-picker legend { margin-bottom: 8px; color: var(--text-heading); font-size: 14px; font-weight: 500; }
 .cm-icon-picker > div { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; }

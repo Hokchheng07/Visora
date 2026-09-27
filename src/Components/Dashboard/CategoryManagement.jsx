@@ -3,6 +3,7 @@ import {
   ChevronDown,
   Funnel,
   Pencil,
+  Plus,
   Power,
   PowerOff,
   Search,
@@ -14,6 +15,7 @@ import { AdminNotice, Modal, Pagination, RowMenu, formatDate } from "./AdminUi";
 import { categoryUpdate } from "./categoryUpdate.js";
 import { CATEGORY_ICONS, categoryIcon, categoryTone, guessCategoryIcon } from "./categoryIcons";
 import {
+  useCreateCategoryMutation,
   useDeleteCategoryMutation,
   useGetCategoriesQuery,
   useUpdateCategoryMutation,
@@ -24,32 +26,53 @@ import VisoraLoader from "../ui/VisoraLoader";
 
 const perPage = 8;
 
-function EditCategory({ category, onSave, onClose, saving }) {
+const categorySlug = (value = "") => value
+  .normalize("NFKD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-+|-+$/g, "");
+
+function CategoryForm({ category = null, onSave, onClose, saving }) {
+  const isCreating = !category;
   const [form, setForm] = useState({
-    name: category.name || "",
-    description: category.description || "",
+    name: category?.name || "",
+    slug: category?.slug || categorySlug(category?.name),
+    description: category?.description || "",
     // The saved icon, or the one the name suggests, so the picker always shows a choice.
-    icon: CATEGORY_ICONS.some((choice) => choice.key === category.icon) ? category.icon : guessCategoryIcon(category.name),
+    icon: CATEGORY_ICONS.some((choice) => choice.key === category?.icon)
+      ? category.icon
+      : guessCategoryIcon(category?.name),
   });
+  const [slugWasEdited, setSlugWasEdited] = useState(Boolean(category?.slug));
   const [error, setError] = useState(null);
 
   return (
-    <Modal title="Edit category" onClose={onClose}>
+    <Modal
+      title={isCreating ? "Add category" : "Edit category"}
+      className="cm-category-modal"
+      onClose={onClose}
+    >
       <form
         className="ad-form"
         onSubmit={async (event) => {
           event.preventDefault();
           setError(null);
           try {
-            await onSave(form);
+            await onSave({
+              ...form,
+              name: form.name.trim(),
+              description: form.description.trim(),
+            });
             onClose();
           } catch (saveError) {
-            setError(saveError?.data?.message || "Unable to save this category.");
+            setError(saveError?.data?.message || `Unable to ${isCreating ? "add" : "save"} this category.`);
           }
         }}
       >
         <header>
-          <h2>Edit Category</h2>
+          <h2>{isCreating ? "Add Category" : "Edit Category"}</h2>
 
           <button type="button" onClick={onClose} aria-label="Close">
             <X size={18} />
@@ -60,14 +83,33 @@ function EditCategory({ category, onSave, onClose, saving }) {
           Name
           <span className="ad-control">
             <input
+              autoFocus
               required
               value={form.name}
               onChange={(event) =>
-                setForm({
-                  ...form,
+                setForm((current) => ({
+                  ...current,
                   name: event.target.value,
-                })
+                  slug: slugWasEdited ? current.slug : categorySlug(event.target.value),
+                }))
               }
+            />
+          </span>
+        </label>
+
+        <label>
+          Slug
+          <span className="ad-control">
+            <input
+              required
+              value={form.slug}
+              placeholder="category-name"
+              pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+              title="Use lowercase letters, numbers, and hyphens only."
+              onChange={(event) => {
+                setSlugWasEdited(true);
+                setForm({ ...form, slug: categorySlug(event.target.value) });
+              }}
             />
           </span>
         </label>
@@ -117,7 +159,7 @@ function EditCategory({ category, onSave, onClose, saving }) {
           </button>
 
           <button type="submit" className="ad-button primary" disabled={saving}>
-            Save Category
+            {saving ? (isCreating ? "Adding…" : "Saving…") : (isCreating ? "Add Category" : "Save Category")}
           </button>
         </div>
       </form>
@@ -127,11 +169,13 @@ function EditCategory({ category, onSave, onClose, saving }) {
 
 export default function CategoryManagement() {
   const { data, isLoading, isError } = useGetCategoriesQuery();
+  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
   const [updateCategory, { isLoading: isSaving }] = useUpdateCategoryMutation();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
+  const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [mutationError, setMutationError] = useState(null);
@@ -265,6 +309,15 @@ export default function CategoryManagement() {
             aria-label="More filters, coming soon"
           >
             <Funnel size={16} fill="currentColor" aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            className="ad-button primary cm-add-button"
+            onClick={() => setAdding(true)}
+          >
+            <Plus size={17} strokeWidth={2.5} aria-hidden="true" />
+            Add category
           </button>
         </div>
       </div>
@@ -424,9 +477,32 @@ export default function CategoryManagement() {
         variant="outlined"
       />
 
+      {/* Add modal */}
+      {adding && (
+        <CategoryForm
+          saving={isCreating}
+          onSave={async (category) => {
+            setMutationError(null);
+            await createCategory({
+              ...category,
+              displayOrder: categories.length,
+              isActive: true,
+            }).unwrap();
+            setQuery("");
+            setSort("newest");
+            setPage(1);
+            setSuccessNotice({
+              title: "Category added",
+              message: `${category.name} is ready to use.`,
+            });
+          }}
+          onClose={() => setAdding(false)}
+        />
+      )}
+
       {/* Edit modal */}
       {editing && (
-        <EditCategory
+        <CategoryForm
           category={editing}
           saving={isSaving}
           onSave={async (patch) => {

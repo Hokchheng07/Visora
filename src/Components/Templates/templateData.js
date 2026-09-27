@@ -67,7 +67,6 @@ export const templates = [
     color: "Pink",
     orientation: "Landscape",
     tags: ["Workshop", "Modern", "Creative"],
-    users: 250,
     preview: {
       variant: "portfolio",
       background: "#FFF5F3",
@@ -88,7 +87,6 @@ export const templates = [
     color: "Yellow",
     orientation: "Landscape",
     tags: ["Examination", "Modern", "Timer"],
-    users: 250,
     preview: {
       variant: "exam",
       background: "#FFFDF0",
@@ -109,7 +107,6 @@ export const templates = [
     color: "Purple",
     orientation: "Portrait",
     tags: ["Graduation", "Elegant", "Class"],
-    users: 195,
     preview: {
       background: "#F6F0FF",
       accent: "#705AE0",
@@ -129,7 +126,6 @@ export const templates = [
     color: "Pink",
     orientation: "Landscape",
     tags: ["Workshop", "Creative", "Doodle"],
-    users: 250,
     preview: {
       variant: "topic",
       background: "#F5EEFF",
@@ -150,7 +146,6 @@ export const templates = [
     color: "Blue",
     orientation: "Landscape",
     tags: ["Workshop", "Ideas", "Modern"],
-    users: 250,
     preview: {
       variant: "ideas",
       background: "#EEF8FF",
@@ -171,7 +166,6 @@ export const templates = [
     color: "Yellow",
     orientation: "Landscape",
     tags: ["Seminar", "Memory", "Warm"],
-    users: 250,
     preview: {
       variant: "travel",
       background: "#EEFFF7",
@@ -192,7 +186,6 @@ export const templates = [
     color: "Green",
     orientation: "Landscape",
     tags: ["Khmer", "Cambodia", "Traditional"],
-    users: 410,
     preview: {
       variant: "cambodia",
       background: "#EAF4E5",
@@ -213,7 +206,6 @@ export const templates = [
     color: "Pink",
     orientation: "Landscape",
     tags: ["School", "Festival", "Celebration"],
-    users: 320,
     preview: {
       background: "#FFF2F8",
       accent: "#EC6A9E",
@@ -233,7 +225,6 @@ export const templates = [
     color: "Multi",
     orientation: "Landscape",
     tags: ["Competition", "Stage", "Bold"],
-    users: 305,
     preview: {
       background: "#F7F5FF",
       accent: "#705AE0",
@@ -253,7 +244,6 @@ export const templates = [
     color: "Blue",
     orientation: "Landscape",
     tags: ["Examination", "Timer", "Clean"],
-    users: 305,
     preview: {
       background: "#F0F8FF",
       accent: "#705AE0",
@@ -273,7 +263,6 @@ export const templates = [
     color: "Yellow",
     orientation: "Landscape",
     tags: ["Khmer", "Traditional", "Cultural"],
-    users: 275,
     preview: {
       background: "#FFF8E3",
       accent: "#8E3D30",
@@ -293,7 +282,6 @@ export const templates = [
     color: "Multi",
     orientation: "Landscape",
     tags: ["School", "Student", "Modern"],
-    users: 230,
     preview: {
       background: "#F7F5FF",
       accent: "#705AE0",
@@ -303,4 +291,8 @@ export const templates = [
       subtitle: "Learn - Connect - Grow",
     },
   },
-];
+].map((template) => ({
+  ...template,
+  pageCount: 1,
+  hasTimer: Boolean(template.preview?.timer),
+}));

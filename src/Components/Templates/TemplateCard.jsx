@@ -1,7 +1,9 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { Eye, Heart, MoreHorizontal, UsersRound, WandSparkles } from "lucide-react";
+import { Eye, Heart, MoreHorizontal, WandSparkles } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import TemplateFormatBadge from "./TemplateFormatBadge.jsx";
 import TemplatePreview from "./TemplatePreview";
+import { getTemplateCategoryTags, getTemplateFormat } from "./templatePresentation.js";
 
 /*
  * A template on the Templates page. The favorite has a white circular surface
@@ -19,9 +21,11 @@ export function TemplateArtwork({ template }) {
 
 export default function TemplateCard({ template, index = 0, favorite, onFavorite, onUse, onPreview }) {
   const reduceMotion = useReducedMotion();
+  const categoryTags = getTemplateCategoryTags(template);
+  const format = getTemplateFormat(template);
   return (
     <motion.article
-      className="templates-card relative h-full w-full overflow-hidden rounded-[12px] border border-[#e5d5ff] bg-[var(--surface-card)] shadow-[0_8px_22px_rgb(112_90_224/.08)] transition-[border-color,box-shadow] duration-200 hover:border-primary/50 hover:shadow-[0_16px_32px_rgb(112_90_224/.16)] dark:border-[var(--border-card)]"
+      className="templates-card relative flex h-full w-full flex-col overflow-hidden rounded-[14px] border border-[var(--border-card)] bg-[var(--surface-card)] transition-[border-color,box-shadow] duration-200 hover:border-primary/55 hover:shadow-[0_16px_36px_rgb(35_24_72/.12)]"
       layout={reduceMotion ? false : "position"}
       initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.97 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -29,11 +33,15 @@ export default function TemplateCard({ template, index = 0, favorite, onFavorite
       transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : Math.min(index % 6, 5) * 0.06, ease: [0.22, 1, 0.36, 1], layout: { duration: 0.3, delay: 0 } }}
       whileHover={reduceMotion ? undefined : { y: -3, transition: { duration: 0.18, delay: 0 } }}
     >
-      {/* TEMPLATE PREVIEW + FAVORITE */}
-      <div className="relative bg-[#a98bea] p-2">
-        <button type="button" onClick={onPreview} aria-label={`Preview ${template.title}`} className="block w-full">
-          <div className="aspect-video w-full overflow-hidden rounded-[10px] bg-[#faf9f4]">
+      {/* Artwork stays visually dominant inside the active theme's primary frame. */}
+      <div className="template-card-media relative p-2.5">
+        <button type="button" onClick={onPreview} aria-label={`Preview ${template.title}`} className="group block w-full text-left">
+          <div className="relative aspect-video w-full overflow-hidden rounded-[10px] bg-[#faf9f4]">
             <TemplateArtwork template={template} />
+            <span className="template-card-preview-cue absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-lg bg-[rgb(22_18_36/.82)] px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-[0_5px_16px_rgb(12_8_26/.18)] backdrop-blur-sm transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+              <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+              Preview
+            </span>
           </div>
         </button>
 
@@ -42,13 +50,13 @@ export default function TemplateCard({ template, index = 0, favorite, onFavorite
           aria-label={favorite ? `Remove ${template.title} from favorites` : `Add ${template.title} to favorites`}
           aria-pressed={!!favorite}
           onClick={onFavorite}
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white text-[#302069] shadow-[0_4px_12px_rgb(40_26_90/.18)] transition-colors hover:bg-[#f5f0ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-[#302069] shadow-[0_4px_14px_rgb(40_26_90/.16)] transition-colors hover:bg-[#f5f0ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           animate={reduceMotion ? undefined : { scale: favorite ? [1, 1.3, 1] : 1 }}
           whileTap={reduceMotion ? undefined : { scale: 0.85 }}
           transition={{ duration: reduceMotion ? 0 : 0.3 }}
         >
           <Heart
-            className={`h-[21px] w-[21px] ${favorite ? "fill-primary text-primary" : "fill-none"}`}
+            className={`h-[18px] w-[18px] ${favorite ? "fill-primary text-primary" : "fill-none"}`}
             strokeWidth={2.2}
             aria-hidden="true"
           />
@@ -56,11 +64,11 @@ export default function TemplateCard({ template, index = 0, favorite, onFavorite
       </div>
 
       {/* CARD CONTENT */}
-      <div className="px-4 pb-3.5 pt-3">
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5">
         {/* TITLE + MENU */}
         <div className="flex items-center justify-between gap-3">
           <button type="button" onClick={onPreview} className="min-w-0 flex-1 text-left">
-            <h3 className="truncate text-[14px] font-semibold leading-tight text-[var(--text-heading)] sm:text-[15px] md:text-base lg:text-[17px] xl:text-[18px]">
+            <h3 className="truncate text-[17px] font-semibold leading-snug tracking-[-0.015em] text-[var(--text-heading)] lg:text-lg">
               {template.title}
             </h3>
           </button>
@@ -68,9 +76,9 @@ export default function TemplateCard({ template, index = 0, favorite, onFavorite
           <Menu>
             <MenuButton
               aria-label={`More actions for ${template.title}`}
-              className="-mr-1.5 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#f1ebff] text-[#302069] transition-colors hover:bg-[#e8ddff] data-[open]:bg-[#e8ddff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-[#39314f] dark:text-[#ded4ff] dark:hover:bg-[#4a3d68] dark:data-[open]:bg-[#4a3d68]"
+              className="-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-primary/10 hover:text-primary data-[open]:bg-primary/10 data-[open]:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden="true" />
+              <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
             </MenuButton>
             {/* Anchored and portalled, so the card's rounded clip never cuts it off. */}
             <MenuItems anchor={{ to: "bottom end", gap: 6 }} transition
@@ -93,35 +101,29 @@ export default function TemplateCard({ template, index = 0, favorite, onFavorite
         </div>
 
         {/* DESCRIPTION */}
-        <p className="mt-2 line-clamp-2 min-h-[36px] text-[11px] leading-[1.6] text-[var(--text-muted)] sm:text-xs md:text-[13px]">
+        <p className="mt-1.5 line-clamp-2 min-h-[42px] text-sm leading-[1.55] text-[var(--text-muted)]">
           {template.description}
         </p>
 
-        {/* TAGS + USERS */}
-        <div className="mt-2.5 flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-            {template.tags?.slice(0, 3).map((tag, tagIndex) => (
+        {/* CONTENT CATEGORIES + FORMAT */}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+          <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+            {categoryTags.map((tag, tagIndex) => (
               <span
                 key={tag}
-                className={`max-w-[6rem] shrink-0 truncate rounded-full px-2.5 py-0.5 text-[9px] font-medium sm:text-[10px] ${
-                  tagIndex === 0
-                    ? "bg-[#eadcff] text-[#8758e8]"
-                    : tagIndex === 1
-                      ? "bg-[#fff0c8] text-[var(--text-heading)]"
-                      : "bg-[#e6ddff] text-[#7656dd]"
+                className={`max-w-[7.5rem] shrink-0 truncate rounded-full px-2 py-1 text-[11px] font-semibold ${
+                  tag === "Timer"
+                    ? "template-timer-tag"
+                    : tagIndex === 0
+                    ? "bg-primary/10 text-primary"
+                    : "bg-[color-mix(in_srgb,var(--text-heading)_7%,transparent)] text-[var(--text-body)]"
                 }`}
               >
                 {tag}
               </span>
             ))}
           </div>
-
-          {template.users > 0 && (
-            <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[10px] text-[var(--text-muted)] sm:text-[11px] lg:text-xs">
-              <UsersRound className="h-[13px] w-[13px] lg:h-[14px] lg:w-[14px]" />
-              {template.users} uses
-            </div>
-          )}
+          <TemplateFormatBadge format={format} compact />
         </div>
       </div>
     </motion.article>

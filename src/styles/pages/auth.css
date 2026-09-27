@@ -325,6 +325,45 @@
   .auth-register-card { width: min(100%, 940px); margin: auto 0; }
 }
 
+/* Large, tall screens: the login card grows with the window instead of
+   staying 520px wide, and its type and controls scale with it. Sign-up and
+   verify cards share .auth-card but keep their own sizes. */
+@media (min-width: 1280px) and (min-height: 820px) {
+  .auth-card:not(.auth-register-card, .auth-verify-card) { width: min(100%, clamp(520px, 36vw, 640px)); padding: clamp(48px, 3.4vw, 60px); border-radius: 30px; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-card-header { margin-bottom: 34px; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-eyebrow { font-size: .8rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-card-header h1 { font-size: clamp(3.35rem, 3.6vw, 4rem); }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-card-header > p:last-child { font-size: 1.08rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-fields { gap: 22px; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-field-label { font-size: .95rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-input-shell input { height: 60px; font-size: 1rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-form-meta a { font-size: .9rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-submit { height: 60px; margin-top: 26px; font-size: 1.05rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-divider { margin: 28px 0 20px; font-size: .82rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-provider-button { height: 56px; font-size: .92rem; }
+  .auth-card:not(.auth-register-card, .auth-verify-card) .auth-signup-link { margin-top: 30px; font-size: .9rem; }
+}
+
+/* The sign-up form is taller, so it grows only on screens with the height
+   to show it without scrolling. */
+@media (min-width: 1280px) and (min-height: 1000px) {
+  .auth-register-card { width: min(100%, clamp(940px, 52vw, 1080px)); padding: clamp(44px, 3.2vw, 56px) clamp(48px, 3.6vw, 64px); border-radius: 30px; }
+  .auth-register-header { margin-bottom: 32px; }
+  .auth-register-header .auth-eyebrow { font-size: .8rem; }
+  .auth-register-header h1 { font-size: clamp(2.7rem, 3vw, 3.3rem); }
+  .auth-register-header > p:last-child { font-size: 1.05rem; }
+  .auth-register-fields { gap: 22px 22px; }
+  .auth-register-card .auth-field-label,
+  .auth-password-strength > div:first-child label { font-size: .95rem; }
+  .auth-register-card .auth-input-shell input,
+  .auth-password-strength input { height: 60px; font-size: 1rem; }
+  .auth-terms { margin-top: 24px; font-size: .86rem; }
+  .auth-register-submit { height: 60px; margin-top: 24px; font-size: 1.05rem; }
+  .auth-register-divider { margin: 26px 0 20px; font-size: .82rem; }
+  .auth-register-card .auth-provider-button { height: 56px; font-size: .92rem; }
+  .auth-login-link { margin-top: 24px; font-size: .9rem; }
+}
+
 @media (max-height: 900px) and (min-width: 1024px) {
   .auth-register-panel { padding-block: 20px; }
   .auth-register-card { margin-block: 0; }
