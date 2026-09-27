@@ -11,6 +11,7 @@ import TrashCard from "./TrashCard";
 import {getRemainingDays} from "./trashData";
 import {useCurrentUser} from "../../Account/useCurrentUser";
 import {useMyDesigns} from "../useMyDesigns";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 const TRASH_FILTERS=[
   {id:"all",label:"All Items"},
@@ -298,7 +299,7 @@ export default function Trash(){
         {!isSignedIn?(
           <p className="mt-8 text-center text-base text-[var(--text-muted)]">Sign in to see your trash.</p>
         ):isLoading?(
-          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your trash…</p>
+          <VisoraLoader className="mt-10" label="Opening your trash…"/>
         ):visibleTrash.length>0?(
           <div
             className={

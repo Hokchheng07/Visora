@@ -29,6 +29,7 @@ import {
   useGetUsersQuery,
 } from "../API/userApi";
 import "./admin-users.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 const tabs = [
   ["all", "All Users"],
@@ -84,7 +85,7 @@ export default function UserManagement() {
       <div className="ad-page">
         <div className="ad-table-card">
           <div className="ad-table-empty">
-            {isLoading ? "Loading users…" : "Could not load users. Try refreshing the page."}
+            {isLoading ? <VisoraLoader compact label="Loading users…" /> : "Could not load users. Try refreshing the page."}
           </div>
         </div>
       </div>

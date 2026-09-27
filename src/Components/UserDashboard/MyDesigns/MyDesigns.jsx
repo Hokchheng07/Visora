@@ -18,6 +18,7 @@ import {documentLoaded} from "../../redux/editorSlice.js";
 import {readDocumentFile} from "../../Editor/model/editorDocument.js";
 import {useMyDesigns} from "../useMyDesigns";
 import MyDesignCard from "./MyDesignsCard";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 const PAGE_SIZE=6;
 
@@ -392,7 +393,7 @@ export default function MyDesigns(){
         {!isSignedIn?(
           <p className="mt-8 text-center text-base text-[var(--text-muted)]">Sign in to see your designs.</p>
         ):isLoading?(
-          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your designs…</p>
+          <VisoraLoader className="mt-10" label="Loading your designs…"/>
         ):failed?(
           <p className="mt-8 text-center text-base text-[var(--text-muted)]">
             Couldn't load your designs. <button type="button" onClick={()=>refetch()} className="font-semibold text-primary underline">Try again</button>

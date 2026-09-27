@@ -10,6 +10,7 @@ import { useGetCategoriesQuery } from "../../API/categoryApi";
 import { getStorageUrl } from "../../API/storageApi";
 import { listRequestFailed } from "../../API/apiError.js";
 import { templateCategoryNames,templateCategoryUuids } from "../../Templates/templateCategories.js";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 const CATEGORIES=["All","Templates","My designs"];
 
@@ -208,7 +209,7 @@ export default function Favorites(){
             <Link to="/auth/login" className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Sign in</Link>
           </FavoritesEmpty>
         ):isLoading?(
-          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your favorites…</p>
+          <VisoraLoader className="mt-10" label="Gathering your favorites…"/>
         ):listRequestFailed(error)?(
           <FavoritesEmpty title="Couldn't load your favorites" text="Check your connection, then try again.">
             <button type="button" onClick={()=>refetch()} className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Try again</button>

@@ -24,6 +24,7 @@ import { presetLabel, transitionPresets } from "../animation/animationPresets.js
 import { ballDemo } from "../animation/animationBallDemo.js";
 import { insertionRows, PRESETS, removeAnimationRows, validateTimeline } from "../animation/animationTimeline.js";
 import { effectiveLocked } from "../model/layerModel.js";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 // Templates stay placeholders until the template API is connected.
 function TemplatesPanel() {
@@ -235,7 +236,7 @@ function UploadPanel() {
       {error && <p className="editor-upload-error" role="alert">{error}</p>}
       {listRequestFailed(storage.error) && <p className="editor-upload-error" role="alert">Couldn't load your uploads. <button type="button" className="editor-upload-retry" onClick={() => storage.refetch()}>Try again</button></p>}
       {storage.isLoading ? (
-        <p className="editor-panel-empty" aria-busy="true">Loading your uploads…</p>
+        <VisoraLoader compact className="editor-panel-loader" label="Loading your uploads…" />
       ) : shown.length ? (
         <>
           <h3 className="editor-panel-subtitle">Your uploads</h3>

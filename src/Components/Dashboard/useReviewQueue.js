@@ -73,7 +73,9 @@ export function useServerTemplates() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending.data, approved.data, rejected.data, everyone.data, directory]);
   const failed = answers.map((answer) => answer.error).find(listRequestFailed) || null;
-  return { rows, error: failed };
+  // Only the first load: a refetch after approve/reject keeps showing the rows it has.
+  const isLoading = answers.some((answer) => answer.isLoading);
+  return { rows, error: failed, isLoading };
 }
 
 /*
@@ -86,7 +88,7 @@ export function useServerTemplates() {
  * RTK then reloads every template list, so the row leaves the queue.
  */
 export function useReviewQueue() {
-  const { rows, error } = useServerTemplates();
+  const { rows, error, isLoading } = useServerTemplates();
   const [approveTemplate] = useApproveTemplateMutation();
   const [rejectTemplate] = useRejectTemplateMutation();
 
@@ -106,5 +108,5 @@ export function useReviewQueue() {
       : `Couldn't load live submissions${Number.isInteger(error.status) ? ` (server said ${error.status})` : ""}.`
     : "";
 
-  return { templates: submissions, submissions, decide, serverError };
+  return { templates: submissions, submissions, decide, serverError, isLoading };
 }

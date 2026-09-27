@@ -23,6 +23,7 @@ import creativePortfolio from "../../assets/pages/admin/dashboard/pending-review
 import frontendExam from "../../assets/pages/admin/dashboard/pending-review/frontend-exam.png";
 import backendExam from "../../assets/pages/admin/dashboard/pending-review/backend-exam.png";
 import "./admin-dashboard.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 // Seed templates have no preview images yet; these Figma exports stand in.
 const sampleThumbs = [creativePortfolio, frontendExam, backendExam];
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
   const { users, categories, reports, activity: activityData, stats: apiStats, loading, error } = useDashboardData();
   // Real submissions (from the editor) first, then the samples — the same queue as the Pending page.
   const navigate = useNavigate();
-  const { submissions, decide, serverError } = useReviewQueue();
+  const { submissions, decide, serverError, isLoading: loadingQueue } = useReviewQueue();
   // Every real template, any state, for the totals and category counts.
   const { rows: templates } = useServerTemplates();
   // Icons the admin picked, by category name, for the tiles below.
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
     ? [...directory.people].sort((a, b) => `${b.createdAt}`.localeCompare(`${a.createdAt}`)).slice(0, 5)
     : users.slice(0, 5).map((u) => ({ uuid: u.id, name: u.name, email: u.email, role: "User" }));
   const [period, setPeriod] = useState("Last 7 days");
-  if (loading) return <div className="ad-page"><p className="ad-empty">Loading dashboard data…</p></div>;
+  if (loading) return <div className="ad-page"><VisoraLoader className="mt-16" label="Preparing the dashboard…" /></div>;
   if (error) return <div className="ad-page"><p className="ad-empty">Failed to load dashboard data.</p></div>;
   const pending = submissions.slice(0, 3);
   const periods = Object.keys(activityData);
@@ -70,7 +71,9 @@ export default function AdminDashboard() {
         <article className="ad-card ad-pending">
           <CardHeader icon={Layers} title="Pending Templates Review" linkLabel="View all pending review" to="/dashboard/pending" />
           {serverError && <p className="ad-empty" role="status">{serverError}</p>}
-          {pending.length === 0 ? (
+          {loadingQueue ? (
+            <VisoraLoader compact className="py-6" label="Checking the review queue…" />
+          ) : pending.length === 0 ? (
             <ReviewQueueEmptyState compact />
           ) : (
             <ul className="ad-list">

@@ -15,6 +15,7 @@ import creativePortfolio from "../../assets/pages/admin/pending/review-table/cre
 import childrensDay from "../../assets/pages/admin/pending/review-table/childrens-day.png";
 import { useReviewQueue } from "./useReviewQueue";
 import "./admin-pending.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 // Seed templates have no preview images or real descriptions yet; these
 // Figma exports and copy stand in, picked by category.
@@ -49,7 +50,7 @@ const perPage = 7;
 
 export default function PendingReview() {
   // Real submissions first, then the samples; see useReviewQueue.
-  const { templates, decide, serverError } = useReviewQueue();
+  const { templates, decide, serverError, isLoading } = useReviewQueue();
   const [tab, setTab] = useState("all");
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
@@ -127,7 +128,11 @@ export default function PendingReview() {
       </div>
 
       {serverError && <p className="ad-empty" role="status">{serverError}</p>}
-      {shown.length === 0 ? (
+      {isLoading ? (
+        <div className="ad-table-card pr-empty-card">
+          <VisoraLoader className="py-10" label="Checking the review queue…" />
+        </div>
+      ) : shown.length === 0 ? (
         <div className="ad-table-card pr-empty-card">
           <ReviewQueueEmptyState />
         </div>

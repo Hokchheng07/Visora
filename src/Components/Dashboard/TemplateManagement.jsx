@@ -23,6 +23,7 @@ import creativeWorkshop from "../../assets/pages/admin/templates/template-table/
 import databaseFundamentals from "../../assets/pages/admin/templates/template-table/database-fundamentals.png";
 import codingCompetition from "../../assets/pages/admin/templates/template-table/coding-competition.png";
 import "./admin-templates.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 // Seed templates have no preview images yet; these Figma exports stand in,
 // picked by category.
@@ -329,7 +330,7 @@ export default function TemplateManagement() {
   /* Real templates from the server (any state) come first, then the samples.
      A real one is changed on the server: rename (PATCH), a status change
      (approve / reject), delete; RTK then reloads every template list. */
-  const { rows: serverTemplates, error: serverError } = useServerTemplates();
+  const { rows: serverTemplates, error: serverError, isLoading: loadingTemplates } = useServerTemplates();
   const templates = useMemo(() => [...serverTemplates, ...sampleTemplates], [serverTemplates, sampleTemplates]);
   const { data: categoryPage } = useGetCategoriesQuery();
   const serverCategories = (categoryPage?.data?.contents || []).filter((c) => c.isActive !== false);
@@ -528,7 +529,14 @@ export default function TemplateManagement() {
             </tr>
           </thead>
           <tbody>
-            {current.length === 0 && (
+            {loadingTemplates && (
+              <tr>
+                <td colSpan={6} className="ad-table-empty">
+                  <VisoraLoader compact label="Loading live templates…" />
+                </td>
+              </tr>
+            )}
+            {!loadingTemplates && current.length === 0 && (
               <tr>
                 <td colSpan={6} className="ad-table-empty">No templates match these filters.</td>
               </tr>

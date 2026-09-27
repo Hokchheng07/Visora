@@ -20,6 +20,7 @@ import {
 } from "../API/categoryApi";
 
 import "./admin-categories.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 const perPage = 8;
 
@@ -206,7 +207,7 @@ export default function CategoryManagement() {
       <div className="ad-page cm-page">
         <div className="ad-table-card stack-wide cm-table">
           <div className="ad-table-empty">
-            {isLoading ? "Loading categories…" : "Could not load categories. Try refreshing the page."}
+            {isLoading ? <VisoraLoader compact label="Loading categories…" /> : "Could not load categories. Try refreshing the page."}
           </div>
         </div>
       </div>

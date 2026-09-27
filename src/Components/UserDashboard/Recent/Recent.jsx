@@ -7,6 +7,7 @@ import RecentDesignCard from "./RecentDesignCard";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
 import {useFavorites} from "../../Account/useFavorites";
 import {useMyDesigns} from "../useMyDesigns";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 /*
  * Recent: the signed-in account's own backdrops (GET /backdrops), most
@@ -215,7 +216,7 @@ export default function Recent(){
             <Link to="/auth/login" className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Sign in</Link>
           </EmptyState>
         ):isLoading?(
-          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your recent designs…</p>
+          <VisoraLoader className="mt-10" label="Finding your recent designs…"/>
         ):failed?(
           <EmptyState title="Couldn't load your designs" text="Check your connection, then try again.">
             <button type="button" onClick={()=>refetch()} className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Try again</button>
