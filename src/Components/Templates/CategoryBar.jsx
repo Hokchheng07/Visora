@@ -29,7 +29,7 @@ const categoryIcons={
   Celebration:PartyPopper,
 };
 
-export default function CategoryBar({activeCategory,setActiveCategory}){
+export default function CategoryBar({activeCategory,setActiveCategory,categories=templateCategories}){
   const reduceMotion = useReducedMotion();
   return(
     <div className="mt-10 flex items-center gap-4 sm:mt-8 lg:gap-8">
@@ -40,7 +40,7 @@ export default function CategoryBar({activeCategory,setActiveCategory}){
       <div className="min-w-0 flex-1">
         <LayoutGroup id="template-categories">
         <div className="scrollbar-none flex gap-2 overflow-x-auto p-1 sm:gap-3">
-          {templateCategories.map((category)=>{
+          {categories.map((category)=>{
             const Icon=categoryIcons[category];
             const active=activeCategory===category;
 

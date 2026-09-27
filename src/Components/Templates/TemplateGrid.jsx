@@ -3,15 +3,44 @@ import { Search, TriangleAlert } from "lucide-react";
 import Pagination from "./Pagination";
 import TemplateCard from "./TemplateCard";
 import VisoraLoader from "../ui/VisoraLoader";
+import { useGetTemplateByIdQuery } from "../API/templateApi";
+
+export function HydratedTemplateCard({ template, onUse, onPreview, ...cardProps }) {
+  /* Template list responses are summaries and do not include the submitted
+     description. Hydrate only the visible server cards; RTK Query caches the
+     detail response when the user pages away and comes back. */
+  const { data: detailResponse } = useGetTemplateByIdQuery(
+    { templateUuid: template.remoteId },
+    { skip: !template.remoteId || Boolean(template.description) }
+  );
+  const detail = detailResponse?.data;
+  const hydratedTemplate = detail
+    ? {
+        ...template,
+        title: detail.proposedName || detail.name || template.title,
+        description: detail.description ?? template.description,
+      }
+    : template;
+
+  return (
+    <TemplateCard
+      template={hydratedTemplate}
+      onUse={() => onUse(hydratedTemplate)}
+      onPreview={() => onPreview(hydratedTemplate)}
+      {...cardProps}
+    />
+  );
+}
 
 export default function TemplateGrid({
   templates,
   loading,
   error,
   activeCategory,
-  favorites,
+  isFavorite,
   onFavorite,
-  onOpen,
+  onUse,
+  onPreview,
   onReset,
   page,
   totalPages,
@@ -57,13 +86,14 @@ export default function TemplateGrid({
         <>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:gap-6 xl:grid-cols-3 xl:gap-7 2xl:gap-8">
             {templates.map((template, index) => (
-              <TemplateCard
+              <HydratedTemplateCard
                 key={template.id}
                 template={template}
                 index={index}
-                favorite={favorites.includes(template.id)}
-                onFavorite={() => onFavorite(template.id)}
-                onOpen={() => onOpen(template)}
+                favorite={isFavorite(template)}
+                onFavorite={() => onFavorite(template)}
+                onUse={onUse}
+                onPreview={onPreview}
               />
             ))}
           </div>

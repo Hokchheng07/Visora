@@ -1,3 +1,5 @@
+import { UPLOAD_LIMIT_BYTES, formatBytes, probablyTooLarge } from "./uploadLimit.js";
+
 /*
  * Turning an RTK Query error into something worth showing.
  *
@@ -44,11 +46,18 @@ export function registrationErrorMessage(error) {
 
 /**
  * Why an upload failed, in a sentence the reader can act on.
- * `subject` names what was being uploaded, e.g. "photo" or "image".
+ * `subject` names what was being uploaded, e.g. "photo" or "image";
+ * `size` is the file's size in bytes, when known.
  */
-export function uploadErrorMessage(error, subject = "image") {
+export function uploadErrorMessage(error, subject = "image", { size } = {}) {
   if (!error) return `Couldn't upload that ${subject}. Please try again.`;
   const status = error.status;
+
+  /* Checked before FETCH_ERROR: the server's 413 comes without CORS headers,
+     so a file that is too big looks exactly like an unreachable server. */
+  if (probablyTooLarge(error, size)) {
+    return `That ${subject} is too large for the server${size ? ` (${formatBytes(size)})` : ""}. Please choose one under ${formatBytes(UPLOAD_LIMIT_BYTES)}.`;
+  }
 
   // The request never reached the server: wrong address, or nothing running there.
   if (status === "FETCH_ERROR") return `Couldn't reach the server. Check that the backend is running and that VITE_BASE_VISORA_URL is right.`;
@@ -61,7 +70,6 @@ export function uploadErrorMessage(error, subject = "image") {
     return serverMessage(error) || `Your account isn't allowed to upload. Sign in again — and if that doesn't help, the account needs upload permission on the server.`;
   }
   if (status === 404) return `The upload service wasn't found. Check VITE_BASE_VISORA_URL points at the right backend.`;
-  if (status === 413) return `The server refused that ${subject} for being too large.`;
 
   const message = serverMessage(error);
   if (message) return message;
@@ -69,3 +77,10 @@ export function uploadErrorMessage(error, subject = "image") {
     ? `Couldn't upload that ${subject} (server said ${status}).`
     : `Couldn't upload that ${subject}. Please try again.`;
 }
+
+/**
+ * A list request that really failed. This server answers an *empty* list with
+ * 404 ("nothing found") instead of 200 and no items, so a 404 on a list means
+ * "none yet", not an error — the page should show its empty state, not a warning.
+ */
+export const listRequestFailed = (error) => !!error && error.status !== 404;

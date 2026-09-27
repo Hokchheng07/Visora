@@ -370,6 +370,8 @@ ol.editor-text-list { padding-inline-start: 2em; }
    a sibling below this, outside the scroll, so it is always on screen. */
 .editor-canvas-view { position: relative; flex: 1 1 auto; min-height: 0; container-type: size; }
 .editor-canvas-scroll { display: flex; flex-direction: column; height: calc(100% - var(--editor-ruler)); margin: var(--editor-ruler) 0 0 var(--editor-ruler); padding: 78px 24px 0; overflow: auto; overscroll-behavior: contain; }
+/* While panning (Space or middle drag) the hand wins over every element cursor. */
+.editor-canvas-scroll[data-panning], .editor-canvas-scroll[data-panning] * { cursor: grabbing !important; }
 .editor-page-stack { display: grid; flex: 1 0 auto; min-width: 100%; width: max-content; min-height: 0; align-content: start; justify-items: center; }
 /* Fit the sheet to the actual space left above the controls, including its
    metadata and scroll padding, rather than assuming a fixed header height. */
@@ -1181,6 +1183,27 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-publish-thumb-change:hover { border-color: var(--color-primary); color: var(--color-primary); }
 .editor-publish-field { display: block; margin-bottom: 16px; }
 .editor-publish-field > span { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; }
+.editor-publish-category-trigger { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 50px; padding: 7px 13px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-muted); font: inherit; font-size: 14px; text-align: left; cursor: pointer; transition: border-color 150ms ease, box-shadow 150ms ease, transform 130ms ease; }
+.editor-publish-category-trigger.has-value { color: var(--editor-ink); }
+.editor-publish-category-trigger:hover { border-color: color-mix(in srgb, var(--editor-accent) 55%, var(--editor-border)); }
+.editor-publish-category-trigger[data-open], .editor-publish-category-trigger:focus-visible { border-color: var(--editor-accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--editor-accent) 16%, transparent); }
+.editor-publish-category-trigger:active { transform: scale(.99); }
+.editor-publish-category-trigger-icon, .editor-publish-category-option-icon { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: color-mix(in srgb, var(--editor-accent) 11%, var(--editor-surface)); color: var(--editor-accent); }
+.editor-publish-category-trigger-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-publish-category-chevron { flex: none; color: var(--editor-muted); transition: transform 150ms cubic-bezier(.23, 1, .32, 1); }
+.editor-publish-category-trigger[data-open] .editor-publish-category-chevron { transform: rotate(180deg); }
+.editor-publish-category-panel { z-index: 140; width: var(--button-width); max-width: calc(100vw - 32px); max-height: min(330px, 55vh); padding: 7px; overflow-y: auto; border: 1px solid color-mix(in srgb, var(--editor-accent) 28%, var(--editor-border)); border-radius: 14px; outline: none; background: var(--editor-float); box-shadow: 0 16px 40px rgb(var(--editor-shadow) / .19), 0 2px 7px rgb(var(--editor-shadow) / .08); }
+.editor-publish-category-option { display: flex; align-items: center; gap: 12px; min-height: 47px; padding: 6px 9px; border-radius: 9px; color: var(--editor-ink); font-size: 13px; cursor: pointer; }
+.editor-publish-category-option[data-focus] { background: color-mix(in srgb, var(--editor-accent) 9%, var(--editor-float)); }
+.editor-publish-category-option[data-selected] { background: color-mix(in srgb, var(--editor-accent) 13%, var(--editor-float)); color: var(--editor-accent); font-weight: 600; }
+.editor-publish-category-option[data-disabled] { opacity: .42; cursor: not-allowed; }
+.editor-publish-category-option-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-publish-category-checkbox { display: grid; flex: none; place-items: center; width: 20px; height: 20px; border: 1px solid var(--editor-border); border-radius: 6px; color: white; }
+.editor-publish-category-option[data-selected] .editor-publish-category-checkbox { border-color: var(--editor-accent); background: var(--editor-accent); }
+.editor-publish-category-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.editor-publish-category-chips span { max-width: 100%; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--editor-accent) 12%, var(--editor-surface)); color: var(--editor-accent); font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.editor-publish-category-help { margin: 10px 1px 0; color: var(--editor-muted); font-size: 11px; line-height: 1.4; }
+.editor-publish-category-note { margin: 0; color: var(--editor-muted); font-size: 12px; line-height: 1.5; }
 .editor-publish-field input, .editor-publish-field textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-raised); color: var(--editor-ink); font-size: 14px; outline: none; transition: border-color 120ms ease, box-shadow 120ms ease; }
 .editor-publish-field textarea { resize: none; }
 .editor-publish-field input:focus, .editor-publish-field textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent); }
@@ -1289,3 +1312,8 @@ ol.editor-text-list { padding-inline-start: 2em; }
   .editor-publish-review > .editor-publish-review-actions, .editor-publish-review-steps::after, .editor-publish-review-art-arrow path,
   .editor-publish-review-steps .is-reached .editor-publish-review-step-ripple { animation: none; }
 }
+
+/* "Opening design…" while /editor?backdrop= or ?template= loads, and its error. */
+.editor-remote-notice { position: fixed; top: 84px; left: 50%; z-index: 60; display: flex; align-items: center; gap: 10px; padding: 9px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: var(--editor-surface); color: var(--editor-ink); box-shadow: 0 8px 24px rgb(var(--editor-shadow) / .12); font-size: 14px; translate: -50% 0; }
+.editor-remote-notice.is-error { border-color: color-mix(in srgb, #e0394a 40%, transparent); color: #d0293a; }
+.editor-remote-notice button { padding: 0 2px; border: 0; background: none; color: inherit; font-size: 18px; line-height: 1; cursor: pointer; }

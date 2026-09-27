@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { registrationErrorMessage, uploadErrorMessage } from "./apiError.js";
+import { listRequestFailed, registrationErrorMessage, uploadErrorMessage } from "./apiError.js";
 
 test("a refused account is named as such, not as a retry", () => {
   const message = uploadErrorMessage({ status: 403 });
@@ -47,4 +47,19 @@ test("registration supports legacy descriptions and message-only responses", () 
 test("registration supplies a fallback when no readable detail is available", () => {
   assert.match(registrationErrorMessage({ status: 400, data: { detail: {} } }), /check your details/);
   assert.match(registrationErrorMessage({ status: "FETCH_ERROR" }), /reach the server/);
+});
+
+test("a refused size is named as too large, even when it looks like an unreachable server", () => {
+  // The server's 413 arrives without CORS headers, so the browser reports FETCH_ERROR.
+  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }, "photo", { size: 1_996_614 }), /photo is too large .*2\.0 MB.*under 1\.0 MB/);
+  assert.match(uploadErrorMessage({ status: 413 }, "image"), /too large for the server/);
+  // A small file that fails to send is still a connection problem.
+  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }, "photo", { size: 200_000 }), /Couldn't reach the server/);
+});
+
+test("an empty list answered with 404 is not a failure", () => {
+  assert.equal(listRequestFailed({ status: 404 }), false);
+  assert.equal(listRequestFailed(undefined), false);
+  assert.equal(listRequestFailed({ status: 500 }), true);
+  assert.equal(listRequestFailed({ status: "FETCH_ERROR" }), true);
 });

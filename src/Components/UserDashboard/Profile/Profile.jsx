@@ -1,88 +1,34 @@
-import { useState } from "react";
-import { useOutletContext } from "react-router";
-
-import {
-  PROFILE_TEMPLATES,
-} from "./profileData";
-
+import { useMemo,useState } from "react";
+import { useNavigate,useOutletContext } from "react-router";
 import ProfileHero from "./ProfileHero";
 import ProfileStats from "./ProfileStats";
 import ProfileTemplates from "./ProfileTemplates";
 import { ProfileEditModal } from "./ProfileEditModal";
+import { useMyDesigns } from "../useMyDesigns";
+import { useFavorites } from "../../Account/useFavorites";
 
 export default function Profile(){
+  const navigate=useNavigate();
   const {profile,saveProfile,isSaving,saveError}=useOutletContext();
   const [profileModalOpen,setProfileModalOpen]=useState(false);
-  const [templates,setTemplates]=useState(PROFILE_TEMPLATES);
+  const {designs,moveToTrash,rename,duplicate}=useMyDesigns();
+  const {isFavorite,toggleFavorite}=useFavorites();
 
-  const updateTemplate=(updatedTemplate)=>{
-    setTemplates((current)=>
-      current.map((template)=>{
-        if(template.id!==updatedTemplate.id){
-          return template;
-        }
+  const templates=useMemo(()=>designs.map((design)=>({
+    ...design,
+    status:design.status==="posted"?"posted":"draft",
+  })),[designs]);
 
-        const now=new Date().toISOString();
-
-        if(updatedTemplate.visibility==="private"){
-          return{
-            ...updatedTemplate,
-            status:"draft",
-            publishedAt:null,
-            updatedAt:now,
-          };
-        }
-
-        const wasDraft=template.status==="draft";
-
-        return{
-          ...updatedTemplate,
-          status:"posted",
-          publishedAt:wasDraft
-            ?now
-            :template.publishedAt||now,
-          updatedAt:now,
-        };
-      })
-    );
-  };
-
+  const findDesign=(id)=>templates.find((template)=>template.id===id);
+  const openTemplate=(template)=>navigate(`/editor?backdrop=${template.remoteId}`);
   const renameTemplate=(id,title)=>{
-    setTemplates((current)=>
-      current.map((template)=>
-        template.id===id
-          ?{
-              ...template,
-              title,
-              updatedAt:new Date().toISOString(),
-            }
-          :template
-      )
-    );
+    const template=findDesign(id);
+    if(template)rename(template,title);
   };
-
-  const duplicateTemplate=(template,title)=>{
-    setTemplates((current)=>[
-      {
-        ...template,
-        id:`template-${Date.now()}`,
-        title:title||`${template.title} Copy`,
-        views:0,
-        visibility:"private",
-        status:"draft",
-        publishedAt:null,
-        updatedAt:new Date().toISOString(),
-      },
-      ...current,
-    ]);
-  };
-
+  const duplicateTemplate=(template,title)=>duplicate(template,title);
   const deleteTemplate=(id)=>{
-    setTemplates((current)=>
-      current.filter(
-        (template)=>template.id!==id
-      )
-    );
+    const template=findDesign(id);
+    if(template)moveToTrash(template);
   };
 
   return(
@@ -97,10 +43,12 @@ export default function Profile(){
 
         <ProfileTemplates
           templates={templates}
-          onUpdate={updateTemplate}
+          onUpdate={openTemplate}
           onRename={renameTemplate}
           onDuplicate={duplicateTemplate}
           onDelete={deleteTemplate}
+          isFavorite={isFavorite}
+          onFavorite={(template)=>toggleFavorite("BACKDROP",template.remoteId)}
         />
       </div>
 

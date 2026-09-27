@@ -12,29 +12,44 @@ import {
 import {useNavigate} from "react-router";
 import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
 import {useCanvasPicker} from "../../Templates/useCanvasPicker.js";
-import {loadPublishedTemplates} from "../../Editor/model/templatePublish.js";
+import {useFavorites} from "../../Account/useFavorites";
+import {useAppDispatch} from "../../redux/hook.js";
+import {documentLoaded} from "../../redux/editorSlice.js";
+import {readDocumentFile} from "../../Editor/model/editorDocument.js";
+import {useMyDesigns} from "../useMyDesigns";
 import MyDesignCard from "./MyDesignsCard";
-import {MY_DESIGNS} from "./myDesignsData";
+import VisoraLoader from "../../ui/VisoraLoader";
 
 const PAGE_SIZE=6;
 
+/* Posted, Under review and Draft come from each design's template review
+   state (see useMyDesigns). A rejected design counts as a draft: it can be
+   edited and sent for review again. */
 const FILTERS=[
   {id:"all",label:"All"},
-  {id:"recent",label:"Recent"},
-  {id:"published",label:"Published"},
+  {id:"posted",label:"Posted"},
+  {id:"review",label:"Under review"},
   {id:"draft",label:"Drafts"},
-  {id:"private",label:"Private"},
 ];
+
+const inFilter=(design,filter)=>
+  filter==="all"||
+  (filter==="draft"?design.status==="draft"||design.status==="rejected":design.status===filter);
 
 export default function MyDesigns(){
   const navigate=useNavigate();
   const canvasPicker=useCanvasPicker();
   const fileInputRef=useRef(null);
 
-  const [designs,setDesigns]=useState(MY_DESIGNS);
-  const [pendingBackdrops]=useState(()=>loadPublishedTemplates().filter(
-    (record)=>record?.visibility==="public"&&record.status==="pending"
-  ));
+  const dispatch=useAppDispatch();
+  const {isFavorite,toggleFavorite}=useFavorites();
+  const {designs:myDesigns,isSignedIn,isLoading,failed,refetch,moveToTrash,rename,duplicate}=useMyDesigns();
+  const designs=useMemo(()=>myDesigns.map((design)=>({
+    ...design,
+    tags:design.tags.map((tag)=>tag.label),
+    inReview:design.status==="review",
+  })),[myDesigns]);
+  const underReview=designs.filter((design)=>design.status==="review");
   const [activeFilter,setActiveFilter]=useState("all");
   const [search,setSearch]=useState("");
   const [sort,setSort]=useState("recent");
@@ -43,56 +58,12 @@ export default function MyDesigns(){
   const [renameTarget,setRenameTarget]=useState(null);
   const [renameValue,setRenameValue]=useState("");
 
-  const counts=useMemo(()=>{
-    const now=new Date();
-
-    return{
-      all:designs.length,
-      recent:designs.filter((design)=>{
-        const days=(now-new Date(design.updatedAt))/(1000*60*60*24);
-        return days<=7;
-      }).length,
-      published:designs.filter(
-        (design)=>design.status==="published"
-      ).length,
-      draft:designs.filter(
-        (design)=>design.status==="draft"
-      ).length,
-      private:designs.filter(
-        (design)=>design.visibility==="private"
-      ).length,
-    };
-  },[designs]);
+  const counts=useMemo(()=>Object.fromEntries(
+    FILTERS.map(({id})=>[id,designs.filter((design)=>inFilter(design,id)).length])
+  ),[designs]);
 
   const filteredDesigns=useMemo(()=>{
-    let result=[...designs];
-
-    if(activeFilter==="recent"){
-      const now=new Date();
-
-      result=result.filter((design)=>{
-        const days=(now-new Date(design.updatedAt))/(1000*60*60*24);
-        return days<=7;
-      });
-    }
-
-    if(activeFilter==="published"){
-      result=result.filter(
-        (design)=>design.status==="published"
-      );
-    }
-
-    if(activeFilter==="draft"){
-      result=result.filter(
-        (design)=>design.status==="draft"
-      );
-    }
-
-    if(activeFilter==="private"){
-      result=result.filter(
-        (design)=>design.visibility==="private"
-      );
-    }
+    let result=designs.filter((design)=>inFilter(design,activeFilter));
 
     if(search.trim()){
       const query=search.trim().toLowerCase();
@@ -149,7 +120,7 @@ export default function MyDesigns(){
   };
 
   const editDesign=(design)=>{
-    navigate(`/editor/${design.id}`);
+    navigate(`/editor?backdrop=${design.remoteId}`);
   };
 
   const openRename=(design)=>{
@@ -159,84 +130,33 @@ export default function MyDesigns(){
 
   const saveRename=()=>{
     if(!renameTarget||!renameValue.trim())return;
-
-    setDesigns((current)=>
-      current.map((design)=>
-        design.id===renameTarget.id
-          ?{
-              ...design,
-              title:renameValue.trim(),
-              updatedAt:new Date().toISOString(),
-            }
-          :design
-      )
-    );
-
+    rename(renameTarget,renameValue.trim());
     setRenameTarget(null);
     setRenameValue("");
   };
 
   const duplicateDesign=(design)=>{
-    setDesigns((current)=>[
-      {
-        ...design,
-        id:`design-${Date.now()}`,
-        title:`${design.title} Copy`,
-        views:0,
-        status:"draft",
-        visibility:"private",
-        updatedAt:new Date().toISOString(),
-      },
-      ...current,
-    ]);
-
+    duplicate(design);
     setActiveFilter("all");
     setPage(1);
   };
 
+  // A soft delete: the design moves to Trash, where it can be restored or deleted for good.
   const deleteDesign=(design)=>{
-    const confirmed=window.confirm(
-      `Delete "${design.title}"?`
-    );
-
-    if(!confirmed)return;
-
-    setDesigns((current)=>
-      current.filter(
-        (item)=>item.id!==design.id
-      )
-    );
+    moveToTrash(design);
   };
 
-  const handleImport=(event)=>{
+  // An exported .json design opens in the editor; it is saved to the account when published.
+  const handleImport=async(event)=>{
     const file=event.target.files?.[0];
-
-    if(!file)return;
-
-    const reader=new FileReader();
-
-    reader.onload=()=>{
-      setDesigns((current)=>[
-        {
-          id:`import-${Date.now()}`,
-          title:file.name.replace(/\.[^/.]+$/,""),
-          description:"Imported design",
-          tags:["Imported","Design","Creative"],
-          views:0,
-          art:"portfolio",
-          status:"draft",
-          visibility:"private",
-          updatedAt:new Date().toISOString(),
-        },
-        ...current,
-      ]);
-
-      setActiveFilter("all");
-      setPage(1);
-    };
-
-    reader.readAsDataURL(file);
     event.target.value="";
+    if(!file)return;
+    try{
+      dispatch(documentLoaded(await readDocumentFile(file)));
+      navigate("/editor");
+    }catch(error){
+      window.alert(error?.message||"Couldn't open that file.");
+    }
   };
 
   return(
@@ -289,7 +209,7 @@ export default function MyDesigns(){
           </div>
         </div>
 
-        {pendingBackdrops.length>0&&(
+        {underReview.length>0&&(
           <section className="mt-7 rounded-[18px] border border-primary/25 bg-[var(--surface-card)] p-4 shadow-sm sm:p-5" aria-labelledby="pending-backdrops-title">
             <div className="flex items-center gap-2 text-primary">
               <Clock3 className="h-5 w-5" aria-hidden="true"/>
@@ -297,10 +217,10 @@ export default function MyDesigns(){
             </div>
             <p className="mt-1 text-sm text-[var(--text-muted)]">Your public backdrops will appear after admin approval.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {pendingBackdrops.map((backdrop)=>(
+              {underReview.map((backdrop)=>(
                 <div key={backdrop.id} className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border-card)] p-2.5">
-                  {backdrop.thumbnail
-                    ? <img src={backdrop.thumbnail} alt="" className="h-14 w-20 shrink-0 rounded-lg bg-white object-cover"/>
+                  {backdrop.image
+                    ? <img src={backdrop.image} alt="" className="h-14 w-20 shrink-0 rounded-lg bg-white object-cover"/>
                     : <div className="h-14 w-20 shrink-0 rounded-lg bg-primary/10" aria-hidden="true"/>}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-[var(--text-heading)]">{backdrop.title}</p>
@@ -379,7 +299,6 @@ export default function MyDesigns(){
                 >
                   <option value="recent">Last edited</option>
                   <option value="oldest">Oldest</option>
-                  <option value="views">Most viewed</option>
                   <option value="name">Name</option>
                 </select>
               </div>
@@ -471,7 +390,15 @@ export default function MyDesigns(){
         </div>
 
         {/* DESIGNS */}
-        {visibleDesigns.length>0?(
+        {!isSignedIn?(
+          <p className="mt-8 text-center text-base text-[var(--text-muted)]">Sign in to see your designs.</p>
+        ):isLoading?(
+          <VisoraLoader className="mt-10" label="Loading your designs…"/>
+        ):failed?(
+          <p className="mt-8 text-center text-base text-[var(--text-muted)]">
+            Couldn't load your designs. <button type="button" onClick={()=>refetch()} className="font-semibold text-primary underline">Try again</button>
+          </p>
+        ):visibleDesigns.length>0?(
           <div
             className={
               viewMode==="grid"
@@ -479,12 +406,15 @@ export default function MyDesigns(){
                 :"mt-6 flex flex-col gap-4"
             }
           >
-            {visibleDesigns.map((design)=>(
+            {visibleDesigns.map((design,index)=>(
               <MyDesignCard
                 key={design.id}
+                index={index}
                 design={design}
                 viewMode={viewMode}
                 onEdit={editDesign}
+                savedFavorite={isFavorite(design.remoteId)}
+                onFavorite={(item)=>toggleFavorite("BACKDROP",item.remoteId)}
                 onRename={openRename}
                 onDuplicate={duplicateDesign}
                 onDelete={deleteDesign}

@@ -1,0 +1,187 @@
+.favorites-collection-empty {
+  position: relative;
+  min-height: clamp(390px, 48vh, 540px);
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(42px, 7vw, 76px) 24px;
+  border: 1px solid var(--border-card);
+  border-radius: 18px;
+  background: var(--surface-card);
+  text-align: center;
+}
+
+.favorites-empty-art {
+  position: relative;
+  width: 230px;
+  height: 170px;
+  margin-bottom: 24px;
+}
+
+.favorites-empty-orbit {
+  position: absolute;
+  inset: 22px 13px 20px;
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 42%, transparent);
+  border-radius: 50%;
+  transform: rotate(-12deg);
+}
+
+.favorites-empty-card {
+  position: absolute;
+  z-index: 2;
+  width: 78px;
+  height: 96px;
+  display: grid;
+  grid-template-rows: 48px 6px 6px;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, var(--border-card));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--surface-card));
+  box-shadow: 0 14px 30px rgb(52 31 116 / 0.12);
+}
+
+.dark .favorites-empty-card {
+  background: color-mix(in srgb, var(--color-primary) 13%, var(--surface-card));
+  box-shadow: 0 18px 34px rgb(0 0 0 / 0.22);
+}
+
+.favorites-empty-card.is-template {
+  top: 4px;
+  left: 13px;
+  transform: rotate(-9deg);
+}
+
+.favorites-empty-card.is-design {
+  right: 5px;
+  bottom: 1px;
+  transform: rotate(10deg);
+}
+
+.favorites-empty-card-image {
+  display: block;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-primary) 24%, var(--surface-card));
+}
+
+.favorites-empty-card.is-design .favorites-empty-card-image {
+  background: color-mix(in srgb, #f0b544 36%, var(--surface-card));
+}
+
+.favorites-empty-card-line {
+  display: block;
+  width: 62%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 40%, transparent);
+}
+
+.favorites-empty-card-line.is-long {
+  width: 88%;
+}
+
+.favorites-empty-heart {
+  position: absolute;
+  z-index: 4;
+  top: 48px;
+  left: 84px;
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border: 6px solid var(--surface-card);
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--text-on-brand);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+.favorites-empty-spark {
+  position: absolute;
+  z-index: 5;
+  color: var(--color-primary);
+}
+
+.favorites-empty-spark.is-one {
+  top: 3px;
+  right: 44px;
+}
+
+.favorites-empty-spark.is-two {
+  bottom: 10px;
+  left: 45px;
+}
+
+.favorites-empty-copy h2 {
+  color: var(--text-heading);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.favorites-empty-copy p {
+  max-width: 520px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+  line-height: 1.7;
+}
+
+.favorites-empty-action {
+  min-height: 44px;
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 21px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 72%, transparent);
+  border-radius: 11px;
+  background: var(--color-primary);
+  color: var(--text-on-brand);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.favorites-empty-action:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .favorites-empty-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.04);
+    box-shadow: 0 12px 26px color-mix(in srgb, var(--color-primary) 25%, transparent);
+  }
+}
+
+@media (max-width: 520px) {
+  .favorites-collection-empty {
+    min-height: 390px;
+    margin-top: 20px;
+    padding: 36px 18px;
+    border-radius: 16px;
+  }
+
+  .favorites-empty-art {
+    margin-bottom: 14px;
+    transform: scale(0.86);
+  }
+
+  .favorites-empty-copy p {
+    max-width: 32ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favorites-empty-action {
+    transition: none;
+  }
+}

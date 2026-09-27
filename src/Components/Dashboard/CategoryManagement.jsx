@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   ChevronDown,
-  FolderOpen,
   Funnel,
   Pencil,
   Power,
@@ -11,7 +10,9 @@ import {
   X,
 } from "lucide-react";
 
-import { Modal, Pagination, RowMenu, formatDate } from "./AdminUi";
+import { AdminNotice, Modal, Pagination, RowMenu, formatDate } from "./AdminUi";
+import { categoryUpdate } from "./categoryUpdate.js";
+import { CATEGORY_ICONS, categoryIcon, categoryTone, guessCategoryIcon } from "./categoryIcons";
 import {
   useDeleteCategoryMutation,
   useGetCategoriesQuery,
@@ -19,6 +20,7 @@ import {
 } from "../API/categoryApi";
 
 import "./admin-categories.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 const perPage = 8;
 
@@ -26,6 +28,8 @@ function EditCategory({ category, onSave, onClose, saving }) {
   const [form, setForm] = useState({
     name: category.name || "",
     description: category.description || "",
+    // The saved icon, or the one the name suggests, so the picker always shows a choice.
+    icon: CATEGORY_ICONS.some((choice) => choice.key === category.icon) ? category.icon : guessCategoryIcon(category.name),
   });
   const [error, setError] = useState(null);
 
@@ -85,6 +89,26 @@ function EditCategory({ category, onSave, onClose, saving }) {
           </span>
         </label>
 
+        <fieldset className="cm-icon-picker">
+          <legend>Icon</legend>
+          <div role="radiogroup" aria-label="Category icon">
+            {CATEGORY_ICONS.map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                aria-checked={form.icon === key}
+                aria-label={label}
+                title={label}
+                className={form.icon === key ? "is-active" : ""}
+                onClick={() => setForm({ ...form, icon: key })}
+              >
+                <Icon size={20} strokeWidth={2} aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
         {error && <p className="ad-form-error" role="alert">{error}</p>}
 
         <div className="ad-modal-actions">
@@ -111,16 +135,18 @@ export default function CategoryManagement() {
   const [editing, setEditing] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [mutationError, setMutationError] = useState(null);
+  const [successNotice, setSuccessNotice] = useState(null);
 
-  // The server has no icon or colour per category yet, so every row
-  // uses the same folder icon.
+  // The server has no icon or colour per category, so the icon comes from
+  // what the name is about (see categoryIcons) and the colour from its row.
   const categories = useMemo(
     () =>
-      (data?.data?.contents ?? []).map((category) => ({
+      (data?.data?.contents ?? []).map((category, index) => ({
         ...category,
         active: category.isActive ?? true,
-        icon: FolderOpen,
-        tone: "blue",
+        // The drawn icon; `icon` stays the server's saved key, so an update sends it back unchanged.
+        Icon: categoryIcon(category.name, category.icon),
+        tone: categoryTone(index),
         filled: false,
       })),
     [data],
@@ -129,7 +155,11 @@ export default function CategoryManagement() {
   const setActive = async (category, isActive) => {
     setMutationError(null);
     try {
-      await updateCategory({ uuid: category.uuid, isActive }).unwrap();
+      await updateCategory(categoryUpdate(category, { isActive })).unwrap();
+      setSuccessNotice({
+        title: isActive ? "Category activated" : "Category deactivated",
+        message: `${category.name} is now ${isActive ? "available" : "hidden"}.`,
+      });
     } catch (error) {
       setMutationError(error?.data?.message || "Unable to change this category.");
     }
@@ -177,7 +207,7 @@ export default function CategoryManagement() {
       <div className="ad-page cm-page">
         <div className="ad-table-card stack-wide cm-table">
           <div className="ad-table-empty">
-            {isLoading ? "Loading categories…" : "Could not load categories. Try refreshing the page."}
+            {isLoading ? <VisoraLoader compact label="Loading categories…" /> : "Could not load categories. Try refreshing the page."}
           </div>
         </div>
       </div>
@@ -186,6 +216,10 @@ export default function CategoryManagement() {
 
   return (
     <div className="ad-page cm-page">
+      {successNotice && (
+        <AdminNotice {...successNotice} onDismiss={() => setSuccessNotice(null)} />
+      )}
+
       {/* Toolbar */}
       <div className="cm-toolbar">
         <label className="ad-control search cm-search">
@@ -272,7 +306,7 @@ export default function CategoryManagement() {
             )}
 
             {shown.map((category) => {
-              const Icon = category.icon;
+              const Icon = category.Icon;
 
               return (
                 <tr key={category.uuid}>
@@ -395,9 +429,14 @@ export default function CategoryManagement() {
         <EditCategory
           category={editing}
           saving={isSaving}
-          onSave={(patch) =>
-            updateCategory({ uuid: editing.uuid, ...patch }).unwrap()
-          }
+          onSave={async (patch) => {
+            setMutationError(null);
+            await updateCategory(categoryUpdate(editing, patch)).unwrap();
+            setSuccessNotice({
+              title: "Category updated",
+              message: `${patch.name.trim()} was saved successfully.`,
+            });
+          }}
           onClose={() => setEditing(null)}
         />
       )}

@@ -1,7 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
+import { useAppDispatch } from "../redux/hook.js";
+import { templateApi } from "../API/templateApi";
+import { fromServerTemplate } from "./useReviewQueue";
+import { useUserDirectory } from "./useUserDirectory";
 import { Check, ChevronDown, Eye, FileText, Funnel, X } from "lucide-react";
-import { Modal, Pagination, UserAvatar, formatDate } from "./AdminUi";
-import { useDashboardData } from "./dashboardData";
+import { Modal, Pagination, ReviewQueueEmptyState, UserAvatar, formatDate } from "./AdminUi";
 import happyGraduation from "../../assets/pages/admin/pending/review-table/happy-graduation.png";
 import workshopOnAi from "../../assets/pages/admin/pending/review-table/workshop-on-ai.png";
 import khmerNewYear from "../../assets/pages/admin/pending/review-table/khmer-new-year.png";
@@ -9,7 +13,9 @@ import certificate from "../../assets/pages/admin/pending/review-table/certifica
 import businessSeminar from "../../assets/pages/admin/pending/review-table/business-seminar-beige.png";
 import creativePortfolio from "../../assets/pages/admin/pending/review-table/creative-portfolio-red.png";
 import childrensDay from "../../assets/pages/admin/pending/review-table/childrens-day.png";
+import { useReviewQueue } from "./useReviewQueue";
 import "./admin-pending.css";
+import VisoraLoader from "../ui/VisoraLoader";
 
 // Seed templates have no preview images or real descriptions yet; these
 // Figma exports and copy stand in, picked by category.
@@ -43,11 +49,34 @@ const categoryTone = {
 const perPage = 7;
 
 export default function PendingReview() {
-  const { templates, updateTemplate } = useDashboardData();
+  // Real submissions first, then the samples; see useReviewQueue.
+  const { templates, decide, serverError, isLoading } = useReviewQueue();
   const [tab, setTab] = useState("all");
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState(null);
+
+  /* A list row is a summary with no description; Preview loads the full
+     template so the admin reads what the author wrote. Coming from the
+     dashboard's Preview button (state.preview), that template opens at once. */
+  const dispatch = useAppDispatch();
+  const directory = useUserDirectory();
+  const openPreview = async (row) => {
+    setViewing(row);
+    if (!row.remoteId) return;
+    try {
+      const detail = (await dispatch(templateApi.endpoints.getTemplateById.initiate({ templateUuid: row.remoteId }, { forceRefetch: true })).unwrap())?.data;
+      if (detail) setViewing((current) => (current?.remoteId === row.remoteId ? { ...row, ...fromServerTemplate(detail, directory.find), createdAt: row.createdAt, createdTime: row.createdTime } : current));
+    } catch { /* the summary is still worth showing */ }
+  };
+  const requested = useLocation().state?.preview;
+  const [openedRequest, setOpenedRequest] = useState(null);
+  useEffect(() => {
+    if (!requested || openedRequest === requested) return;
+    const row = templates.find((t) => t.remoteId === requested);
+    if (row) { setOpenedRequest(requested); openPreview(row); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requested, templates]);
 
   // Only templates can be submitted today, so both tabs show the same queue.
   // "All" is where other submission types will be added later.
@@ -70,7 +99,8 @@ export default function PendingReview() {
   const currentPage = Math.min(page, Math.max(pageCount, 1));
   const shown = pending.slice((currentPage - 1) * perPage, currentPage * perPage);
   const previewFor = (t) => t.image || previewByCategory[t.category] || childrensDay;
-  const descriptionFor = (t) => descriptionByCategory[t.category] || t.description;
+  // A real template shows the author's own words (loaded on Preview); only a sample row gets stand-in copy.
+  const descriptionFor = (t) => (t.remoteId ? t.description || "" : descriptionByCategory[t.category] || t.description);
 
   return (
     <div className="ad-page pr-page">
@@ -97,75 +127,83 @@ export default function PendingReview() {
         </div>
       </div>
 
-      <div className="ad-table-card stack-wide pr-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th scope="col">Template</th>
-              <th scope="col">Submitted By</th>
-              <th scope="col" className="is-center">Category</th>
-              <th scope="col">Submitted At</th>
-              <th scope="col" className="is-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.length === 0 && (
-              <tr>
-                <td colSpan={5} className="ad-table-empty">Nothing to review. New submissions will show up here.</td>
-              </tr>
-            )}
-            {shown.map((t) => (
-              <tr key={t.id}>
-                <td className="is-primary">
-                  <div className="pr-template">
-                    <img src={previewFor(t)} alt="" />
-                    <div>
-                      <strong>{t.name}</strong>
-                      <p>{descriptionFor(t)}</p>
-                      <span className="pr-type">
-                        <FileText size={11} fill="currentColor" strokeWidth={1.5} aria-hidden="true" /> Template
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                <td data-label="Submitted By">
-                  <div className="ad-person">
-                    <UserAvatar size={38} />
-                    <div>
-                      <strong>{t.creator}</strong>
-                      <small>{t.email}</small>
-                    </div>
-                  </div>
-                </td>
-                <td data-label="Category" className="is-center">
-                  <span className={`ad-pill ${categoryTone[t.category] || "purple"} pr-category`}>{t.category}</span>
-                </td>
-                <td data-label="Submitted At">
-                  <div className="ad-date">
-                    <strong>{formatDate(t.createdAt)}</strong>
-                    <small>{t.createdTime}</small>
-                  </div>
-                </td>
-                <td className="pr-actions-cell">
-                  <div className="pr-actions">
-                    <button type="button" className="ad-action approve" onClick={() => updateTemplate(t.id, { status: "published" })}>
-                      <Check size={14} strokeWidth={3} aria-hidden="true" /> Approve
-                    </button>
-                    <button type="button" className="ad-action reject" onClick={() => updateTemplate(t.id, { status: "rejected" })}>
-                      <X size={14} strokeWidth={3} aria-hidden="true" /> Reject
-                    </button>
-                    <button type="button" className="ad-action preview" onClick={() => setViewing(t)}>
-                      <Eye size={14} aria-hidden="true" /> Preview
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {serverError && <p className="ad-empty" role="status">{serverError}</p>}
+      {isLoading ? (
+        <div className="ad-table-card pr-empty-card">
+          <VisoraLoader className="py-10" label="Checking the review queue…" />
+        </div>
+      ) : shown.length === 0 ? (
+        <div className="ad-table-card pr-empty-card">
+          <ReviewQueueEmptyState />
+        </div>
+      ) : (
+        <>
+          <div className="ad-table-card stack-wide pr-table">
+            <table className="ad-table">
+              <thead>
+                <tr>
+                  <th scope="col">Template</th>
+                  <th scope="col">Submitted By</th>
+                  <th scope="col" className="is-center">Category</th>
+                  <th scope="col">Submitted At</th>
+                  <th scope="col" className="is-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.map((t) => (
+                  <tr key={t.id}>
+                    <td className="is-primary">
+                      <div className="pr-template">
+                        <img src={previewFor(t)} alt="" />
+                        <div>
+                          <strong>{t.name}</strong>
+                          <p>{descriptionFor(t)}</p>
+                          <span className="pr-type">
+                            <FileText size={11} fill="currentColor" strokeWidth={1.5} aria-hidden="true" /> Template
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Submitted By">
+                      <div className="ad-person">
+                        <UserAvatar size={38} person={t.author || { name: t.creator }} />
+                        <div>
+                          <strong>{t.creator}</strong>
+                          <small>{t.email}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Category" className="is-center">
+                      <span className={`ad-pill ${categoryTone[t.category] || "purple"} pr-category`}>{t.category}</span>
+                    </td>
+                    <td data-label="Submitted At">
+                      <div className="ad-date">
+                        <strong>{formatDate(t.createdAt)}</strong>
+                        <small>{t.createdTime}</small>
+                      </div>
+                    </td>
+                    <td className="pr-actions-cell">
+                      <div className="pr-actions">
+                        <button type="button" className="ad-action approve" onClick={() => decide(t, "published")}>
+                          <Check size={14} strokeWidth={3} aria-hidden="true" /> Approve
+                        </button>
+                        <button type="button" className="ad-action reject" onClick={() => decide(t, "rejected")}>
+                          <X size={14} strokeWidth={3} aria-hidden="true" /> Reject
+                        </button>
+                        <button type="button" className="ad-action preview" onClick={() => openPreview(t)}>
+                          <Eye size={14} aria-hidden="true" /> Preview
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <Pagination page={currentPage} pageCount={pageCount} total={pending.length} perPage={perPage} noun="results" onChange={setPage} variant="outlined" />
+          <Pagination page={currentPage} pageCount={pageCount} total={pending.length} perPage={perPage} noun="results" onChange={setPage} variant="outlined" />
+        </>
+      )}
 
       {viewing && (
         <Modal title={viewing.name} onClose={() => setViewing(null)} className="pr-preview">
@@ -183,7 +221,7 @@ export default function PendingReview() {
               type="button"
               className="ad-action reject"
               onClick={() => {
-                updateTemplate(viewing.id, { status: "rejected" });
+                decide(viewing, "rejected");
                 setViewing(null);
               }}
             >
@@ -193,7 +231,7 @@ export default function PendingReview() {
               type="button"
               className="ad-action approve"
               onClick={() => {
-                updateTemplate(viewing.id, { status: "published" });
+                decide(viewing, "published");
                 setViewing(null);
               }}
             >

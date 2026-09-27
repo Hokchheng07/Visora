@@ -16,6 +16,8 @@ export default function ProfileTemplates({
   onRename,
   onDuplicate,
   onDelete,
+  isFavorite=()=>false,
+  onFavorite,
 }){
   const [activeTab,setActiveTab]=useState("posted");
   const canvasPicker=useCanvasPicker();
@@ -113,15 +115,18 @@ export default function ProfileTemplates({
 
       {/* TEMPLATE GRID */}
       {visibleTemplates.length>0?(
-        <div className="profile-template-grid mt-8 grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {visibleTemplates.map((template)=>(
+        <div className="profile-template-grid mt-8 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-7">
+          {visibleTemplates.map((template,index)=>(
             <TemplateCard
               key={template.id}
+              index={index}
               design={template}
               onUpdate={onUpdate}
               onRename={onRename}
               onDuplicate={onDuplicate}
               onDelete={onDelete}
+              favorite={isFavorite(template.remoteId)}
+              onFavorite={onFavorite}
             />
           ))}
         </div>

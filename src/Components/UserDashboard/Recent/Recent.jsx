@@ -1,162 +1,84 @@
 import {useMemo,useState} from "react";
 import {Grid2X2,List,Search,SquarePlus} from "lucide-react";
+import {Link,useNavigate} from "react-router";
 import CanvasPickerModal from "../../Templates/CanvasPickerModal.jsx";
 import {useCanvasPicker} from "../../Templates/useCanvasPicker.js";
-import {PROFILE_TEMPLATES} from "../Profile/profileData";
 import RecentDesignCard from "./RecentDesignCard";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
+import {useFavorites} from "../../Account/useFavorites";
+import {useMyDesigns} from "../useMyDesigns";
+import VisoraLoader from "../../ui/VisoraLoader";
 
+/*
+ * Recent: the signed-in account's own backdrops (GET /backdrops), most
+ * recently opened first. The server stamps lastOpenedAt whenever a backdrop
+ * is opened (GET /backdrops/{uuid}, which the editor does), so "recent" is
+ * that time; a backdrop never opened falls back to when it was last saved,
+ * then created. Sorting happens here, so it does not depend on the format of
+ * the list's `sort` parameter.
+ */
 const FILTERS=[
   {id:"all",label:"All"},
-  {id:"posted",label:"Posted"},
-  {id:"draft",label:"Drafts"},
-  {id:"public",label:"Public"},
-  {id:"private",label:"Private"},
+  {id:"landscape",label:"Landscape"},
+  {id:"portrait",label:"Portrait"},
+  {id:"timer",label:"With timer"},
 ];
 
 const SORT_OPTIONS=[
-  {value:"edited",label:"Last edited"},
+  {value:"opened",label:"Recently opened"},
+  {value:"saved",label:"Last saved"},
   {value:"name",label:"Name"},
-  {value:"views",label:"Most viewed"},
 ];
 
+const time=(value)=>{
+  const ms=new Date(value||0).getTime();
+  return Number.isFinite(ms)?ms:0;
+};
+
 export default function Recent(){
+  const navigate=useNavigate();
   const canvasPicker=useCanvasPicker();
-  const [designs,setDesigns]=useState(PROFILE_TEMPLATES);
   const [query,setQuery]=useState("");
   const [filter,setFilter]=useState("all");
-  const [sort,setSort]=useState("edited");
+  const [sort,setSort]=useState("opened");
   const [view,setView]=useState("grid");
 
-  const counts=useMemo(()=>{
-    return{
-      all:designs.length,
-      posted:designs.filter(
-        (design)=>design.status==="posted"
-      ).length,
-      draft:designs.filter(
-        (design)=>design.status==="draft"
-      ).length,
-      public:designs.filter(
-        (design)=>design.visibility==="public"
-      ).length,
-      private:designs.filter(
-        (design)=>design.visibility==="private"
-      ).length,
-    };
-  },[designs]);
+  const {designs,isSignedIn,isLoading,failed,refetch,moveToTrash,rename,duplicate}=useMyDesigns();
+
+  const counts=useMemo(()=>({
+    all:designs.length,
+    landscape:designs.filter((design)=>design.orientation==="Landscape").length,
+    portrait:designs.filter((design)=>design.orientation==="Portrait").length,
+    timer:designs.filter((design)=>design.hasTimer).length,
+  }),[designs]);
 
   const visibleDesigns=useMemo(()=>{
     const needle=query.trim().toLowerCase();
-
-    let result=designs.filter((design)=>{
-      if(filter==="posted"&&design.status!=="posted")return false;
-      if(filter==="draft"&&design.status!=="draft")return false;
-      if(filter==="public"&&design.visibility!=="public")return false;
-      if(filter==="private"&&design.visibility!=="private")return false;
-
-      if(!needle)return true;
-
-      return(
-        design.title.toLowerCase().includes(needle)||
-        design.subtitle.toLowerCase().includes(needle)||
-        design.tags.some((tag)=>
-          tag.label.toLowerCase().includes(needle)
-        )
-      );
+    const result=designs.filter((design)=>{
+      if(filter==="landscape"&&design.orientation!=="Landscape")return false;
+      if(filter==="portrait"&&design.orientation!=="Portrait")return false;
+      if(filter==="timer"&&!design.hasTimer)return false;
+      return !needle||design.title.toLowerCase().includes(needle);
     });
-
-    if(sort==="name"){
-      result.sort(
-        (a,b)=>a.title.localeCompare(b.title)
-      );
-    }
-
-    if(sort==="views"){
-      result.sort(
-        (a,b)=>b.views-a.views
-      );
-    }
-
-    if(sort==="edited"){
-      result.sort(
-        (a,b)=>
-          new Date(b.updatedAt).getTime()-
-          new Date(a.updatedAt).getTime()
-      );
-    }
-
-    return result;
+    if(sort==="name")return result.sort((a,b)=>a.title.localeCompare(b.title));
+    if(sort==="saved")return result.sort((a,b)=>time(b.savedAt)-time(a.savedAt));
+    return result.sort((a,b)=>time(b.openedAt)-time(a.openedAt));
   },[designs,query,filter,sort]);
 
-  const updateDesign=(updatedDesign)=>{
-    setDesigns((current)=>
-      current.map((design)=>{
-        if(design.id!==updatedDesign.id)return design;
-
-        const now=new Date().toISOString();
-
-        if(updatedDesign.visibility==="private"){
-          return{
-            ...updatedDesign,
-            status:"draft",
-            publishedAt:null,
-            updatedAt:now,
-          };
-        }
-
-        const wasDraft=design.status==="draft";
-
-        return{
-          ...updatedDesign,
-          status:"posted",
-          publishedAt:wasDraft
-            ?now
-            :design.publishedAt||now,
-          updatedAt:now,
-        };
-      })
-    );
-  };
-
+  const {isFavorite,toggleFavorite}=useFavorites();
+  const openDesign=(design)=>navigate(`/editor?backdrop=${design.remoteId}`);
   const renameDesign=(id,title)=>{
-    setDesigns((current)=>
-      current.map((design)=>
-        design.id===id
-          ?{
-              ...design,
-              title,
-              updatedAt:new Date().toISOString(),
-            }
-          :design
-      )
-    );
+    const design=designs.find((item)=>item.id===id);
+    if(design)rename(design,title);
   };
-
   const duplicateDesign=(design,title)=>{
-    setDesigns((current)=>[
-      {
-        ...design,
-        id:`design-${Date.now()}`,
-        title:title||`${design.title} Copy`,
-        views:0,
-        visibility:"private",
-        status:"draft",
-        publishedAt:null,
-        updatedAt:new Date().toISOString(),
-      },
-      ...current,
-    ]);
-
+    duplicate(design,title);
     setFilter("all");
   };
-
+  // Delete is a soft delete: the design goes to Trash, where it can be restored.
   const deleteDesign=(id)=>{
-    setDesigns((current)=>
-      current.filter(
-        (design)=>design.id!==id
-      )
-    );
+    const design=designs.find((item)=>item.id===id);
+    if(design)moveToTrash(design);
   };
 
   return(
@@ -289,7 +211,21 @@ export default function Recent(){
         </section>
 
         {/* CARDS */}
-        {visibleDesigns.length>0?(
+        {!isSignedIn?(
+          <EmptyState title="Sign in to see your recent designs" text="Designs you open or save appear here, newest first.">
+            <Link to="/auth/login" className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Sign in</Link>
+          </EmptyState>
+        ):isLoading?(
+          <VisoraLoader className="mt-10" label="Finding your recent designs…"/>
+        ):failed?(
+          <EmptyState title="Couldn't load your designs" text="Check your connection, then try again.">
+            <button type="button" onClick={()=>refetch()} className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Try again</button>
+          </EmptyState>
+        ):designs.length===0?(
+          <EmptyState title="No designs yet" text="Start a new canvas — it will show up here once it is saved.">
+            <button type="button" onClick={canvasPicker.show} className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90"><SquarePlus className="h-4 w-4"/>New Canvas</button>
+          </EmptyState>
+        ):visibleDesigns.length>0?(
           <div
             className={
               view==="grid"
@@ -297,12 +233,15 @@ export default function Recent(){
                 :"mt-6 flex flex-col gap-4"
             }
           >
-            {visibleDesigns.map((design)=>(
+            {visibleDesigns.map((design,index)=>(
               <RecentDesignCard
                 key={design.id}
+                index={index}
                 design={design}
                 viewMode={view}
-                onUpdate={updateDesign}
+                onOpen={openDesign}
+                favorite={isFavorite(design.remoteId)}
+                onFavorite={(item)=>toggleFavorite("BACKDROP",item.remoteId)}
                 onRename={renameDesign}
                 onDuplicate={duplicateDesign}
                 onDelete={deleteDesign}
@@ -325,5 +264,16 @@ export default function Recent(){
       </div>
       <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create}/>
     </section>
+  );
+}
+
+function EmptyState({title,text,children}){
+  return(
+    <div className="mt-8 flex min-h-[300px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">
+      <Search className="h-10 w-10 text-primary"/>
+      <h2 className="mt-4 text-xl font-semibold text-[var(--text-heading)]">{title}</h2>
+      <p className="mt-1 max-w-sm text-base text-[var(--text-muted)]">{text}</p>
+      {children}
+    </div>
   );
 }

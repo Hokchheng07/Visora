@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, Ellipsis, UserRound } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, ChevronLeft, ChevronRight, Ellipsis, Sparkles, UserRound, X } from "lucide-react";
 import "./admin-ui.css";
 
 // Building blocks shared by the redesigned admin pages (overview, users,
@@ -49,10 +49,70 @@ export function CardHeader({ icon: Icon, title, linkLabel, to, filled = true }) 
   );
 }
 
-export function UserAvatar({ size = 36 }) {
+export function ReviewQueueEmptyState({ compact = false }) {
   return (
-    <span className="ad-avatar" style={{ width: size, height: size }} aria-hidden="true">
-      <UserRound size={Math.round(size * 0.78)} fill="currentColor" strokeWidth={1} />
+    <section
+      className={`ad-review-empty${compact ? " is-compact" : ""}`}
+      aria-label="No templates waiting for review"
+    >
+      <div className="ad-review-empty-art" aria-hidden="true">
+        <span className="ad-review-empty-sheet is-left" />
+        <span className="ad-review-empty-sheet is-right" />
+        <span className="ad-review-empty-sheet is-front">
+          <i className="ad-review-empty-thumb" />
+          <i className="ad-review-empty-line is-short" />
+          <i className="ad-review-empty-line" />
+          <i className="ad-review-empty-line is-medium" />
+        </span>
+        <span className="ad-review-empty-check">
+          <Check size={24} strokeWidth={2.8} />
+        </span>
+        <Sparkles className="ad-review-empty-spark" size={21} strokeWidth={1.8} />
+      </div>
+
+      <div className="ad-review-empty-copy">
+        <h3>Queue is clear</h3>
+        <p>No templates are waiting for review right now.</p>
+      </div>
+
+      <Link className="ad-review-empty-action" to="/dashboard/templates">
+        Browse all templates
+      </Link>
+    </section>
+  );
+}
+
+export function AdminNotice({ title, message, onDismiss, duration = 4500 }) {
+  useEffect(() => {
+    const timer = window.setTimeout(onDismiss, duration);
+    return () => window.clearTimeout(timer);
+  }, [duration, onDismiss]);
+
+  return (
+    <aside className="ad-notice" role="status" aria-live="polite" aria-atomic="true">
+      <span className="ad-notice-icon" aria-hidden="true">
+        <CheckCircle2 size={21} strokeWidth={2.4} />
+      </span>
+      <span className="ad-notice-copy">
+        <strong>{title}</strong>
+        <small>{message}</small>
+      </span>
+      <button type="button" onClick={onDismiss} aria-label="Dismiss notification">
+        <X size={17} strokeWidth={2.2} aria-hidden="true" />
+      </button>
+    </aside>
+  );
+}
+
+/* A person's profile picture; their initials when they have none; the grey
+   figure only when there is nobody to show (see useUserDirectory). */
+export function UserAvatar({ size = 36, person = null }) {
+  const initials = (person?.name || "").split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
+  return (
+    <span className={`ad-avatar${person?.picture ? " has-picture" : initials ? " has-initials" : ""}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }} aria-hidden="true">
+      {person?.picture
+        ? <img src={person.picture} alt="" />
+        : initials || <UserRound size={Math.round(size * 0.78)} fill="currentColor" strokeWidth={1} />}
     </span>
   );
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
@@ -11,10 +11,36 @@ import TemplateDecorations from "../Templates/templateDecorations";
 import TemplateGrid from "../Templates/TemplateGrid";
 import TemplateHeader from "../Templates/TemplateHeader";
 
-import { templates } from "../Templates/templateData";
+import { templateCategories, templates } from "../Templates/templateData";
 import { useTemplateFilters } from "../Templates/useTemplateFilters";
 import "../../styles/pages/templates.css";
 import CosmicDust from "../Effects/CosmicDust.jsx";
+import { useFavorites } from "../Account/useFavorites";
+import TemplatePreviewModal from "../Templates/TemplatePreviewModal.jsx";
+import { useCurrentUser } from "../Account/useCurrentUser";
+import { useGetAllTemplatesQuery, useGetTemplatesQuery } from "../API/templateApi";
+import { getStorageUrl } from "../API/storageApi";
+import { templateCategoryNames } from "../Templates/templateCategories.js";
+
+/* A template from the server, in the shape the sample templates use, so the
+   filters, search and cards treat both alike. */
+function fromServerTemplate(template) {
+  const categories = templateCategoryNames(template);
+  const eventType = categories[0] || "";
+  return {
+    id: `template-${template.uuid}`,
+    remoteId: template.uuid,
+    title: template.name || template.proposedName || "Untitled",
+    description: template.description || "",
+    type: eventType,
+    categories,
+    styles: template.styles || [],
+    tags: [...categories, ...(template.styles || [])].filter(Boolean),
+    orientation: template.orientation === "PORTRAIT" ? "Portrait" : "Landscape",
+    users: 0,
+    image: template.thumbnail ? getStorageUrl(template.thumbnail) : null,
+  };
+}
 
 export default function TemplatePage() {
   const navigate = useNavigate();
@@ -30,6 +56,33 @@ export default function TemplatePage() {
   const [showFilters, setShowFilters] = useState(false);
   const searchFilterRef = useRef(null);
   const [favorites, setFavorites] = useState([]);
+  const [previewing, setPreviewing] = useState(null);
+
+  /* Approved templates from the server come first, then the samples. The
+     list needs a sign-in (the server answers 401 otherwise), so a visitor
+     sees the samples only. */
+  const { isSignedIn, isAdmin } = useCurrentUser();
+  /* Asked again each time the page opens (an approval made in another tab or
+     account must show without a reload). An admin also reads the admin list,
+     which holds everyone's templates — GET /templates may only return the
+     signed-in account's own. Both are merged, each template once. */
+  const fresh = { refetchOnMountOrArgChange: true };
+  const { data: ownPage } = useGetTemplatesQuery({ templateStatus: "APPROVED", pageSize: 100 }, { ...fresh, skip: !isSignedIn });
+  const { data: adminPage } = useGetAllTemplatesQuery({ templateStatus: "APPROVED", pageSize: 100 }, { ...fresh, skip: !isAdmin });
+  const allTemplates = useMemo(() => {
+    const seen = new Set();
+    const approved = [...(adminPage?.data?.contents || []), ...(ownPage?.data?.contents || [])]
+      .filter((template) => template?.uuid && !seen.has(template.uuid) && seen.add(template.uuid))
+      .filter((template) => template.status !== "ARCHIVED" && (!template.templateStatus || template.templateStatus === "APPROVED"));
+    return [...approved.map(fromServerTemplate), ...templates];
+  }, [ownPage, adminPage]);
+  const availableCategories = useMemo(() => [
+    "All",
+    ...new Set([
+      ...templateCategories.filter((category) => category !== "All"),
+      ...allTemplates.flatMap((template) => template.categories || []),
+    ]),
+  ], [allTemplates]);
 
   const {
     search,
@@ -51,18 +104,28 @@ export default function TemplatePage() {
     activeFilterCount,
     toggleArrayValue,
     resetFilters,
-  } = useTemplateFilters(templates);
+  } = useTemplateFilters(allTemplates);
 
-  const handleFavorite = (templateId) => {
+  const { isFavorite: isSavedFavorite, toggleFavorite } = useFavorites();
+
+  const isFavorite = (template) => (template.remoteId ? isSavedFavorite(template.remoteId) : favorites.includes(template.id));
+
+  const handleFavorite = (template) => {
+    if (template.remoteId) {
+      toggleFavorite("TEMPLATE", template.remoteId);
+      return;
+    }
     setFavorites((current) =>
-      current.includes(templateId)
-        ? current.filter((id) => id !== templateId)
-        : [...current, templateId]
+      current.includes(template.id)
+        ? current.filter((id) => id !== template.id)
+        : [...current, template.id]
     );
   };
 
-  const handleOpenTemplate = () => {
-    navigate("/editor");
+  // A server template is copied into your designs and opened (see useOpenRemoteDesign);
+  // a sample one opens the editor as it is.
+  const handleUseTemplate = (template) => {
+    navigate(template.remoteId ? `/editor?template=${template.remoteId}` : "/editor");
   };
 
   return (
@@ -93,6 +156,7 @@ export default function TemplatePage() {
           <CategoryBar
             activeCategory={activeCategory}
             setActiveCategory={setActiveCategory}
+            categories={availableCategories}
           />
         </motion.div>
 
@@ -118,9 +182,10 @@ export default function TemplatePage() {
           <TemplateGrid
             templates={currentTemplates}
             activeCategory={activeCategory}
-            favorites={favorites}
+            isFavorite={isFavorite}
             onFavorite={handleFavorite}
-            onOpen={handleOpenTemplate}
+            onUse={handleUseTemplate}
+            onPreview={setPreviewing}
             onReset={resetFilters}
             page={page}
             totalPages={totalPages}
@@ -132,6 +197,13 @@ export default function TemplatePage() {
       <motion.div {...reveal()}>
         <BottomCTA />
       </motion.div>
+      <TemplatePreviewModal
+        template={previewing}
+        favorite={previewing ? isFavorite(previewing) : false}
+        onFavorite={() => previewing && handleFavorite(previewing)}
+        onUse={() => { const chosen = previewing; setPreviewing(null); handleUseTemplate(chosen); }}
+        onClose={() => setPreviewing(null)}
+      />
       <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create} />
     </main>
   );

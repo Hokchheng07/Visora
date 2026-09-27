@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUserUploadMutation } from "../../API/storageApi";
 import { uploadErrorMessage } from "../../API/apiError.js";
+import { fitForUpload, formatBytes, UPLOAD_LIMIT_BYTES } from "../../API/uploadLimit.js";
 import { useAppDispatch } from "../../redux/hook.js";
 import { imageInserted } from "../../redux/editorSlice.js";
 
@@ -75,9 +76,11 @@ export function useImageUpload({ onUploaded, insert = true } = {}) {
     try {
       const prepared = await shrinkImage(file, await readImageSize(file));
       const size = prepared.size;
-      if (prepared.file.size > MAX_IMAGE_BYTES) {
-        const sizeMb = (prepared.file.size / (1024 * 1024)).toFixed(1);
-        setError(`That image is ${sizeMb} MB. The upload limit is 1 MB; please choose or compress a smaller image.`);
+      // Re-encoded smaller until it fits the server's ~1 MB limit (see uploadLimit.js).
+      // Only an animated GIF can still be too big: redrawing it would stop the animation.
+      prepared.file = await fitForUpload(prepared.file, { maxSide: MAX_IMAGE_SIDE });
+      if (prepared.file.size > UPLOAD_LIMIT_BYTES) {
+        setError(`That ${file.type === "image/gif" ? "GIF" : "image"} is ${formatBytes(prepared.file.size)}. The upload limit is ${formatBytes(UPLOAD_LIMIT_BYTES)}; please choose a smaller one.`);
         return;
       }
 
@@ -94,7 +97,7 @@ export function useImageUpload({ onUploaded, insert = true } = {}) {
         if (insert) dispatch(imageInserted(fileName, size, file.name));
         onUploaded?.({ fileName, name: file.name, width: size.width, height: size.height, uploadedAt: Date.now() });
       } else {
-        setError(uploadErrorMessage(result?.error, "image"));
+        setError(uploadErrorMessage(result?.error, "image", { size: prepared.file.size }));
       }
     } catch (err) {
       console.log(err);
