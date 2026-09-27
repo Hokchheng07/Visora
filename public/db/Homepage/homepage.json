@@ -8,6 +8,8 @@
       "imageAlt": "Leadership presentation thank-you and question-and-answer slide",
       "tags": ["Leadership", "Modern", "Creative"],
       "uses": 250,
+      "orientation": "LANDSCAPE",
+      "pageCount": 1,
       "featured": true,
       "order": 1
     },
@@ -19,6 +21,8 @@
       "imageAlt": "Pink and purple modern business presentation cover",
       "tags": ["Business", "Workshop", "Modern"],
       "uses": 184,
+      "orientation": "LANDSCAPE",
+      "pageCount": 1,
       "featured": true,
       "order": 2
     },
@@ -30,6 +34,8 @@
       "imageAlt": "Retail forecast presentation with market insight highlights",
       "tags": ["Retail", "Report", "Minimal"],
       "uses": 126,
+      "orientation": "LANDSCAPE",
+      "pageCount": 1,
       "featured": true,
       "order": 3
     }

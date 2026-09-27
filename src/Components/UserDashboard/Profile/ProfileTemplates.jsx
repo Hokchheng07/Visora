@@ -115,7 +115,7 @@ export default function ProfileTemplates({
 
       {/* TEMPLATE GRID */}
       {visibleTemplates.length>0?(
-        <div className="profile-template-grid mt-8 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-7">
+        <div className="profile-template-grid mt-8 grid grid-cols-1 gap-5 @2xl:grid-cols-2 @5xl:grid-cols-3 @5xl:gap-7">
           {visibleTemplates.map((template,index)=>(
             <TemplateCard
               key={template.id}

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import CategoryManagement from "./CategoryManagement";
 
 const api = vi.hoisted(() => ({
+  createCategory: vi.fn(),
   updateCategory: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ vi.mock("../API/categoryApi", () => ({
     isLoading: false,
     isError: false,
   }),
+  useCreateCategoryMutation: () => [api.createCategory, { isLoading: false }],
   useUpdateCategoryMutation: () => [api.updateCategory, { isLoading: false }],
   useDeleteCategoryMutation: () => [vi.fn(), { isLoading: false }],
 }));
@@ -41,8 +43,32 @@ vi.mock("./AdminUi", () => ({
 }));
 
 beforeEach(() => {
+  api.createCategory.mockReset();
+  api.createCategory.mockReturnValue({ unwrap: () => Promise.resolve() });
   api.updateCategory.mockReset();
   api.updateCategory.mockReturnValue({ unwrap: () => Promise.resolve() });
+});
+
+it("lets an admin add a category from the toolbar", async () => {
+  render(<CategoryManagement />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Add category" }));
+  fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Celebration" } });
+  fireEvent.change(screen.getByLabelText("Description"), { target: { value: "Milestones and parties" } });
+  fireEvent.click(screen.getByRole("button", { name: "Add Category" }));
+
+  await waitFor(() => expect(api.createCategory).toHaveBeenCalledWith({
+    name: "Celebration",
+    slug: "celebration",
+    description: "Milestones and parties",
+    icon: "shapes",
+    displayOrder: 1,
+    isActive: true,
+  }));
+
+  const notice = await screen.findByRole("status");
+  expect(notice.textContent).toContain("Category added");
+  expect(notice.textContent).toContain("Celebration is ready to use.");
 });
 
 afterEach(cleanup);

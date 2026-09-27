@@ -34,10 +34,12 @@ function fromServerTemplate(template) {
     description: template.description || "",
     type: eventType,
     categories,
+    eventType,
     styles: template.styles || [],
-    tags: [...categories, ...(template.styles || [])].filter(Boolean),
+    tags: [...categories, ...(template.hasTimer ? ["Timer"] : []), ...(template.styles || [])].filter(Boolean),
     orientation: template.orientation === "PORTRAIT" ? "Portrait" : "Landscape",
-    users: 0,
+    pageCount: Math.max(1, Number(template.pageCount) || 1),
+    hasTimer: Boolean(template.hasTimer),
     image: template.thumbnail ? getStorageUrl(template.thumbnail) : null,
   };
 }

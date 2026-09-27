@@ -304,7 +304,7 @@ export default function Trash(){
           <div
             className={
               viewMode==="grid"
-                ?"mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-5"
+                ?"mt-6 grid grid-cols-1 gap-5 @2xl:grid-cols-2 @5xl:grid-cols-3 @5xl:gap-7"
                 :"mt-6 flex flex-col gap-4"
             }
           >
