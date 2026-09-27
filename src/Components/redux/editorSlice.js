@@ -12,6 +12,9 @@ import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayer
 
 export const initialEditorState = {
   documentId: "backdrop-local", title: "Untitled-1", version: 0,
+  /* The backdrop's uuid on the server once it has been saved there (or opened
+     from there), else null. `version` is the server's, sent back on PATCH. */
+  remoteId: null,
   // The size of every page, in design pixels; see model/pageSize.js.
   canvas: { ...DEFAULT_PAGE },
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
@@ -198,6 +201,12 @@ const reducers = {
       cancelGesture(state); remember(state);
       state.pages = scalePagesToSize(current(state).pages, from, to);
       state.canvas = to;
+    },
+    /* The server accepted a save: later saves update that backdrop instead
+       of making a new one. Not an edit, so no undo step. */
+    documentSaved(state, { payload }) {
+      if (payload?.remoteId) state.remoteId = payload.remoteId;
+      if (Number.isFinite(payload?.version)) state.version = payload.version;
     },
     documentRenamed(state, { payload }) {
       const title = String(payload || "").trim(); if (!title || title === state.title) return;
@@ -752,7 +761,7 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, pageSizeChanged, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
+export const { documentLoaded, documentSaved, pageSizeChanged, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
   elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, imageInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,

@@ -5,6 +5,7 @@ import { useUserLoginMutation } from "../API/authApi";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { setAccessToken, setRefreshToken } from "../redux/authslice";
+import { profileApi } from "../API/profileApi";
 import { toast, ToastContainer } from "react-toastify";
 import {
   EnvelopeIcon,
@@ -74,9 +75,10 @@ export default function Login() {
         dispatch(setRefreshToken(tokens.refreshToken));
         sessionStorage.setItem("refreshToken", tokens.refreshToken);
 
+        const home = await dashboardFor(dispatch);
         toast.success("You have logged in successfully!");
         setTimeout(() => {
-          navigate("/", { replace: true });
+          navigate(home, { replace: true });
         }, 3000);
       } else {
         setError("root.credentials", {
@@ -222,4 +224,16 @@ export default function Login() {
       </main>
     </>
   );
+}
+
+/* Where a person lands after signing in: admins on the admin dashboard,
+   everyone else on their own. The role comes from GET /users/me; if that
+   fails, the user dashboard is the safe default. */
+async function dashboardFor(dispatch) {
+  try {
+    const me = await dispatch(profileApi.endpoints.userProfile.initiate(undefined, { forceRefetch: true })).unwrap();
+    return /admin/i.test(me?.data?.role?.role || "") ? "/dashboard" : "/user-dashboard";
+  } catch {
+    return "/user-dashboard";
+  }
 }

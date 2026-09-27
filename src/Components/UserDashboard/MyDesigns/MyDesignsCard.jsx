@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Clock3,Copy,Edit3,Eye,MoreVertical,Pencil,Trash2 } from "lucide-react";
 import { DesignArt } from "../Profile/DesignArt";
+import VisoraCard from "../../Cards/VisoraCard.jsx";
 import { TAG_COLORS,formatDesignTime } from "./myDesignsData";
 
 export default function MyDesignCard({
@@ -10,15 +11,20 @@ export default function MyDesignCard({
   onRename,
   onDuplicate,
   onDelete,
+  savedFavorite=false,
+  onFavorite,
+  index=0,
 }){
   const [menuOpen,setMenuOpen]=useState(false);
+  const [localFavorite,setLocalFavorite]=useState(false);
+  const favorite=design.remoteId?savedFavorite:localFavorite;
 
   if(viewMode==="list"){
     return(
       <article className="relative flex min-w-0 flex-col gap-4 rounded-[18px] border border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-sm sm:flex-row sm:items-center">
         <div className="w-full shrink-0 rounded-[14px] bg-accent p-[7px] sm:w-[230px]">
           <div className="aspect-[16/9] overflow-hidden rounded-[9px] bg-white">
-            <DesignArt kind={design.art}/>
+            {design.image?<img src={design.image} alt="" className="h-full w-full object-cover"/>:<DesignArt kind={design.art}/>}
           </div>
         </div>
 
@@ -72,60 +78,24 @@ export default function MyDesignCard({
   }
 
   return(
-    <article className="relative min-w-0 rounded-[14px] border border-[var(--border-card)] bg-[var(--surface-card)] shadow-[0_8px_24px_rgba(112,90,224,.07)]">
-      <div className="rounded-t-[13px] bg-accent p-[8px] pb-[10px]">
-        <div className="aspect-[16/9] overflow-hidden rounded-[8px] bg-white">
-          <DesignArt kind={design.art}/>
-        </div>
-      </div>
-
-      <div className="px-4 pb-4 pt-3">
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-[18px] font-semibold text-[var(--text-heading)]">
-              {design.title}
-            </h3>
-
-            <p className="mt-1 truncate text-[14px] text-[var(--text-muted)]">
-              {design.description}
-            </p>
-          </div>
-
-          <DesignMenu
-            design={design}
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-            onEdit={onEdit}
-            onRename={onRename}
-            onDuplicate={onDuplicate}
-            onDelete={onDelete}
-          />
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {design.tags.map((tag,index)=>(
-            <span
-              key={tag}
-              className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ${TAG_COLORS[index%TAG_COLORS.length]}`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[13px] text-[var(--text-muted)]">
-          <span className="flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5"/>
-            {design.views} views
-          </span>
-
-          <span className="flex items-center gap-1">
-            <Clock3 className="h-3.5 w-3.5"/>
-            {formatDesignTime(design.updatedAt)}
-          </span>
-        </div>
-      </div>
-    </article>
+    <VisoraCard
+      index={index}
+      preview={design.image||<DesignArt kind={design.art}/>}
+      badge={design.review&&<span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">{design.review}</span>}
+      title={design.title}
+      description={design.description}
+      tags={design.tags}
+      stats={[{icon:Clock3,label:formatDesignTime(design.updatedAt)}]}
+      favorite={{active:favorite,onToggle:()=>(design.remoteId?onFavorite?.(design):setLocalFavorite((value)=>!value))}}
+      menu={[
+        {label:"Edit",icon:Edit3,onSelect:()=>onEdit(design)},
+        {label:"Rename",icon:Pencil,onSelect:()=>onRename(design)},
+        {label:"Duplicate",icon:Copy,onSelect:()=>onDuplicate(design)},
+        {label:"Move to Trash",icon:Trash2,onSelect:()=>onDelete(design),danger:true},
+      ]}
+      onOpen={()=>onEdit(design)}
+      openLabel={`Edit ${design.title}`}
+    />
   );
 }
 
@@ -177,7 +147,7 @@ function DesignMenu({
 
           <MenuButton
             icon={<Trash2 className="h-4 w-4"/>}
-            label="Delete"
+            label="Move to Trash"
             className="text-red-500"
             onClick={()=>run(()=>onDelete(design))}
           />

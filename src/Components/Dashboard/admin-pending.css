@@ -22,6 +22,10 @@
 .pr-table .ad-table td {
   padding-block: 20px;
 }
+.pr-empty-card {
+  overflow: hidden;
+  padding: 0;
+}
 .pr-template {
   display: flex;
   align-items: center;

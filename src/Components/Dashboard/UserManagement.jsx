@@ -22,6 +22,8 @@ import {
   UserAvatar,
   formatDate,
 } from "./AdminUi";
+import { toPerson } from "./useUserDirectory";
+import { useServerTemplates } from "./useReviewQueue";
 import {
   useDeleteUserMutation,
   useGetUsersQuery,
@@ -57,14 +59,24 @@ export default function UserManagement() {
   const [confirm, setConfirm] = useState(null);
   const [mutationError, setMutationError] = useState(null);
 
+  /* The user list has no template count, so it is counted here from every
+     template on the server (any review state), by its owner. */
+  const { rows: serverTemplates } = useServerTemplates();
+  const templatesByOwner = serverTemplates.reduce((counts, template) => {
+    if (template.ownerUuid) counts.set(template.ownerUuid, (counts.get(template.ownerUuid) || 0) + 1);
+    return counts;
+  }, new Map());
+
   const users = (data?.data?.contents ?? []).map((user) => ({
     id: user.uuid,
-    name: `${user.givenName ?? ""} ${user.familyName ?? ""}`.trim(),
+    name: `${user.givenName ?? ""} ${user.familyName ?? ""}`.trim() || user.username || user.email || "Visora user",
+    person: toPerson(user),
     email: user.email ?? "",
     role: user.role?.role ?? "No role",
     status: user.status?.toLowerCase?.() ?? (user.isDeleted ? "inactive" : "active"),
     joinedAt: user.createdAt,
-    templateCount: user.templateCount ?? user.templatesCreated ?? user.templates?.length ?? 0,
+    // A server-sent count can lag (or be a 0 placeholder); the templates themselves are the truth.
+    templateCount: Math.max(Number(user.templateCount) || 0, templatesByOwner.get(user.uuid) || 0),
   }));
 
   if (isLoading || isError) {
@@ -237,7 +249,7 @@ export default function UserManagement() {
                 <tr key={u.id}>
                   <td className="is-primary">
                     <div className="ad-person">
-                      <UserAvatar size={38} />
+                      <UserAvatar size={38} person={u.person} />
                       <div>
                         <strong>{u.name}</strong>
                         <small>{u.email}</small>
@@ -311,7 +323,7 @@ export default function UserManagement() {
           <ul className="ad-list">
             {recent.map((u) => (
               <li key={u.id}>
-                <UserAvatar size={38} />
+                <UserAvatar size={38} person={u.person} />
                 <div>
                   <strong>{u.name}</strong>
                   <small>{u.email}</small>

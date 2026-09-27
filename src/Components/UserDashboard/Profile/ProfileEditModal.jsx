@@ -1,6 +1,7 @@
 import { useRef,useState } from "react";
 import { useUserUploadMutation,getStorageUrl } from "../../API/storageApi";
 import { uploadErrorMessage } from "../../API/apiError.js";
+import { fitForUpload } from "../../API/uploadLimit.js";
 import {
   Camera,
   Upload,
@@ -83,18 +84,21 @@ export function ProfileEditModal({profile,onSave,onClose,saving=false,error=""})
       setPhotoError("Please choose an image.");
       return;
     }
-    if(file.size>5*1024*1024){
-      setPhotoError("That photo is bigger than 5 MB.");
+    if(file.size>20*1024*1024){
+      setPhotoError("That photo is bigger than 20 MB.");
       return;
     }
 
+    // An avatar never shows bigger than a few hundred pixels, so it is made
+    // small enough for the server's ~1 MB limit before it is sent.
+    const photo=await fitForUpload(file,{maxSide:1024});
     const formData=new FormData();
-    formData.append("file",file);
+    formData.append("file",photo);
     const result=await uploadPhoto({userUploadRequest:formData});
     const fileName=result?.data?.data?.fileName;
 
     if(!fileName){
-      setPhotoError(uploadErrorMessage(result?.error,"photo"));
+      setPhotoError(uploadErrorMessage(result?.error,"photo",{size:photo.size}));
       return;
     }
 

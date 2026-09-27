@@ -8,63 +8,48 @@ import {
   Trash2,
 } from "lucide-react";
 import TrashCard from "./TrashCard";
-import {
-  INITIAL_TRASH,
-  TRASH_FILTERS,
-  getRemainingDays,
-} from "./trashData";
+import {getRemainingDays} from "./trashData";
+import {useCurrentUser} from "../../Account/useCurrentUser";
+import {useMyDesigns} from "../useMyDesigns";
 
+const TRASH_FILTERS=[
+  {id:"all",label:"All Items"},
+  {id:"Landscape",label:"Landscape"},
+  {id:"Portrait",label:"Portrait"},
+];
+
+/*
+ * Designs moved to Trash (a soft delete, kept per account in this browser;
+ * see useMyDesigns). Restore puts one back; Delete forever and Empty Trash
+ * call DELETE /backdrops/{uuid}. Past the 30-day retention a design is
+ * deleted for good the next time this page opens, as the notice says.
+ */
 export default function Trash(){
-  const [trash,setTrash]=useState(()=>{
-    try{
-      const stored=JSON.parse(
-        localStorage.getItem("visora-trash")||"[]"
-      );
-
-      if(stored.length===0)return INITIAL_TRASH;
-
-      return stored.map((item)=>({
-        ...item,
-        deletedAt:
-          item.deletedAt||
-          item.trashedAt||
-          new Date().toISOString(),
-        deletedBy:item.deletedBy||"Chit Chimy",
-        category:item.category||"Graphics & Posters",
-        format:item.format||"Design",
-        tags:item.tags||["Design"],
-      }));
-    }catch{
-      return INITIAL_TRASH;
-    }
-  });
-
+  const {displayName}=useCurrentUser();
+  const {trashed,isSignedIn,isLoading,restore,restoreAll:restoreEverything,deleteForever:deleteDesign,emptyTrash:deleteEverything}=useMyDesigns();
+  const trash=useMemo(()=>trashed.map((design)=>({
+    ...design,
+    category:design.orientation,
+    deletedBy:displayName||"You",
+    format:design.status==="posted"?"Posted template":"Design",
+    tags:design.tags.map((tag)=>tag.label),
+  })),[trashed,displayName]);
   const [activeFilter,setActiveFilter]=useState("all");
   const [search,setSearch]=useState("");
   const [sort,setSort]=useState("remaining");
   const [viewMode,setViewMode]=useState("grid");
 
+  const expired=useMemo(()=>trash.filter((design)=>getRemainingDays(design.deletedAt)===0),[trash]);
   useEffect(()=>{
-    localStorage.setItem(
-      "visora-trash",
-      JSON.stringify(trash)
-    );
-  },[trash]);
+    expired.forEach((design)=>deleteDesign(design));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[expired.map((design)=>design.id).join("|")]);
 
-  const counts=useMemo(()=>{
-    return{
-      all:trash.length,
-      "Landing Pages":trash.filter(
-        (item)=>item.category==="Landing Pages"
-      ).length,
-      "Graphics & Posters":trash.filter(
-        (item)=>item.category==="Graphics & Posters"
-      ).length,
-      "Brand Assets":trash.filter(
-        (item)=>item.category==="Brand Assets"
-      ).length,
-    };
-  },[trash]);
+  const counts=useMemo(()=>({
+    all:trash.length,
+    Landscape:trash.filter((item)=>item.category==="Landscape").length,
+    Portrait:trash.filter((item)=>item.category==="Portrait").length,
+  }),[trash]);
 
   const visibleTrash=useMemo(()=>{
     let result=[...trash];
@@ -80,7 +65,6 @@ export default function Trash(){
 
       result=result.filter((item)=>
         item.title.toLowerCase().includes(query)||
-        item.description?.toLowerCase().includes(query)||
         item.tags?.some((tag)=>
           tag.toLowerCase().includes(query)
         )
@@ -116,76 +100,23 @@ export default function Trash(){
     return result;
   },[trash,activeFilter,search,sort]);
 
-  const restoreDesign=(design)=>{
-    const restored=JSON.parse(
-      localStorage.getItem("visora-restored-designs")||"[]"
-    );
-
-    localStorage.setItem(
-      "visora-restored-designs",
-      JSON.stringify([
-        {
-          ...design,
-          restoredAt:new Date().toISOString(),
-        },
-        ...restored,
-      ])
-    );
-
-    setTrash((current)=>
-      current.filter((item)=>item.id!==design.id)
-    );
-  };
+  const restoreDesign=(design)=>restore(design);
 
   const restoreAll=()=>{
     if(trash.length===0)return;
-
-    const confirmed=window.confirm(
-      `Restore all ${trash.length} items?`
-    );
-
-    if(!confirmed)return;
-
-    const restored=JSON.parse(
-      localStorage.getItem("visora-restored-designs")||"[]"
-    );
-
-    localStorage.setItem(
-      "visora-restored-designs",
-      JSON.stringify([
-        ...trash.map((item)=>({
-          ...item,
-          restoredAt:new Date().toISOString(),
-        })),
-        ...restored,
-      ])
-    );
-
-    setTrash([]);
+    if(!window.confirm(`Restore all ${trash.length} items?`))return;
+    restoreEverything();
   };
 
   const deleteForever=(design)=>{
-    const confirmed=window.confirm(
-      `Permanently delete "${design.title}"? This cannot be undone.`
-    );
-
-    if(!confirmed)return;
-
-    setTrash((current)=>
-      current.filter((item)=>item.id!==design.id)
-    );
+    if(!window.confirm(`Permanently delete "${design.title}"? This cannot be undone.`))return;
+    deleteDesign(design);
   };
 
   const emptyTrash=()=>{
     if(trash.length===0)return;
-
-    const confirmed=window.confirm(
-      `Permanently delete all ${trash.length} items? This cannot be undone.`
-    );
-
-    if(!confirmed)return;
-
-    setTrash([]);
+    if(!window.confirm(`Permanently delete all ${trash.length} items? This cannot be undone.`))return;
+    deleteEverything();
   };
 
   return(
@@ -364,7 +295,11 @@ export default function Trash(){
         </div>
 
         {/* CARDS */}
-        {visibleTrash.length>0?(
+        {!isSignedIn?(
+          <p className="mt-8 text-center text-base text-[var(--text-muted)]">Sign in to see your trash.</p>
+        ):isLoading?(
+          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your trash…</p>
+        ):visibleTrash.length>0?(
           <div
             className={
               viewMode==="grid"
@@ -372,9 +307,10 @@ export default function Trash(){
                 :"mt-6 flex flex-col gap-4"
             }
           >
-            {visibleTrash.map((design)=>(
+            {visibleTrash.map((design,index)=>(
               <TrashCard
                 key={design.id}
+                index={index}
                 design={design}
                 viewMode={viewMode}
                 onRestore={restoreDesign}

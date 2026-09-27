@@ -135,9 +135,22 @@
   outline-offset: 2px;
 }
 .dashboard-main {
+  position: relative;
+  isolation: isolate;
   width: calc(100% - 238px);
   margin-left: 238px;
   min-width: 0;
+}
+/* The dust field intentionally makes the workspace a stacking context. Lift
+   that context above the fixed navigation only while a modal is open, so the
+   viewport backdrop and dialog cannot be hidden behind the sidebar. */
+.dashboard-main:has(.ad-modal-backdrop) {
+  z-index: 60;
+}
+.dashboard-main-layer {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
 }
 .dashboard-header {
   padding: clamp(20px, 2.4vw, 34px) var(--dash-gutter) 0;

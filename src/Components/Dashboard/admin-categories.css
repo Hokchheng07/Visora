@@ -86,3 +86,11 @@
     flex: 1;
   }
 }
+/* Edit category: the icon picker. One choice; its key is saved as the category's `icon`. */
+.cm-icon-picker { min-width: 0; margin: 0 0 16px; padding: 0; border: 0; }
+.cm-icon-picker legend { margin-bottom: 8px; color: var(--text-heading); font-size: 14px; font-weight: 500; }
+.cm-icon-picker > div { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; }
+.cm-icon-picker button { display: grid; aspect-ratio: 1; place-items: center; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); color: var(--text-body); cursor: pointer; transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease; }
+.cm-icon-picker button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.cm-icon-picker button.is-active { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); }
+.cm-icon-picker button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }

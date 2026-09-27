@@ -1,21 +1,64 @@
 import { useMemo,useState } from "react";
-import { Grid2X2,Heart,List,Search,X } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Grid2X2,Heart,List,Search } from "lucide-react";
+import { Link,useNavigate } from "react-router";
 import FavoriteCard from "./FavoritesCard";
-import { FAVORITE_DESIGNS } from "./FavoritesData";
+import FavoritesEmptyState from "./FavoritesEmptyState";
+import { useFavorites } from "../../Account/useFavorites";
+import { useGetTemplatesQuery } from "../../API/templateApi";
+import { useGetBackdropsQuery,useDuplicateBackdropMutation } from "../../API/backdropApi";
+import { useGetCategoriesQuery } from "../../API/categoryApi";
+import { getStorageUrl } from "../../API/storageApi";
+import { listRequestFailed } from "../../API/apiError.js";
+import { templateCategoryNames,templateCategoryUuids } from "../../Templates/templateCategories.js";
 
+const CATEGORIES=["All","Templates","My designs"];
 
-const CATEGORIES=["All","Presentation","Social","Brand Kit"];
+function toFavoriteDesign(favorite,target,categoryNames){
+  const isTemplate=favorite.type==="TEMPLATE";
+  const pages=target?.pageCount||1;
+  const currentNames=target&&isTemplate?templateCategoryUuids(target).map((uuid)=>categoryNames.get(uuid)).filter(Boolean):[];
+  const categories=target&&isTemplate?(currentNames.length?currentNames:templateCategoryNames(target)):[];
+  return{
+    id:favorite.uuid,
+    type:favorite.type,
+    targetUuid:favorite.targetUuid,
+    available:!!target,
+    title:target?(target.proposedName||target.name||"Untitled"):"Unavailable design",
+    description:!target
+      ?"This design was removed or is no longer shared"
+      :isTemplate
+        ?"Template"
+        :`${pages} page${pages===1?"":"s"} · ${target.orientation==="PORTRAIT"?"portrait":"landscape"}`,
+    category:isTemplate?"Templates":"My designs",
+    tags:[...categories,...(target?.hasTimer?["Timer"]:[])],
+    image:target?.thumbnail?getStorageUrl(target.thumbnail):null,
+    art:"portfolio",
+    updatedAt:favorite.createdAt,
+  };
+}
 
 export default function Favorites(){
   const navigate=useNavigate();
-  const [favorites,setFavorites]=useState(FAVORITE_DESIGNS);
+  const {favorites:savedFavorites,removeFavoriteByUuid,isSignedIn,isLoading,error,refetch}=useFavorites();
+  const {data:templatePage}=useGetTemplatesQuery({pageSize:100},{skip:!isSignedIn});
+  const {data:backdropPage}=useGetBackdropsQuery({pageSize:100},{skip:!isSignedIn});
+  const {data:categoryPage}=useGetCategoriesQuery(undefined,{skip:!isSignedIn});
+  const [duplicateBackdrop]=useDuplicateBackdropMutation();
   const [search,setSearch]=useState("");
   const [category,setCategory]=useState("All");
   const [sort,setSort]=useState("recent");
   const [viewMode,setViewMode]=useState("grid");
-  const [renameTarget,setRenameTarget]=useState(null);
-  const [renameValue,setRenameValue]=useState("");
+
+  const favorites=useMemo(()=>{
+    const templates=new Map((templatePage?.data?.contents||[]).map((template)=>[template.uuid,template]));
+    const backdrops=new Map((backdropPage?.data?.contents||[]).map((backdrop)=>[backdrop.uuid,backdrop]));
+    const categoryNames=new Map((categoryPage?.data?.contents||[]).map((item)=>[item.uuid,item.name]));
+    return savedFavorites.map((favorite)=>toFavoriteDesign(
+      favorite,
+      favorite.type==="TEMPLATE"?templates.get(favorite.targetUuid):backdrops.get(favorite.targetUuid),
+      categoryNames,
+    ));
+  },[savedFavorites,templatePage,backdropPage,categoryPage]);
 
   const visibleFavorites=useMemo(()=>{
     let result=[...favorites];
@@ -38,10 +81,6 @@ export default function Favorites(){
       result.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
     }
 
-    if(sort==="views"){
-      result.sort((a,b)=>b.views-a.views);
-    }
-
     if(sort==="name"){
       result.sort((a,b)=>a.title.localeCompare(b.title));
     }
@@ -49,72 +88,13 @@ export default function Favorites(){
     return result;
   },[favorites,search,category,sort]);
 
-  const removeFavorite=(id)=>{
-    setFavorites((current)=>current.filter((design)=>design.id!==id));
+  const openDesign=(design)=>{
+    navigate(design.type==="TEMPLATE"?`/editor?template=${design.targetUuid}`:`/editor?backdrop=${design.targetUuid}`);
   };
 
   const duplicateDesign=(design)=>{
-    const now=new Date().toISOString();
-
-    setFavorites((current)=>[
-      {
-        ...design,
-        id:`favorite-${Date.now()}`,
-        title:`${design.title} Copy`,
-        views:0,
-        updatedAt:now,
-      },
-      ...current,
-    ]);
-  };
-
-  const moveToTrash=(design)=>{
-    const confirmed=window.confirm(
-      `Move "${design.title}" to Trash?`
-    );
-
-    if(!confirmed)return;
-
-    const existingTrash=JSON.parse(
-      localStorage.getItem("visora-trash")||"[]"
-    );
-
-    localStorage.setItem(
-      "visora-trash",
-      JSON.stringify([
-        {
-          ...design,
-          trashedAt:new Date().toISOString(),
-        },
-        ...existingTrash,
-      ])
-    );
-
-    removeFavorite(design.id);
-  };
-
-  const openRename=(design)=>{
-    setRenameTarget(design);
-    setRenameValue(design.title);
-  };
-
-  const saveRename=()=>{
-    if(!renameValue.trim()||!renameTarget)return;
-
-    setFavorites((current)=>
-      current.map((design)=>
-        design.id===renameTarget.id
-          ?{
-              ...design,
-              title:renameValue.trim(),
-              updatedAt:new Date().toISOString(),
-            }
-          :design
-      )
-    );
-
-    setRenameTarget(null);
-    setRenameValue("");
+    duplicateBackdrop({backdropUuid:design.targetUuid,duplicateBackdropRequest:{name:`${design.title} Copy`}})
+      .unwrap().catch(()=>window.alert("Couldn't duplicate this design. Please try again."));
   };
 
   return(
@@ -170,7 +150,9 @@ export default function Favorites(){
                     }`}
                   >
                     {item}
-                    {item==="All"&&`(${favorites.length})`}
+                    <span className="ml-1 text-xs">
+                      {item==="All"?favorites.length:favorites.filter((design)=>design.category===item).length}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -187,8 +169,7 @@ export default function Favorites(){
                   onChange={(event)=>setSort(event.target.value)}
                   className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-semibold text-[var(--text-heading)] outline-none"
                 >
-                  <option value="recent">Last edited</option>
-                  <option value="views">Most viewed</option>
+                  <option value="recent">Recently added</option>
                   <option value="name">Name</option>
                 </select>
               </div>
@@ -222,7 +203,19 @@ export default function Favorites(){
           </div>
         </section>
 
-        {visibleFavorites.length>0?(
+        {!isSignedIn?(
+          <FavoritesEmpty title="Sign in to see your favorites" text="Tap the heart on any template or design to keep it here.">
+            <Link to="/auth/login" className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Sign in</Link>
+          </FavoritesEmpty>
+        ):isLoading?(
+          <p className="mt-8 text-center text-base text-[var(--text-muted)]" aria-busy="true">Loading your favorites…</p>
+        ):listRequestFailed(error)?(
+          <FavoritesEmpty title="Couldn't load your favorites" text="Check your connection, then try again.">
+            <button type="button" onClick={()=>refetch()} className="mt-5 inline-flex h-11 items-center rounded-xl bg-primary px-5 text-base font-medium text-[var(--text-on-brand)] transition hover:opacity-90">Try again</button>
+          </FavoritesEmpty>
+        ):favorites.length===0?(
+          <FavoritesEmptyState />
+        ):visibleFavorites.length>0?(
           <div
             className={
               viewMode==="grid"
@@ -230,16 +223,15 @@ export default function Favorites(){
                 :"mt-6 flex flex-col gap-4"
             }
           >
-            {visibleFavorites.map((design)=>(
+            {visibleFavorites.map((design,index)=>(
               <FavoriteCard
                 key={design.id}
+                index={index}
                 design={design}
                 viewMode={viewMode}
-                onOpen={(item)=>navigate(`/editor/${item.id}`)}
-                onRename={openRename}
-                onDuplicate={duplicateDesign}
-                onRemoveFavorite={removeFavorite}
-                onTrash={moveToTrash}
+                onOpen={openDesign}
+                onDuplicate={design.type==="BACKDROP"?duplicateDesign:undefined}
+                onRemoveFavorite={removeFavoriteByUuid}
               />
             ))}
           </div>
@@ -258,55 +250,17 @@ export default function Favorites(){
         )}
       </div>
 
-      {renameTarget&&(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-[24px] border border-[var(--border-card)] bg-[var(--surface-card)] p-6 shadow-[0_25px_80px_rgba(0,0,0,.28)]">
-            <button
-              type="button"
-              onClick={()=>setRenameTarget(null)}
-              className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-[var(--text-muted)] transition hover:bg-primary/10 hover:text-primary"
-            >
-              <X className="h-4 w-4"/>
-            </button>
-
-            <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
-              Rename Design
-            </h2>
-
-            <p className="mt-1 text-base text-[var(--text-muted)]">
-              Enter a new name for this design.
-            </p>
-
-            <input
-              autoFocus
-              value={renameValue}
-              onChange={(event)=>setRenameValue(event.target.value)}
-              onKeyDown={(event)=>{
-                if(event.key==="Enter")saveRename();
-              }}
-              className="mt-5 h-11 w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-base)] px-4 text-base text-[var(--text-heading)] outline-none transition focus:border-primary"
-            />
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={()=>setRenameTarget(null)}
-                className="h-11 rounded-xl border border-[var(--border-default)] px-5 text-base font-semibold text-[var(--text-body)]"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={saveRename}
-                className="h-11 rounded-xl bg-primary px-5 text-base font-semibold text-white"
-              >
-                Rename
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
+  );
+}
+
+function FavoritesEmpty({title,text,children}){
+  return(
+    <div className="mt-8 flex min-h-[300px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-card)] bg-[var(--surface-card)] px-6 text-center">
+      <Heart className="h-10 w-10 text-primary"/>
+      <h2 className="mt-4 text-xl font-semibold text-[var(--text-heading)]">{title}</h2>
+      <p className="mt-1 max-w-sm text-base text-[var(--text-muted)]">{text}</p>
+      {children}
+    </div>
   );
 }

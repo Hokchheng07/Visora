@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { templateCategoryNames } from "../Templates/templateCategories.js";
 
 const DataContext = createContext(null);
 
@@ -59,7 +60,7 @@ export function DashboardDataProvider({ children }) {
       categories: [
         ...new Set([
           ...categoryNames,
-          ...templates.map((template) => template.category),
+          ...templates.flatMap(templateCategoryNames),
         ]),
       ],
       reports: dashboard?.reports || [],
@@ -76,7 +77,7 @@ export function DashboardDataProvider({ children }) {
               shade: item.shade || "violet",
               description:
                 item.description ||
-                `A polished ${item.category.toLowerCase()} template for Visora.`,
+                `A polished ${(templateCategoryNames(item)[0] || "design").toLowerCase()} template for Visora.`,
             },
             ...current.templates,
           ],

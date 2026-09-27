@@ -240,6 +240,8 @@ export function serializeDocument(editor) {
     uuid: editor.documentId || "backdrop-local",
     name: editor.title || "Untitled-1",
     version: editor.version || 0,
+    // The server's uuid once saved there, so a reload keeps updating the same backdrop.
+    ...(editor.remoteId ? { remoteId: editor.remoteId } : {}),
     // The server wants both; orientation is only ever read from the size.
     orientation: orientationOf(normalizePageSize(editor.canvas)),
     canvas: normalizePageSize(editor.canvas),
@@ -372,6 +374,7 @@ export function hydrateDocument(document) {
     // A missing or broken size loads as the old fixed 1920 × 1080 page.
     canvas: normalizePageSize(value.canvas),
     version: value.version || 0,
+    remoteId: typeof value.remoteId === "string" && value.remoteId ? value.remoteId : null,
     pages: value.pages.map((page) => {
       const groups = hydrateGroups(page.groups, seenGroups);
       const groupIds = new Map(groups.map((group) => [group.source, group.id]));

@@ -31,3 +31,20 @@ test("publishing always succeeds, keeps the submission for this visit, and write
   assert.equal(loadPublishedTemplates(storage)[0].status, "pending");
   assert.equal(values.size, 0);
 });
+
+// One category per template (MAX_TEMPLATE_CATEGORIES): the server stores one.
+test("published records keep the one category the server can store", () => {
+  const record = buildTemplateRecord({
+    editor,
+    title: "Backdrop",
+    visibility: "public",
+    categories: [
+      { uuid: "exam-id", name: "Examination" },
+      { uuid: "school-id", name: "School Event" },
+    ],
+  });
+
+  assert.deepEqual(record.categories, ["Examination"]);
+  assert.deepEqual(record.categoryUuids, ["exam-id"]);
+  assert.equal(record.category, "Examination");
+});

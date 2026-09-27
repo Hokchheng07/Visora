@@ -136,16 +136,21 @@ export default function EditorCanvas({
     dispatch(canvasLayersSelected([...marquee.base, ...ids])); setMarquee(null);
   }
 
+  // Space + drag or a middle-button drag pans the view. Every other canvas
+  // handler ignores non-left buttons, so the middle press always reaches here.
   function panStart(event) {
-    if (!spacePressed.current || event.button !== 0) return;
+    if (!(event.button === 1 || (spacePressed.current && event.button === 0))) return;
     const scroller = scrollRef.current; pan.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, left: scroller.scrollLeft, top: scroller.scrollTop };
+    scroller.dataset.panning = "";
     event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault();
   }
   function panMove(event) {
     if (!pan.current || pan.current.pointerId !== event.pointerId) return;
     const scroller = scrollRef.current; scroller.scrollLeft = pan.current.left - (event.clientX - pan.current.x); scroller.scrollTop = pan.current.top - (event.clientY - pan.current.y);
   }
-  function panEnd(event) { if (pan.current?.pointerId === event.pointerId) pan.current = null; }
+  function panEnd(event) { if (pan.current?.pointerId === event.pointerId) { pan.current = null; delete scrollRef.current.dataset.panning; } }
+  // Windows browsers start their own autoscroll on a middle press; the canvas pans instead.
+  function stopAutoscroll(event) { if (event.button === 1) event.preventDefault(); }
 
   return (
     <main
@@ -176,7 +181,7 @@ export default function EditorCanvas({
           </>
         )}
 
-        <div className="editor-canvas-scroll" ref={scrollRef} onPointerDown={panStart} onPointerMove={panMove} onPointerUp={panEnd} onPointerCancel={panEnd}>
+        <div className="editor-canvas-scroll" ref={scrollRef} onPointerDown={panStart} onPointerMove={panMove} onPointerUp={panEnd} onPointerCancel={panEnd} onMouseDown={stopAutoscroll}>
           <div className="editor-page-stack">
               <div className="editor-page" data-page-id={pages[currentPage].id}>
                 {/* The work area is the page plus a page of room on every side.

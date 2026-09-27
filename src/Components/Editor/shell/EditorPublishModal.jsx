@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Globe2, Image as ImageIcon, Loader2, Lock, Send, Upload, X } from "lucide-react";
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
+import { Check, ChevronDown, Globe2, Image as ImageIcon, Loader2, Lock, Send, Shapes, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import reviewInboxArt from "../../../assets/pages/editor/review-inbox.png";
 import { useAppSelector } from "../../redux/hook.js";
 import { renderPage } from "../export/editorPdf.jsx";
-import { buildTemplateRecord, publishTemplate } from "../model/templatePublish.js";
+import { useCurrentUser } from "../../Account/useCurrentUser";
+import { useGetCategoriesQuery } from "../../API/categoryApi";
+import { categoryIcon } from "../../Dashboard/categoryIcons.js";
+import { MAX_TEMPLATE_CATEGORIES } from "../../Templates/templateCategories.js";
+import { publishErrorMessage, usePublishBackdrop } from "./usePublishBackdrop.js";
 import { IMAGE_TYPES } from "../panels/useImageUpload.js";
 import { useReviewReceiptMotion } from "./useReviewReceiptMotion.js";
 
@@ -33,6 +38,17 @@ export default function EditorPublishModal({ onClose }) {
   const [submittedRecord, setSubmittedRecord] = useState(null);
   const fileRef = useRef(null);
   const receipt = useReviewReceiptMotion(!!submittedRecord);
+  const publishBackdrop = usePublishBackdrop();
+  const { isSignedIn } = useCurrentUser();
+  /* Public templates can be filed under up to five active categories. */
+  const { data: categoryPage, isLoading: categoriesLoading } = useGetCategoriesQuery(undefined, { skip: !isSignedIn });
+  const categories = (categoryPage?.data?.contents || []).filter((category) => category.isActive !== false);
+  const [categoryUuids, setCategoryUuids] = useState([]);
+  const selectedCategories = categories.filter((item) => categoryUuids.includes(item.uuid));
+  const firstCategory = selectedCategories[0] || null;
+  const SelectedCategoryIcon = firstCategory ? categoryIcon(firstCategory.name, firstCategory.icon) : Shapes;
+  const needsCategory = visibility === "public" && (categoriesLoading || (categories.length > 0 && selectedCategories.length === 0));
+  const setLimitedCategories = (next) => setCategoryUuids([...new Set(next)].slice(0, MAX_TEMPLATE_CATEGORIES));
 
   // The first page becomes the thumbnail. Rendered once, when the modal opens.
   useEffect(() => {
@@ -60,12 +76,13 @@ export default function EditorPublishModal({ onClose }) {
   };
 
   const publish = async () => {
-    if (!title.trim() || publishing) return;
+    if (!title.trim() || publishing || needsCategory) return;
+    // Publishing saves to an account, so it needs one.
+    if (!isSignedIn) { setError("Sign in to publish your backdrop."); return; }
     setPublishing(true);
     setError("");
     try {
-      const record = buildTemplateRecord({ editor, title, description, visibility, thumbnail });
-      const saved = await publishTemplate(record);
+      const saved = await publishBackdrop({ editor, title, description, visibility, thumbnail, categories: selectedCategories });
       if (saved.visibility === "public") {
         setSubmittedRecord(saved);
         setPublishing(false);
@@ -73,7 +90,7 @@ export default function EditorPublishModal({ onClose }) {
         onClose(true);
       }
     } catch (err) {
-      setError(err?.message || "Couldn't publish the template. Please try again.");
+      setError(err?.status !== undefined ? publishErrorMessage(err) : err?.message || "Couldn't publish the template. Please try again.");
       setPublishing(false);
     }
   };
@@ -162,6 +179,52 @@ export default function EditorPublishModal({ onClose }) {
             placeholder="What is this template for?" />
         </label>
 
+        {visibility === "public" && (
+          <>
+            {categoriesLoading ? (
+              <div className="editor-publish-field">
+                <span>Category</span>
+                <p className="editor-publish-category-note">Loading categories…</p>
+              </div>
+            ) : categories.length ? (
+              <div className="editor-publish-field">
+                <span>Category</span>
+                {/* One category: the server stores one per template (see templateCategories.js). */}
+                <Listbox value={categoryUuids[0] ?? null} onChange={(uuid) => setLimitedCategories(uuid ? [uuid] : [])}>
+                  <ListboxButton className={`editor-publish-category-trigger${selectedCategories.length ? " has-value" : ""}`} aria-label="Category">
+                    <span className="editor-publish-category-trigger-icon"><SelectedCategoryIcon size={18} aria-hidden="true" /></span>
+                    <span className="editor-publish-category-trigger-value">
+                      {firstCategory ? firstCategory.name : "Choose a category"}
+                    </span>
+                    <ChevronDown size={18} className="editor-publish-category-chevron" aria-hidden="true" />
+                  </ListboxButton>
+                  <ListboxOptions anchor={{ to: "bottom start", gap: 7, padding: 16 }} modal={false}
+                    className="editor-publish-category-panel">
+                    {categories.map((item) => {
+                      const Icon = categoryIcon(item.name, item.icon);
+                      const selected = categoryUuids[0] === item.uuid;
+                      return (
+                        <ListboxOption key={item.uuid} value={item.uuid} className="editor-publish-category-option">
+                          <span className="editor-publish-category-option-icon"><Icon size={18} aria-hidden="true" /></span>
+                          <span className="editor-publish-category-option-name">{item.name}</span>
+                          <span className="editor-publish-category-checkbox" aria-hidden="true">
+                            {selected && <Check size={14} strokeWidth={3} />}
+                          </span>
+                        </ListboxOption>
+                      );
+                    })}
+                  </ListboxOptions>
+                </Listbox>
+              </div>
+            ) : (
+              <div className="editor-publish-field">
+                <span>Category</span>
+                <p className="editor-publish-category-note">No categories yet — an admin can add them under Categories.</p>
+              </div>
+            )}
+          </>
+        )}
+
         <p className="editor-publish-label">Visibility</p>
         <div className="editor-publish-visibility">
           {VISIBILITIES.map(({ id, label, icon: Icon }) => (
@@ -180,7 +243,8 @@ export default function EditorPublishModal({ onClose }) {
 
         <div className="editor-publish-actions">
           <button type="button" className="editor-publish-cancel" disabled={publishing} onClick={() => onClose(false)}>Cancel</button>
-          <button type="button" className="editor-publish-submit" disabled={!title.trim() || publishing} onClick={publish}>
+          <button type="button" className="editor-publish-submit" disabled={!title.trim() || publishing || needsCategory}
+            title={needsCategory ? (categoriesLoading ? "Loading categories" : "Choose at least one category") : undefined} onClick={publish}>
             {publishing
               ? <><Loader2 size={16} className="editor-spin" aria-hidden="true" />{visibility === "public" ? "Submitting…" : "Saving…"}</>
               : visibility === "public" ? "Submit for review" : "Save privately"}

@@ -1,14 +1,13 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { serializeDocument } from "./editorDocument.js";
+import { templateCategoryPayload } from "../../Templates/templateCategories.js";
 
 /*
  * Publishing a backdrop as a reusable template.
  *
- * Not connected to the API yet. For now publishing is a stand-in that always
- * succeeds and keeps the record in memory only (see publishTemplate), so the
- * modal and My Designs can be designed and tested. `publishTemplate` is the
- * single seam the real API will slot into — swap the marked block for the
- * calls and every caller keeps working. The record already carries the serialized document and a thumbnail,
+ * The API calls live in shell/usePublishBackdrop.js. This file builds the
+ * record the modal shows, and keeps each published record for the rest of
+ * the visit (publishTemplate) so My Designs can show it as pending at once. The record already carries the serialized document and a thumbnail,
  * which is what that endpoint will want.
  *
  * The thumbnail is the first page rendered to an image (see renderPage), passed
@@ -36,8 +35,9 @@ export function loadPublishedTemplates(storage = globalThis.localStorage) {
 }
 
 /** Build the record a publish sends, from the live editor state and the form. */
-export function buildTemplateRecord({ editor, title, description, visibility, thumbnail }) {
+export function buildTemplateRecord({ editor, title, description, visibility, thumbnail, categories = [] }) {
   const now = new Date().toISOString();
+  const categoryFields = templateCategoryPayload(categories);
   return {
     id: nanoid(),
     title: (title || editor.title || "Untitled").trim(),
@@ -45,6 +45,10 @@ export function buildTemplateRecord({ editor, title, description, visibility, th
     visibility: TEMPLATE_VISIBILITIES.includes(visibility) ? visibility : "private",
     // The local UI treats public submissions as pending until an admin API is connected.
     status: visibility === "public" ? "pending" : "private",
+    categories: categoryFields.eventTypes,
+    categoryUuids: categoryFields.categoryUuids,
+    category: categoryFields.eventType,
+    categoryUuid: categoryFields.categoryUuid,
     // The first page as an image; the dashboard can change it later.
     thumbnail: thumbnail || null,
     document: serializeDocument(editor),
@@ -56,16 +60,9 @@ export function buildTemplateRecord({ editor, title, description, visibility, th
 /*
  * Publish a template. Resolves with the stored record.
  *
- * TODO(api): replace the stand-in block below with the real calls —
- * upload the thumbnail (POST /storage), save the design (POST /backdrops),
- * then for a public one submit it for review (POST /backdrops/{uuid}/templates).
- * Keep the return shape so the modal and My Designs do not have to change.
+ * Called once the server has accepted it (see usePublishBackdrop).
  */
 export async function publishTemplate(record) {
-  // --- stand-in: always succeeds, saves nothing; swap for the API calls ---
-  // A short wait, so the modal's "publishing" state can be seen and styled.
-  await new Promise((resolve) => setTimeout(resolve, 400));
   sessionTemplates.unshift(record);
-  // --- end block ---
   return record;
 }

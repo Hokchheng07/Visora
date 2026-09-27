@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Clock3,Copy,Edit3,Eye,FolderOpen,Heart,MoreVertical,Trash2 } from "lucide-react";
+import { Clock3,Copy,Edit3,FolderOpen,Heart,MoreVertical,Trash2 } from "lucide-react";
 import { DesignArt } from "../Profile/DesignArt";
+import VisoraCard from "../../Cards/VisoraCard.jsx";
 import { FAVORITE_TAG_COLORS,formatFavoriteTime } from "./FavoritesData";
 
 export default function FavoriteCard({
@@ -11,15 +12,20 @@ export default function FavoriteCard({
   onDuplicate,
   onRemoveFavorite,
   onTrash,
+  index=0,
 }){
   const [menuOpen,setMenuOpen]=useState(false);
+  const preview=design.image
+    ?<img src={design.image} alt="" className="h-full w-full object-cover" loading="lazy" draggable={false}/>
+    :<DesignArt kind={design.art}/>;
+  const added=`Added ${formatFavoriteTime(design.updatedAt).replace(/^J/,"j").replace(/^Y/,"y")}`;
 
   if(viewMode==="list"){
     return(
       <article className="relative flex min-w-0 flex-col gap-4 rounded-[18px] border border-[var(--border-card)] bg-[var(--surface-card)] p-3 shadow-sm sm:flex-row sm:items-center">
         <div className="relative w-full shrink-0 overflow-hidden rounded-[13px] border-[7px] border-accent/80 sm:w-[210px]">
           <div className="aspect-[16/9] overflow-hidden rounded-[7px] bg-white">
-            <DesignArt kind={design.art}/>
+            {preview}
           </div>
         </div>
 
@@ -59,13 +65,8 @@ export default function FavoriteCard({
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)]">
             <span className="flex items-center gap-1.5">
-              <Eye className="h-3.5 w-3.5"/>
-              {design.views} views
-            </span>
-
-            <span className="flex items-center gap-1.5">
               <Clock3 className="h-3.5 w-3.5"/>
-              Edited {formatFavoriteTime(design.updatedAt)}
+              {added}
             </span>
           </div>
         </div>
@@ -75,66 +76,22 @@ export default function FavoriteCard({
   }
 
   return(
-    <article className="relative min-w-0 rounded-[14px] border border-[var(--border-card)] bg-[var(--surface-card)] shadow-[0_8px_24px_rgba(112,90,224,0.07)]">
-      <div className="rounded-t-[13px] bg-accent p-[8px] pb-[10px]">
-        <div className="relative aspect-[16/9] overflow-hidden rounded-[8px] bg-white">
-          <DesignArt kind={design.art}/>
-
-          <div className="absolute left-3 top-3 grid h-8 w-8 place-items-center rounded-lg bg-[var(--surface-card)]/95 shadow-sm">
-            <Heart className="h-4 w-4 fill-pink-500 text-pink-500"/>
-          </div>
-
-        </div>
-      </div>
-
-      <div className="px-4 pb-4 pt-3">
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-[18px] font-semibold text-[var(--text-heading)]">
-              {design.title}
-            </h3>
-          </div>
-
-          <CardMenu
-            design={design}
-            onOpen={onOpen}
-            onRename={onRename}
-            onDuplicate={onDuplicate}
-            onRemoveFavorite={onRemoveFavorite}
-            onTrash={onTrash}
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-          />
-        </div>
-
-        <p className="mt-1 line-clamp-2 min-h-[42px] text-[15px] leading-5 text-[var(--text-muted)]">
-          {design.description}
-        </p>
-
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {design.tags.map((tag,index)=>(
-            <span
-              key={tag}
-              className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ${FAVORITE_TAG_COLORS[index%FAVORITE_TAG_COLORS.length]}`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[13px] text-[var(--text-muted)]">
-          <span className="flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5"/>
-            {design.views} views
-          </span>
-
-          <span className="flex items-center gap-1">
-            <Clock3 className="h-3.5 w-3.5"/>
-            Edited {formatFavoriteTime(design.updatedAt)}
-          </span>
-        </div>
-      </div>
-    </article>
+    <VisoraCard
+      index={index}
+      preview={design.image||preview}
+      title={design.title}
+      description={`${design.description} · ${added}`}
+      tags={design.tags}
+      favorite={{active:true,onToggle:()=>onRemoveFavorite(design.id)}}
+      menu={[
+        ...(design.available===false?[]:[{label:"Open",icon:FolderOpen,onSelect:()=>onOpen(design)}]),
+        ...(onRename?[{label:"Rename",icon:Edit3,onSelect:()=>onRename(design)}]:[]),
+        ...(onDuplicate&&design.available!==false?[{label:"Duplicate",icon:Copy,onSelect:()=>onDuplicate(design)}]:[]),
+        {label:"Remove from Favorites",icon:Heart,onSelect:()=>onRemoveFavorite(design.id)},
+        ...(onTrash?[{label:"Move to Trash",icon:Trash2,onSelect:()=>onTrash(design),danger:true}]:[]),
+      ]}
+      onOpen={()=>onOpen(design)}
+    />
   );
 }
 
@@ -171,17 +128,21 @@ function CardMenu({
             onClick={()=>run(()=>onOpen(design))}
           />
 
-          <MenuButton
-            icon={<Edit3 className="h-4 w-4"/>}
-            label="Rename"
-            onClick={()=>run(()=>onRename(design))}
-          />
+          {onRename&&(
+            <MenuButton
+              icon={<Edit3 className="h-4 w-4"/>}
+              label="Rename"
+              onClick={()=>run(()=>onRename(design))}
+            />
+          )}
 
-          <MenuButton
-            icon={<Copy className="h-4 w-4"/>}
-            label="Duplicate"
-            onClick={()=>run(()=>onDuplicate(design))}
-          />
+          {onDuplicate&&design.available!==false&&(
+            <MenuButton
+              icon={<Copy className="h-4 w-4"/>}
+              label="Duplicate"
+              onClick={()=>run(()=>onDuplicate(design))}
+            />
+          )}
 
           <MenuButton
             icon={<Heart className="h-4 w-4"/>}
@@ -190,14 +151,18 @@ function CardMenu({
             onClick={()=>run(()=>onRemoveFavorite(design.id))}
           />
 
-          <div className="my-1 h-px bg-[var(--border-default)]"/>
+          {onTrash&&(
+            <>
+              <div className="my-1 h-px bg-[var(--border-default)]"/>
 
-          <MenuButton
-            icon={<Trash2 className="h-4 w-4"/>}
-            label="Move to Trash"
-            className="text-red-500"
-            onClick={()=>run(()=>onTrash(design))}
-          />
+              <MenuButton
+                icon={<Trash2 className="h-4 w-4"/>}
+                label="Move to Trash"
+                className="text-red-500"
+                onClick={()=>run(()=>onTrash(design))}
+              />
+            </>
+          )}
         </div>
       )}
     </div>

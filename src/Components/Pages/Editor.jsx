@@ -17,10 +17,13 @@ import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
 import { InspectorResizer, PanelToggle } from "../Editor/shell/EditorLayoutHandles.jsx";
 import { readInspectorWidth } from "../Editor/shell/inspectorWidth.js";
 import { normalizePageSize, pageCssVars } from "../Editor/model/pageSize.js";
+import { useOpenRemoteDesign } from "../Editor/shell/useOpenRemoteDesign.js";
 import "../Editor/editor.css";
 
 export default function Editor() {
   const dispatch = useAppDispatch();
+  // /editor?backdrop=… and /editor?template=… open a design from the server.
+  const remote = useOpenRemoteDesign();
   const { pages, copiedPage, selectedId, selectedIds, currentPage, canvas } = useAppSelector((state) => state.editor);
   /* The Customize column appears while something is selected and goes away
      with nothing selected, when the page bar above the canvas takes over.
@@ -152,6 +155,12 @@ export default function Editor() {
       <EditorEffectDefs items={pages.flatMap((page) => page.elements.filter(hasVisibleEffects)
         .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) })))} />
       <EditorTopBar onDisplay={openDisplay} inert={isDisplayOpen} />
+      {(remote.busy || remote.error) && (
+        <div className={`editor-remote-notice${remote.error ? " is-error" : ""}`} role={remote.error ? "alert" : "status"}>
+          <span>{remote.busy ? "Opening design…" : remote.error}</span>
+          {remote.error && <button type="button" onClick={remote.dismiss} aria-label="Dismiss">×</button>}
+        </div>
+      )}
       <div
         className={`editor-body${isPanelOpen ? "" : " is-panel-collapsed"}${showRightPane && inspectorDocked ? " has-inspector" : ""}${isResizing ? " is-resizing" : ""}`}
         style={{ "--inspector-w": `${inspectorWidth}px` }}

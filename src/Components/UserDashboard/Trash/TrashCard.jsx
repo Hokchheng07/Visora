@@ -7,6 +7,7 @@ import {
   Trash2,
 } from "lucide-react";
 import {DesignArt} from "../Profile/DesignArt";
+import VisoraCard from "../../Cards/VisoraCard.jsx";
 import {
   getDeletedTime,
   getRemainingDays,
@@ -23,6 +24,7 @@ export default function TrashCard({
   viewMode,
   onRestore,
   onDelete,
+  index=0,
 }){
   const [menuOpen,setMenuOpen]=useState(false);
 
@@ -42,7 +44,7 @@ export default function TrashCard({
           }`}
         >
           <div className="relative aspect-[16/9] overflow-hidden rounded-[8px] bg-white">
-            <DesignArt kind={design.art}/>
+            {design.image?<img src={design.image} alt="" className="h-full w-full object-cover"/>:<DesignArt kind={design.art}/>}
 
             <RemainingBadge
               remainingDays={remainingDays}
@@ -109,75 +111,22 @@ export default function TrashCard({
     );
   }
 
+  // No heart here: a design in the trash can't be a favorite.
   return(
-    <article
-      className={`relative min-w-0 rounded-[14px] border bg-[var(--surface-card)] shadow-[0_8px_24px_rgba(112,90,224,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(112,90,224,.1)] ${
-        expiringSoon
-          ?"border-red-300 dark:border-red-500/35"
-          :"border-[var(--border-card)]"
-      }`}
-    >
-      {/* PURPLE FRAME */}
-      <div
-        className={`rounded-t-[13px] p-[8px] pb-[10px] ${
-          expiringSoon
-            ?"bg-red-200/55 dark:bg-red-500/15"
-            :"bg-accent"
-        }`}
-      >
-        <div className="relative aspect-[16/9] overflow-hidden rounded-[8px] bg-white">
-          <DesignArt kind={design.art}/>
-
-          {design.format&&(
-            <span className="absolute left-3 top-3 rounded-lg bg-[var(--surface-card)]/95 px-2.5 py-1 text-xs font-medium text-[var(--text-body)] shadow-sm backdrop-blur-sm">
-              {design.format}
-            </span>
-          )}
-
-          <RemainingBadge
-            remainingDays={remainingDays}
-            expiringSoon={expiringSoon}
-            warning={warning}
-          />
-        </div>
-      </div>
-
-      {/* CONTENT */}
-      <div className="px-4 pb-4 pt-4">
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-lg font-medium text-[var(--text-heading)]">
-              {design.title}
-            </h3>
-
-            <p className="mt-1 text-sm leading-5 text-[var(--text-muted)]">
-              {getDeletedTime(design.deletedAt)} by {design.deletedBy}
-            </p>
-          </div>
-
-          <TrashMenu
-            design={design}
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-            onRestore={onRestore}
-            onDelete={onDelete}
-          />
-        </div>
-
-        {design.tags?.length>0&&(
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {design.tags.map((tag,index)=>(
-              <span
-                key={tag}
-                className={`rounded-full px-2.5 py-1 text-xs font-medium ${TAG_COLORS[index%TAG_COLORS.length]}`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-5 flex gap-2">
+    <VisoraCard
+      index={index}
+      preview={design.image||<DesignArt kind={design.art}/>}
+      badge={<RemainingBadge remainingDays={remainingDays} expiringSoon={expiringSoon} warning={warning} inline/>}
+      title={design.title}
+      description={`${getDeletedTime(design.deletedAt)} by ${design.deletedBy}`}
+      tags={design.tags||[]}
+      stats={design.format?[{label:design.format}]:[]}
+      menu={[
+        {label:"Restore",icon:RotateCcw,onSelect:()=>onRestore(design)},
+        {label:"Delete forever",icon:Trash2,onSelect:()=>onDelete(design),danger:true},
+      ]}
+      footer={
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={()=>onRestore(design)}
@@ -186,7 +135,6 @@ export default function TrashCard({
             <RotateCcw className="h-4 w-4"/>
             Restore
           </button>
-
           <button
             type="button"
             onClick={()=>onDelete(design)}
@@ -196,8 +144,8 @@ export default function TrashCard({
             <Trash2 className="h-4 w-4"/>
           </button>
         </div>
-      </div>
-    </article>
+      }
+    />
   );
 }
 
@@ -205,10 +153,11 @@ function RemainingBadge({
   remainingDays,
   expiringSoon,
   warning,
+  inline=false,
 }){
   return(
     <span
-      className={`absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm ${
+      className={`${inline?"":"absolute right-3 top-3 "}inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm ${
         expiringSoon
           ?"border-red-300 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300"
           :warning

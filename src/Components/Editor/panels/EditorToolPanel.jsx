@@ -11,6 +11,7 @@ import EditorLayersPanel from "./EditorLayersPanel.jsx";
 import { IMAGE_TYPES, useImageUpload } from "./useImageUpload.js";
 import { UPLOADS_PAGE_SIZE, uploadsFromServer, withDocumentImages } from "./uploadHistory.js";
 import { getStorageUrl, useUserStorageQuery } from "../../API/storageApi";
+import { listRequestFailed } from "../../API/apiError.js";
 import { useCurrentUser } from "../../Account/useCurrentUser";
 import { ElementArtwork, ShapeArtwork } from "../canvas/EditorElement.jsx";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
@@ -232,7 +233,7 @@ function UploadPanel() {
           : <><Upload size={17} aria-hidden="true" />Upload an image</>}
       </button>
       {error && <p className="editor-upload-error" role="alert">{error}</p>}
-      {storage.isError && <p className="editor-upload-error" role="alert">Couldn't load your uploads. <button type="button" className="editor-upload-retry" onClick={() => storage.refetch()}>Try again</button></p>}
+      {listRequestFailed(storage.error) && <p className="editor-upload-error" role="alert">Couldn't load your uploads. <button type="button" className="editor-upload-retry" onClick={() => storage.refetch()}>Try again</button></p>}
       {storage.isLoading ? (
         <p className="editor-panel-empty" aria-busy="true">Loading your uploads…</p>
       ) : shown.length ? (
