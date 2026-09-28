@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
-import { fadeInUp, staggerContainer, viewportOnce } from "../../lib/animations/animations";
+import { fadeInUp, viewportOnce } from "../../lib/animations/animations";
+import { cardReveal } from "./cardReveal.js";
 import { ThemeImage } from "../../theme/ThemeImage";
 import { mentors } from "./aboutData";
 import headingUnderline from "../../assets/pages/about/what-is-visora/UnderlineForWhatIsVisora.svg";
@@ -17,13 +18,17 @@ export default function OurMentors() {
         <ThemeImage src={headingUnderline} alt="" aria-hidden="true" />
         <p className="about-section-subtitle">Guided by industry leaders who inspire excellence and innovation.</p>
       </motion.header>
-      <motion.div className="about-mentor-grid" initial={reduceMotion ? false : "hidden"} whileInView="show" viewport={viewportOnce} variants={staggerContainer(0.14)}>
+      {/* Each card reveals itself as it scrolls in. Revealing the grid as one
+          waited for a quarter of it to be on screen, and on a phone, where the
+          cards stack into one column several screens tall, that never
+          happened: the cards stayed invisible. */}
+      <div className="about-mentor-grid">
         {mentors.map((mentor, index) => (
-          <motion.div key={mentor.name} variants={fadeInUp}>
+          <motion.div key={mentor.name} initial={reduceMotion ? false : "hidden"} whileInView="show" viewport={viewportOnce} variants={cardReveal} custom={{ index, columns: 2, step: 0.14 }}>
             <PersonCard person={mentor} index={index} />
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }
