@@ -117,24 +117,24 @@
 }
 
 .auth-register-card {
-  width: min(100%, 940px);
-  padding: 40px 44px;
+  width: min(100%, 820px);
+  padding: 32px 36px;
 }
 
-.auth-register-header { margin-bottom: 26px; }
-.auth-register-header h1 { font-size: clamp(2rem, 3vw, 2.7rem); }
+.auth-register-header { margin-bottom: 20px; }
+.auth-register-header h1 { font-size: clamp(1.8rem, 2.6vw, 2.35rem); }
 .auth-register-header > p:last-child { margin-top: 10px; }
 
 .auth-register-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 18px;
+  gap: 14px 16px;
   align-items: start;
 }
 
 .auth-register-field-full { grid-column: 1 / -1; }
 .auth-register-card .auth-field { gap: 8px; }
-.auth-register-card .auth-input-shell input { height: 56px; }
+.auth-register-card .auth-input-shell input { height: 48px; }
 
 .auth-password-strength > div:first-child {
   margin-bottom: 6px;
@@ -161,7 +161,7 @@
 
 .auth-password-strength input {
   width: 100%;
-  height: 56px;
+  height: 48px;
   padding: 0 48px;
   border: 1px solid #d9d3e5;
   border-radius: 13px;
@@ -200,7 +200,7 @@
 
 .auth-terms {
   display: flex;
-  margin-top: 20px;
+  margin-top: 16px;
   align-items: center;
   gap: 9px;
   color: #716b7c;
@@ -231,10 +231,10 @@
 .auth-terms a { color: #6a4ce3; font-weight: 600; text-decoration: none; }
 .auth-terms a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .auth-terms-error { margin-top: 5px; }
-.auth-register-submit { height: 56px; margin-top: 20px; }
-.auth-register-divider { margin: 22px 0 18px; }
-.auth-register-card .auth-provider-button { height: 54px; }
-.auth-login-link { margin-top: 20px; }
+.auth-register-submit { height: 48px; margin-top: 16px; }
+.auth-register-divider { margin: 18px 0 14px; }
+.auth-register-card .auth-provider-button { height: 46px; }
+.auth-login-link { margin-top: 16px; }
 
 .auth-art { position: absolute; inset: 0; overflow: hidden; background: #f8ecdd; }
 .auth-art > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scale(1.015); }
@@ -322,7 +322,7 @@
   .auth-mobile-logo { display: none; }
   .auth-card { width: min(100%, 520px); }
   .auth-register-panel { display: flex; align-items: flex-start; justify-content: center; padding-inline: clamp(16px, 2vw, 40px); }
-  .auth-register-card { width: min(100%, 940px); margin: auto 0; }
+  .auth-register-card { width: min(100%, 820px); margin: auto 0; }
 }
 
 /* Large, tall screens: the login card grows with the window instead of
@@ -347,21 +347,21 @@
 /* The sign-up form is taller, so it grows only on screens with the height
    to show it without scrolling. */
 @media (min-width: 1280px) and (min-height: 1000px) {
-  .auth-register-card { width: min(100%, clamp(940px, 52vw, 1080px)); padding: clamp(44px, 3.2vw, 56px) clamp(48px, 3.6vw, 64px); border-radius: 30px; }
-  .auth-register-header { margin-bottom: 32px; }
-  .auth-register-header .auth-eyebrow { font-size: .8rem; }
-  .auth-register-header h1 { font-size: clamp(2.7rem, 3vw, 3.3rem); }
-  .auth-register-header > p:last-child { font-size: 1.05rem; }
-  .auth-register-fields { gap: 22px 22px; }
+  .auth-register-card { width: min(100%, clamp(820px, 46vw, 940px)); padding: clamp(38px, 2.8vw, 48px) clamp(42px, 3.2vw, 56px); border-radius: 30px; }
+  .auth-register-header { margin-bottom: 26px; }
+  .auth-register-header .auth-eyebrow { font-size: .76rem; }
+  .auth-register-header h1 { font-size: clamp(2.35rem, 2.6vw, 2.9rem); }
+  .auth-register-header > p:last-child { font-size: .98rem; }
+  .auth-register-fields { gap: 18px 18px; }
   .auth-register-card .auth-field-label,
-  .auth-password-strength > div:first-child label { font-size: .95rem; }
+  .auth-password-strength > div:first-child label { font-size: .9rem; }
   .auth-register-card .auth-input-shell input,
-  .auth-password-strength input { height: 60px; font-size: 1rem; }
-  .auth-terms { margin-top: 24px; font-size: .86rem; }
-  .auth-register-submit { height: 60px; margin-top: 24px; font-size: 1.05rem; }
-  .auth-register-divider { margin: 26px 0 20px; font-size: .82rem; }
-  .auth-register-card .auth-provider-button { height: 56px; font-size: .92rem; }
-  .auth-login-link { margin-top: 24px; font-size: .9rem; }
+  .auth-password-strength input { height: 52px; font-size: .95rem; }
+  .auth-terms { margin-top: 20px; font-size: .82rem; }
+  .auth-register-submit { height: 52px; margin-top: 20px; font-size: 1rem; }
+  .auth-register-divider { margin: 22px 0 16px; font-size: .8rem; }
+  .auth-register-card .auth-provider-button { height: 50px; font-size: .88rem; }
+  .auth-login-link { margin-top: 20px; font-size: .86rem; }
 }
 
 @media (max-height: 900px) and (min-width: 1024px) {
@@ -379,16 +379,16 @@
   .auth-divider { margin-block: 18px 14px; }
   .auth-provider-button { height: 46px; }
   .auth-signup-link { margin-top: 18px; }
-  .auth-register-card { padding: 40px 44px; }
-  .auth-register-header { margin-bottom: 26px; }
-  .auth-register-header h1 { font-size: 2.35rem; }
-  .auth-register-fields { gap: 18px; }
+  .auth-register-card { padding: 28px 34px; }
+  .auth-register-header { margin-bottom: 18px; }
+  .auth-register-header h1 { font-size: 2.1rem; }
+  .auth-register-fields { gap: 12px 16px; }
   .auth-register-card .auth-input-shell input,
-  .auth-password-strength input { height: 56px; }
-  .auth-register-submit { height: 56px; margin-top: 20px; }
-  .auth-register-divider { margin: 22px 0 18px; }
-  .auth-register-card .auth-provider-button { height: 54px; }
-  .auth-login-link { margin-top: 20px; }
+  .auth-password-strength input { height: 46px; }
+  .auth-register-submit { height: 46px; margin-top: 14px; }
+  .auth-register-divider { margin: 16px 0 12px; }
+  .auth-register-card .auth-provider-button { height: 44px; }
+  .auth-login-link { margin-top: 14px; }
 }
 
 @media (max-width: 639px) {
@@ -396,7 +396,8 @@
   .auth-card { padding: 28px 22px; border-radius: 22px; }
   .auth-card-header h1 { font-size: 2.35rem; }
   .auth-providers { grid-template-columns: 1fr; }
-  .auth-register-card { padding: 28px 22px; }
+  .auth-register-card { padding: 24px 18px; }
+  .auth-register-header h1 { font-size: 1.9rem; }
   .auth-register-fields { grid-template-columns: 1fr; }
   .auth-register-field-full { grid-column: auto; }
 }

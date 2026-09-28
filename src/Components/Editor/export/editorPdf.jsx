@@ -67,7 +67,7 @@ const background = (page) => (page?.background?.type === "COLOR" ? page.backgrou
  * one of them costs a layout pass and a fresh set of image decodes for
  * artwork the previous page had already loaded.
  */
-function createSheet(images, size = DEFAULT_PAGE) {
+export function createSheet(images, size = DEFAULT_PAGE) {
   const host = document.createElement("div");
   /* Offscreen, but still laid out. `display: none` would give every element a
      zero box and the capture would come back blank, and the same is true of
@@ -78,34 +78,39 @@ function createSheet(images, size = DEFAULT_PAGE) {
   document.body.appendChild(host);
   const root = createRoot(host);
 
+  /* Draws `elements` of `page` on the sheet over `fill` ("transparent" for
+     none) and waits until they are laid out and their fonts have arrived. */
+  async function mount(page, elements, fill) {
+    root.render(
+      /* The surface class is what gives the sheet its `container-type: size`,
+         which every element's sizing is relative to. The effect filters are
+         rendered inside this tree, not borrowed from the editor's copy:
+         html-to-image captures a clone, and a `filter: url(#id)` pointing at a
+         definition outside the clone resolves to nothing.
+
+         The page's own id is the React key, so moving to the next page
+         replaces the tree instead of trying to reconcile one page's elements
+         into another's. */
+      <InlinedImages.Provider key={page.id} value={images}>
+      <div className="editor-animation-surface" style={{ position: "relative", width: size.width, height: size.height, background: fill }}>
+        <EditorEffectDefs items={elements.filter(hasVisibleEffects)
+          .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) }))} />
+        {elements.map((element) => <StaticElement key={element.id} element={element} layered />)}
+      </div>
+      </InlinedImages.Provider>
+    );
+    // React paints asynchronously; two frames is the first moment the tree is
+    // laid out. Fonts come next: capturing before a webfont arrives bakes the
+    // fallback into the PDF, which moves every line of Khmer text.
+    await nextFrame();
+    await nextFrame();
+    await document.fonts.ready;
+  }
+
   return {
     /** The page as { data, format } — a data URL and the PDF image format for it. */
     async capture(page, fontEmbedCSS) {
-      const elements = visibleElements(page);
-      root.render(
-        /* The surface class is what gives the sheet its `container-type: size`,
-           which every element's sizing is relative to. The effect filters are
-           rendered inside this tree, not borrowed from the editor's copy:
-           html-to-image captures a clone, and a `filter: url(#id)` pointing at a
-           definition outside the clone resolves to nothing.
-
-           The page's own id is the React key, so moving to the next page
-           replaces the tree instead of trying to reconcile one page's elements
-           into another's. */
-        <InlinedImages.Provider key={page.id} value={images}>
-        <div className="editor-animation-surface" style={{ position: "relative", width: size.width, height: size.height, background: background(page) }}>
-          <EditorEffectDefs items={elements.filter(hasVisibleEffects)
-            .map((element) => ({ id: element.id, w: element.w, h: element.h, effects: element.effects, extra: strokeOverflow(element) }))} />
-          {elements.map((element) => <StaticElement key={element.id} element={element} layered />)}
-        </div>
-        </InlinedImages.Provider>
-      );
-      // React paints asynchronously; two frames is the first moment the tree is
-      // laid out. Fonts come next: capturing before a webfont arrives bakes the
-      // fallback into the PDF, which moves every line of Khmer text.
-      await nextFrame();
-      await nextFrame();
-      await document.fonts.ready;
+      await mount(page, visibleElements(page), background(page));
       const { toJpeg, toPng } = await import("html-to-image");
       /* The sheet itself is captured, not the host. html-to-image draws the node
          it is given inside an SVG foreignObject, and the host is positioned
@@ -122,6 +127,111 @@ function createSheet(images, size = DEFAULT_PAGE) {
         ? await toJpeg(host.firstElementChild, { ...options, quality: JPEG_QUALITY, backgroundColor: background(page) })
         : await toPng(host.firstElementChild, options);
       return { data, format };
+    },
+    /**
+     * One element alone, on a transparent sheet, as a PNG of just the part of
+     * the page it paints — for the parts of an Illustrator export that are
+     * still pictures. Cropping keeps it a small object Illustrator can pick
+     * up, not a page-sized sheet of transparency over everything else.
+     *
+     * The part it paints is measured, not worked out from the model: text
+     * routinely spills past its box (a line height under 1, a word too long
+     * to wrap, Khmer marks above the line), and a crop taken from the box
+     * cuts those off. `pad` is extra room in page pixels for what no layout
+     * box reports — shadows and glyph ink.
+     *
+     * Returns { href, x, y, width, height } in page pixels, or null when the
+     * element paints nothing on the page.
+     */
+    async captureElement(page, element, fontEmbedCSS, pad = 0) {
+      await mount(page, [element], "transparent");
+      const sheetNode = host.firstElementChild;
+      const node = sheetNode.querySelector("[data-element-id]");
+      if (!node) return null;
+      const origin = sheetNode.getBoundingClientRect();
+      const contents = document.createRange();
+      contents.selectNodeContents(node);
+      const rects = [node.getBoundingClientRect(), ...contents.getClientRects()].filter((rect) => rect.width || rect.height);
+      const left = Math.max(0, Math.floor(Math.min(...rects.map((rect) => rect.left)) - origin.left - pad));
+      const top = Math.max(0, Math.floor(Math.min(...rects.map((rect) => rect.top)) - origin.top - pad));
+      const right = Math.min(size.width, Math.ceil(Math.max(...rects.map((rect) => rect.right)) - origin.left + pad));
+      const bottom = Math.min(size.height, Math.ceil(Math.max(...rects.map((rect) => rect.bottom)) - origin.top + pad));
+      if (!(right > left && bottom > top)) return null;
+
+      const { toCanvas } = await import("html-to-image");
+      const canvas = await toCanvas(sheetNode, { width: size.width, height: size.height, pixelRatio: PIXEL_RATIO, fontEmbedCSS });
+      const crop = document.createElement("canvas");
+      crop.width = (right - left) * PIXEL_RATIO;
+      crop.height = (bottom - top) * PIXEL_RATIO;
+      crop.getContext("2d").drawImage(canvas, left * PIXEL_RATIO, top * PIXEL_RATIO, crop.width, crop.height, 0, 0, crop.width, crop.height);
+      return { href: crop.toDataURL("image/png"), x: left, y: top, width: right - left, height: bottom - top };
+    },
+    /**
+     * Where the browser put a text box's words, for drawing them as outlines.
+     *
+     * The box is laid out unturned, so everything comes back in its own
+     * pixels (0, 0 at its top left); the caller turns the result with the
+     * box. Returns null when it holds no text art (a list, say, whose markers
+     * are ::marker boxes nothing can measure).
+     *
+     * { runs: [{ text, x, baseline, right }], fontSize, letterSpacing,
+     *   fontFamily, fontWeight, italic }
+     *
+     * A run is one word, or the part of a word on one line when the box broke
+     * it. `baseline` is found by measurement too: an empty inline-block sits
+     * on the baseline, so its distance from the top of a letter's box in the
+     * same font is where every line's baseline sits in its own letter box.
+     */
+    async measureText(page, element) {
+      await mount(page, [{ ...element, rotation: 0 }], "transparent");
+      const box = host.firstElementChild.querySelector("[data-element-id]");
+      const art = box?.querySelector(".editor-text-art");
+      if (!art || art.querySelector("li")) return null;
+      const origin = box.getBoundingClientRect();
+      const style = getComputedStyle(art);
+
+      const probe = document.createElement("span");
+      probe.style.cssText = `position: absolute; left: 0; top: 0; white-space: pre; line-height: normal; font-family: ${style.fontFamily}; font-size: ${style.fontSize}; font-weight: ${style.fontWeight}; font-style: ${style.fontStyle};`;
+      probe.textContent = "x";
+      const marker = document.createElement("span");
+      marker.style.cssText = "display: inline-block; width: 0; height: 0;";
+      probe.appendChild(marker);
+      host.firstElementChild.appendChild(probe);
+      const range = document.createRange();
+      range.selectNodeContents(probe.firstChild);
+      const ascent = marker.getBoundingClientRect().top - range.getBoundingClientRect().top;
+      probe.remove();
+
+      const runs = [];
+      let run = null;
+      const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+      const walker = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        for (const { segment, index } of segmenter.segment(node.data)) {
+          if (/^\s+$/.test(segment)) { run = null; continue; }
+          range.setStart(node, index);
+          range.setEnd(node, index + segment.length);
+          const rect = range.getClientRects()[0];
+          if (!rect) { run = null; continue; }
+          const top = rect.top - origin.top, left = rect.left - origin.left;
+          // A new line starts a new run: the letter box moves down, or back to the left.
+          if (!run || Math.abs(top - run.top) > 1 || left < run.last) {
+            run = { text: "", x: left, top, baseline: top + ascent, last: left, right: left };
+            runs.push(run);
+          }
+          run.text += segment;
+          run.last = left;
+          run.right = rect.right - origin.left;
+        }
+      }
+      return {
+        runs: runs.map(({ text, x, baseline, right }) => ({ text, x, baseline, right })),
+        fontSize: parseFloat(style.fontSize),
+        letterSpacing: parseFloat(style.letterSpacing) || 0,
+        fontFamily: element.fontFamily,
+        fontWeight: style.fontWeight,
+        italic: style.fontStyle === "italic" || style.fontStyle.startsWith("oblique"),
+      };
     },
     dispose() {
       root.unmount();
