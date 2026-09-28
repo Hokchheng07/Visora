@@ -5,6 +5,7 @@ import EditorRuler from "./EditorRuler";
 import { useCanvasMetrics } from "./useCanvasMetrics";
 import { pagePercentX, pagePercentY } from "../model/elementGeometry.js";
 import { normalizePageSize } from "../model/pageSize.js";
+import { pageBackgroundCss } from "../model/pageBackground.js";
 import { useAppDispatch, useAppSelector } from "../../redux/hook.js";
 import { canvasAllSelected, cropFinished, layersMovedToPage, pointEditFinished, elementDeleted, layersStepped, elementSelected, canvasLayersSelected, selectionGrouped, groupUngrouped, pageMoved, pageSelected, pagesSelected,
   selectionAligned, selectionCopied, selectionDistributed, selectionPasted, targetChanged, textInserted, zoomChanged } from "../../redux/editorSlice.js";
@@ -206,7 +207,7 @@ export default function EditorCanvas({
                   role="group"
                   tabIndex={0}
                   aria-label={`Canvas for page ${currentPage + 1}, ${size.width} by ${size.height} pixels`}
-                  style={{ background: page.background?.type === "COLOR" ? page.background.value : "#fff" }}
+                  style={{ background: pageBackgroundCss(page.background) }}
                 >
                   {page.elements.map((element) => effectiveVisible(page, element) && <EditorElement key={element.id} element={element} pageId={page.id}
                     sheetRef={pageRef} scale={metrics.scale} selected={selectedIds.includes(element.id)} selectedCount={framedElements.length}

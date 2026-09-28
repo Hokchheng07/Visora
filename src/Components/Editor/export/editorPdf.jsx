@@ -8,6 +8,7 @@ import { InlinedImages } from "../canvas/imageSource.js";
 import { fontEmbedCssFor } from "./exportFonts.js";
 import { exportBlockedReason, JPEG_QUALITY, pageImageFormat } from "./exportRules.js";
 import { inlineImages } from "./inlineImages.js";
+import { pageBackgroundColor, pageBackgroundCss } from "../model/pageBackground.js";
 
 /*
  * PDF export.
@@ -52,7 +53,8 @@ function nextFrame() {
 export const pdfFileName = (editor) => `${(editor?.title || "visora-design").replace(/[^a-z0-9-_]+/gi, "-")}.pdf`;
 
 // A page's own colour, and white for a page that has never been given one.
-const background = (page) => (page?.background?.type === "COLOR" ? page.background.value : "#FFFFFF") || "#FFFFFF";
+const background = (page) => pageBackgroundCss(page?.background);
+const backgroundColor = (page) => pageBackgroundColor(page?.background);
 
 /*
  * A reusable offscreen sheet.
@@ -124,7 +126,7 @@ export function createSheet(images, size = DEFAULT_PAGE) {
       /* JPEG has no transparency, so the encoder is told the page's own colour.
          Without it a photo page would come out on black. */
       const data = format === "JPEG"
-        ? await toJpeg(host.firstElementChild, { ...options, quality: JPEG_QUALITY, backgroundColor: background(page) })
+        ? await toJpeg(host.firstElementChild, { ...options, quality: JPEG_QUALITY, backgroundColor: backgroundColor(page) })
         : await toPng(host.firstElementChild, options);
       return { data, format };
     },

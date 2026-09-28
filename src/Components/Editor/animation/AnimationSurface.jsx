@@ -6,6 +6,7 @@ import { visibleElements } from "../model/layerModel.js";
 import { createPlaybackController, easeInOut } from "./animationPlayback.js";
 import MorphOverlay from "./MorphOverlay.jsx";
 import { bindMorph, matchMorph } from "./morph.js";
+import { pageBackgroundCss } from "../model/pageBackground.js";
 
 function animeDriver(duration, update, complete) {
   const clock = { time: 0 };
@@ -78,7 +79,7 @@ export default function AnimationSurface({ page, transition = page.transition, c
     controller.start();
     return () => { controller.dispose(); if (controllerRef?.current === controller) controllerRef.current = null; };
   }, [page, transition, reduceMotion, preview, controllerRef, pageMorph, hasElementMorph, elementMorphTiming, visualMorph, pairs]);
-  return <><div ref={rootRef} className="editor-animation-surface" data-page-id={page.id} style={{ background: page.background?.value || "#FFFFFF" }}>
+  return <><div ref={rootRef} className="editor-animation-surface" data-page-id={page.id} style={{ background: pageBackgroundCss(page.background) }}>
     {visibleElements(page).map((element) => renderElement ? renderElement(element) : <StaticElement key={element.id} element={element} layered />)}
   </div>{visualMorph && pairs.length > 0 && <MorphOverlay rootRef={morphRef} pairs={pairs} oldPage={previousPage} page={page} reducedMotion={reduceMotion} showBackground={pageMorph} />}</>;
 }

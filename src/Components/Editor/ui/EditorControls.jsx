@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useRecentColours } from "./recentColours.js";
+import { DEFAULT_SWATCHES } from "./colourPalette.js";
 
 /*
  * The toolbar vocabulary. Everything in the property bar, the context menu and
@@ -73,11 +74,6 @@ export function ToolPopover({ label, disabled, children, trigger, className = ""
 
 /* 4. Swatch button. Replaces <input type="color">, whose OS picker drops the
       user out of Visora entirely. Custom is still reachable, just not first. */
-const DEFAULT_SWATCHES = [
-  "#705AE0", "#A78DFF", "#DA4EC9", "#FFC21C", "#72BFF1", "#2F7A55", "#C4443E", "#F07A2B",
-  "#FFFFFF", "#F2F1F6", "#C9C6D4", "#8C8799", "#4A4460", "#29243A", "#15131D", "#000000",
-];
-
 export function SwatchButton({ value, onChange, label = "Colour", disabled, named = false, swatches = DEFAULT_SWATCHES }) {
   const [recent, remember] = useRecentColours();
   /* The picker is remembered on the native `change` — the last colour of a

@@ -23,9 +23,13 @@ function StatCard({
       </div>
 
       <div className="profile-stat-copy min-w-0">
-        <p className="text-lg font-bold leading-none text-[var(--text-heading)] sm:text-xl">
-          {value}
-        </p>
+        {value===null?(
+          <span className="block h-5 w-8 animate-pulse rounded bg-[var(--text-muted)]/15"/>
+        ):(
+          <p className="text-lg font-bold leading-none text-[var(--text-heading)] sm:text-xl">
+            {value}
+          </p>
+        )}
 
         <p className="mt-1 truncate text-[10px] font-medium text-[var(--text-body)] sm:text-[11px]">
           {label}
@@ -43,6 +47,7 @@ function StatCard({
 
 export default function ProfileStats({
   templates,
+  loading=false,
 }){
   const posted=templates.filter(
     (template)=>template.status==="posted"
@@ -59,7 +64,7 @@ export default function ProfileStats({
           icon={<Layers className="h-5 w-5"/>}
           iconBg="bg-primary/10"
           iconColor="text-primary"
-          value={posted}
+          value={loading?null:posted}
           label="Posted Templates"
           caption="Published on Visora"
           captionColor="text-primary"
@@ -69,7 +74,7 @@ export default function ProfileStats({
           icon={<FilePenLine className="h-5 w-5"/>}
           iconBg="bg-accent/20"
           iconColor="text-primary"
-          value={drafts}
+          value={loading?null:drafts}
           label="Drafts"
           caption="Work in progress"
           captionColor="text-primary"

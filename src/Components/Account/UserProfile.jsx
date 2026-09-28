@@ -29,7 +29,7 @@ export default function UserProfile({ profile, framed = true, avatarFrame, ...pr
 /* The user dashboard's header supplies its own profile and sign-out. An
    admin still needs the way back to the admin dashboard from there, so the
    role comes from the signed-in account, as in every other menu. */
-function SuppliedProfile({ profile, ...props }) {
+function SuppliedProfile({ profile, loading = false, ...props }) {
   const { isAdmin } = useCurrentUser();
   const actions = [];
   if (isAdmin) actions.push({ label: "Admin dashboard", icon: LayoutDashboard, to: "/dashboard" });
@@ -38,7 +38,7 @@ function SuppliedProfile({ profile, ...props }) {
     <ProfileMenu
       {...props}
       inline
-      identity={{ pictureUrl: profile?.avatarUrl, name: profile?.name || "User", detail: `@${profile?.handle || "user"}` }}
+      identity={{ loading, pictureUrl: loading ? undefined : profile?.avatarUrl, name: profile?.name || "User", detail: loading ? "" : `@${profile?.handle || "user"}` }}
       actions={actions}
     />
   );

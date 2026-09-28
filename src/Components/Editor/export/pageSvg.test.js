@@ -13,6 +13,18 @@ test("the page is its own size with its own background", () => {
   assert.match(svg, /<rect width="1920" height="1080" fill="#112233"\/>/);
 });
 
+test("a page gradient is a vector background in the exported SVG", () => {
+  const gradient = { type: "LINEAR", angle: 0, stops: [
+    { offset: 0, color: "#112233", opacity: 1 },
+    { offset: 1, color: "#A78DFF", opacity: .75 },
+  ] };
+  const gradientPage = { ...page(), background: { type: "GRADIENT", value: "#112233", gradient } };
+  const { svg } = pageSvg(gradientPage, size, none);
+  assert.match(svg, /<linearGradient id="page-background" x1="0" y1="0.5" x2="1" y2="0.5">/);
+  assert.match(svg, /<stop offset="1" stop-color="#A78DFF" stop-opacity="0.75"\/>/);
+  assert.match(svg, /<rect width="1920" height="1080" fill="url\(#page-background\)"\/>/);
+});
+
 test("a shape is a path placed at its box and turned about its centre", () => {
   const { svg } = pageSvg(page(rect({ rotation: 30, opacity: 0.5 })), size, none);
   assert.match(svg, /<g transform="translate\(10 20\) rotate\(30 50 25\)" opacity="0.5">/);

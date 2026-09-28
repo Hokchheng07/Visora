@@ -6,10 +6,45 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const bone="animate-pulse rounded-md bg-[var(--text-muted)]/15";
+
+// Same frame as the real hero, so nothing jumps when the profile arrives.
+function ProfileHeroSkeleton(){
+  return(
+    <section aria-busy="true" aria-label="Loading profile" className="profile-hero relative overflow-hidden rounded-t-[20px] border border-b-0 border-[var(--border-card)] bg-[var(--surface-card)] sm:rounded-t-[24px] lg:rounded-t-[30px]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-r from-accent/20 via-primary/5 to-secondary/15 sm:h-20"/>
+      <div className="profile-hero-layout relative grid gap-7 px-4 py-7 sm:px-6 sm:py-8 md:grid-cols-[190px_minmax(0,1fr)] md:items-center md:gap-8 lg:grid-cols-[210px_minmax(0,1fr)_240px] lg:px-8 xl:grid-cols-[240px_minmax(0,1fr)_280px] xl:gap-10 xl:px-10 xl:py-10">
+        <div className="profile-hero-photo relative mx-auto w-[180px] rotate-[-2deg] sm:w-[205px] md:mx-0 md:w-[190px] lg:w-[210px] xl:w-[240px]">
+          <div className="rounded-[6px] bg-white/80 p-3 pb-8 sm:p-4 sm:pb-10 xl:pb-12">
+            <div className={`aspect-square ${bone}`}/>
+          </div>
+        </div>
+        <div className="profile-hero-info flex flex-col items-center gap-3 md:items-start">
+          <div className={`h-9 w-64 max-w-full sm:h-11 ${bone}`}/>
+          <div className={`h-4 w-28 ${bone}`}/>
+          <div className={`h-7 w-52 rounded-full ${bone}`}/>
+          <div className="mt-2 flex w-full max-w-3xl flex-col items-center gap-2 md:items-start">
+            <div className={`h-4 w-full ${bone}`}/>
+            <div className={`h-4 w-4/5 ${bone}`}/>
+          </div>
+          <div className={`mt-1 h-4 w-60 ${bone}`}/>
+        </div>
+        <div className="profile-hero-focus mx-auto w-full max-w-[320px] md:col-span-2 md:max-w-none lg:col-span-1 lg:mx-0 lg:max-w-[270px]">
+          <div className={`h-44 w-full rounded-[8px] ${bone}`}/>
+          <div className={`mt-4 h-11 w-full rounded-xl sm:mt-5 ${bone}`}/>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function ProfileHero({
   profile,
+  loading=false,
   onEdit,
 }){
+  if(loading)return <ProfileHeroSkeleton/>;
+
   return(
     <section className="profile-hero relative overflow-hidden rounded-t-[20px] border border-b-0 border-[var(--border-card)] bg-[var(--surface-card)] sm:rounded-t-[24px] lg:rounded-t-[30px]">
       {/* TOP COLOR */}

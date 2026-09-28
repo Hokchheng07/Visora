@@ -226,7 +226,7 @@ export function emptyDocument() {
   return {
     clientSchemaVersion: EDITOR_SCHEMA_VERSION,
     uuid: "backdrop-local",
-    name: "Untitled-1",
+    name: "Untitled design",
     version: 0,
     orientation: "LANDSCAPE",
     canvas: { width: 1920, height: 1080 },
@@ -238,7 +238,7 @@ export function serializeDocument(editor) {
   return {
     clientSchemaVersion: EDITOR_SCHEMA_VERSION,
     uuid: editor.documentId || "backdrop-local",
-    name: editor.title || "Untitled-1",
+    name: editor.title || "Untitled design",
     version: editor.version || 0,
     // The server's uuid once saved there, so a reload keeps updating the same backdrop.
     ...(editor.remoteId ? { remoteId: editor.remoteId } : {}),
@@ -293,6 +293,7 @@ export function serializeDocument(editor) {
           fontFamily: element.fontFamily, fontSize: element.fontSize, fontWeight: element.fontWeight,
           fontStyle: element.fontStyle || "normal", textAlign: element.textAlign, color: element.fill,
           lineHeight: element.lineHeight, letterSpacing: element.letterSpacing,
+          ...(normalizeGradient(element.gradient) ? { gradient: normalizeGradient(element.gradient) } : {}),
           ...textStrokeSave(element),
           // v3. Sent only when set, so a plain text box stays byte-identical to v2.
           ...(element.textDecoration === "underline" ? { textDecoration: "underline" } : {}),
@@ -421,6 +422,7 @@ export function hydrateDocument(document) {
             textAlign: component.styles?.textAlign || "center",
             lineHeight: component.styles?.lineHeight || 1.2,
             letterSpacing: component.styles?.letterSpacing || 0,
+            gradient: normalizeGradient(component.styles?.gradient),
             textDecoration: component.styles?.textDecoration === "underline" ? "underline" : "none",
             listStyle: normalizeListStyle(component.styles?.listStyle),
             effects: normalizeEffects(component.styles?.effects),

@@ -71,6 +71,15 @@ export function gradientCss(gradient) {
   return `linear-gradient(${normalizeAngle(paint.angle + 90)}deg, ${stops.join(", ")})`;
 }
 
+/* Gradient text: the ramp painted as the box's background and clipped to the
+   letters. The caret keeps the first stop's colour so typing stays visible. */
+export function textGradientStyle(gradient) {
+  const background = gradientCss(gradient);
+  if (!background) return null;
+  return { backgroundImage: background, WebkitBackgroundClip: "text", backgroundClip: "text",
+    color: "transparent", WebkitTextFillColor: "transparent", caretColor: normalizeGradient(gradient).stops[0].color };
+}
+
 // #RRGGBB plus an opacity, as #RRGGBBAA, so one CSS colour carries both.
 export function withAlpha(value, opacity = 1) {
   const safe = colour(value, "#000000");

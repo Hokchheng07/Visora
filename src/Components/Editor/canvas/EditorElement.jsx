@@ -4,7 +4,7 @@ import { designPx } from "../model/pageSize.js";
 import { shapeDefinition, shapeName } from "../model/shapeCatalog.js";
 import { filterId, hasVisibleEffects } from "../model/effectsFilter.js";
 import { shapePath } from "../model/vectorPath.js";
-import { gradientVector, normalizeGradient, strokePaint } from "../model/shapePaint.js";
+import { gradientVector, normalizeGradient, strokePaint, textGradientStyle } from "../model/shapePaint.js";
 import TimerArtwork from "../timer/TimerArtwork.jsx";
 import ImageArtwork from "./ImageArtwork.jsx";
 import { isOrderedList, listLines, normalizeListStyle } from "../model/textLists.js";
@@ -147,7 +147,7 @@ export function ElementArtwork({ element, editable = false, onCommit, onCancel, 
     fontWeight: element.fontWeight, fontStyle: element.fontStyle, textAlign: element.textAlign, lineHeight: element.lineHeight,
     textDecoration: element.textDecoration === "underline" ? "underline" : "none",
     justifyContent: element.textAlign === "left" ? "flex-start" : element.textAlign === "right" ? "flex-end" : "center",
-    letterSpacing: designPx(element.letterSpacing), ...textStrokeStyle(element) };
+    letterSpacing: designPx(element.letterSpacing), ...textStrokeStyle(element), ...textGradientStyle(element.gradient) };
   /* plaintext-only makes Enter insert a real line break and innerText read it
      back; with a plain contentEditable the browser inserts <div>/<br> and
      textContent drops them, which lost every line break typed on the canvas.

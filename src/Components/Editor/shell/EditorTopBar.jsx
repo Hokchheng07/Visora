@@ -9,6 +9,7 @@ import UserProfile from "../../Account/UserProfile";
 import EditorImportButton from "./EditorImportButton.jsx";
 import EditorExportMenu from "./EditorExportMenu.jsx";
 import EditorPublishModal from "./EditorPublishModal.jsx";
+import EditorSaveStatus from "./EditorSaveStatus.jsx";
 
 export default function EditorTopBar({ onDisplay, inert }) {
   const dispatch = useAppDispatch();
@@ -24,6 +25,7 @@ export default function EditorTopBar({ onDisplay, inert }) {
         <div className="editor-document-name">
           <input aria-label="Design name" defaultValue={title} key={title} onBlur={(event) => dispatch(documentRenamed(event.target.value))}
             onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} />
+          <EditorSaveStatus />
         </div>
       </div>
       <div className="editor-topbar-end">

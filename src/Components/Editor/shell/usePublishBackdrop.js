@@ -1,10 +1,7 @@
 import { useAppDispatch } from "../../redux/hook.js";
-import { documentSaved } from "../../redux/editorSlice.js";
-import { useCreateBackdropMutation, useSubmitPublicationRequestMutation, useUpdateBackdropMutation } from "../../API/backdropApi";
-import { useUserUploadMutation } from "../../API/storageApi";
-import { fitForUpload } from "../../API/uploadLimit.js";
-import { serializeDocument } from "../model/editorDocument.js";
-import { dataUrlToFile, inlineImageSources, isInlineImage, replaceImageSources, toBackdropRequest } from "../model/backdropPayload.js";
+import { documentSaved, imageSourcesReplaced } from "../../redux/editorSlice.js";
+import { useSubmitPublicationRequestMutation } from "../../API/backdropApi";
+import { saveBackdrop } from "../model/saveBackdrop.js";
 import { buildTemplateRecord, publishTemplate } from "../model/templatePublish.js";
 import { templateCategoryPayload } from "../../Templates/templateCategories.js";
 
@@ -13,7 +10,8 @@ import { templateCategoryPayload } from "../../Templates/templateCategories.js";
  *   1. pictures      the thumbnail, and any picture carried inside the design
  *                    as a data: URL, go to POST /storage; only file names are sent on
  *   2. the design    POST /backdrops the first time, PATCH /backdrops/{uuid}
- *                    after that (the editor remembers remoteId and version)
+ *                    after that (the editor remembers remoteId and version);
+ *                    steps 1 and 2 are saveBackdrop, shared with autosave
  *   3. for review    a public one is then submitted: POST /backdrops/{uuid}/templates,
  *                    which makes a PENDING template for an admin to approve
  * A private one stops after step 2: it is saved to the account, not shared.
@@ -34,52 +32,15 @@ export function publishErrorMessage(error, action = "publish") {
   return Number.isInteger(status) ? `Couldn't ${action} (the server said ${status}).` : `Couldn't ${action}. Please try again.`;
 }
 
-const fileNameOf = (response) => response?.data?.fileName;
-
 export function usePublishBackdrop() {
   const dispatch = useAppDispatch();
-  const [upload] = useUserUploadMutation();
-  const [createBackdrop] = useCreateBackdropMutation();
-  const [updateBackdrop] = useUpdateBackdropMutation();
   const [submitForReview] = useSubmitPublicationRequestMutation();
 
-  // Shrunk under the server's ~1 MB limit first; a 2x page thumbnail is several MB as PNG.
-  const uploadDataUrl = async (dataUrl, name) => {
-    const body = new FormData();
-    body.append("file", await fitForUpload(dataUrlToFile(dataUrl, name), { maxSide: 1920 }));
-    const fileName = fileNameOf(await upload({ userUploadRequest: body }).unwrap());
-    if (!fileName) throw new Error("The picture upload did not return a file name.");
-    return fileName;
-  };
-
   return async function publish({ editor, title, description, visibility, thumbnail, categories = [] }) {
-    // 1. Pictures.
-    const thumbnailFile = isInlineImage(thumbnail) ? await uploadDataUrl(thumbnail, "thumbnail") : null;
-    let document = { ...serializeDocument(editor), name: title.trim() || editor.title };
-    const inline = inlineImageSources(document);
-    if (inline.length) {
-      const names = new Map();
-      for (const [index, src] of inline.entries()) names.set(src, await uploadDataUrl(src, `picture-${index + 1}`));
-      document = replaceImageSources(document, names);
-    }
-
-    // 2. The design. A PATCH that the server refuses (deleted, or changed
-    //    elsewhere) falls back to a new backdrop rather than losing the publish.
-    const request = toBackdropRequest(document, { thumbnail: thumbnailFile || undefined });
-    let saved = null;
-    if (editor.remoteId) {
-      try {
-        saved = (await updateBackdrop({ backdropUuid: editor.remoteId, backdropRequest: { ...request, version: editor.version } }).unwrap())?.data;
-      } catch (error) {
-        if (![404, 409].includes(error?.status)) throw error;
-      }
-    }
-    if (!saved) {
-      const { version: _version, ...body } = request;
-      saved = (await createBackdrop({ backdropRequest: body }).unwrap())?.data;
-    }
-    if (!saved?.uuid) throw new Error("The server did not return the saved backdrop.");
-    dispatch(documentSaved({ remoteId: saved.uuid, version: saved.version }));
+    // 1 and 2. Pictures, then the design: the same save autosave makes (see saveBackdrop).
+    const { saved, uploaded, thumbnailFile } = await saveBackdrop(dispatch, { editor, name: title, thumbnail });
+    dispatch(documentSaved({ remoteId: saved.uuid, version: saved.version, documentKey: editor.documentKey }));
+    if (uploaded.size) dispatch(imageSourcesReplaced(Object.fromEntries(uploaded)));
 
     // 3. For review.
     let template = null;

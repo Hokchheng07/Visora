@@ -5,6 +5,7 @@ import { documentLoaded } from "../../redux/editorSlice.js";
 import { backdropApi } from "../../API/backdropApi";
 import { templateApi } from "../../API/templateApi";
 import { EDITOR_SCHEMA_VERSION, hydrateDocument, validateDocument } from "../model/editorDocument.js";
+import { PAGE_PRESETS } from "../model/pageSize.js";
 import { fromBackdropResponse, toBackdropRequest } from "../model/backdropPayload.js";
 import { publishErrorMessage } from "./usePublishBackdrop.js";
 
@@ -12,6 +13,8 @@ import { publishErrorMessage } from "./usePublishBackdrop.js";
  * Opens a design from the server when the editor is reached with
  *   /editor?backdrop=<uuid>   one of your saved backdrops (My Designs)
  *   /editor?template=<uuid>   someone's published template ("Use this template")
+ *   /editor?format=<preset>   a new blank design of that size (the dashboard's
+ *                             format tiles, e.g. "presentation")
  *
  * Using a template never edits it. Signed in, a copy is saved to your own
  * backdrops first (POST /backdrops with sourceTemplateUuid) and that copy is
@@ -26,7 +29,16 @@ export function useOpenRemoteDesign() {
   const signedIn = useAppSelector((state) => Boolean(state.auth?.accessToken || state.auth?.refreshToken));
   const [status, setStatus] = useState({ busy: false, error: "" });
   const handled = useRef("");
-  const backdropUuid = params.get("backdrop"), templateUuid = params.get("template");
+  const backdropUuid = params.get("backdrop"), templateUuid = params.get("template"), format = params.get("format");
+
+  /* A new design of a preset size. The design it replaces is saved first
+     (autosave's middleware), so starting afresh never loses the last one. */
+  useEffect(() => {
+    if (!format) return;
+    const preset = PAGE_PRESETS.find((item) => item.id === format || item.id.startsWith(`${format}-`));
+    if (preset) dispatch(documentLoaded({ canvas: { width: preset.width, height: preset.height } }));
+    setParams((current) => { const next = new URLSearchParams(current); next.delete("format"); return next; }, { replace: true });
+  }, [format, dispatch, setParams]);
 
   useEffect(() => {
     const key = backdropUuid ? `b:${backdropUuid}` : templateUuid ? `t:${templateUuid}` : "";

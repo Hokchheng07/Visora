@@ -6,7 +6,9 @@ import { normalizePageNumbers } from "../model/pageNumbers.js";
 import { normalizePageSize } from "../model/pageSize.js";
 import { BULLET_STYLES, isOrderedList, normalizeListStyle, NUMBER_STYLES } from "../model/textLists.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
-import { IconButton, Segmented, Stepper, SwatchButton, ToolPopover } from "../ui/EditorControls.jsx";
+import { IconButton, Segmented, Stepper, ToolPopover } from "../ui/EditorControls.jsx";
+import GradientColourMenu from "../ui/GradientColourMenu.jsx";
+import PageBackgroundMenu from "./PageBackgroundMenu.jsx";
 
 /*
  * The bar pinned above the canvas. It follows the selection:
@@ -35,7 +37,6 @@ export default function EditorPageBar({ onAnimate }) {
 /* Nothing selected: the bar describes the page. For a backdrop the background
    is most of the design, so it gets a named button rather than a bare chip. */
 function PageProperties({ page, label, busy, dispatch, onAnimate, pageNumbers, size }) {
-  const background = page.background?.value || "#FFFFFF";
   return (
     <div className="editor-shape-tools" role="group" aria-label="Page settings"
       onPointerDown={(event) => event.stopPropagation()}>
@@ -44,8 +45,8 @@ function PageProperties({ page, label, busy, dispatch, onAnimate, pageNumbers, s
         <span className="editor-selected-name" title={label}>{label}</span>
       </div>
       <div className="editor-toolbar-group">
-        <SwatchButton label="Background" named value={background} disabled={busy}
-          onChange={(value) => dispatch(pageBackgroundChanged({ type: "COLOR", value }))} />
+        <PageBackgroundMenu background={page.background} disabled={busy}
+          onChange={(background) => dispatch(pageBackgroundChanged(background))} />
       </div>
       <div className="editor-toolbar-group">
         <PageNumbersMenu settings={pageNumbers} busy={busy} dispatch={dispatch} />
@@ -120,7 +121,16 @@ function TextProperties({ element, pageId, busy, dispatch }) {
         </div>
       )}
       <div className="editor-toolbar-group">
-        <SwatchButton label="Text colour" value={element.fill || "#29243a"} disabled={busy} onChange={(fill) => commit({ fill })} />
+        <GradientColourMenu
+          label="Text colour"
+          heading="Text colour"
+          description="Fill the selected text."
+          solid={element.fill || "#29243A"}
+          gradient={element.gradient}
+          gradientTo="#8A1FA8"
+          disabled={busy}
+          onChange={commit}
+        />
       </div>
     </div>
   );

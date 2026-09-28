@@ -52,7 +52,7 @@ function ImageFill({ element, commit, busy }) {
   );
 }
 
-export function FillPaint({ element, target, busy }) {
+export function FillPaint({ element, target, busy, allowImage = true, gradientTo }) {
   const dispatch = useAppDispatch();
   const gradient = normalizeGradient(element.gradient);
   const commit = (changes) => dispatch(targetChanged({ target, changes }));
@@ -83,11 +83,11 @@ export function FillPaint({ element, target, busy }) {
     <>
       <div className="editor-inspector-grid">
         <SelectField label="Fill type" value={fillType} disabled={busy}
-          options={[{ value: "SOLID", label: "Solid" }, { value: "LINEAR", label: "Linear" }, { value: "IMAGE", label: "Image" }]}
+          options={[{ value: "SOLID", label: "Solid" }, { value: "LINEAR", label: "Linear" }, ...(allowImage ? [{ value: "IMAGE", label: "Image" }] : [])]}
           onChange={(type) => {
             setImageMode(type === "IMAGE");
             commit(type === "LINEAR"
-              ? { gradient: defaultGradient(element.fill || "#D9D9D9"), fill: element.fill || "#D9D9D9", fillImage: null }
+              ? { gradient: defaultGradient(element.fill || "#D9D9D9", gradientTo), fill: element.fill || "#D9D9D9", fillImage: null }
               : type === "IMAGE"
                 ? { gradient: null, fillImage: element.fillImage || null }
                 : { gradient: null, fillImage: null, fill: gradient?.stops[0].color || element.fill });

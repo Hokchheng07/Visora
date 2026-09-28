@@ -4,6 +4,7 @@ import { gradientVector, normalizeGradient, strokePaint } from "../model/shapePa
 import { normalizeCrop } from "../model/imageCrop.js";
 import { hasVisibleEffects } from "../model/effectsFilter.js";
 import { visibleElements } from "../model/layerModel.js";
+import { normalizePageBackground } from "../model/pageBackground.js";
 
 /*
  * One design page as a standalone SVG document, for the Adobe Illustrator
@@ -49,8 +50,18 @@ const attrs = (list) => Object.entries(list)
 // The grey the editor shows for a picture that will not load.
 const MISSING_FILL = "#ECEBF1";
 
-// A page's own colour, and white for a page that has never been given one.
-const background = (page) => (page?.background?.type === "COLOR" && page.background.value) || "#FFFFFF";
+function pageBackgroundSvg(page, size) {
+  const background = normalizePageBackground(page?.background);
+  if (background.type !== "GRADIENT") {
+    return `<rect${attrs({ width: size.width, height: size.height, fill: background.value })}/>`;
+  }
+  const ramp = gradientVector(background.gradient.angle);
+  const stops = background.gradient.stops.map((stop) => `<stop${attrs({
+    offset: stop.offset, "stop-color": stop.color, "stop-opacity": stop.opacity,
+  })}/>`).join("");
+  return `<defs><linearGradient${attrs({ id: "page-background", ...ramp })}>${stops}</linearGradient></defs>`
+    + `<rect${attrs({ width: size.width, height: size.height, fill: "url(#page-background)" })}/>`;
+}
 
 /** Elements the caller has to prepare first: outlined where possible, else pictured. */
 export const isRasterElement = (element) => element?.type === "text" || element?.type === "timer";
@@ -185,7 +196,7 @@ function rasterSvg(element, assets) {
  * had shadows that a vector file cannot carry.
  */
 export function pageSvg(page, size, assets) {
-  const parts = [`<rect${attrs({ width: size.width, height: size.height, fill: background(page) })}/>`];
+  const parts = [pageBackgroundSvg(page, size)];
   let droppedEffects = 0;
   visibleElements(page).forEach((element, index) => {
     const id = `e${index}`;

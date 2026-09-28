@@ -103,6 +103,11 @@
 .editor-document-name input { width: 190px; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--editor-ink); font: inherit; }
 .editor-document-name input:hover, .editor-document-name input:focus { border-color: var(--editor-border); background: var(--editor-raised); }
 .editor-document-name button { display: grid; place-items: center; width: 32px; height: 32px; color: var(--editor-muted); }
+/* Autosave status beside the design name: quiet when all is well, readable when it is not. */
+.editor-save-status { display: inline-flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; color: var(--editor-muted); font-size: 12px; font-weight: 500; text-overflow: ellipsis; }
+.editor-save-status > svg { flex: 0 0 auto; }
+.editor-save-status.is-offline, .editor-save-status.is-error { color: var(--editor-danger); }
+@media (max-width: 900px) { .editor-save-status > span { display: none; } }
 .editor-topbar-actions { position: relative; display: flex; flex: none; align-items: center; gap: 12px; }
 /* Document actions, then the account avatar, divided by a hairline. */
 .editor-topbar-end { display: flex; flex: none; align-items: center; gap: 18px; }
@@ -653,6 +658,29 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-swatch svg { mix-blend-mode: difference; }
 .editor-popover-custom { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 2px; color: var(--editor-muted); font-size: 12px; }
 .editor-popover-custom input { width: 42px; height: 28px; padding: 0; border: 1px solid var(--editor-border); border-radius: 7px; background: transparent; cursor: pointer; }
+.editor-gradient-colour-popover { width: 304px; gap: 13px; }
+.editor-gradient-colour-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.editor-gradient-colour-head p:last-child { margin-top: 3px; color: var(--editor-muted); font-size: 11px; }
+.editor-gradient-colour-mini { flex: none; width: 46px; height: 34px; border-radius: 8px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 16%, transparent); }
+.editor-gradient-colour-custom { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--editor-muted); font-size: 12px; }
+.editor-gradient-colour-custom-field { display: flex; height: 32px; align-items: center; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); }
+.editor-gradient-colour-custom-field input { width: 34px; height: 100%; padding: 4px; border: 0; border-right: 1px solid var(--editor-border); background: transparent; cursor: pointer; }
+.editor-gradient-colour-custom-field code { min-width: 70px; padding-inline: 8px; color: var(--editor-ink); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
+.editor-gradient-colour-preview { display: block; height: 54px; border-radius: 9px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-ink) 14%, transparent); }
+.editor-gradient-colour-angle { display: grid; grid-template-columns: minmax(0, 1fr) 34px; align-items: end; gap: 9px; }
+.editor-gradient-colour-icon, .editor-gradient-colour-heading button, .editor-gradient-colour-remove { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-muted); cursor: pointer; }
+.editor-gradient-colour-icon { width: 34px; height: 31px; }
+.editor-gradient-colour-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--editor-ink); font-size: 12px; font-weight: 600; }
+.editor-gradient-colour-heading button { gap: 5px; height: 28px; padding-inline: 8px; font: inherit; font-size: 11px; font-weight: 500; }
+.editor-gradient-colour-stops { display: grid; gap: 7px; }
+.editor-gradient-colour-stop { display: grid; grid-template-columns: 28px minmax(0, 1fr) 58px 28px; align-items: center; gap: 7px; min-height: 34px; }
+.editor-gradient-colour-stop-swatch { width: 28px; height: 28px; padding: 2px; border: 1px solid var(--editor-border); border-radius: 7px; background: transparent; cursor: pointer; }
+.editor-gradient-colour-stop-name { min-width: 0; overflow: hidden; color: var(--editor-ink); font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.editor-gradient-colour-stop label { display: flex; height: 30px; align-items: center; overflow: hidden; border: 1px solid var(--editor-border); border-radius: 7px; background: var(--editor-raised); }
+.editor-gradient-colour-stop label input { min-width: 0; width: 100%; height: 100%; padding: 0 2px 0 7px; border: 0; outline: 0; background: transparent; color: var(--editor-ink); font: inherit; font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; }
+.editor-gradient-colour-stop label small { padding-right: 6px; color: var(--editor-muted); font-size: 10px; }
+.editor-gradient-colour-remove { width: 28px; height: 28px; padding: 0; }
+.editor-gradient-colour-icon:disabled, .editor-gradient-colour-heading button:disabled, .editor-gradient-colour-remove:disabled { opacity: .35; cursor: not-allowed; }
 .editor-popover-eyedrop { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-top: 8px; padding: 7px 10px; border: 1px solid var(--editor-border); border-radius: 8px; background: var(--editor-raised); color: var(--editor-ink); font-size: 12px; font-weight: 500; cursor: pointer; transition: border-color 120ms ease; }
 .editor-popover-eyedrop:hover { border-color: color-mix(in srgb, var(--color-primary) 55%, var(--editor-border)); }
 .editor-popover-eyedrop:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
