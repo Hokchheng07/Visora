@@ -28,6 +28,8 @@ function imageStyles(element) {
     ...(crop ? { crop } : {}),
     // Only library vectors take a colour; a photo has none.
     ...(/^#[0-9A-F]{6}$/i.test(element.fill || "") ? { fill: element.fill.toUpperCase() } : {}),
+    // A library vector can be painted with a gradient instead; `fill` stays its solid fallback.
+    ...(normalizeGradient(element.gradient) ? { gradient: normalizeGradient(element.gradient) } : {}),
     ...(element.cornerRadius > 0 ? { cornerRadius: element.cornerRadius } : {}),
     ...(effects.length ? { effects } : {}),
   };
@@ -39,6 +41,7 @@ function hydrateImage(component) {
   return {
     src: typeof fileName === "string" ? fileName : "",
     ...(/^#[0-9A-F]{6}$/i.test(styles.fill || "") ? { fill: styles.fill.toUpperCase() } : {}),
+    gradient: normalizeGradient(styles.gradient),
     cornerRadius: Math.max(0, Number(styles.cornerRadius) || 0),
     effects: normalizeEffects(styles.effects),
     crop: normalizeCrop(styles.crop),
