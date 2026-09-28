@@ -59,9 +59,17 @@ export function uploadErrorMessage(error, subject = "image", { size } = {}) {
     return `That ${subject} is too large for the server${size ? ` (${formatBytes(size)})` : ""}. Please choose one under ${formatBytes(UPLOAD_LIMIT_BYTES)}.`;
   }
 
-  // The request never reached the server: wrong address, or nothing running there.
-  if (status === "FETCH_ERROR") return `Couldn't reach the server. Check that the backend is running and that VITE_BASE_VISORA_URL is right.`;
-  if (status === "PARSING_ERROR") return `The server sent something this app could not read (status ${error.originalStatus}).`;
+  /* The request never reached the server, or the answer made no sense. The
+     reader can do nothing about a setting, so they are told what they can do,
+     and whoever is debugging finds the technical cause in the console. */
+  if (status === "FETCH_ERROR") {
+    console.warn("[Visora] Upload never reached the server. Check the backend is running and VITE_BASE_VISORA_URL.", error);
+    return `Couldn't reach the Visora server, so the ${subject} wasn't uploaded. Check your internet connection and try again.`;
+  }
+  if (status === "PARSING_ERROR") {
+    console.warn(`[Visora] Upload answer could not be read (status ${error.originalStatus}).`, error);
+    return `The Visora server gave an unexpected answer, so the ${subject} wasn't uploaded. Please try again in a moment.`;
+  }
 
   /* 401 and 403 arrive here only after the token refresh has already been
      tried and failed, so this is not a stale token: either the session is
@@ -69,7 +77,11 @@ export function uploadErrorMessage(error, subject = "image", { size } = {}) {
   if (status === 401 || status === 403) {
     return serverMessage(error) || `Your account isn't allowed to upload. Sign in again — and if that doesn't help, the account needs upload permission on the server.`;
   }
-  if (status === 404) return `The upload service wasn't found. Check VITE_BASE_VISORA_URL points at the right backend.`;
+  if (status === 404) {
+    console.warn("[Visora] Upload service not found (404). Check VITE_BASE_VISORA_URL points at the right backend.", error);
+    return `Uploading isn't available right now, so the ${subject} wasn't uploaded. Please try again later.`;
+  }
+  if (status === 415) return `The server doesn't accept this kind of file. Use a PNG, JPG, WebP or GIF image.`;
 
   const message = serverMessage(error);
   if (message) return message;

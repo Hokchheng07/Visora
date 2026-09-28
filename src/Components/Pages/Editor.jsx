@@ -12,6 +12,8 @@ import { requestFullscreen } from "../Editor/display/useFullscreen";
 import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAdded, pageCopied, pageCloned, pagesCloned, pagesDeleted } from "../redux/editorSlice.js";
 import { useEditorKeyboard } from "../Editor/hooks/useEditorKeyboard.js";
+import { usePasteImage } from "../Editor/hooks/usePasteImage.js";
+import EditorNotice from "../Editor/shell/EditorNotice.jsx";
 import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
 import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
 import { InspectorResizer, PanelToggle } from "../Editor/shell/EditorLayoutHandles.jsx";
@@ -63,6 +65,8 @@ export default function Editor() {
   const shellRef = useRef(null);
   const openerRef = useRef(null);
   useEditorKeyboard(isDisplayOpen, shellRef);
+  // Cmd/Ctrl+V with a copied picture uploads it; `notice` says how that went.
+  const { notice: pasteNotice, dismissNotice: dismissPasteNotice } = usePasteImage(isDisplayOpen, shellRef);
 
   // The rail and the panel are separate grid children, so both count as "inside".
   useEffect(() => {
@@ -197,6 +201,7 @@ export default function Editor() {
       {isDisplayOpen && (
         <EditorDisplay pages={pages} initialPage={currentPage} onClose={() => setDisplayOpen(false)} />
       )}
+      {pasteNotice && <EditorNotice {...pasteNotice} onDismiss={dismissPasteNotice} />}
     </div>
   );
 }

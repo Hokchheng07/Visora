@@ -15,7 +15,11 @@ vi.mock("../redux/hook.js", () => ({
   useAppSelector: (select) => select({ editor: { past: [], future: [], title: "Test design" } }),
 }));
 vi.mock("../redux/authslice", () => ({ setLogout: () => ({ type: "test/logout" }) }));
-vi.mock("../API/baseApi", () => ({ baseApi: { util: { resetApiState: () => ({ type: "test/reset-cache" }) } } }));
+// injectEndpoints: the editor's modules build their API slices on import; none is called here.
+vi.mock("../API/baseApi", () => ({ baseApi: {
+  util: { resetApiState: () => ({ type: "test/reset-cache" }) },
+  injectEndpoints: () => new Proxy({}, { get: (_, key) => (key === "endpoints" ? {} : () => [() => {}, {}]) }),
+} }));
 vi.mock("../Editor/shell/EditorImportButton.jsx", () => ({ default: () => null }));
 vi.mock("../Editor/shell/EditorExportMenu.jsx", () => ({ default: () => null }));
 
@@ -93,7 +97,8 @@ describe("shared header profile", () => {
     fireEvent.click(trigger);
     expect(screen.getByText("Dashboard name")).toBeTruthy();
     expect(screen.getByText("@dashboard-handle")).toBeTruthy();
-    expect(mocks.account).not.toHaveBeenCalled();
+    // The supplied profile keeps its own name and handle; only the role comes from the account.
+    expect(screen.queryByRole("menuitem", { name: "Admin dashboard" })).toBeNull();
     const frames = [...container.querySelectorAll(".user-avatar-frame-art")];
     const sizes = frames.map((frame) => frame.parentElement.getAttribute("style"));
     expect(frames).toHaveLength(2);
@@ -107,6 +112,15 @@ describe("shared header profile", () => {
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
     expect(mocks.dispatch).not.toHaveBeenCalled();
     expect(screen.getByTestId("location").textContent).toBe("/");
+  });
+
+  it("gives an admin the way back to the admin dashboard from the user dashboard", () => {
+    mocks.account.mockReturnValue({ ...account, isAdmin: true, role: "ADMIN" });
+    mount(<UserDashboardHeader profile={profile} />, "/user-dashboard/profile");
+    fireEvent.click(screen.getByRole("button", { name: "User menu" }));
+    expect(screen.getByRole("menuitem", { name: "Admin dashboard" }).getAttribute("href")).toBe("/dashboard");
+    expect(screen.getByRole("menuitem", { name: "Sign out" })).toBeTruthy();
+    mocks.account.mockReturnValue(account);
   });
 
   it("still closes the dashboard menu on outside click and when scrolling hides its header", () => {

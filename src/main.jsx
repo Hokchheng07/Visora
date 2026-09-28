@@ -17,6 +17,7 @@ import AuthLayout from "./Components/Layout/auth/AuthLayout.jsx";
 import { store } from "./Components/redux/store";
 import CvTemplate from "./Components/LandingPageComponents/Features/CvTemplate.jsx";
 import Editor from "./Components/Pages/Editor.jsx";
+import RequireSignIn from "./Components/Auth/RequireSignIn.jsx";
 import UserDashboardLayout from "./Components/UserDashboard/UserDashboardLayout.jsx";
 import Profile from "./Components/UserDashboard/Profile/Profile.jsx";
 import Recent from "./Components/UserDashboard/Recent/Recent.jsx";
@@ -43,7 +44,8 @@ const router = createBrowserRouter([
     children: [
       {
         path: "editor",
-        element: <Editor />,
+        // Designs are saved to the person's account, so the editor asks them to sign in first.
+        element: <RequireSignIn reason="editor"><Editor /></RequireSignIn>,
       },
       {
         path: "profile",

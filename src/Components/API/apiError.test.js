@@ -15,8 +15,12 @@ test("the server's own words win when it sent any", () => {
 });
 
 test("an unreachable backend points at the setting that decides where it is", () => {
-  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }), /VITE_BASE_VISORA_URL/);
-  assert.match(uploadErrorMessage({ status: 404 }), /VITE_BASE_VISORA_URL/);
+  // The reader is told what they can do; the setting to check goes to the console.
+  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }), /Couldn't reach the Visora server.*internet connection/);
+  assert.doesNotMatch(uploadErrorMessage({ status: "FETCH_ERROR" }), /VITE_/);
+  assert.match(uploadErrorMessage({ status: 404 }), /Uploading isn't available/);
+  assert.doesNotMatch(uploadErrorMessage({ status: 404 }), /VITE_/);
+  assert.match(uploadErrorMessage({ status: 415 }), /PNG, JPG, WebP or GIF/);
 });
 
 test("a status with no explanation is still reported by number", () => {
@@ -54,7 +58,7 @@ test("a refused size is named as too large, even when it looks like an unreachab
   assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }, "photo", { size: 1_996_614 }), /photo is too large .*2\.0 MB.*under 1\.0 MB/);
   assert.match(uploadErrorMessage({ status: 413 }, "image"), /too large for the server/);
   // A small file that fails to send is still a connection problem.
-  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }, "photo", { size: 200_000 }), /Couldn't reach the server/);
+  assert.match(uploadErrorMessage({ status: "FETCH_ERROR" }, "photo", { size: 200_000 }), /Couldn't reach the Visora server/);
 });
 
 test("an empty list answered with 404 is not a failure", () => {

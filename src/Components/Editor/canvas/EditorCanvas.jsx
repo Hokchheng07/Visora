@@ -16,6 +16,7 @@ import EditorContextMenu from "./EditorContextMenu.jsx";
 import { elementMenuItems, canvasMenuItems } from "./editorMenus.js";
 import { canvasSelectable, effectiveLocked, effectiveVisible, stepLayers, canGroup, selectedGroup, pageLabel } from "../model/layerModel.js";
 import { pageTarget } from "../inspector/inspectorEdit.js";
+import { markClipboard } from "../hooks/visoraClipboard.js";
 import AnimationSurface from "../animation/AnimationSurface.jsx";
 
 export default function EditorCanvas({
@@ -263,7 +264,7 @@ export default function EditorCanvas({
           onClose={() => setContextMenu(null)}
           onAction={(id) => {
             if (id === "duplicate") { dispatch(selectionCopied()); dispatch(selectionPasted()); }
-            if (id === "copy") dispatch(selectionCopied());
+            if (id === "copy") { dispatch(selectionCopied()); markClipboard(); }
             if (id === "paste") dispatch(selectionPasted());
             if (id === "delete") dispatch(elementDeleted());
             if (id.startsWith("move-to-page:")) dispatch(layersMovedToPage({ pageIndex: Number(id.split(":")[1]) }));
