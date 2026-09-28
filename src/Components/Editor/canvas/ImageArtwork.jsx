@@ -3,6 +3,7 @@ import { ImageOff } from "lucide-react";
 import { filterId, hasVisibleEffects } from "../model/effectsFilter.js";
 import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
 import { cropStyle } from "../model/imageCrop.js";
+import { gradientCss, normalizeGradient } from "../model/shapePaint.js";
 import { designPx } from "../model/pageSize.js";
 import { imageUrlFor, InlinedImages } from "./imageSource.js";
 import { STORAGE_CONFIGURED } from "../../API/storageApi";
@@ -43,9 +44,11 @@ export default function ImageArtwork({ element }) {
   const library = !broken ? libraryElement(element.src) : null;
   const tinted = !!library?.recolour;
   const mask = tinted ? `url("${url}") center / 100% 100% no-repeat` : undefined;
+  // The stencil paints whatever is behind it, so a gradient works exactly as a colour does.
+  const paint = tinted ? (gradientCss(normalizeGradient(element.gradient)) || element.fill || library.color || KHMER_GOLD) : undefined;
   const picture = tinted ? (
     <span className="editor-element-art editor-library-art" aria-hidden="true"
-      style={{ background: element.fill || library.color || KHMER_GOLD, WebkitMask: mask, mask, opacity: element.opacity, transform: flip }} />
+      style={{ background: paint, WebkitMask: mask, mask, opacity: element.opacity, transform: flip }} />
   ) : broken ? (
     /* The placeholder says which address failed. A picture that will not load
        is nearly always the address rather than the file — the wrong backend in

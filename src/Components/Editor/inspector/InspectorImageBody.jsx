@@ -5,6 +5,8 @@ import {
 import { useAppDispatch } from "../../redux/hook.js";
 import { cropStarted, selectionAligned, targetChanged } from "../../redux/editorSlice.js";
 import { ButtonRow, ColourRow, FieldLabel, IconAction, InspectorSection, NumberField, ResetStyle } from "./EditorInspectorFields.jsx";
+import { FillPaint } from "./InspectorPaint.jsx";
+import { gradientCss, normalizeGradient } from "../model/shapePaint.js";
 import { normalizeRotation } from "./inspectorEdit.js";
 import EffectsSection from "./InspectorEffects.jsx";
 import { KHMER_GOLD, libraryElement } from "../model/khmerElements.js";
@@ -16,7 +18,7 @@ import { DEFAULT_CROP, isDefaultCrop } from "../model/imageCrop.js";
  * is its paint. The proportion lock starts on, as photos usually want.
  */
 
-const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [], fill: null, crop: DEFAULT_CROP };
+const IMAGE_STYLE = { opacity: 1, cornerRadius: 0, flipX: false, flipY: false, effects: [], fill: null, gradient: null, crop: DEFAULT_CROP };
 const KHMER_SWATCHES = [KHMER_GOLD, "#FFFFFF", "#C4443E", "#705AE0", "#111111"];
 
 export default function InspectorImageBody({ element, target, busy }) {
@@ -104,10 +106,21 @@ export default function InspectorImageBody({ element, target, busy }) {
         </div>
       </InspectorSection>
 
+      {/* A traced ornament is painted like text: one colour, or a linear
+          gradient across its box (the same controls). A photo has no colour. */}
       {recolourable && (
         <InspectorSection title="Colour">
-          <ColourRow label="Colour" value={element.fill || library?.color || KHMER_GOLD} target={target} disabled={busy}
-            toChanges={(fill) => ({ fill })} quickSwatches={KHMER_SWATCHES} />
+          {normalizeGradient(element.gradient) ? (
+            <div className="editor-inspector-frame editor-gradient-row">
+              <span className="editor-gradient-swatch" style={{ background: gradientCss(element.gradient) }} aria-hidden="true" />
+              <span className="editor-gradient-label">Linear</span>
+            </div>
+          ) : (
+            <ColourRow label="Colour" value={element.fill || library?.color || KHMER_GOLD} target={target} disabled={busy}
+              toChanges={(fill) => ({ fill })} quickSwatches={KHMER_SWATCHES} />
+          )}
+          <FillPaint element={{ ...element, fill: element.fill || library?.color || KHMER_GOLD }} target={target} busy={busy}
+            allowImage={false} gradientTo="#7A4A12" />
         </InspectorSection>
       )}
 
