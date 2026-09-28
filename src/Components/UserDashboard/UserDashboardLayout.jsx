@@ -13,7 +13,7 @@ export default function UserDashboardLayout(){
   const [sidebarOpen,setSidebarOpen]=useState(false);
   // The signed-in account (GET /users/me); DEFAULT_PROFILE is only the
   // stand-in shown while nobody is logged in.
-  const {profile,saveProfile,isSaving,error}=useDashboardProfile(DEFAULT_PROFILE);
+  const {profile,saveProfile,isSaving,isLoading:profileLoading,error}=useDashboardProfile(DEFAULT_PROFILE);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
   return(
@@ -29,12 +29,13 @@ export default function UserDashboardLayout(){
           onMenuOpen={()=>setSidebarOpen(true)}
           sidebarOpen={sidebarOpen}
           profile={profile}
+          profileLoading={profileLoading}
         />
 
         {/* A size container: the pages lay out by the width they actually get
             (the window minus the sidebar), using @-prefixed breakpoints. */}
         <div className="@container relative z-[1] min-h-screen">
-          <Outlet context={{profile,saveProfile,isSaving,saveError:error}}/>
+          <Outlet context={{profile,profileLoading,saveProfile,isSaving,saveError:error}}/>
         </div>
       </div>
     </div>

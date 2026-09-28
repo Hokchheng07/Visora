@@ -11,6 +11,8 @@ import InspectorGroupBody, { GroupName } from "./InspectorGroupBody.jsx";
 import { MenuRow, ToolPopover } from "../ui/EditorControls.jsx";
 import InspectorTimerBody from "./InspectorTimerBody.jsx";
 import InspectorShapeBody from "./InspectorShapeBody.jsx";
+import { FillPaint } from "./InspectorPaint.jsx";
+import { gradientCss, normalizeGradient } from "../model/shapePaint.js";
 import InspectorImageBody from "./InspectorImageBody.jsx";
 import EffectsSection from "./InspectorEffects.jsx";
 import {
@@ -46,7 +48,7 @@ import { DATE_FORMATS, TIME_FORMATS, isClockKind } from "../model/clockText.js";
 
 const KHMER = /[ក-៿᧠-᧿]/;
 // Size and weight stay: they come from the heading / subheading / body choice.
-const TEXT_STYLE = { fontFamily: "Poppins", fill: DEFAULT_EDITOR_TEXT_COLOR, fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1, stroke: null, strokeWidth: 0, strokeOpacity: 1, strokeVisible: true };
+const TEXT_STYLE = { fontFamily: "Poppins", fill: DEFAULT_EDITOR_TEXT_COLOR, fontStyle: "normal", textDecoration: "none", textAlign: "center", lineHeight: 1.2, letterSpacing: 0, opacity: 1, gradient: null, stroke: null, strokeWidth: 0, strokeOpacity: 1, strokeVisible: true };
 
 function Header({ icon: Icon, title, onClose, children }) {
   return (
@@ -165,8 +167,17 @@ function TextBody({ element, target, busy }) {
       </InspectorSection>
 
       <InspectorSection title="Colour">
-        <ColourRow label="Text colour" value={element.fill} opacity={element.opacity ?? 1} target={target} disabled={busy}
-          toChanges={(fill) => ({ fill })} />
+        {normalizeGradient(element.gradient) ? (
+          <div className="editor-inspector-frame editor-gradient-row">
+            <span className="editor-gradient-swatch" style={{ background: gradientCss(element.gradient) }} aria-hidden="true" />
+            <span className="editor-gradient-label">Linear</span>
+          </div>
+        ) : (
+          <ColourRow label="Text colour" value={element.fill} opacity={element.opacity ?? 1} target={target} disabled={busy}
+            toChanges={(fill) => ({ fill })} />
+        )}
+        {/* Solid or gradient text; an image fill is for shapes only. */}
+        <FillPaint element={element} target={target} busy={busy} allowImage={false} gradientTo="#8A1FA8" />
       </InspectorSection>
 
       <InspectorSection title="Layout">

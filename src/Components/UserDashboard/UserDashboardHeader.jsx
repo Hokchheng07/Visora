@@ -7,6 +7,7 @@ import {useTheme} from "../../theme/useTheme";
 export default function UserDashboardHeader({
   onMenuOpen,
   profile,
+  profileLoading=false,
   sidebarOpen=false,
 }){
   const location=useLocation();
@@ -110,6 +111,7 @@ export default function UserDashboardHeader({
 
         <UserProfile
           profile={profile}
+          loading={profileLoading}
           open={profileOpen}
           onOpenChange={setProfileOpen}
           onLogout={handleLogout}

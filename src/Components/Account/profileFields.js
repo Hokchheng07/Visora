@@ -53,8 +53,10 @@ export function profileFromUser(user, extras = {}, fallback = {}) {
 // from the profile we loaded.
 export function updateRequestFromProfile(user, draft) {
   const parts = String(draft.name || "").trim().split(/\s+/).filter(Boolean);
+  // One word ("azazel") = given name only; the old family name must NOT come back.
+  // An empty field keeps the saved name untouched.
   const givenName = parts[0] || user.givenName || user.username || "";
-  const familyName = parts.slice(1).join(" ") || (parts.length > 1 ? "" : user.familyName || "");
+  const familyName = parts.length ? parts.slice(1).join(" ") : user.familyName || "";
   return {
     username: String(draft.handle || user.username || "").trim(),
     givenName,

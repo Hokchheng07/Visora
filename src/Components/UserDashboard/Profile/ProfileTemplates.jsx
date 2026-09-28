@@ -12,6 +12,7 @@ import { TemplateCard } from "./TemplateCard";
 
 export default function ProfileTemplates({
   templates,
+  loading=false,
   onUpdate,
   onRename,
   onDuplicate,
@@ -114,7 +115,17 @@ export default function ProfileTemplates({
       </div>
 
       {/* TEMPLATE GRID */}
-      {visibleTemplates.length>0?(
+      {loading?(
+        <div aria-busy="true" aria-label="Loading templates" className="profile-template-grid mt-8 grid grid-cols-1 gap-5 @2xl:grid-cols-2 @5xl:grid-cols-3 @5xl:gap-7">
+          {[0,1,2].map((i)=>(
+            <div key={i} className="overflow-hidden rounded-[20px] border border-[var(--border-card)] bg-[var(--surface-card)] p-3">
+              <div className="aspect-video w-full animate-pulse rounded-[14px] bg-[var(--text-muted)]/15"/>
+              <div className="mt-4 h-4 w-2/3 animate-pulse rounded bg-[var(--text-muted)]/15"/>
+              <div className="mt-2 mb-1 h-3 w-1/3 animate-pulse rounded bg-[var(--text-muted)]/15"/>
+            </div>
+          ))}
+        </div>
+      ):visibleTemplates.length>0?(
         <div className="profile-template-grid mt-8 grid grid-cols-1 gap-5 @2xl:grid-cols-2 @5xl:grid-cols-3 @5xl:gap-7">
           {visibleTemplates.map((template,index)=>(
             <TemplateCard

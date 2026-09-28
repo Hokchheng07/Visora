@@ -11,10 +11,15 @@ import { canvasSelectable, cleanName, effectiveVisible, cloneLayers, detachLayer
   stepLayers, removeFromGroup, reorderLayers, selectedGroup, ungroupSelection } from "../Editor/model/layerModel.js";
 
 export const initialEditorState = {
-  documentId: "backdrop-local", title: "Untitled-1", version: 0,
+  documentId: "backdrop-local", title: "Untitled design", version: 0,
   /* The backdrop's uuid on the server once it has been saved there (or opened
      from there), else null. `version` is the server's, sent back on PATCH. */
   remoteId: null,
+  /* Which design this is, for the length of the visit: a new one on every
+     documentLoaded. A save still in flight when the design is replaced
+     (autosave, see model/autosave.js) carries the key it started with, and
+     its answer is dropped instead of being written onto the next design. */
+  documentKey: "local",
   // The size of every page, in design pixels; see model/pageSize.js.
   canvas: { ...DEFAULT_PAGE },
   pages: [{ id: "page-initial", background: { type: "COLOR", value: "#FFFFFF" }, groups: [], elements: [] }],
@@ -183,8 +188,13 @@ function applyLayerMove(state, payload, operation) {
 }
 
 const reducers = {
+    /* Always a new documentKey, whoever sends the action: a caller that leaves
+       it out must not end up with the key of the design it replaced. Counting
+       on from the old key keeps the reducer pure. */
     documentLoaded(state, { payload }) {
+      const previous = state.documentKey, count = Number(/#(\d+)$/.exec(previous || "")?.[1] || 0) + 1;
       Object.assign(state, initialEditorState, payload);
+      state.documentKey = payload?.documentKey && payload.documentKey !== previous ? payload.documentKey : `${String(previous || "local").replace(/#\d+$/, "")}#${count}`;
       state.pageNumbers = normalizePageNumbers(payload?.pageNumbers);
       state.canvas = normalizePageSize(payload?.canvas);
       state.pages = state.pages.map((page) => migrateAnimations(normalizeGroups({ ...page, groups: page.groups || [] })));
@@ -205,8 +215,22 @@ const reducers = {
     /* The server accepted a save: later saves update that backdrop instead
        of making a new one. Not an edit, so no undo step. */
     documentSaved(state, { payload }) {
+      // A save of a design that has since been replaced belongs to that design, not this one.
+      if (payload?.documentKey && payload.documentKey !== state.documentKey) return;
       if (payload?.remoteId) state.remoteId = payload.remoteId;
       if (Number.isFinite(payload?.version)) state.version = payload.version;
+    },
+    /* Pictures carried inside the design as data were uploaded by a save:
+       from now on the design names the uploaded files, so the next save does
+       not send them again. Same pictures, so no undo step. */
+    imageSourcesReplaced(state, { payload }) {
+      const swap = payload || {};
+      for (const page of state.pages) {
+        for (const element of page.elements) {
+          if (element.type === "image" && swap[element.src]) element.src = swap[element.src];
+          if (element.fillImage && swap[element.fillImage]) element.fillImage = swap[element.fillImage];
+        }
+      }
     },
     documentRenamed(state, { payload }) {
       const title = String(payload || "").trim(); if (!title || title === state.title) return;
@@ -761,7 +785,7 @@ for (const [name, definition] of Object.entries(reducers)) {
 
 const editorSlice = createSlice({ name: "editor", initialState: initialEditorState, reducers });
 
-export const { documentLoaded, documentSaved, pageSizeChanged, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
+export const { documentLoaded, documentSaved, imageSourcesReplaced, pageSizeChanged, documentRenamed, pageSelected, pagesSelected, pagesDeleted, pagesCloned, pageAdded, pageCopied, pageCloned, pageMoved, pageDeleted, pageBackgroundChanged, pageNumbersChanged,
   elementSelected, elementsSelected, canvasAllSelected, groupSelected, selectionUnlocked, elementInserted, textInserted, imageInserted, timerInserted, timerChanged, elementDeleted, elementChanged, elementsChanged,
   elementNudged, selectionAligned, selectionDistributed, selectionCopied, selectionPasted,
   gestureStarted, elementTransformed, gestureFinished, gestureCancelled, zoomChanged, undo, redo,

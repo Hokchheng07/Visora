@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hook.js";
 import { pageAdded, pageCopied, pageCloned, pagesCloned, pagesDeleted } from "../redux/editorSlice.js";
 import { useEditorKeyboard } from "../Editor/hooks/useEditorKeyboard.js";
 import { usePasteImage } from "../Editor/hooks/usePasteImage.js";
+import { leaveEditor } from "../Editor/model/autosave.js";
 import EditorNotice from "../Editor/shell/EditorNotice.jsx";
 import { useMediaQuery } from "../Editor/hooks/useMediaQuery.js";
 import { usePointerHeld } from "../Editor/hooks/usePointerHeld.js";
@@ -65,6 +66,10 @@ export default function Editor() {
   const shellRef = useRef(null);
   const openerRef = useRef(null);
   useEditorKeyboard(isDisplayOpen, shellRef);
+  /* Leaving the editor (the Visora logo, any link, the browser's back button)
+     saves what is still pending to the account and refreshes the draft's
+     thumbnail. It carries on after the page has changed. */
+  useEffect(() => () => { leaveEditor(); }, []);
   // Cmd/Ctrl+V with a copied picture uploads it; `notice` says how that went.
   const { notice: pasteNotice, dismissNotice: dismissPasteNotice } = usePasteImage(isDisplayOpen, shellRef);
 

@@ -4,6 +4,7 @@ import { baseApi } from "../API/baseApi.js";
 import editorReducer from "./editorSlice.js";
 import { hydrateDocument, loadLocalDocument, saveLocalDocument } from "../Editor/model/editorDocument.js";
 import { authSlice } from "./authslice.js";
+import { autosaveMiddleware, createAutosave } from "../Editor/model/autosave.js";
 
 const savedDocument = loadLocalDocument();
 
@@ -15,7 +16,7 @@ export const store = configureStore({
     auth: authSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(baseApi.middleware),
+    getDefaultMiddleware().concat(baseApi.middleware, autosaveMiddleware),
 });
 
 // Local storage is an offline copy shaped like the documented backdrop payload.
@@ -28,5 +29,7 @@ if (typeof window !== "undefined") {
     saveTimer = window.setTimeout(flush, 400);
   });
   window.addEventListener("pagehide", flush);
+  // The account copy, as a draft; the local copy above stays the fallback.
+  createAutosave(store);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); });
 }

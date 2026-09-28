@@ -1,0 +1,4 @@
+export const DEFAULT_SWATCHES = [
+  "#705AE0", "#A78DFF", "#DA4EC9", "#FFC21C", "#72BFF1", "#2F7A55", "#C4443E", "#F07A2B",
+  "#FFFFFF", "#F2F1F6", "#C9C6D4", "#8C8799", "#4A4460", "#29243A", "#15131D", "#000000",
+];

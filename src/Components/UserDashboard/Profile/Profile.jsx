@@ -9,9 +9,9 @@ import { useFavorites } from "../../Account/useFavorites";
 
 export default function Profile(){
   const navigate=useNavigate();
-  const {profile,saveProfile,isSaving,saveError}=useOutletContext();
+  const {profile,profileLoading,saveProfile,isSaving,saveError}=useOutletContext();
   const [profileModalOpen,setProfileModalOpen]=useState(false);
-  const {designs,moveToTrash,rename,duplicate}=useMyDesigns();
+  const {designs,isLoading:designsLoading,moveToTrash,rename,duplicate}=useMyDesigns();
   const {isFavorite,toggleFavorite}=useFavorites();
 
   const templates=useMemo(()=>designs.map((design)=>({
@@ -36,13 +36,15 @@ export default function Profile(){
       <div className="relative z-[1] mx-auto w-full max-w-[1650px]">
         <ProfileHero
           profile={profile}
+          loading={profileLoading}
           onEdit={()=>setProfileModalOpen(true)}
         />
 
-        <ProfileStats templates={templates}/>
+        <ProfileStats templates={templates} loading={designsLoading}/>
 
         <ProfileTemplates
           templates={templates}
+          loading={designsLoading}
           onUpdate={openTemplate}
           onRename={renameTemplate}
           onDuplicate={duplicateTemplate}

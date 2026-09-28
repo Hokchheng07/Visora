@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { ChevronDown, Minus, Plus, Ruler } from "lucide-react";
 import { StaticElement } from "./EditorElement.jsx";
 import { pageLabel, visibleElements } from "../model/layerModel.js";
+import { pageBackgroundCss } from "../model/pageBackground.js";
 
 export default function EditorCanvasBar({
   pages,
@@ -84,7 +85,7 @@ export default function EditorCanvasBar({
             >
               {/* The page's own colour, so the strip shows the page and not a
                   white card with the page's elements floating on it. */}
-              <span className="editor-thumb-art" aria-hidden="true" style={{ background: page.background?.type === "COLOR" ? page.background.value : "#FFFFFF" }}>
+              <span className="editor-thumb-art" aria-hidden="true" style={{ background: pageBackgroundCss(page.background) }}>
                 {visibleElements(page).map((element) => <StaticElement key={element.id} element={element} />)}</span>
               <span className="editor-page-thumb-number">{index + 1}</span>
             </button>

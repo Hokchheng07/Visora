@@ -40,5 +40,9 @@ export function useDashboardProfile(fallbackProfile) {
     return false;
   }
 
-  return { profile, saveProfile, isSaving, isLoading: account.isLoading, isSignedIn: account.isSignedIn, error };
+  // Signed in but GET /users/me has not answered yet: callers show skeletons
+  // instead of flashing the placeholder profile.
+  const isLoading = account.isSignedIn && !user;
+
+  return { profile, saveProfile, isSaving, isLoading, isSignedIn: account.isSignedIn, error };
 }

@@ -2,6 +2,7 @@ import { createNextState, nanoid } from "@reduxjs/toolkit";
 import { normalizeGroups } from "./layerModel.js";
 import { DEFAULT_PAGE, normalizePageSize } from "./pageSize.js";
 import { removeAnimationRows, repairTimeline } from "../animation/animationTimeline.js";
+import { pageBackgroundColor } from "./pageBackground.js";
 
 /*
  * Page numbers: one switch for the whole design, like Google Slides' "Slide
@@ -44,7 +45,7 @@ export const pageNumberText = (index) => String(index + 1);
 
 // Dark digits on a light page, light digits on a dark one.
 export function pageNumberColor(background) {
-  const hex = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(String(background?.value || "").trim())?.[1];
+  const hex = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(String(pageBackgroundColor(background)).trim())?.[1];
   if (!hex) return "#29243a";
   const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255)

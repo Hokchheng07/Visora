@@ -1,3 +1,4 @@
+import { gradientVector, normalizeGradient } from "../model/shapePaint.js";
 /*
  * Text as vector outlines, for the Adobe Illustrator export.
  *
@@ -156,9 +157,21 @@ export function textMarkup(element, d, underlines = []) {
   if (stroked && d) {
     body += `<path d="${esc(d)}" fill="none" stroke="${esc(element.stroke)}" stroke-opacity="${rounded(element.strokeOpacity ?? 1)}" stroke-width="${rounded(width * 2)}" stroke-linejoin="miter"/>`;
   }
-  if (d) body += `<path d="${esc(d)}" fill="${esc(fill)}"/>`;
+  /* A gradient spans the whole text box (as on the canvas), not just the
+     letters' own bounds, so it is laid out in the box's coordinates. */
+  const gradient = normalizeGradient(element.gradient);
+  let paint = esc(fill);
+  if (gradient) {
+    const id = `text-fill-${esc(element.id || "t")}`;
+    const w = element.w || 0, h = element.h || 0;
+    const v = gradientVector(gradient.angle);
+    const stops = gradient.stops.map((stop) => `<stop offset="${stop.offset}" stop-color="${esc(stop.color)}" stop-opacity="${stop.opacity}"/>`).join("");
+    body += `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${rounded(v.x1 * w)}" y1="${rounded(v.y1 * h)}" x2="${rounded(v.x2 * w)}" y2="${rounded(v.y2 * h)}">${stops}</linearGradient></defs>`;
+    paint = `url(#${id})`;
+  }
+  if (d) body += `<path d="${esc(d)}" fill="${paint}"/>`;
   for (const line of underlines) {
-    body += `<rect x="${rounded(line.x)}" y="${rounded(line.y)}" width="${rounded(line.width)}" height="${rounded(line.height)}" fill="${esc(fill)}"/>`;
+    body += `<rect x="${rounded(line.x)}" y="${rounded(line.y)}" width="${rounded(line.width)}" height="${rounded(line.height)}" fill="${paint}"/>`;
   }
   return body;
 }
