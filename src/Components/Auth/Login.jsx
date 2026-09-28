@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useUserLoginMutation } from "../API/authApi";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import { returnPath } from "./authRedirect.js";
 import { useDispatch } from "react-redux";
 import { setAccessToken, setRefreshToken } from "../redux/authslice";
 import { profileApi } from "../API/profileApi";
@@ -44,6 +45,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginRequest] = useUserLoginMutation();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Set when a signed-in-only page (the editor) sent the visitor here.
+  const next = returnPath(location.state);
+  const fromEditor = location.state?.reason === "editor";
   const dispatch = useDispatch();
 
   const {
@@ -75,7 +80,8 @@ export default function Login() {
         dispatch(setRefreshToken(tokens.refreshToken));
         sessionStorage.setItem("refreshToken", tokens.refreshToken);
 
-        const home = await dashboardFor(dispatch);
+        // Back to the page that asked for sign-in, else the person's dashboard.
+        const home = next || await dashboardFor(dispatch);
         toast.success("You have logged in successfully!");
         setTimeout(() => {
           navigate(home, { replace: true });
@@ -115,7 +121,7 @@ export default function Login() {
             <header className="auth-card-header">
               <p className="auth-eyebrow">Welcome to Visora</p>
               <h1>Welcome back</h1>
-              <p>Log in to continue creating with Visora.</p>
+              <p>{fromEditor ? "Log in to start designing. Your designs are saved to your Visora account." : "Log in to continue creating with Visora."}</p>
             </header>
 
             <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate>
@@ -216,7 +222,7 @@ export default function Login() {
               </div>
 
               <p className="auth-signup-link">
-                New to Visora? <Link to="/auth/register">Create account</Link>
+                New to Visora? <Link to="/auth/register" state={location.state}>Create account</Link>
               </p>
             </form>
           </article>

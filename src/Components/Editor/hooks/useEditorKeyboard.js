@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppStore } from "../../redux/hook.js";
 import { elementsTarget } from "../inspector/inspectorEdit.js";
+import { markClipboard, schedulePaste } from "./visoraClipboard.js";
 import { allKeys, deleteNodes, editableSubpaths, moveNodes, pageDeltaToLocal, validKeys, vectorChanges } from "../model/vectorEdit.js";
 import { pointEditFinished, pointEditStarted, pointsSelected, targetChanged, canvasAllSelected, editCancelled, elementDeleted, elementNudged, elementSelected, selectionCopied, selectionPasted, undo, redo, layersStepped, selectionGrouped, groupUngrouped, groupSelected } from "../../redux/editorSlice.js";
 
@@ -38,9 +39,12 @@ export function useEditorKeyboard(isDisplayOpen, shellRef) {
          Delete removes points (never the shape), arrows nudge points. */
       if (state.pointEdit && handlePointKeys(event, state)) return;
       if (command && event.key.toLowerCase() === "a") { event.preventDefault(); dispatch(canvasAllSelected()); return; }
-      if (command && event.key.toLowerCase() === "v") { event.preventDefault(); dispatch(selectionPasted()); return; }
-      if (command && event.key.toLowerCase() === "c" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); return; }
-      if (command && event.key.toLowerCase() === "x" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(elementDeleted()); return; }
+      /* Not prevented: the browser's paste event has to follow, because only it
+         can see a picture copied from elsewhere (usePasteImage). Layers are
+         pasted here only if that event never comes (see visoraClipboard). */
+      if (command && event.key.toLowerCase() === "v") { schedulePaste(() => dispatch(selectionPasted())); return; }
+      if (command && event.key.toLowerCase() === "c" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); markClipboard(); return; }
+      if (command && event.key.toLowerCase() === "x" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); markClipboard(); dispatch(elementDeleted()); return; }
       if (command && event.key.toLowerCase() === "d" && state.selectedIds.length) { event.preventDefault(); dispatch(selectionCopied()); dispatch(selectionPasted()); return; }
       if (event.key === "Escape" && state.edit) { event.preventDefault(); dispatch(editCancelled(state.edit.token)); return; }
       if (!state.selectedIds.length) return;

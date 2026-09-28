@@ -1317,3 +1317,21 @@ ol.editor-text-list { padding-inline-start: 2em; }
 .editor-remote-notice { position: fixed; top: 84px; left: 50%; z-index: 60; display: flex; align-items: center; gap: 10px; padding: 9px 14px; border: 1px solid var(--editor-border); border-radius: 10px; background: var(--editor-surface); color: var(--editor-ink); box-shadow: 0 8px 24px rgb(var(--editor-shadow) / .12); font-size: 14px; translate: -50% 0; }
 .editor-remote-notice.is-error { border-color: color-mix(in srgb, #e0394a 40%, transparent); color: #d0293a; }
 .editor-remote-notice button { padding: 0 2px; border: 0; background: none; color: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
+
+/* Paste-to-upload notification: the admin dashboard's notice (.ad-notice),
+   in the editor's own tokens, below the top bar so it never covers Export. */
+.editor-notice { position: fixed; top: 84px; right: 24px; z-index: 80; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: min(380px, calc(100vw - 32px)); padding: 13px 13px 13px 15px; border: 1px solid var(--editor-border); border-radius: 14px; background: var(--editor-surface); color: var(--editor-ink); box-shadow: 0 16px 40px rgb(var(--editor-shadow) / .18); animation: editor-notice-in 220ms cubic-bezier(.16, 1, .3, 1); }
+.editor-notice-icon { display: grid; place-items: center; width: 38px; aspect-ratio: 1; border-radius: 11px; background: color-mix(in srgb, #17a34a 14%, transparent); color: #15803d; }
+.editor-notice.is-busy .editor-notice-icon { background: color-mix(in srgb, var(--editor-accent) 14%, transparent); color: var(--editor-accent); }
+.editor-notice.is-error { border-color: color-mix(in srgb, var(--editor-danger) 35%, var(--editor-border)); }
+.editor-notice.is-error .editor-notice-icon { background: color-mix(in srgb, var(--editor-danger) 14%, transparent); color: var(--editor-danger); }
+.editor-notice-copy { display: grid; gap: 2px; min-width: 0; }
+.editor-notice-copy strong { font-size: 14px; font-weight: 650; }
+.editor-notice-copy small { color: var(--editor-muted); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+.editor-notice.is-error .editor-notice-copy small { color: var(--editor-ink); }
+.editor-notice button { display: grid; place-items: center; width: 32px; aspect-ratio: 1; border: 0; border-radius: 9px; background: transparent; color: var(--editor-muted); cursor: pointer; }
+.editor-notice button:hover { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); color: var(--editor-ink); }
+.editor-notice button:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: 2px; }
+@keyframes editor-notice-in { from { opacity: 0; transform: translateY(-10px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .editor-notice { animation: none; } }
+@media (max-width: 520px) { .editor-notice { top: 72px; right: 16px; } }

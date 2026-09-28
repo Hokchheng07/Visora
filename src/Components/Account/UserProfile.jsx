@@ -21,19 +21,27 @@ export default function UserProfile({ profile, framed = true, avatarFrame, ...pr
   const { resolvedTheme } = useTheme();
   const frameSrc = avatarFrame ?? (framed ? (resolvedTheme === "dark" ? darkFrame : lightFrame) : undefined);
 
-  if (profile !== undefined) {
-    return (
-      <ProfileMenu
-        {...props}
-        frameSrc={frameSrc}
-        inline
-        identity={{ pictureUrl: profile?.avatarUrl, name: profile?.name || "User", detail: `@${profile?.handle || "user"}` }}
-        actions={[{ label: "Sign out", icon: LogOut, onClick: props.onLogout, danger: true }]}
-      />
-    );
-  }
+  if (profile !== undefined) return <SuppliedProfile {...props} profile={profile} frameSrc={frameSrc} />;
 
   return <AccountProfile {...props} frameSrc={frameSrc} />;
+}
+
+/* The user dashboard's header supplies its own profile and sign-out. An
+   admin still needs the way back to the admin dashboard from there, so the
+   role comes from the signed-in account, as in every other menu. */
+function SuppliedProfile({ profile, ...props }) {
+  const { isAdmin } = useCurrentUser();
+  const actions = [];
+  if (isAdmin) actions.push({ label: "Admin dashboard", icon: LayoutDashboard, to: "/dashboard" });
+  actions.push({ label: "Sign out", icon: LogOut, onClick: props.onLogout, danger: true, divider: isAdmin });
+  return (
+    <ProfileMenu
+      {...props}
+      inline
+      identity={{ pictureUrl: profile?.avatarUrl, name: profile?.name || "User", detail: `@${profile?.handle || "user"}` }}
+      actions={actions}
+    />
+  );
 }
 
 function AccountProfile({ signedOut = null, ...props }) {

@@ -24,7 +24,7 @@ export default function FilterSidebar({
   const toggleRef = useRef(null);
   const closeFilters = () => {
     onClose();
-    const smallScreen = window.matchMedia("(min-width: 320px) and (max-width: 425px)").matches;
+    const smallScreen = window.matchMedia("(max-width: 479px)").matches;
     (smallScreen ? searchFilterRef : toggleRef)?.current?.focus();
   };
   return(

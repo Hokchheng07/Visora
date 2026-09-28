@@ -1556,7 +1556,7 @@
   .about-vision-arrow { display: none; }
 }
 
-@media (min-width: 426px) and (max-width: 767px) {
+@media (min-width: 480px) and (max-width: 767px) {
   .about-mentor-grid,
   .about-member-grid {
     margin-top: 145px;
@@ -1564,7 +1564,7 @@
   }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 479px) {
   .about-page { --about-mobile-hero-height: clamp(660px, 170vw, 730px); }
 
   .about-hero {
@@ -1956,7 +1956,7 @@
   }
 }
 
-@media (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 479px) and (prefers-reduced-motion: no-preference) {
   .about-hero-mobile-art { animation: about-mobile-rise .9s ease-out both, about-mobile-art-float 6s ease-in-out 1s infinite; }
   .about-hero-plane { animation: about-mobile-float 4.5s ease-in-out infinite; }
   .about-hero-exclamation { animation: about-mobile-wiggle 5s ease-in-out infinite; }
@@ -2002,7 +2002,7 @@
 .about-hero-mobile-accents,
 .about-purpose-symbol { display: none; }
 
-@media (min-width: 320px) and (max-width: 425px) {
+@media (max-width: 479px) {
   .about-what::before { display: none; }
   .about-what-copy {
     width: 100%;
@@ -2159,7 +2159,7 @@
   .about-vision-copy p { grid-column: 1 / -1; max-width: none; margin: 0; font-size: .95rem; line-height: 1.75; }
 }
 
-@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 479px) and (prefers-reduced-motion: no-preference) {
   .about-what-tool { animation: about-mobile-art-float 6s ease-in-out infinite; }
   .about-what-tool-layers { animation-delay: -2s; }
   .about-what-canvas { animation: about-mobile-art-float 8s ease-in-out -3s infinite; }
@@ -2174,7 +2174,7 @@
 }
 
 /* A unified phone composition, with the illustration blended behind the copy. */
-@media (min-width: 320px) and (max-width: 425px) {
+@media (max-width: 479px) {
   .about-page {
     --about-mobile-hero-height: clamp(460px, 120vw, 510px);
   }
@@ -2320,7 +2320,7 @@
   }
 }
 
-@media (min-width: 320px) and (max-width: 425px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 479px) and (prefers-reduced-motion: no-preference) {
   .about-hero-mobile-angkor {
     animation: about-angkor-drift 10s ease-in-out infinite;
   }

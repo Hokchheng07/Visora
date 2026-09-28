@@ -120,7 +120,7 @@
   .templates-page .template-filter-section label { min-height: 32px; }
 }
 
-@media (min-width: 320px) and (max-width: 425px) {
+@media (max-width: 479px) {
   .templates-search-field > input { padding-right: 52px; }
   .templates-search-filter {
     position: absolute;
