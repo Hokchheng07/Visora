@@ -1,6 +1,5 @@
 import {
   Check,
-  ChevronDown,
   Clock,
   Eye,
   Flag,
@@ -24,6 +23,7 @@ import frontendExam from "../../assets/pages/admin/dashboard/pending-review/fron
 import backendExam from "../../assets/pages/admin/dashboard/pending-review/backend-exam.png";
 import "./admin-dashboard.css";
 import VisoraLoader from "../ui/VisoraLoader";
+import VisoraSelect from "../ui/VisoraSelect";
 
 // Seed templates have no preview images yet; these Figma exports stand in.
 const sampleThumbs = [creativePortfolio, frontendExam, backendExam];
@@ -168,15 +168,14 @@ export default function AdminDashboard() {
               <Radar size={28} strokeWidth={1.8} aria-hidden="true" />
               Platform Activity
             </h2>
-            <label className="ad-period">
-              <span className="sr-only">Time range</span>
-              <select value={period} onChange={(event) => setPeriod(event.target.value)}>
-                {periods.map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-              <ChevronDown size={18} aria-hidden="true" />
-            </label>
+            <VisoraSelect
+              label="Time range"
+              value={period}
+              onChange={setPeriod}
+              options={periods}
+              tone="admin"
+              className="ad-period"
+            />
           </header>
           <div className="ad-legend">
             <span><i className="users" />New Users</span>

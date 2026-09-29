@@ -4,9 +4,9 @@ import { getStorageUrl } from "../API/storageApi";
 import { listRequestFailed } from "../API/apiError.js";
 import { EDITOR_SCHEMA_VERSION } from "../Editor/model/editorDocument.js";
 import { useDeleteBackdropMutation, useDuplicateBackdropMutation, useGetBackdropsQuery, useUpdateBackdropMutation } from "../API/backdropApi";
-import { useGetTemplatesQuery } from "../API/templateApi";
+import { useGetTemplatesQuery, useUpdateTemplateMutation } from "../API/templateApi";
 import { useGetCategoriesQuery } from "../API/categoryApi";
-import { templateCategoryNames, templateCategoryUuids } from "../Templates/templateCategories.js";
+import { templateCategoryNames, templateCategoryPayload, templateCategoryUuids } from "../Templates/templateCategories.js";
 
 /*
  * The signed-in account's own designs, for every user-dashboard page.
@@ -97,6 +97,8 @@ export function toMyDesign(backdrop, template, categoryNames = new Map()) {
     status,
     review: status === "draft" ? "" : REVIEW_LABELS[status],
     templateUuid: template?.uuid || null,
+    templateVersion: template?.version ?? 0,
+    categoryUuids: template ? templateCategoryUuids(template) : [],
     views: 0,
     openedAt: backdrop.lastOpenedAt || backdrop.lastSavedAt || backdrop.updatedAt || backdrop.createdAt,
     savedAt: backdrop.lastSavedAt || backdrop.updatedAt || backdrop.createdAt,
@@ -114,6 +116,7 @@ export function useMyDesigns() {
   const { data: categoryPage } = useGetCategoriesQuery(undefined, { skip: !isSignedIn });
   const [trash, updateTrash] = useTrashList(owner);
   const [updateBackdrop] = useUpdateBackdropMutation();
+  const [updateTemplate] = useUpdateTemplateMutation();
   const [duplicateBackdrop] = useDuplicateBackdropMutation();
   const [deleteBackdrop] = useDeleteBackdropMutation();
 
@@ -165,6 +168,26 @@ export function useMyDesigns() {
     backdropRequest: { clientSchemaVersion: EDITOR_SCHEMA_VERSION, name: title, version: design.version ?? 0 },
   }).unwrap().catch(warn("rename this design"));
 
+  /* Name, description and category, without opening the editor. The name is
+     the backdrop's (PATCH /backdrops); a design sent for review also has a
+     template, which holds all three (PATCH /templates, only what changed).
+     A draft has no template yet: its description and category are chosen
+     when it is published. Returns the template answer, or null. */
+  const editDetails = async (design, { title, description, categories }) => {
+    if (title && title !== design.title) await rename(design, title);
+    if (!design.templateUuid) return null;
+    const changes = {};
+    if (title && title !== design.title) changes.name = title;
+    if (description !== undefined && description !== design.templateDescription) changes.description = description;
+    const categoryFields = templateCategoryPayload(categories);
+    if (categoryFields.categoryUuids.join("|") !== design.categoryUuids.join("|")) Object.assign(changes, categoryFields);
+    if (!Object.keys(changes).length) return null;
+    return updateTemplate({
+      templateUuid: design.templateUuid,
+      userUpdateTemplateRequest: { clientSchemaVersion: EDITOR_SCHEMA_VERSION, version: design.templateVersion, ...changes },
+    }).unwrap();
+  };
+
   const duplicate = (design, title) => duplicateBackdrop({
     backdropUuid: design.remoteId,
     duplicateBackdropRequest: { name: title || `${design.title} Copy` },
@@ -177,6 +200,6 @@ export function useMyDesigns() {
     isLoading: list.isLoading,
     failed: listRequestFailed(list.error),
     refetch: list.refetch,
-    moveToTrash, restore, restoreAll, deleteForever, emptyTrash, rename, duplicate,
+    moveToTrash, restore, restoreAll, deleteForever, emptyTrash, rename, editDetails, duplicate,
   };
 }

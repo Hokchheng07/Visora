@@ -4,7 +4,7 @@ import { useAppDispatch } from "../redux/hook.js";
 import { templateApi } from "../API/templateApi";
 import { fromServerTemplate } from "./useReviewQueue";
 import { useUserDirectory } from "./useUserDirectory";
-import { Check, ChevronDown, Eye, FileText, Funnel, X } from "lucide-react";
+import { Check, Eye, FileText, Funnel, X } from "lucide-react";
 import { Modal, Pagination, ReviewQueueEmptyState, UserAvatar, formatDate } from "./AdminUi";
 import happyGraduation from "../../assets/pages/admin/pending/review-table/happy-graduation.png";
 import workshopOnAi from "../../assets/pages/admin/pending/review-table/workshop-on-ai.png";
@@ -16,6 +16,7 @@ import childrensDay from "../../assets/pages/admin/pending/review-table/children
 import { useReviewQueue } from "./useReviewQueue";
 import "./admin-pending.css";
 import VisoraLoader from "../ui/VisoraLoader";
+import VisoraSelect from "../ui/VisoraSelect";
 
 // Seed templates have no preview images or real descriptions yet; these
 // Figma exports and copy stand in, picked by category.
@@ -113,14 +114,15 @@ export default function PendingReview() {
           ))}
         </div>
         <div className="pr-toolbar-end">
-          <label className="ad-control ad-sort">
-            <span className="ad-sort-label">Sort by</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-            </select>
-            <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
-          </label>
+          <VisoraSelect
+            label="Sort pending reviews"
+            value={sort}
+            onChange={setSort}
+            options={[{ value: "newest", label: "Newest" }, { value: "oldest", label: "Oldest" }]}
+            prefix="Sort by"
+            tone="admin"
+            className="ad-sort"
+          />
           <button type="button" className="ad-button icon-only" disabled title="More filters coming soon" aria-label="More filters, coming soon">
             <Funnel size={16} fill="currentColor" aria-hidden="true" />
           </button>
@@ -157,7 +159,11 @@ export default function PendingReview() {
                         <img src={previewFor(t)} alt="" />
                         <div>
                           <strong>{t.name}</strong>
-                          <p>{descriptionFor(t)}</p>
+                          {descriptionFor(t) && (
+                            <p className="pr-desc" title={descriptionFor(t)}>
+                              {descriptionFor(t)}
+                            </p>
+                          )}
                           <span className="pr-type">
                             <FileText size={11} fill="currentColor" strokeWidth={1.5} aria-hidden="true" /> Template
                           </span>

@@ -11,7 +11,7 @@ export default function Profile(){
   const navigate=useNavigate();
   const {profile,profileLoading,saveProfile,isSaving,saveError}=useOutletContext();
   const [profileModalOpen,setProfileModalOpen]=useState(false);
-  const {designs,isLoading:designsLoading,moveToTrash,rename,duplicate}=useMyDesigns();
+  const {designs,isLoading:designsLoading,moveToTrash,rename,editDetails,duplicate}=useMyDesigns();
   const {isFavorite,toggleFavorite}=useFavorites();
 
   const templates=useMemo(()=>designs.map((design)=>({
@@ -47,6 +47,7 @@ export default function Profile(){
           loading={designsLoading}
           onUpdate={openTemplate}
           onRename={renameTemplate}
+          onEditDetails={editDetails}
           onDuplicate={duplicateTemplate}
           onDelete={deleteTemplate}
           isFavorite={isFavorite}

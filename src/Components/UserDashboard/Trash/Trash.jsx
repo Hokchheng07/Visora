@@ -12,6 +12,7 @@ import {getRemainingDays} from "./trashData";
 import {useCurrentUser} from "../../Account/useCurrentUser";
 import {useMyDesigns} from "../useMyDesigns";
 import VisoraLoader from "../../ui/VisoraLoader";
+import VisoraSelect from "../../ui/VisoraSelect";
 
 const TRASH_FILTERS=[
   {id:"all",label:"All Items"},
@@ -237,16 +238,18 @@ export default function Trash(){
                   Sort:
                 </span>
 
-                <select
+                <VisoraSelect
+                  label="Sort deleted designs"
                   value={sort}
-                  onChange={(event)=>setSort(event.target.value)}
-                  className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-medium text-[var(--text-heading)] outline-none"
-                >
-                  <option value="remaining">Expiring soon</option>
-                  <option value="recent">Recently deleted</option>
-                  <option value="oldest">Oldest deleted</option>
-                  <option value="name">Name</option>
-                </select>
+                  onChange={setSort}
+                  options={[
+                    {value:"remaining",label:"Expiring soon"},
+                    {value:"recent",label:"Recently deleted"},
+                    {value:"oldest",label:"Oldest deleted"},
+                    {value:"name",label:"Name"},
+                  ]}
+                  className="min-w-[156px]"
+                />
               </div>
 
               <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-1">

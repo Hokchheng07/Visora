@@ -1,13 +1,11 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import { useTheme } from "../../theme/useTheme";
 import lightFrame from "../../assets/pages/userdashboard/header/pf-frame-light.png";
 import darkFrame from "../../assets/pages/userdashboard/header/pf-frame-dark.png";
-import { useAppDispatch } from "../redux/hook.js";
-import { setLogout } from "../redux/authslice";
-import { baseApi } from "../API/baseApi";
+import { useLogOut } from "./useLogOut";
 import { useCurrentUser } from "./useCurrentUser";
 import UserAvatar from "./UserAvatar";
 import "./user-menu.css";
@@ -46,17 +44,10 @@ function SuppliedProfile({ profile, loading = false, ...props }) {
 
 function AccountProfile({ signedOut = null, ...props }) {
   const account = useCurrentUser();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const logOut = useLogOut();
 
   if (!account.isSignedIn) return signedOut;
 
-  const logOut = () => {
-    dispatch(setLogout());
-    // Forget cached profile data so the next person starts clean.
-    dispatch(baseApi.util.resetApiState());
-    navigate("/", { replace: true });
-  };
   const actions = [{ label: "My profile", icon: UserRound, to: "/profile" }];
   if (account.isAdmin) actions.push({ label: "Admin dashboard", icon: LayoutDashboard, to: "/dashboard" });
   actions.push({ label: "Log out", icon: LogOut, onClick: logOut, danger: true, divider: true });

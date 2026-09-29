@@ -1,7 +1,8 @@
 import {useEffect,useRef,useState} from "react";
 import {Bell,Menu,Moon,Sun} from "lucide-react";
-import {useLocation,useNavigate} from "react-router";
+import {useLocation} from "react-router";
 import UserProfile from "../Account/UserProfile";
+import {useLogOut} from "../Account/useLogOut";
 import {useTheme} from "../../theme/useTheme";
 
 export default function UserDashboardHeader({
@@ -11,7 +12,7 @@ export default function UserDashboardHeader({
   sidebarOpen=false,
 }){
   const location=useLocation();
-  const navigate=useNavigate();
+  const logOut=useLogOut();
   const lastScrollY=useRef(0);
 
   const [profileOpen,setProfileOpen]=useState(false);
@@ -47,9 +48,9 @@ export default function UserDashboardHeader({
     };
   },[]);
 
-  async function handleLogout(){
+  function handleLogout(){
     setProfileOpen(false);
-    navigate("/");
+    logOut();
   }
 
   return(

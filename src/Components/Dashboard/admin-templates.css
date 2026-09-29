@@ -275,7 +275,7 @@
 }
 .tm-edit-field > input,
 .tm-edit-field > textarea,
-.tm-edit-select select {
+.tm-edit-select .visora-select-button {
   width: 100%;
   min-height: 46px;
   padding: 10px 14px;
@@ -292,7 +292,7 @@
 }
 .tm-edit-field > input:focus-visible,
 .tm-edit-field > textarea:focus-visible,
-.tm-edit-select select:focus-visible {
+.tm-edit-select .visora-select-button:focus-visible {
   border-color: var(--dash-primary);
   outline: 2px solid color-mix(in srgb, var(--dash-primary) 25%, transparent);
   outline-offset: 1px;
@@ -305,19 +305,7 @@
 }
 .tm-edit-field { align-content: start; }
 .tm-edit-select { position: relative; display: block; }
-.tm-edit-select select {
-  appearance: none;
-  padding-right: 38px;
-  cursor: pointer;
-}
-.tm-edit-select svg {
-  position: absolute;
-  top: 50%;
-  right: 13px;
-  color: var(--dash-ink);
-  pointer-events: none;
-  transform: translateY(-50%);
-}
+.tm-edit-select .visora-select-caret { color: var(--dash-ink); }
 .tm-category-picker { min-width: 0; }
 .tm-category-trigger {
   display: flex;

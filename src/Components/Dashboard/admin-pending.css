@@ -47,16 +47,23 @@
   font-size: 13px;
   font-weight: 600;
 }
-.pr-template p {
+/* Row shows a two-line teaser; the full description lives in Preview. */
+.pr-template .pr-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  max-width: 38ch;
   color: var(--dash-body);
   font-size: 11px;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 .pr-type {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: 8px 0 0 8px;
+  margin-top: 4px;
   color: var(--dash-accent);
   font-size: 9px;
 }

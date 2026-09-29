@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock3,Copy,Edit3,Eye,MoreVertical,Pencil,Trash2 } from "lucide-react";
+import { Clock3,Copy,Edit3,Eye,FileText,MoreVertical,Pencil,Trash2 } from "lucide-react";
 import { DesignArt } from "../Profile/DesignArt";
 import VisoraCard from "../../Cards/VisoraCard.jsx";
 import { TAG_COLORS,formatDesignTime } from "./myDesignsData";
@@ -9,6 +9,7 @@ export default function MyDesignCard({
   viewMode,
   onEdit,
   onRename,
+  onEditDetails,
   onDuplicate,
   onDelete,
   savedFavorite=false,
@@ -45,6 +46,7 @@ export default function MyDesignCard({
               setMenuOpen={setMenuOpen}
               onEdit={onEdit}
               onRename={onRename}
+              onEditDetails={onEditDetails}
               onDuplicate={onDuplicate}
               onDelete={onDelete}
             />
@@ -88,8 +90,9 @@ export default function MyDesignCard({
       stats={[{icon:Clock3,label:formatDesignTime(design.updatedAt)}]}
       favorite={{active:favorite,onToggle:()=>(design.remoteId?onFavorite?.(design):setLocalFavorite((value)=>!value))}}
       menu={[
-        {label:"Edit",icon:Edit3,onSelect:()=>onEdit(design)},
+        {label:"Edit design",icon:Edit3,onSelect:()=>onEdit(design)},
         {label:"Rename",icon:Pencil,onSelect:()=>onRename(design)},
+        {label:"Edit details",icon:FileText,onSelect:()=>onEditDetails(design)},
         {label:"Duplicate",icon:Copy,onSelect:()=>onDuplicate(design)},
         {label:"Move to Trash",icon:Trash2,onSelect:()=>onDelete(design),danger:true},
       ]}
@@ -105,6 +108,7 @@ function DesignMenu({
   setMenuOpen,
   onEdit,
   onRename,
+  onEditDetails,
   onDuplicate,
   onDelete,
 }){
@@ -127,7 +131,7 @@ function DesignMenu({
         <div className="absolute right-0 top-9 z-[100] w-[210px] rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-card)] p-1.5 shadow-[0_18px_50px_rgba(0,0,0,.18)]">
           <MenuButton
             icon={<Edit3 className="h-4 w-4"/>}
-            label="Edit"
+            label="Edit design"
             onClick={()=>run(()=>onEdit(design))}
           />
 
@@ -135,6 +139,12 @@ function DesignMenu({
             icon={<Pencil className="h-4 w-4"/>}
             label="Rename"
             onClick={()=>run(()=>onRename(design))}
+          />
+
+          <MenuButton
+            icon={<FileText className="h-4 w-4"/>}
+            label="Edit details"
+            onClick={()=>run(()=>onEditDetails(design))}
           />
 
           <MenuButton

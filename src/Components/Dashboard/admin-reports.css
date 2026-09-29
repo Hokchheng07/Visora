@@ -6,15 +6,11 @@
   gap: 12px 24px;
   margin-top: -8px;
 }
-.rp-range select {
+.rp-range .visora-select-button {
   padding-left: 40px;
   min-height: 32px;
   border-color: var(--dash-ink);
   font-size: 13px;
-}
-.rp-range .rp-range-icon {
-  left: 12px;
-  right: auto;
 }
 .rp-export {
   min-height: 32px;
@@ -72,16 +68,14 @@
   border-radius: 50%;
   background: var(--dash-accent);
 }
-.rp-small-select select {
+.rp-small-select .visora-select-button {
   min-height: 26px;
   padding: 0 26px 0 8px;
   border-color: var(--dash-ink);
   border-radius: 6px;
   font-size: 12px;
 }
-.rp-small-select > svg {
-  right: 7px;
-}
+.rp-small-select .visora-select-caret { width: 13px; }
 .rp-line {
   height: clamp(200px, 20vw, 240px);
   margin-top: 8px;

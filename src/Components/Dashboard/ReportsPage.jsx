@@ -1,5 +1,5 @@
-import { useId, useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, ChevronDown, Clock, CloudDownload, FileText, FileUp, Flag, Lock, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, CalendarDays, Check, Clock, CloudDownload, FileText, FileUp, Flag, Lock, Users } from "lucide-react";
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Link } from "react-router";
 import { StatCards } from "./AdminUi";
@@ -11,6 +11,7 @@ import khmerNewYear from "../../assets/pages/admin/reports/top-templates/khmer-n
 import finalExamination from "../../assets/pages/admin/reports/top-templates/final-examination.png";
 import creativeWorkshop from "../../assets/pages/admin/reports/top-templates/creative-workshop.png";
 import "./admin-reports.css";
+import VisoraSelect from "../ui/VisoraSelect";
 
 // Downloads, views and the creation trend are not tracked in the mock data
 // yet, so this page uses fixed sample numbers for them. Totals and the
@@ -106,7 +107,6 @@ export default function ReportsPage() {
   const { templates, users } = useDashboardData();
   const [range, setRange] = useState("week");
   const [granularity, setGranularity] = useState("daily");
-  const selectId = useId();
   const period = ranges[range];
 
   const pending = templates.filter((t) => t.status === "pending").length;
@@ -151,22 +151,19 @@ export default function ReportsPage() {
   return (
     <div className="ad-page rp-page">
       <div className="rp-actions">
-        <label className="ad-control rp-range">
-          <CalendarDays size={16} className="rp-range-icon" aria-hidden="true" />
-          <span className="sr-only">Date range</span>
-          <select
-            value={range}
-            onChange={(event) => {
-              setRange(event.target.value);
-              if (!ranges[event.target.value].weekly) setGranularity("daily");
-            }}
-          >
-            {Object.entries(ranges).map(([key, value]) => (
-              <option key={key} value={key}>{value.label}</option>
-            ))}
-          </select>
-          <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
-        </label>
+        <VisoraSelect
+          label="Date range"
+          value={range}
+          onChange={(next) => {
+            setRange(next);
+            if (!ranges[next].weekly) setGranularity("daily");
+          }}
+          options={Object.entries(ranges).map(([value, item]) => ({ value, label: item.label }))}
+          startIcon={<CalendarDays size={16} />}
+          tone="admin"
+          size="compact"
+          className="rp-range"
+        />
         <button type="button" className="ad-button rp-export" onClick={exportReport}>
           <FileUp size={16} fill="currentColor" strokeWidth={1.5} aria-hidden="true" /> Export
         </button>
@@ -178,14 +175,18 @@ export default function ReportsPage() {
         <article className="ad-card rp-card rp-created">
           <header className="rp-card-head">
             <h2><i className="rp-dot" aria-hidden="true" />Templates Created</h2>
-            <label className="ad-control rp-small-select" htmlFor={selectId}>
-              <span className="sr-only">Group by</span>
-              <select id={selectId} value={granularity} onChange={(event) => setGranularity(event.target.value)}>
-                <option value="daily">Daily</option>
-                <option value="weekly" disabled={!period.weekly}>Weekly</option>
-              </select>
-              <ChevronDown size={14} strokeWidth={3} aria-hidden="true" />
-            </label>
+            <VisoraSelect
+              label="Group by"
+              value={granularity}
+              onChange={setGranularity}
+              options={[
+                { value: "daily", label: "Daily" },
+                { value: "weekly", label: "Weekly", disabled: !period.weekly },
+              ]}
+              tone="admin"
+              size="compact"
+              className="rp-small-select"
+            />
           </header>
           <div className="rp-line">
             <TemplatesCreatedChart data={chartData} />

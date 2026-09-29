@@ -1,8 +1,18 @@
 import {
   Award, Baby, BookOpen, BriefcaseBusiness, CalendarDays, Camera, ClipboardCheck, Code, Dumbbell, FileUser, Flower2, Gift,
   Globe, GraduationCap, Heart, Landmark, Laptop, Leaf, Megaphone, Mic, Music, Network, Palette, PartyPopper,
-  Presentation, School, Shapes, Sparkles, Star, Tent, Trophy, Users, Utensils, Wrench,
+  Presentation, School, Shapes, Sparkles, Star, Tent, Trophy, Users, Utensils, Wrench, createLucideIcon,
 } from "lucide-react";
+
+// Lucide has no Khmer symbol, so this draws Angkor Wat's three towers in its
+// style. Shapes are closed so the icon still reads when drawn filled.
+export const AngkorWat = createLucideIcon("angkor-wat", [
+  ["path", { d: "M9.5 21V12L12 3l2.5 9v9Z", key: "center" }],
+  ["path", { d: "M4 21v-5l1.75-4.5L7.5 16v5Z", key: "left" }],
+  ["path", { d: "M16.5 21v-5l1.75-4.5L20 16v5Z", key: "right" }],
+  ["path", { d: "M7.5 18h2M14.5 18h2", key: "gallery" }],
+  ["path", { d: "M2 21h20", key: "ground" }],
+]);
 
 /*
  * A category's icon. The server keeps a category's icon as text (`icon`), so
@@ -15,6 +25,7 @@ export const CATEGORY_ICONS = [
   { key: "clipboard-check", label: "Exam", Icon: ClipboardCheck },
   { key: "wrench", label: "Workshop", Icon: Wrench },
   { key: "presentation", label: "Seminar", Icon: Presentation },
+  { key: "angkor-wat", label: "Khmer", Icon: AngkorWat },
   { key: "tent", label: "Khmer event", Icon: Tent },
   { key: "landmark", label: "Culture", Icon: Landmark },
   { key: "briefcase-business", label: "Business", Icon: BriefcaseBusiness },
@@ -55,7 +66,8 @@ const RULES = [
   [/exam|test|quiz/i, "clipboard-check"],
   [/workshop|training|hands/i, "wrench"],
   [/seminar|conference|talk|lecture/i, "presentation"],
-  [/khmer|new year|festival|tradition|culture/i, "tent"],
+  [/khmer|angkor|cambodia/i, "angkor-wat"],
+  [/new year|festival|tradition|culture/i, "tent"],
   [/portfolio|business|company|corporate/i, "briefcase-business"],
   [/competition|contest|hackathon|tournament/i, "trophy"],
   [/cv|resume|profile/i, "file-user"],

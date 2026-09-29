@@ -11,6 +11,7 @@ import { getStorageUrl } from "../../API/storageApi";
 import { listRequestFailed } from "../../API/apiError.js";
 import { templateCategoryNames,templateCategoryUuids } from "../../Templates/templateCategories.js";
 import VisoraLoader from "../../ui/VisoraLoader";
+import VisoraSelect from "../../ui/VisoraSelect";
 
 const CATEGORIES=["All","Templates","My designs"];
 
@@ -165,14 +166,16 @@ export default function Favorites(){
                   Sort:
                 </span>
 
-                <select
+                <VisoraSelect
+                  label="Sort favourites"
                   value={sort}
-                  onChange={(event)=>setSort(event.target.value)}
-                  className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-semibold text-[var(--text-heading)] outline-none"
-                >
-                  <option value="recent">Recently added</option>
-                  <option value="name">Name</option>
-                </select>
+                  onChange={setSort}
+                  options={[
+                    {value:"recent",label:"Recently added"},
+                    {value:"name",label:"Name"},
+                  ]}
+                  className="min-w-[144px]"
+                />
               </div>
 
               <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-1">

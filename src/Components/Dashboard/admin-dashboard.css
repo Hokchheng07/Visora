@@ -262,23 +262,15 @@
   display: inline-flex;
   align-items: center;
 }
-.ad-period select {
-  appearance: none;
+.ad-period .visora-select-button {
   min-height: 42px;
-  padding: 0 40px 0 14px;
+  padding: 0 14px;
   border: 1px solid var(--dash-divider);
   border-radius: 6px;
   background: var(--dash-surface);
   color: var(--dash-ink);
   font: 500 15px Poppins, sans-serif;
-  cursor: pointer;
   box-shadow: 0 1px 3px rgb(20 15 60 / 0.06);
-}
-.ad-period svg {
-  position: absolute;
-  right: 12px;
-  pointer-events: none;
-  color: var(--dash-ink);
 }
 .ad-legend {
   display: flex;

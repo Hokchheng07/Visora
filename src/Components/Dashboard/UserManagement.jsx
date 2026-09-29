@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   ArrowRight,
   Ban,
-  ChevronDown,
   FileUser,
   Funnel,
   RotateCcw,
@@ -24,6 +23,7 @@ import {
 } from "./AdminUi";
 import { toPerson } from "./useUserDirectory";
 import { useServerTemplates } from "./useReviewQueue";
+import VisoraSelect from "../ui/VisoraSelect";
 import {
   useDeleteUserMutation,
   useGetUsersQuery,
@@ -195,22 +195,14 @@ export default function UserManagement() {
             ))}
           </div>
           <div className="um-toolbar-controls">
-            <label className="ad-control">
-              <span className="sr-only">Role</span>
-              <select
-                value={role}
-                onChange={(event) => {
-                  setRole(event.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="all">All Roles</option>
-                {roles.map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-              <ChevronDown size={16} aria-hidden="true" />
-            </label>
+            <VisoraSelect
+              label="Role"
+              value={role}
+              onChange={(next) => { setRole(next); setPage(1); }}
+              options={[{ value: "all", label: "All Roles" }, ...roles.map((value) => ({ value, label: value }))]}
+              tone="admin"
+              className="min-w-[132px]"
+            />
             <button
               type="button"
               className="ad-button"

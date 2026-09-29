@@ -8,6 +8,7 @@ import CosmicDust from "../../Effects/CosmicDust.jsx";
 import {useFavorites} from "../../Account/useFavorites";
 import {useMyDesigns} from "../useMyDesigns";
 import VisoraLoader from "../../ui/VisoraLoader";
+import VisoraSelect from "../../ui/VisoraSelect";
 
 /*
  * Recent: the signed-in account's own backdrops (GET /backdrops), most
@@ -162,20 +163,13 @@ export default function Recent(){
                   Sort:
                 </span>
 
-                <select
+                <VisoraSelect
+                  label="Sort recent designs"
                   value={sort}
-                  onChange={(event)=>setSort(event.target.value)}
-                  className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-semibold text-[var(--text-heading)] outline-none"
-                >
-                  {SORT_OPTIONS.map((option)=>(
-                    <option
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setSort}
+                  options={SORT_OPTIONS}
+                  className="min-w-[152px]"
+                />
               </div>
 
               {/* VIEW */}

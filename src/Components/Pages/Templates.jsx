@@ -19,30 +19,8 @@ import { useFavorites } from "../Account/useFavorites";
 import TemplatePreviewModal from "../Templates/TemplatePreviewModal.jsx";
 import { useCurrentUser } from "../Account/useCurrentUser";
 import { useGetAllTemplatesQuery, useGetTemplatesQuery } from "../API/templateApi";
-import { getStorageUrl } from "../API/storageApi";
-import { templateCategoryNames } from "../Templates/templateCategories.js";
-
-/* A template from the server, in the shape the sample templates use, so the
-   filters, search and cards treat both alike. */
-function fromServerTemplate(template) {
-  const categories = templateCategoryNames(template);
-  const eventType = categories[0] || "";
-  return {
-    id: `template-${template.uuid}`,
-    remoteId: template.uuid,
-    title: template.name || template.proposedName || "Untitled",
-    description: template.description || "",
-    type: eventType,
-    categories,
-    eventType,
-    styles: template.styles || [],
-    tags: [...categories, ...(template.hasTimer ? ["Timer"] : []), ...(template.styles || [])].filter(Boolean),
-    orientation: template.orientation === "PORTRAIT" ? "Portrait" : "Landscape",
-    pageCount: Math.max(1, Number(template.pageCount) || 1),
-    hasTimer: Boolean(template.hasTimer),
-    image: template.thumbnail ? getStorageUrl(template.thumbnail) : null,
-  };
-}
+import { fromServerTemplate } from "../Templates/serverTemplate.js";
+import { newestPerDesign } from "../Dashboard/templateVersions.js";
 
 export default function TemplatePage() {
   const navigate = useNavigate();
@@ -78,7 +56,8 @@ export default function TemplatePage() {
     const approved = [...(adminPage?.data?.contents || []), ...(ownPage?.data?.contents || [])]
       .filter((template) => template?.uuid && !seen.has(template.uuid) && seen.add(template.uuid))
       .filter((template) => template.status !== "ARCHIVED" && (!template.templateStatus || template.templateStatus === "APPROVED"));
-    return [...approved.map(fromServerTemplate), ...templates];
+    // A design approved twice shows once: its newest version (see templateVersions).
+    return [...newestPerDesign(approved).map(fromServerTemplate), ...templates];
   }, [ownPage, adminPage]);
   const availableCategories = useMemo(() => [
     "All",

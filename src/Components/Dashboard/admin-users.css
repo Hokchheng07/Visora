@@ -28,7 +28,7 @@
   display: flex;
   gap: 12px;
 }
-.um-toolbar-controls .ad-control select,
+.um-toolbar-controls .visora-select-button,
 .um-toolbar-controls .ad-button {
   min-height: 30px;
   font-size: 12px;
@@ -117,7 +117,7 @@
   .um-toolbar-controls {
     width: 100%;
   }
-  .um-toolbar-controls .ad-control {
+  .um-toolbar-controls .visora-select {
     flex: 1;
   }
   .ad-pagination p {
