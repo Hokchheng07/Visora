@@ -15,6 +15,7 @@ export default function ProfileTemplates({
   loading=false,
   onUpdate,
   onRename,
+  onEditDetails,
   onDuplicate,
   onDelete,
   isFavorite=()=>false,
@@ -134,6 +135,7 @@ export default function ProfileTemplates({
               design={template}
               onUpdate={onUpdate}
               onRename={onRename}
+              onEditDetails={onEditDetails}
               onDuplicate={onDuplicate}
               onDelete={onDelete}
               favorite={isFavorite(template.remoteId)}

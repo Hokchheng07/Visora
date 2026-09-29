@@ -1,0 +1,118 @@
+/* Visora's replacement for browser/OS select menus. */
+.visora-select {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  vertical-align: middle;
+}
+.visora-select-button {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border-default, rgb(0 0 0 / .12));
+  border-radius: 10px;
+  outline: none;
+  background: var(--surface-card, #fff);
+  color: var(--text-heading, #211d29);
+  font: 600 13px/1.2 Poppins, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(24 18 44 / .04);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+.visora-select-button:hover { border-color: color-mix(in srgb, var(--color-primary, #705ae0) 42%, var(--border-default, transparent)); }
+.visora-select-button:focus-visible,
+.visora-select-button[data-open] {
+  border-color: var(--color-primary, #705ae0);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #705ae0) 16%, transparent);
+}
+.visora-select-button:disabled { opacity: .48; cursor: not-allowed; }
+.visora-select-leading { display: inline-flex; flex: none; color: var(--text-muted, #666); }
+.visora-select-prefix { flex: none; color: var(--text-muted, #666); font-weight: 500; }
+.visora-select-value { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.visora-select-value.is-placeholder { color: var(--text-muted, #666); font-weight: 500; }
+.visora-select-caret { flex: none; color: var(--text-muted, #666); transition: transform 160ms cubic-bezier(.2,.8,.2,1); }
+.visora-select-button[data-open] .visora-select-caret { transform: rotate(180deg); }
+
+.visora-select-options {
+  z-index: 100;
+  width: max-content;
+  min-width: max(var(--button-width), 172px);
+  max-width: min(320px, calc(100vw - 20px));
+  max-height: min(288px, calc(100vh - 24px));
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--border-default, rgb(0 0 0 / .12));
+  border-radius: 12px;
+  outline: none;
+  background: var(--surface-overlay, #fff);
+  color: var(--text-heading, #211d29);
+  box-shadow: 0 12px 32px rgb(27 20 52 / .18), 0 2px 8px rgb(27 20 52 / .08);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-primary, #705ae0) 36%, transparent) transparent;
+  transform-origin: var(--anchor-origin);
+  transition: opacity 120ms ease, transform 160ms cubic-bezier(.2,.8,.2,1);
+}
+.visora-select-options[data-closed] { opacity: 0; transform: scale(.98) translateY(-3px); }
+.visora-select-option {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: inherit;
+  font: 500 13px/1.35 Poppins, sans-serif;
+  cursor: pointer;
+  user-select: none;
+}
+.visora-select-option > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.visora-select-option > svg { flex: none; color: var(--color-primary, #705ae0); }
+.visora-select-option[data-focus] { background: color-mix(in srgb, var(--color-primary, #705ae0) 11%, transparent); color: var(--color-primary, #705ae0); }
+.visora-select-option[data-selected] { font-weight: 650; }
+.visora-select-option[data-disabled] { opacity: .38; cursor: not-allowed; }
+
+.visora-select--field { display: flex; width: 100%; }
+.visora-select--field .visora-select-button { min-height: 48px; padding-inline: 14px; font-size: 15px; }
+.visora-select--compact .visora-select-button { min-height: 34px; border-radius: 8px; font-size: 12px; }
+
+.visora-select--admin .visora-select-button {
+  min-height: 38px;
+  border-color: var(--dash-border, #ded9ed);
+  border-radius: 6px;
+  background: var(--dash-surface, #fff);
+  color: var(--dash-ink, #241d35);
+  font-weight: 500;
+}
+.visora-select--admin .visora-select-leading,
+.visora-select--admin .visora-select-prefix,
+.visora-select--admin .visora-select-caret { color: var(--dash-muted, #716a7e); }
+.visora-select-options--admin {
+  border-color: #ded9ed;
+  background: #fff;
+  color: #241d35;
+  --color-primary: var(--dash-primary, #705ae0);
+}
+.dark .visora-select-options--admin {
+  border-color: rgb(255 255 255 / .12);
+  background: #1a1a28;
+  color: #fff;
+  --color-primary: #a78dff;
+}
+.dark .visora-select-options--site {
+  --surface-overlay: #1a1a28;
+  --text-heading: #fff;
+  --text-muted: #bcbccd;
+  --border-default: rgb(255 255 255 / .14);
+  --color-primary: #72bff1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visora-select-caret,
+  .visora-select-options { transition-duration: 1ms; }
+}

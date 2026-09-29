@@ -19,3 +19,9 @@ test("every guess is a choice the picker offers", () => {
     assert.ok(keys.has(guessCategoryIcon(name)), name);
   }
 });
+
+test("Khmer names get the Angkor Wat icon", () => {
+  assert.equal(guessCategoryIcon("Khmer-Event-Backdrop"), "angkor-wat");
+  assert.equal(guessCategoryIcon("Khmer New Year"), "angkor-wat");
+  assert.equal(guessCategoryIcon("Water Festival"), "tent");
+});

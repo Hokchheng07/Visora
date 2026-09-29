@@ -4,6 +4,7 @@ import {
   Copy,
   Edit3,
   Eye,
+  FileText,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -13,11 +14,13 @@ import VisoraCard from "../../Cards/VisoraCard.jsx";
 
 import { DesignArt } from "./DesignArt";
 import { TemplateActionModal } from "./TemplateActionModal";
+import EditDetailsModal from "../MyDesigns/EditDetailsModal";
 
 export function TemplateCard({
   design,
   onUpdate,
   onRename,
+  onEditDetails,
   onDuplicate,
   onDelete,
   favorite=false,
@@ -43,8 +46,9 @@ export function TemplateCard({
           :{icon:Eye,label:`Posted ${formatRelativeTime(design.publishedAt)}`}]}
         favorite={{active:favorite,onToggle:()=>onFavorite?.(design)}}
         menu={[
-          {label:"Edit",icon:Pencil,onSelect:()=>onUpdate(design)},
+          {label:"Edit design",icon:Pencil,onSelect:()=>onUpdate(design)},
           {label:"Rename",icon:Edit3,onSelect:()=>openModal("rename")},
+          {label:"Edit details",icon:FileText,onSelect:()=>openModal("details")},
           {label:"Duplicate",icon:Copy,onSelect:()=>openModal("duplicate")},
           {label:"Move to Trash",icon:Trash2,onSelect:()=>onDelete(design.id),danger:true},
         ]}
@@ -52,7 +56,15 @@ export function TemplateCard({
         openLabel={`Edit ${design.title}`}
       />
 
-      {activeModal&&(
+      {activeModal==="details"&&(
+        <EditDetailsModal
+          design={design}
+          onSave={onEditDetails}
+          onClose={()=>setActiveModal(null)}
+        />
+      )}
+
+      {activeModal&&activeModal!=="details"&&(
         <TemplateActionModal
           mode={activeModal}
           design={design}

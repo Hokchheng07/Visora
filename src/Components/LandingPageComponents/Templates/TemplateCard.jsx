@@ -32,8 +32,9 @@ const contentReveal = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
 };
 
-// There is no template detail route yet, so every card opens the editor.
-const CARD_LINK = "/editor";
+// There is no template detail route yet, so a card opens the editor: a real
+// template as a copy to edit, a sample as a blank design.
+const cardLink = (template) => (template.remoteId ? `/editor?template=${template.remoteId}` : "/editor");
 
 // The Figma icons are single-colour, so they are drawn as masks filled with
 // currentColor. That lets them follow the text colour in both themes.
@@ -102,7 +103,7 @@ export default function TemplateCard({
           {/* The ::after covers the whole card, making it one click target
               without nesting the favorite button inside a link. */}
           <NavLink
-            to={CARD_LINK}
+            to={cardLink(template)}
             className="outline-none after:absolute after:inset-0 after:z-10 after:content-['']"
           >
             {title}

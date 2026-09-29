@@ -110,7 +110,8 @@ describe("shared header profile", () => {
     fireEvent.click(screen.getByRole("button", { name: "Switch to light mode" }));
     expect(frames.every((frame) => frame.src.includes("pf-frame-light.png"))).toBe(true);
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
-    expect(mocks.dispatch).not.toHaveBeenCalled();
+    // The dashboard's Sign out really signs out: tokens dropped, cache cleared.
+    expect(mocks.dispatch.mock.calls).toEqual([[{ type: "test/logout" }], [{ type: "test/reset-cache" }]]);
     expect(screen.getByTestId("location").textContent).toBe("/");
   });
 

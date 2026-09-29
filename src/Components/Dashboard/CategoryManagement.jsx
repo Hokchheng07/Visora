@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  ChevronDown,
   Funnel,
   Pencil,
   Plus,
@@ -23,6 +22,7 @@ import {
 
 import "./admin-categories.css";
 import VisoraLoader from "../ui/VisoraLoader";
+import VisoraSelect from "../ui/VisoraSelect";
 
 const perPage = 8;
 
@@ -282,24 +282,20 @@ export default function CategoryManagement() {
         </label>
 
         <div className="cm-toolbar-end">
-          <label className="ad-control ad-sort">
-            <span className="ad-sort-label">Sort by</span>
-
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value)}
-            >
-              <option value="newest">Newest</option>
-
-              <option value="oldest">Oldest</option>
-
-              <option value="name">Name A–Z</option>
-
-              <option value="templates">Most templates</option>
-            </select>
-
-            <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
-          </label>
+          <VisoraSelect
+            label="Sort categories"
+            value={sort}
+            onChange={setSort}
+            options={[
+              { value: "newest", label: "Newest" },
+              { value: "oldest", label: "Oldest" },
+              { value: "name", label: "Name A–Z" },
+              { value: "templates", label: "Most templates" },
+            ]}
+            prefix="Sort by"
+            tone="admin"
+            className="ad-sort"
+          />
 
           <button
             type="button"

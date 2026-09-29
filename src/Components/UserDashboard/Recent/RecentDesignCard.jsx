@@ -25,7 +25,7 @@ export default function RecentDesignCard({
   const [menuOpen,setMenuOpen]=useState(false);
   const [activeModal,setActiveModal]=useState(null);
 
-  // "Edit" opens the design in the editor; rename, duplicate and delete use the modal.
+  // "Edit design" opens the design in the editor; rename, duplicate and delete use the modal.
   const openModal=(mode)=>{
     setMenuOpen(false);
     if(mode==="edit"){onOpen(design);return;}
@@ -159,7 +159,7 @@ function CardMenu({
         <div className="absolute right-0 top-9 z-[100] w-[180px] rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-card)] p-1.5 shadow-[0_18px_50px_rgba(0,0,0,.18)]">
           <MenuButton
             icon={<Edit3 className="h-4 w-4"/>}
-            label="Edit"
+            label="Edit design"
             onClick={()=>openModal("edit")}
           />
 

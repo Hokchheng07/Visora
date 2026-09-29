@@ -17,7 +17,7 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../../lib/animations/animations";
-import useFetchHomepage from "../../../hooks/useFetchHomepage";
+import useHomeTemplates from "../../../hooks/useHomeTemplates";
 import CosmicDust from "../../Effects/CosmicDust.jsx";
 import VisoraLoader from "../../ui/VisoraLoader.jsx";
 
@@ -43,11 +43,8 @@ const cornerReveal = {
 };
 
 export default function KhmerDesignShowcase() {
-  const {
-    data: templates,
-    loading,
-    error,
-  } = useFetchHomepage("templates");
+  // Approved templates in a Khmer category. There may be few or none yet.
+  const { data: templates, loading, error } = useHomeTemplates({ khmer: true });
   return (
     <motion.section
       className="khmer-showcase"
@@ -126,12 +123,11 @@ export default function KhmerDesignShowcase() {
               />
             )}
 
-            {!loading && error && (
-              <p
-                role="alert"
-                className="col-span-full rounded-2xl bg-red-50 px-5 py-4 text-center text-red-700"
-              >
-                Could not load Khmer designs. Please refresh the page.
+            {/* A visitor who is signed out may be refused the list (401) for now,
+                so a failed load reads the same as an empty one. */}
+            {!loading && (error || templates.length === 0) && (
+              <p className="col-span-full py-8 text-center text-base text-[var(--text-muted)]">
+                Khmer templates are coming soon.
               </p>
             )}
 

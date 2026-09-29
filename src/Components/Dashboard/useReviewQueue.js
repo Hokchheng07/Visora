@@ -1,9 +1,10 @@
 import { useMemo } from "react";
-import { useApproveTemplateMutation, useGetAllTemplatesQuery, useGetTemplatesQuery, useRejectTemplateMutation } from "../API/templateApi";
+import { useApproveTemplateMutation, useDeleteTemplateMutation, useGetAllTemplatesQuery, useGetTemplatesQuery, useRejectTemplateMutation } from "../API/templateApi";
 import { getStorageUrl } from "../API/storageApi";
 import { useUserDirectory } from "./useUserDirectory";
 import { listRequestFailed } from "../API/apiError.js";
 import { templateCategoryNames, templateCategoryUuids } from "../Templates/templateCategories.js";
+import { replacedBy } from "./templateVersions.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -20,6 +21,8 @@ export function fromServerTemplate(template, findPerson) {
     id: `template-${template.uuid}`,
     remoteId: template.uuid,
     ownerUuid: template.ownerUuid || template.submittedBy || "",
+    // The design it was published from; a re-published design has one template per submission.
+    sourceBackdropUuid: template.sourceBackdropUuid || "",
     name: template.proposedName || template.name || "Untitled",
     // List answers are summaries with no description; the full template
     // (GET /templates/{uuid}) fills it in when one is opened. Never a placeholder:
@@ -91,13 +94,21 @@ export function useReviewQueue() {
   const { rows, error, isLoading } = useServerTemplates();
   const [approveTemplate] = useApproveTemplateMutation();
   const [rejectTemplate] = useRejectTemplateMutation();
+  const [archiveTemplate] = useDeleteTemplateMutation();
 
   const submissions = useMemo(() => rows.filter((template) => template.status === "pending"), [rows]);
+
+  /* An approved new version of a design replaces the one already live:
+     DELETE /templates/{uuid} archives the older published templates. */
+  const retireOlderVersions = (template) => Promise.all(replacedBy(rows, rows.find((row) => row.remoteId === template.remoteId) || template)
+    .map((old) => archiveTemplate({ templateUuid: old.remoteId }).unwrap()))
+    .catch(() => window.alert(`"${template.name}" was approved, but its older version is still live. Delete it from Templates.`));
 
   const decide = (template, status) => {
     if (!template.remoteId) return;
     const request = status === "published" ? approveTemplate : rejectTemplate;
     request({ templateUuid: template.remoteId }).unwrap()
+      .then(() => status === "published" && retireOlderVersions(template))
       .catch(() => window.alert(`Couldn't ${status === "published" ? "approve" : "reject"} "${template.name}". Please try again.`));
   };
 

@@ -18,7 +18,9 @@ import {documentLoaded} from "../../redux/editorSlice.js";
 import {readDocumentFile} from "../../Editor/model/editorDocument.js";
 import {useMyDesigns} from "../useMyDesigns";
 import MyDesignCard from "./MyDesignsCard";
+import EditDetailsModal from "./EditDetailsModal";
 import VisoraLoader from "../../ui/VisoraLoader";
+import VisoraSelect from "../../ui/VisoraSelect";
 
 const PAGE_SIZE=6;
 
@@ -43,7 +45,7 @@ export default function MyDesigns(){
 
   const dispatch=useAppDispatch();
   const {isFavorite,toggleFavorite}=useFavorites();
-  const {designs:myDesigns,isSignedIn,isLoading,failed,refetch,moveToTrash,rename,duplicate}=useMyDesigns();
+  const {designs:myDesigns,isSignedIn,isLoading,failed,refetch,moveToTrash,rename,editDetails,duplicate}=useMyDesigns();
   const designs=useMemo(()=>myDesigns.map((design)=>({
     ...design,
     tags:design.tags.map((tag)=>tag.label),
@@ -57,6 +59,7 @@ export default function MyDesigns(){
   const [page,setPage]=useState(1);
   const [renameTarget,setRenameTarget]=useState(null);
   const [renameValue,setRenameValue]=useState("");
+  const [detailsTarget,setDetailsTarget]=useState(null);
 
   const counts=useMemo(()=>Object.fromEntries(
     FILTERS.map(({id})=>[id,designs.filter((design)=>inFilter(design,id)).length])
@@ -289,18 +292,20 @@ export default function MyDesigns(){
                   Sort:
                 </span>
 
-                <select
+                <VisoraSelect
+                  label="Sort my designs"
                   value={sort}
-                  onChange={(event)=>{
-                    setSort(event.target.value);
+                  onChange={(value)=>{
+                    setSort(value);
                     setPage(1);
                   }}
-                  className="h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] px-3 text-sm font-medium text-[var(--text-heading)] outline-none"
-                >
-                  <option value="recent">Last edited</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="name">Name</option>
-                </select>
+                  options={[
+                    {value:"recent",label:"Last edited"},
+                    {value:"oldest",label:"Oldest"},
+                    {value:"name",label:"Name"},
+                  ]}
+                  className="min-w-[128px]"
+                />
               </div>
 
               <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-1">
@@ -416,6 +421,7 @@ export default function MyDesigns(){
                 savedFavorite={isFavorite(design.remoteId)}
                 onFavorite={(item)=>toggleFavorite("BACKDROP",item.remoteId)}
                 onRename={openRename}
+                onEditDetails={setDetailsTarget}
                 onDuplicate={duplicateDesign}
                 onDelete={deleteDesign}
               />
@@ -498,6 +504,13 @@ export default function MyDesigns(){
             </div>
           </div>
         </div>
+      )}
+      {detailsTarget&&(
+        <EditDetailsModal
+          design={detailsTarget}
+          onSave={editDetails}
+          onClose={()=>setDetailsTarget(null)}
+        />
       )}
       <CanvasPickerModal open={canvasPicker.open} onClose={canvasPicker.close} onCreate={canvasPicker.create}/>
     </main>

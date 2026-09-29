@@ -14,15 +14,17 @@ import {
 import topWave from "../../../assets/pages/home/popular-templates/PopularTemplateTopWave.svg";
 import lowerWave from "../../../assets/pages/home/popular-templates/PopularTemplateLowerWave.svg";
 import useFetchHomepage from '../../../hooks/useFetchHomepage';
+import useHomeTemplates from '../../../hooks/useHomeTemplates';
 import CosmicDust from "../../Effects/CosmicDust.jsx";
 import VisoraLoader from "../../ui/VisoraLoader.jsx";
 
 export default function PopularTemplates() {
-  const {
-    data: templates,
-    loading,
-    error,
-  } = useFetchHomepage("templates");
+  /* Approved templates from the server. Until GET /templates answers visitors
+     who are signed out, or while there are none, the sample cards stand in. */
+  const live = useHomeTemplates();
+  const samples = useFetchHomepage("templates");
+  const useSamples = !live.loading && (live.error || live.data.length === 0);
+  const { data: templates, loading, error } = useSamples ? samples : live;
   return (
     <section className="popular-templates relative overflow-hidden px-5 pb-24 pt-28 sm:px-8 lg:pb-32 lg:pt-36">
       <CosmicDust particleCount={140} />

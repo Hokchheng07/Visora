@@ -5,6 +5,7 @@ import { Check, ChevronDown, Clock, Eye, Funnel, Pencil, Search, Trash2, X } fro
 import { AdminNotice, Modal, Pagination, RowMenu, UserAvatar, formatDate } from "./AdminUi";
 import { useDashboardData } from "./dashboardData";
 import { useServerTemplates } from "./useReviewQueue";
+import { replacedBy } from "./templateVersions.js";
 import { templateApi, useApproveTemplateMutation, useDeleteTemplateMutation, useRejectTemplateMutation, useUpdateTemplateMutation } from "../API/templateApi";
 import { fromServerTemplate } from "./useReviewQueue";
 import { useUserDirectory } from "./useUserDirectory";
@@ -23,6 +24,7 @@ import creativeWorkshop from "../../assets/pages/admin/templates/template-table/
 import databaseFundamentals from "../../assets/pages/admin/templates/template-table/database-fundamentals.png";
 import codingCompetition from "../../assets/pages/admin/templates/template-table/coding-competition.png";
 import "./admin-templates.css";
+import VisoraSelect from "../ui/VisoraSelect";
 import VisoraLoader from "../ui/VisoraLoader";
 
 // Seed templates have no preview images yet; these Figma exports stand in,
@@ -51,16 +53,8 @@ const statusInfo = {
 };
 const perPage = 7;
 
-function SelectControl({ label, value, onChange, children, className = "" }) {
-  return (
-    <label className={`ad-control ${className}`}>
-      <span className="sr-only">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        {children}
-      </select>
-      <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
-    </label>
-  );
+function SelectControl({ label, value, onChange, options, className = "", size = "default" }) {
+  return <VisoraSelect label={label} value={value} onChange={onChange} options={options} tone="admin" size={size} className={className} />;
 }
 
 /* One category (the server stores one). `value` stays a list of at most one
@@ -219,17 +213,21 @@ function TemplateForm({ initial, onSave, onClose, categories, serverCategories =
                     <CategoryPicker options={categories} value={form.categories} onChange={chooseSampleCategories} />
                   )}
                 </div>
-                <label className="tm-edit-field">
+                <div className="tm-edit-field">
                   <span>Status</span>
-                  <span className="tm-edit-select">
-                    <select value={form.status} onChange={(event) => set("status", event.target.value)}>
-                      {waiting && <option value="pending" disabled>Waiting for review</option>}
-                      <option value="published">Published</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                    <ChevronDown size={17} aria-hidden="true" />
-                  </span>
-                </label>
+                  <SelectControl
+                    label="Status"
+                    value={form.status}
+                    onChange={(value) => set("status", value)}
+                    options={[
+                      ...(waiting ? [{ value: "pending", label: "Waiting for review", disabled: true }] : []),
+                      { value: "published", label: "Published" },
+                      { value: "rejected", label: "Rejected" },
+                    ]}
+                    size="field"
+                    className="tm-edit-select"
+                  />
+                </div>
               </div>
               {!isServer && (
                 <details className="tm-edit-sample-details">
@@ -238,7 +236,12 @@ function TemplateForm({ initial, onSave, onClose, categories, serverCategories =
                     <label className="tm-edit-field"><span>Creator name</span><input required value={form.creator} onChange={(event) => set("creator", event.target.value)} /></label>
                     <label className="tm-edit-field"><span>Creator email</span><input required type="email" value={form.email} onChange={(event) => set("email", event.target.value)} /></label>
                     <label className="tm-edit-field"><span>Created date</span><input required type="date" value={form.createdAt} onChange={(event) => set("createdAt", event.target.value)} /></label>
-                    <label className="tm-edit-field"><span>Visibility</span><span className="tm-edit-select"><select value={form.visibility} onChange={(event) => set("visibility", event.target.value)}><option value="public">Public</option><option value="private">Private</option></select><ChevronDown size={17} aria-hidden="true" /></span></label>
+                    <div className="tm-edit-field">
+                      <span>Visibility</span>
+                      <SelectControl label="Visibility" value={form.visibility} onChange={(value) => set("visibility", value)}
+                        options={[{ value: "public", label: "Public" }, { value: "private", label: "Private" }]}
+                        size="field" className="tm-edit-select" />
+                    </div>
                   </div>
                 </details>
               )}
@@ -300,20 +303,18 @@ function TemplateForm({ initial, onSave, onClose, categories, serverCategories =
         </div>
         <label>
           Status
-          <SelectControl label="Status" value={form.status} onChange={(value) => set("status", value)}>
-            {waiting && <option value="pending" disabled>Waiting for review</option>}
-            <option value="published">Published</option>
-            <option value="rejected">Rejected</option>
-          </SelectControl>
+          <SelectControl label="Status" value={form.status} onChange={(value) => set("status", value)} options={[
+            ...(waiting ? [{ value: "pending", label: "Waiting for review", disabled: true }] : []),
+            { value: "published", label: "Published" },
+            { value: "rejected", label: "Rejected" },
+          ]} />
         </label>
         {/* Every template on the server is a public submission; privacy belongs to backdrops. */}
         {!isServer && (
           <label>
             Visibility
-            <SelectControl label="Visibility" value={form.visibility} onChange={(value) => set("visibility", value)}>
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </SelectControl>
+            <SelectControl label="Visibility" value={form.visibility} onChange={(value) => set("visibility", value)}
+              options={[{ value: "public", label: "Public" }, { value: "private", label: "Private" }]} />
           </label>
         )}
         <div className="ad-modal-actions">
@@ -399,6 +400,12 @@ export default function TemplateManagement() {
     if (!requests.length) return;
     try {
       await Promise.all(requests);
+      // An approved new version of a design replaces the one already live (see templateVersions).
+      if (item.status === "published" && original.status !== "published") {
+        const row = serverTemplates.find((template) => template.remoteId === item.remoteId) || original;
+        await Promise.all(replacedBy(serverTemplates, row)
+          .map((old) => removeTemplate({ templateUuid: old.remoteId }).unwrap()));
+      }
       setSuccessNotice({
         title: categoryChanged ? "Template categories updated" : "Template updated",
         message: categoryChanged
@@ -480,36 +487,32 @@ export default function TemplateManagement() {
           <input value={query} onChange={(event) => withReset(setQuery)(event.target.value)} placeholder="Search by template, creator, or category..." />
         </label>
         <div className="tm-selects">
-          <SelectControl label="Status" value={status} onChange={withReset(setStatus)}>
-            <option value="all">All Status</option>
-            <option value="published">Published</option>
-            <option value="pending">Pending</option>
-            <option value="rejected">Rejected</option>
-          </SelectControl>
-          <SelectControl label="Category" value={category} onChange={withReset(setCategory)}>
-            <option value="all">All Categories</option>
-            {filterCategories.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </SelectControl>
-          <SelectControl label="Creator" value={creator} onChange={withReset(setCreator)}>
-            <option value="all">All Creators</option>
-            {creators.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </SelectControl>
+          <SelectControl label="Status" value={status} onChange={withReset(setStatus)} options={[
+            { value: "all", label: "All Status" },
+            { value: "published", label: "Published" },
+            { value: "pending", label: "Pending" },
+            { value: "rejected", label: "Rejected" },
+          ]} />
+          <SelectControl label="Category" value={category} onChange={withReset(setCategory)}
+            options={[{ value: "all", label: "All Categories" }, ...filterCategories.map((value) => ({ value, label: value }))]} />
+          <SelectControl label="Creator" value={creator} onChange={withReset(setCreator)}
+            options={[{ value: "all", label: "All Creators" }, ...creators.map((value) => ({ value, label: value }))]} />
         </div>
         <div className="tm-sort">
-          <label className="ad-control ad-sort">
-            <span className="ad-sort-label">Sort by</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="name-asc">Name A–Z</option>
-              <option value="name-desc">Name Z–A</option>
-            </select>
-            <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
-          </label>
+          <VisoraSelect
+            label="Sort templates"
+            value={sort}
+            onChange={setSort}
+            options={[
+              { value: "newest", label: "Newest" },
+              { value: "oldest", label: "Oldest" },
+              { value: "name-asc", label: "Name A–Z" },
+              { value: "name-desc", label: "Name Z–A" },
+            ]}
+            prefix="Sort by"
+            tone="admin"
+            className="ad-sort"
+          />
           <button type="button" className="ad-button icon-only" disabled title="More filters coming soon" aria-label="More filters, coming soon">
             <Funnel size={16} fill="currentColor" aria-hidden="true" />
           </button>
