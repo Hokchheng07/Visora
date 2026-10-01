@@ -5,12 +5,14 @@ import CreateWithoutLimits from "../LandingPageComponents/Features/CreateWithout
 import HowItWorks from "../LandingPageComponents/Features/HowItWorks";
 import KhmerDesignShowcase from "../LandingPageComponents/Features/KhmerDesignShowcase";
 import ExploreByEvents from "../LandingPageComponents/Features/ExploreByEvents";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 // Home page composition: each section of the landing page gets its own
 // folder under Components (Hero, and later Features/Templates/etc.),
 // same pattern as Nav and Footer. Home just stacks them in order —
 // Navbar and Footer stay in App.jsx as the persistent page chrome.
 const Home = () => {
+  usePageMeta();
   return (
     <>
       <Hero />

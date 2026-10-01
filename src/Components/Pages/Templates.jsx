@@ -21,8 +21,10 @@ import { useCurrentUser } from "../Account/useCurrentUser";
 import { useGetAllTemplatesQuery, useGetTemplatesQuery } from "../API/templateApi";
 import { fromServerTemplate } from "../Templates/serverTemplate.js";
 import { newestPerDesign } from "../Dashboard/templateVersions.js";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 export default function TemplatePage() {
+  usePageMeta({ title: "Templates", description: "Browse free templates for event backdrops, posters and presentations, then make them yours in the Visora editor." });
   const navigate = useNavigate();
   const canvasPicker = useCanvasPicker();
   const reduceMotion = useReducedMotion();

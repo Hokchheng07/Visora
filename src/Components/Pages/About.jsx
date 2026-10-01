@@ -13,8 +13,10 @@ import OurMentors from "../AboutPageComponents/OurMentors";
 import MeetOurMembers from "../AboutPageComponents/MeetOurMembers";
 import AboutCTA from "../AboutPageComponents/AboutCTA";
 import CosmicDustField from "../Effects/CosmicDustField.jsx";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 export default function About() {
+  usePageMeta({ title: "About", description: "Meet the team behind Visora and the story of how it started." });
   return (
     <div className="about-page">
       {/* Drifting dust: the page's background texture, swirling towards the

@@ -22,8 +22,10 @@ import {
   Save,
   FileText
 } from "lucide-react";
+import { usePageMeta } from "../../../hooks/usePageMeta.js";
 
 export default function CvTemplate() {
+  usePageMeta({ title: "CV maker", description: "Build a clean, professional CV in minutes with Visora." });
   return (
     <div className="cv-editor flex h-screen w-full flex-col bg-slate-100 font-sans text-slate-800">
       {/* --- TOP NAVBAR --- */}

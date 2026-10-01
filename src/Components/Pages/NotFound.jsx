@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import ThemeToggle from "../../theme/ThemeToggle";
 import CosmicDust from "../Effects/CosmicDust.jsx";
 import "./not-found.css";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 // Decorative twinkling 4-point stars, crosses, and dots
 const SPARKLES = [
@@ -306,6 +307,7 @@ function BottomCornerWaves() {
 }
 
 export default function NotFound() {
+  usePageMeta({ title: "Page not found", noindex: true });
   const reduceMotion = useReducedMotion();
 
   return (

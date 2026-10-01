@@ -8,8 +8,10 @@ import "./dashboard-mobile.css";
 import UserDashboardHeader from "./UserDashboardHeader";
 import UserDashboardSidebar from "./UserDashboardSidebar";
 import { DEFAULT_PROFILE } from "./Profile/profileData";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 export default function UserDashboardLayout(){
+  usePageMeta({ title: "My dashboard", noindex: true });
   const [sidebarOpen,setSidebarOpen]=useState(false);
   // The signed-in account (GET /users/me); DEFAULT_PROFILE is only the
   // stand-in shown while nobody is logged in.

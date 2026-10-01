@@ -3,6 +3,7 @@ import { useLocation, useOutlet } from "react-router";
 import { EASE } from "../../../lib/animations/animations";
 import { useMediaQuery } from "../../Editor/hooks/useMediaQuery";
 import { AuthArtContent, AuthArtLogo } from "./AuthArt";
+import { usePageMeta } from "../../../hooks/usePageMeta.js";
 
 /* Login keeps the picture on the left; Sign Up puts it on the right. Moving
    between them slides the two halves past each other so they read as two
@@ -16,6 +17,7 @@ const SPLIT_PAGES = {
 const SWAP = { duration: 0.55, ease: [0.77, 0, 0.175, 1] };
 
 export default function AuthLayout() {
+  usePageMeta({ title: "Sign in", noindex: true });
   const location = useLocation();
   // useOutlet, not <Outlet />: an exiting page keeps rendering its own route
   // instead of the one being navigated to.
