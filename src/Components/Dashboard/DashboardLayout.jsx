@@ -6,6 +6,7 @@ import ThemeToggle from "../../theme/ThemeToggle";
 import UserMenu from "../Account/UserMenu";
 import CosmicDust from "../Effects/CosmicDust.jsx";
 import "./dashboard.css";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 const navigation = [
   ["Dashboard", "/dashboard", House],
@@ -17,6 +18,7 @@ const navigation = [
 ];
 
 export default function DashboardLayout() {
+  usePageMeta({ title: "Admin dashboard", noindex: true });
   const [isMenuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
   const pageInfo = {

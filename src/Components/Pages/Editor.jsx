@@ -22,8 +22,10 @@ import { readInspectorWidth } from "../Editor/shell/inspectorWidth.js";
 import { normalizePageSize, pageCssVars } from "../Editor/model/pageSize.js";
 import { useOpenRemoteDesign } from "../Editor/shell/useOpenRemoteDesign.js";
 import "../Editor/editor.css";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 export default function Editor() {
+  usePageMeta({ title: "Editor", noindex: true });
   const dispatch = useAppDispatch();
   // /editor?backdrop=… and /editor?template=… open a design from the server.
   const remote = useOpenRemoteDesign();
